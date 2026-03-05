@@ -66,14 +66,14 @@ class PollingService {
         const result = await response.json();
         console.log(`Task ${taskId} status:`, result);
 
-        // Check if task is complete
-        // Backend may return status at top level OR nested in progress object
-        // Also check for citations/clusters presence as completion indicator
+        // Check if task is complete - ONLY trust backend explicit completion status.
+        // Do NOT stop polling just because citations/clusters exist: backend may return
+        // partial data while still processing; stopping early shows incomplete results.
         const status = result.status || result.progress?.status;
         const hasResults = (result.citations && result.citations.length > 0) ||
                           (result.clusters && result.clusters.length > 0);
-        const isCompleted = status === 'completed' || 
-                           hasResults ||
+        const isCompleted = status === 'completed' ||
+                           result.is_finished === true ||
                            (result.progress?.status === 'completed');
         
         if (isCompleted) {

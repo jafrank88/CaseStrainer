@@ -511,7 +511,7 @@ class DockerOptimizedProcessor:
 
             if len(deduplicated) < original_count:
                 logging.info(
-                    f"[DockerOptimizedProcessor] Deduplication for {file_path}: {original_count} → {len(deduplicated)} citations "
+                    f"[DockerOptimizedProcessor] Deduplication for {file_path}: {original_count} -> {len(deduplicated)} citations "
                     f"({original_count - len(deduplicated)} duplicates removed)"
                 )
 

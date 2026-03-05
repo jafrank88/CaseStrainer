@@ -8,7 +8,6 @@
     "python.analysis.typeCheckingMode": "basic",
     "python.analysis.autoSearchPaths": true,
     "python.analysis.diagnosticMode": "workspace",
-    "python.analysis.stubPath": "./typings",
     "python.analysis.include": [
       "src"
     ],
@@ -297,6 +296,5 @@
     "cursorpyright.analysis.include": [
       "src"
     ],
-    "cursorpyright.analysis.stubPath": "./typings",
     "cursorpyright.analysis.typeCheckingMode": "basic"
 } 

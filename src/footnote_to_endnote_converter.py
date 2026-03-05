@@ -52,12 +52,12 @@ class FootnoteToEndnoteConverter:
         return {
             # Numbered footnotes: "1. Citation text" or "1 Citation text"
             "numbered": re.compile(r"^(\d+)[\.\s]\s*(.+)$", re.MULTILINE),
-            # Superscript numbers: "¹ Citation text"
-            "superscript": re.compile(r"^([¹²³⁴⁵⁶⁷⁸⁹⁰]+)\s*(.+)$", re.MULTILINE),
+            # Superscript numbers: superscript digit + Citation text
+            "superscript": re.compile(r"^([\u00b9\u00b2\u00b3\u2074\u2075\u2076\u2077\u2078\u2079\u2070]+)\s*(.+)$", re.MULTILINE),
             # Lettered footnotes: "a. Citation text" or "a Citation text"
             "lettered": re.compile(r"^([a-z])[\.\s]\s*(.+)$", re.MULTILINE),
-            # Symbol footnotes: "* Citation text" or "† Citation text"
-            "symbol": re.compile(r"^([*†‡§¶#]+)\s*(.+)$", re.MULTILINE),
+            # Symbol footnotes: * or dagger Citation text
+            "symbol": re.compile(r"^([*\u2020\u2021\u00a7\u00b6#]+)\s*(.+)$", re.MULTILINE),
             # Footnote section headers
             "section_header": re.compile(r"^[-=]{3,}$|^FOOTNOTES?$|^NOTES?$", re.IGNORECASE | re.MULTILINE),
         }
@@ -76,7 +76,7 @@ class FootnoteToEndnoteConverter:
         if not self.enable_conversion:
             return text, 0
 
-        logger.info("🔄 Converting footnotes to endnotes...")
+        logger.info("[CONVERT] Converting footnotes to endnotes...")
 
         # Try multiple detection strategies
         strategies = [
@@ -89,13 +89,13 @@ class FootnoteToEndnoteConverter:
             try:
                 converted_text, count = strategy(text, preserve_markers)
                 if count > 0:
-                    logger.info(f"✅ Converted {count} footnotes to endnotes using {strategy.__name__}")
+                    logger.info(f"[OK] Converted {count} footnotes to endnotes using {strategy.__name__}")
                     return converted_text, count
             except Exception as e:
                 logger.debug(f"Strategy {strategy.__name__} failed: {e}")
                 continue
 
-        logger.info("ℹ️  No footnotes detected, returning original text")
+        logger.info("[INFO] No footnotes detected, returning original text")
         return text, 0
 
     def _convert_section_based(self, text: str, preserve_markers: bool) -> Tuple[str, int]:
@@ -335,10 +335,10 @@ def convert_footnotes_to_endnotes(text: str, enable: bool = True) -> Tuple[str, 
 if __name__ == "__main__":
     # Test with sample text
     sample_text = """
-This is the main text of the document. It contains several citations.¹
+This is the main text of the document. It contains several citations.[1]
 
-The Supreme Court held that standing requires injury in fact.² This principle
-has been applied consistently.³
+The Supreme Court held that standing requires injury in fact.[2] This principle
+has been applied consistently.[3]
 
 FOOTNOTES
 1. See Smith v. Jones, 123 U.S. 456 (1990).

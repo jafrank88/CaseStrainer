@@ -48,37 +48,47 @@ def get_health_status() -> Dict[str, Any]:
         health["components"]["strict_isolator"] = {"status": "unhealthy", "error": str(e)}
         health["status"] = "degraded"
 
-    # Check production endpoint
+    # Check production endpoint (unified pipeline)
     try:
-        from src.citation_extraction_endpoint import extract_citations_production
+        from src.unified_processing_pipeline import process_citations_unified
 
         health["components"]["production_endpoint"] = {
             "status": "healthy",
             "version": "v1.0.0",
-            "method": "clean_pipeline_v1",
+            "method": "unified_pipeline",
         }
     except Exception as e:
         health["components"]["production_endpoint"] = {"status": "unhealthy", "error": str(e)}
         health["status"] = "degraded"
 
-    # Quick functional test
+    # Quick functional test via unified pipeline
     try:
+        import asyncio
+
         test_text = "See Erie Railroad Co. v. Tompkins, 304 U.S. 64 (1938)."
-        from src.citation_extraction_endpoint import extract_citations_production
+        from src.unified_processing_pipeline import process_citations_unified
 
-        result = extract_citations_production(test_text)
+        result = asyncio.run(
+            process_citations_unified(
+                test_text,
+                enable_verification=False,
+                enable_parallel_verification=False,
+            )
+        )
+        citations = result.get("citations", [])
+        ok = not result.get("error") and len(citations) >= 1
 
-        if result["status"] == "success" and result["total"] >= 1:
+        if ok:
             health["components"]["functional_test"] = {
                 "status": "healthy",
                 "test": "extraction",
-                "citations_found": result["total"],
+                "citations_found": len(citations),
             }
         else:
             health["components"]["functional_test"] = {
                 "status": "degraded",
                 "test": "extraction",
-                "message": "No citations extracted",
+                "message": "No citations extracted" if not result.get("error") else result.get("error", "Unknown"),
             }
             health["status"] = "degraded"
 
@@ -135,20 +145,29 @@ def create_health_endpoint(app):
 
     @app.route("/api/v2/health", methods=["GET"])
     def health_v2():
-        """Health check for v2 clean pipeline endpoint."""
+        """Health check for unified pipeline endpoint."""
         try:
-            from src.citation_extraction_endpoint import extract_citations_production
+            import asyncio
 
-            # Quick test
+            from src.unified_processing_pipeline import process_citations_unified
+
             test_text = "Erie Railroad Co. v. Tompkins, 304 U.S. 64 (1938)"
-            result = extract_citations_production(test_text)
+            result = asyncio.run(
+                process_citations_unified(
+                    test_text,
+                    enable_verification=False,
+                    enable_parallel_verification=False,
+                )
+            )
+            citations = result.get("citations", [])
+            ok = not result.get("error") and len(citations) >= 1
 
-            if result["status"] == "success" and result["total"] >= 1:
+            if ok:
                 return {
                     "status": "healthy",
                     "version": "v2.0.0",
                     "accuracy": "87-93%",
-                    "method": "clean_pipeline_v1",
+                    "method": "unified_pipeline",
                     "case_name_bleeding": "zero",
                     "test_passed": True,
                     "timestamp": datetime.utcnow().isoformat(),
@@ -158,7 +177,7 @@ def create_health_endpoint(app):
                     "status": "degraded",
                     "version": "v2.0.0",
                     "test_passed": False,
-                    "message": "Extraction test failed",
+                    "message": result.get("error", "Extraction test failed"),
                     "timestamp": datetime.utcnow().isoformat(),
                 }, 200
 

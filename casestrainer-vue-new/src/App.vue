@@ -99,12 +99,15 @@
               <li><router-link to="/" class="text-decoration-none">Home</router-link></li>
               <li><router-link to="/docs" class="text-decoration-none">Docs</router-link></li>
               <li><router-link to="/docs/api" class="text-decoration-none">API Documentation</router-link></li>
+              <li><router-link to="/browser-extension" class="text-decoration-none">Browser Extension</router-link></li>
+              <li><router-link to="/word-plugin" class="text-decoration-none">Word Plug-in</router-link></li>
             </ul>
           </div>
           <div class="col-6 col-md-3">
             <h5>Resources</h5>
             <ul class="list-unstyled">
-              <li><a href="https://github.com/jafrank88/casestrainer" class="text-decoration-none" target="_blank">GitHub Repository</a></li>
+              <li><a href="https://wolf.law.uw.edu/casestrainer/" class="text-decoration-none" target="_blank" rel="noopener">CaseStrainer (wolf.law.uw.edu)</a></li>
+              <li><a href="https://github.com/jafrank88/casestrainer" class="text-decoration-none" target="_blank" rel="noopener">GitHub Repository</a></li>
               <li><a href="mailto:jafrank@uw.edu?subject=CaseStrainer%20feedback" class="footer-link">Report an issue</a></li>
             </ul>
           </div>

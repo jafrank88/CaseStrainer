@@ -456,7 +456,7 @@ class UnifiedCaseNameExtractorV2:
                 logger.info(
                     f" [UNIFIED_EXTRACTOR] Final result: '{result.case_name}' (confidence: {result.confidence:.2f}, method: {result.method})"
                 )
-                logger.info(f"⏱ [UNIFIED_EXTRACTOR] Extraction completed in {result.extraction_time:.3f}s")
+                logger.info(f"[TIMING] [UNIFIED_EXTRACTOR] Extraction completed in {result.extraction_time:.3f}s")
 
             return result
 
@@ -588,7 +588,7 @@ class UnifiedCaseNameExtractorV2:
             if m_signal:
                 signal_anchor = tail_start + m_signal.start()
 
-            # Strong near-tail preference: immediate 'In re …' right before citation
+            # Strong near-tail preference: immediate 'In re ...' right before citation
             inre_tail = re.search(r"(In\s+re\s+[A-Z][A-Za-z0-9'\.\s&\-]+?)\s*(?=,|\(|$)", tail_segment, re.IGNORECASE)
             if inre_tail:
                 best_match = inre_tail.group(1).strip()
@@ -632,7 +632,7 @@ class UnifiedCaseNameExtractorV2:
 
                     # Case 1: Match ends before citation (ideal case)
                     if match_end <= citation_pos:
-                        # Closer to citation is better – strongly prefer immediate names
+                        # Closer to citation is better - strongly prefer immediate names
                         distance = citation_pos - match_end
                         if distance <= 10:
                             position_score = 1.0
@@ -1032,10 +1032,10 @@ class UnifiedCaseNameExtractorV2:
         # CRITICAL: Reject truncated names that start with lowercase
         # e.g., "agit Indian Tribe" is clearly truncated from "Upper Skagit Indian Tribe"
         if plaintiff and plaintiff[0].islower():
-            logger.warning(f"⚠️ TRUNCATION DETECTED: Plaintiff starts with lowercase: '{plaintiff}' (likely truncated)")
+            logger.warning(f"[WARNING] TRUNCATION DETECTED: Plaintiff starts with lowercase: '{plaintiff}' (likely truncated)")
             return False
         if defendant and defendant[0].islower():
-            logger.warning(f"⚠️ TRUNCATION DETECTED: Defendant starts with lowercase: '{defendant}' (likely truncated)")
+            logger.warning(f"[WARNING] TRUNCATION DETECTED: Defendant starts with lowercase: '{defendant}' (likely truncated)")
             return False
 
         # CRITICAL: Reject party names that are too short (likely truncated)
@@ -1344,7 +1344,7 @@ def extract_case_name_and_date_unified(
                             "paragraph",
                             "section",
                             "sec.",
-                            "§",
+                            "\u00a7",  # section sign
                             "citing",
                             "see",
                             "compare",
@@ -1538,17 +1538,17 @@ def _classify_citation_context(context_text: str, citation_position: int, citati
     for pattern in case_name_patterns:
         # Check last 300 chars to catch longer case names with more context
         if re.search(pattern, before_text[-300:], re.IGNORECASE):
-            logger.warning(f"✅ Found case name pattern: {pattern}")
+            logger.warning(f"[OK] Found case name pattern: {pattern}")
             return "proper_case_citation"
 
     # Special handling for Bostain v. Food Express, Inc.
     if "Bostain" in before_text and "Food Express" in before_text:
-        logger.warning("✅ Found Bostain v. Food Express pattern")
+        logger.warning("[OK] Found Bostain v. Food Express pattern")
         return "proper_case_citation"
 
     # Additional check for case names with v. and a comma before the citation
     if " v. " in before_text[-100:]:
-        logger.warning("✅ Found 'v.' pattern before citation")
+        logger.warning("[OK] Found 'v.' pattern before citation")
         return "proper_case_citation"
 
     # Look for embedded discussion indicators

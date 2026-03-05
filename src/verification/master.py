@@ -9,7 +9,7 @@ import asyncio
 import logging
 import time
 import re
-from typing import Dict, Any, Optional, List, Callable
+from typing import Dict, Any, Optional, List, Callable, Tuple
 from dataclasses import dataclass
 from enum import Enum
 
@@ -120,7 +120,117 @@ class UnifiedVerificationMaster:
         )
         if m:
             return re.sub(r"\s+", " ", m.group(0).strip()).lower()
+        # Normalize state reporter abbreviations for gate comparison (e.g. 19 Wn. App. 2d 113 vs 19 Wash. App. 2d 113)
+        s = re.sub(r"\bWn\.?\s*", "Wash. ", s, flags=re.IGNORECASE)
+        s = re.sub(r"\bWash\.?\s*", "Wash. ", s, flags=re.IGNORECASE)
+        # Normalize P.3d/P.2d spacing (e.g. "P. 3d" vs "P.3d")
+        s = re.sub(r"\bP\.\s*3d\b", "P.3d", s, flags=re.IGNORECASE)
+        s = re.sub(r"\bP\.\s*2d\b", "P.2d", s, flags=re.IGNORECASE)
         return re.sub(r"\s+", " ", s.strip()).lower()
+
+    def _candidate_citation_text(self, candidate: Dict[str, Any]) -> str:
+        """Best-effort extraction of candidate citation text from a verifier payload."""
+        if not isinstance(candidate, dict):
+            return ""
+        direct = candidate.get("candidate_citation") or candidate.get("citation") or candidate.get("short_citation")
+        if direct:
+            return str(direct)
+        cits = candidate.get("citations") or candidate.get("cites") or candidate.get("citations_text")
+        if isinstance(cits, list):
+            for item in cits:
+                if item:
+                    return str(item)
+        if isinstance(cits, str):
+            return cits
+        return ""
+
+    def _evaluate_two_point_gate(
+        self,
+        submitted_citation: str,
+        extracted_case_name: Optional[str],
+        extracted_date: Optional[str],
+        candidate: Dict[str, Any],
+    ) -> str:
+        """
+        Evaluate candidate against two-point gate. Returns:
+          "accept" - strong match (>75% name similarity + year): treat as verified
+          "possible_match" - weak match: 50-75% similarity, or year correct + canonical_url with low name overlap.
+            Not verified; expose canonical URL for display as probable match (below unverified, above verified).
+          "reject" - insufficient match
+        """
+        source = str(candidate.get("source") or "")
+        use_loose_gate = bool(source and "CourtListener" in source)
+        extracted_name_text = str(extracted_case_name or "").strip()
+        name_tokens = [t for t in extracted_name_text.replace(".", " ").split() if t]
+        has_strong_name = (
+            bool(extracted_name_text)
+            and extracted_name_text.upper() != "N/A"
+            and (" v" in extracted_name_text.lower())
+            and len(name_tokens) >= 3
+        )
+        has_extracted_year = bool(extracted_date)
+
+        # When extraction metadata is weak/missing, do not block verification here.
+        if not has_strong_name and not has_extracted_year:
+            return "accept"
+
+        candidate_citation = self._candidate_citation_text(candidate)
+        citation_match = bool(candidate_citation) and (
+            self._citation_core_key(submitted_citation) == self._citation_core_key(candidate_citation)
+        )
+
+        candidate_name = str(candidate.get("canonical_name") or "")
+        name_overlap = calculate_case_name_overlap(str(extracted_case_name or ""), candidate_name)
+
+        year_match = False
+        year_tolerance = 1
+        if extracted_date and candidate.get("canonical_date"):
+            year_match, _ = validate_year_match(str(extracted_date), str(candidate.get("canonical_date")), tolerance=year_tolerance)
+        elif not candidate.get("canonical_date"):
+            year_match = True
+
+        # Citation core match: accept
+        if citation_match:
+            return "accept"
+
+        # First-party surname shortcut: accept when year matches
+        if has_strong_name and year_match:
+            ecn_parts = re.split(r"\s+v\.?\s+", extracted_name_text, maxsplit=1)
+            if ecn_parts:
+                first_party_words = ecn_parts[0].strip().split()
+                if first_party_words:
+                    surname = first_party_words[-1].lower()
+                    if len(surname) >= 3 and surname in candidate_name.lower():
+                        return "accept"
+
+        # Name + year: tier by overlap
+        # >75%: probable match (accept/verified)
+        # 50-75%: possible match (not verified, show canonical URL)
+        # <50%: year correct + canonical_url -> possible_match (weak match, not verified)
+        if year_match and candidate_name and extracted_name_text:
+            if name_overlap > 0.75:
+                return "accept"
+            if 0.50 <= name_overlap <= 0.75:
+                return "possible_match"
+            # <50%: year correct + canonical_url -> possible_match (weak name, not verified)
+            if name_overlap < 0.50:
+                if candidate.get("canonical_url"):
+                    return "possible_match"
+                stop = {"v", "the", "of", "and", "in", "for", "on", "at", "to", "a", "an", "re"}
+                ext_tokens = [
+                    t for t in extracted_name_text.replace(".", " ").split()
+                    if len(t) >= 3 and t.lower() not in stop
+                ]
+                for t in ext_tokens:
+                    if t.lower() in candidate_name.lower():
+                        return "possible_match"
+                return "reject"
+
+        # Year correct + canonical_url but weak/missing name: possible_match (not verified)
+        if year_match and candidate.get("canonical_url"):
+            return "possible_match"
+
+        return "reject"
 
     def _passes_two_point_gate(
         self,
@@ -129,26 +239,8 @@ class UnifiedVerificationMaster:
         extracted_date: Optional[str],
         candidate: Dict[str, Any],
     ) -> bool:
-        """
-        Strict acceptance gate:
-        Accept only when either:
-          1) citation core matches, OR
-          2) strong same-case name + same year.
-        """
-        candidate_citation = str(candidate.get("citation") or "")
-        citation_match = bool(candidate_citation) and (
-            self._citation_core_key(submitted_citation) == self._citation_core_key(candidate_citation)
-        )
-
-        candidate_name = str(candidate.get("canonical_name") or "")
-        name_overlap = calculate_case_name_overlap(str(extracted_case_name or ""), candidate_name)
-        strong_name_match = bool(" v" in str(extracted_case_name or "").lower()) and bool(" v" in candidate_name.lower()) and name_overlap >= 0.75
-
-        year_match = True
-        if extracted_date and candidate.get("canonical_date"):
-            year_match, _ = validate_year_match(str(extracted_date), str(candidate.get("canonical_date")), tolerance=0)
-
-        return bool(citation_match or (strong_name_match and year_match))
+        """True when gate returns accept (probable match)."""
+        return self._evaluate_two_point_gate(submitted_citation, extracted_case_name, extracted_date, candidate) == "accept"
     
     async def verify_citation(
         self,
@@ -240,7 +332,7 @@ class UnifiedVerificationMaster:
             canonical_date = result.get("canonical_date")
             if extracted_date and canonical_date:
                 is_valid, year_diff = validate_year_match(
-                    extracted_date, canonical_date, tolerance=0
+                    extracted_date, canonical_date, tolerance=1
                 )
                 if not is_valid:
                     logger.warning(
@@ -280,30 +372,50 @@ class UnifiedVerificationMaster:
                 timeout - (time.time() - start_time)
             )
             if search_result.get("verified"):
-                if not self._passes_two_point_gate(citation, extracted_case_name, extracted_date, search_result):
-                    logger.warning(
-                        f"[GATE-REJECT] CL search rejected for '{citation}': "
-                        f"candidate='{search_result.get('canonical_name')}', date='{search_result.get('canonical_date')}'"
+                gate_result = self._evaluate_two_point_gate(citation, extracted_case_name, extracted_date, search_result)
+                candidate_url = search_result.get("canonical_url")
+                if gate_result == "accept":
+                    cache.set(citation, search_result)
+                    return VerificationResult(
+                        citation=citation,
+                        verified=True,
+                        canonical_name=search_result.get("canonical_name"),
+                        canonical_date=search_result.get("canonical_date"),
+                        canonical_url=search_result.get("canonical_url"),
+                        source=search_result.get("source", "CourtListener-Search"),
+                        confidence=search_result.get("confidence", 0.85),
+                        method="courtlistener_search",
+                    )
+                if gate_result == "possible_match" and candidate_url:
+                    logger.info(
+                        f"[GATE-POSSIBLE] CL search possible match (50-75% similarity): '{citation}' -> "
+                        f"'{search_result.get('canonical_name')}'"
                     )
                     return VerificationResult(
                         citation=citation,
                         verified=False,
                         canonical_name=search_result.get("canonical_name"),
                         canonical_date=search_result.get("canonical_date"),
-                        canonical_url=search_result.get("canonical_url"),
-                        error="Verification rejected by strict citation/year gate",
-                        method="courtlistener_search_gate_reject",
+                        canonical_url=candidate_url,
+                        method="courtlistener_search_possible_match",
+                        possible_match=True,
+                        source=search_result.get("source", "CourtListener-Search"),
+                        confidence=0.7,
                     )
-                cache.set(citation, search_result)
+                logger.warning(
+                    f"[GATE-REJECT] CL search rejected for '{citation}': "
+                    f"candidate='{search_result.get('canonical_name')}', date='{search_result.get('canonical_date')}'"
+                )
                 return VerificationResult(
                     citation=citation,
-                    verified=True,
-                    canonical_name=search_result.get("canonical_name"),
-                    canonical_date=search_result.get("canonical_date"),
-                    canonical_url=search_result.get("canonical_url"),
+                    verified=False,
+                    canonical_name=search_result.get("canonical_name") if candidate_url else None,
+                    canonical_date=search_result.get("canonical_date") if candidate_url else None,
+                    canonical_url=candidate_url,
+                    error="Verification rejected by strict citation/year gate",
+                    method="courtlistener_search_gate_reject",
+                    possible_match=bool(candidate_url),
                     source=search_result.get("source", "CourtListener-Search"),
-                    confidence=search_result.get("confidence", 0.85),
-                    method="courtlistener_search",
                 )
 
         # Step 3: Fallback verification (Justia, Cornell LII, OpenJurist)
@@ -318,30 +430,82 @@ class UnifiedVerificationMaster:
             )
             
             if fallback_result.get("verified"):
-                if not self._passes_two_point_gate(citation, extracted_case_name, extracted_date, fallback_result):
-                    logger.warning(
-                        f"[GATE-REJECT] Fallback rejected for '{citation}': "
-                        f"candidate='{fallback_result.get('canonical_name')}', date='{fallback_result.get('canonical_date')}'"
+                gate_result = self._evaluate_two_point_gate(citation, extracted_case_name, extracted_date, fallback_result)
+                candidate_url = fallback_result.get("canonical_url")
+                if gate_result == "accept":
+                    return VerificationResult(
+                        citation=citation,
+                        verified=True,
+                        canonical_name=fallback_result.get("canonical_name"),
+                        canonical_date=fallback_result.get("canonical_date"),
+                        canonical_url=fallback_result.get("canonical_url"),
+                        source=fallback_result.get("source") or "",
+                        confidence=fallback_result.get("confidence", 0.7),
+                        method=fallback_result.get("method", "fallback"),
+                    )
+                if gate_result == "possible_match" and candidate_url:
+                    logger.info(
+                        f"[GATE-POSSIBLE] Fallback possible match (50-75% similarity): '{citation}' -> "
+                        f"'{fallback_result.get('canonical_name')}'"
                     )
                     return VerificationResult(
                         citation=citation,
                         verified=False,
                         canonical_name=fallback_result.get("canonical_name"),
                         canonical_date=fallback_result.get("canonical_date"),
-                        canonical_url=fallback_result.get("canonical_url"),
-                        error="Verification rejected by strict citation/year gate",
-                        method="fallback_gate_reject",
+                        canonical_url=candidate_url,
+                        method="fallback_possible_match",
+                        possible_match=True,
+                        source=fallback_result.get("source") or "",
+                        confidence=0.6,
                     )
+                logger.warning(
+                    f"[GATE-REJECT] Fallback rejected for '{citation}': "
+                    f"candidate='{fallback_result.get('canonical_name')}', date='{fallback_result.get('canonical_date')}'"
+                )
                 return VerificationResult(
                     citation=citation,
-                    verified=True,
-                    canonical_name=fallback_result.get("canonical_name"),
-                    canonical_date=fallback_result.get("canonical_date"),
-                    canonical_url=fallback_result.get("canonical_url"),
-                    source=fallback_result.get("source") or "",
-                    confidence=fallback_result.get("confidence", 0.7),
-                    method=fallback_result.get("method", "fallback"),
+                    verified=False,
+                    canonical_name=fallback_result.get("canonical_name") if candidate_url else None,
+                    canonical_date=fallback_result.get("canonical_date") if candidate_url else None,
+                    canonical_url=candidate_url,
+                    error="Verification rejected by strict citation/year gate",
+                    method="fallback_gate_reject",
+                    possible_match=bool(candidate_url),
+                    source=fallback_result.get("source", ""),
                 )
+
+        # Step 4: Last resort - search by case name and date only (no citation)
+        if enable_fallback and time.time() - start_time < timeout:
+            name = (extracted_case_name or "").strip()
+            has_v = name and (" v" in name.lower() or " v." in name.lower())
+            single_party = False
+            if name and name.upper() != "N/A" and extracted_date and re.search(r"(19|20)\d{2}", str(extracted_date)):
+                nd_name = re.sub(r",?\s*(19|20)\d{2}\s*$", "", name).strip() or name
+                nd_tokens = [t for t in re.sub(r",?\s+", " ", nd_name).strip().split() if t]
+                single_party = 1 <= len(nd_tokens) <= 4 and not any(re.search(r"^(19|20)\d{2}$", t) for t in nd_tokens)
+            if name and name.upper() != "N/A" and (has_v or single_party):
+                if extracted_date and re.search(r"(19|20)\d{2}", str(extracted_date)):
+                    logger.debug(f"[VERIFY] Trying name+date-only fallback for '{name}' {extracted_date}")
+                    name_date_result = await self.fallback.verify_name_and_date_only(
+                        extracted_case_name,
+                        extracted_date,
+                        timeout - (time.time() - start_time),
+                    )
+                    if name_date_result.get("verified"):
+                        # Always flag as Possible Match: show canonical name, year, and URL in display
+                        return VerificationResult(
+                            citation=citation,
+                            verified=False,
+                            possible_match=True,
+                            canonical_name=name_date_result.get("canonical_name"),
+                            canonical_date=name_date_result.get("canonical_date"),
+                            canonical_url=name_date_result.get("canonical_url"),
+                            source=name_date_result.get("source") or "",
+                            confidence=name_date_result.get("confidence", 0.6),
+                            method=name_date_result.get("method", "fallback_name_date_only"),
+                            error="Possible match (name and date only; citation not verified)",
+                        )
         
         # All methods failed
         return VerificationResult(
@@ -350,12 +514,167 @@ class UnifiedVerificationMaster:
             error="All verification methods failed",
             method="all_failed",
         )
-    
+
+    async def _run_single_citation_fallback(
+        self,
+        result: Dict[str, Any],
+        case_name: Optional[str],
+        date: Optional[str],
+        is_proprietary: bool,
+        cl_canonical_name: Optional[str],
+        fallback_deadline: float,
+        timeout_per_citation: float,
+    ) -> int:
+        """Run the full fallback chain for one citation. Mutates result in place. Returns 1 if fallback recovered, 0 else."""
+        verified = result.get("verified", False)
+        needs_url = bool(result.get("canonical_name") and not result.get("canonical_url"))
+        success_delta = 0
+
+        # Name+date-only for proprietary (WL/Lexis)
+        name_date_done = False
+        if is_proprietary and not verified and case_name and date and re.search(r"(19|20)\d{2}", str(date or "")):
+            _nd_name = str(case_name or "").strip()
+            _nd_has_v = (" v" in _nd_name.lower()) or (" v." in _nd_name.lower())
+            _nd_name_clean = re.sub(r",?\s*(19|20)\d{2}\s*$", "", _nd_name).strip() or _nd_name
+            _nd_tokens = [t for t in re.sub(r",?\s+", " ", _nd_name_clean).strip().split() if t] if _nd_name else []
+            _nd_ok = _nd_name.upper() != "N/A" and (1 <= len(_nd_tokens) <= 4) and not any(re.search(r"^(19|20)\d{2}$", t) for t in _nd_tokens)
+            if _nd_has_v or _nd_ok:
+                remaining_nd = max(0.0, fallback_deadline - time.time())
+                if remaining_nd > 2.0:
+                    try:
+                        name_date_result = await self.fallback.verify_name_and_date_only(
+                            case_name, date, min(remaining_nd, 12.0),
+                        )
+                        if name_date_result.get("verified"):
+                            result.update(name_date_result)
+                            result["verified"] = False
+                            result["possible_match"] = True
+                            result["error"] = "Possible match (name and date only; citation not verified)"
+                            name_date_done = True
+                            needs_url = False
+                            success_delta = 1
+                    except Exception:
+                        pass
+
+        # Step A: CL search API fallback
+        if not name_date_done:
+            remaining_time = max(0.0, fallback_deadline - time.time())
+        else:
+            remaining_time = 0.0
+        if remaining_time > 0:
+            try:
+                search_result = await cl_search_fallback(
+                    self.session, self.api_key, result["citation"],
+                    case_name, date, min(timeout_per_citation, remaining_time, 8.0),
+                )
+                if search_result.get("verified"):
+                    gate_result = self._evaluate_two_point_gate(result["citation"], case_name, date, search_result)
+                    candidate_url = search_result.get("canonical_url")
+                    if gate_result == "accept":
+                        result.update(search_result)
+                        if cl_canonical_name and not search_result.get("canonical_name"):
+                            result["canonical_name"] = cl_canonical_name
+                        verified = True
+                        needs_url = bool(not result.get("canonical_url"))
+                        if not needs_url:
+                            success_delta = 1
+                    elif gate_result == "possible_match" and candidate_url:
+                        result.update({
+                            "verified": False,
+                            "possible_match": True,
+                            "canonical_name": search_result.get("canonical_name"),
+                            "canonical_date": search_result.get("canonical_date"),
+                            "canonical_url": candidate_url,
+                            "source": search_result.get("source", "CourtListener-Search"),
+                            "method": "courtlistener_search_possible_match",
+                        })
+                        success_delta = 1
+                    else:
+                        result.update({
+                            "verified": False,
+                            "error": "Verification rejected by strict citation/year gate",
+                            "method": "courtlistener_search_gate_reject",
+                            "possible_match": bool(candidate_url),
+                            "canonical_name": search_result.get("canonical_name") if candidate_url else None,
+                            "canonical_date": search_result.get("canonical_date") if candidate_url else None,
+                            "canonical_url": candidate_url,
+                            "source": search_result.get("source", "CourtListener-Search"),
+                        })
+            except Exception:
+                pass
+
+        # Step B: Web fallback
+        if (not verified or needs_url) and not name_date_done:
+            _name_txt = str(case_name or "").strip()
+            _name_tokens = [t for t in _name_txt.replace(".", " ").split() if t]
+            _has_v = (" v" in _name_txt.lower()) or (" v." in _name_txt.lower())
+            _strong_name = bool(_name_txt and _name_txt.upper() != "N/A" and len(_name_tokens) >= 3 and _has_v)
+            _cit_txt = str(result.get("citation", "") or "")
+            _is_proprietary = (" WL " in _cit_txt) or (" Lexis " in _cit_txt) or (" U.S. Lexis " in _cit_txt)
+            skip_web_fallback = not _strong_name and not _is_proprietary
+            _weak_name = (not _name_txt) or (_name_txt.upper() == "N/A") or (len(_name_tokens) <= 1) or (" v" not in _name_txt.lower())
+            if _is_proprietary and _weak_name:
+                skip_web_fallback = True
+            if not skip_web_fallback:
+                remaining_time = max(0.0, fallback_deadline - time.time())
+                if remaining_time > 0:
+                    try:
+                        fallback_result = await self.fallback.verify(
+                            result["citation"], case_name, date,
+                            min(timeout_per_citation, remaining_time, 8.0),
+                        )
+                        if fallback_result.get("verified"):
+                            if self._passes_two_point_gate(result["citation"], case_name, date, fallback_result):
+                                if cl_canonical_name:
+                                    fallback_result.setdefault("canonical_name", cl_canonical_name)
+                                result.update(fallback_result)
+                                success_delta = 1
+                            else:
+                                candidate_url = fallback_result.get("canonical_url")
+                                result.update({
+                                    "verified": False,
+                                    "error": "Verification rejected by strict citation/year gate",
+                                    "method": "fallback_gate_reject",
+                                    "possible_match": bool(candidate_url),
+                                    "canonical_name": fallback_result.get("canonical_name") if candidate_url else None,
+                                    "canonical_date": fallback_result.get("canonical_date") if candidate_url else None,
+                                    "canonical_url": candidate_url,
+                                    "source": fallback_result.get("source", ""),
+                                })
+                    except Exception:
+                        pass
+
+        # Last resort: name+date-only
+        if not result.get("verified") and case_name and date and re.search(r"(19|20)\d{2}", str(date or "")):
+            _nd_name = str(case_name or "").strip()
+            _nd_has_v = (" v" in _nd_name.lower()) or (" v." in _nd_name.lower())
+            _nd_name_clean = re.sub(r",?\s*(19|20)\d{2}\s*$", "", _nd_name).strip() or _nd_name
+            _nd_tokens = [t for t in re.sub(r",?\s+", " ", _nd_name_clean).strip().split() if t] if _nd_name else []
+            _nd_ok = _nd_name and _nd_name.upper() != "N/A" and (1 <= len(_nd_tokens) <= 4) and not any(re.search(r"^(19|20)\d{2}$", t) for t in _nd_tokens)
+            if (_nd_has_v or _nd_ok):
+                remaining_nd = max(0.0, fallback_deadline - time.time())
+                if remaining_nd > 2.0:
+                    try:
+                        name_date_result = await self.fallback.verify_name_and_date_only(
+                            case_name, date, min(remaining_nd, 12.0),
+                        )
+                        if name_date_result.get("verified"):
+                            result.update(name_date_result)
+                            result["verified"] = False
+                            result["possible_match"] = True
+                            result["error"] = "Possible match (name and date only; citation not verified)"
+                            success_delta = 1
+                    except Exception:
+                        pass
+
+        return success_delta
+
     async def verify_citations_batch(
         self,
         citations: List[str],
         extracted_case_names: Optional[List[str]] = None,
         extracted_dates: Optional[List[str]] = None,
+        proprietary_flags: Optional[List[bool]] = None,
         batch_size: int = 250,
         timeout_per_citation: float = 10.0,
         progress_callback: Optional[Callable[[int, str, str], None]] = None,
@@ -423,6 +742,7 @@ class UnifiedVerificationMaster:
                 return True
             return False
 
+        need_fallback: List[Tuple[Dict[str, Any], Optional[str], Optional[str], bool, Optional[str]]] = []
         for result_idx, result in enumerate(batch_results):
             # Report progress for each citation processed
             if progress_callback:
@@ -465,153 +785,62 @@ class UnifiedVerificationMaster:
                     f"[BATCH-FALLBACK] Skipping noisy citation: "
                     f"'{str(result.get('citation', ''))[:80]}'"
                 )
-            if should_try_fallback and fallback_attempted >= max_fallback_citations:
+            if should_try_fallback and len(need_fallback) >= max_fallback_citations:
                 skipped_due_count_cap += 1
             if should_try_fallback and time.time() >= fallback_deadline:
                 skipped_due_time_budget += 1
 
             if (
                 should_try_fallback
-                and fallback_attempted < max_fallback_citations
+                and len(need_fallback) < max_fallback_citations
                 and time.time() < fallback_deadline
             ):
                 unverified_count += 1
-                fallback_attempted += 1
-                # Aggressive memory cleanup every 5 fallback attempts
-                # to prevent HTTP response data from accumulating (OOM fix)
-                if fallback_attempted % 5 == 0:
-                    try:
-                        import gc as _gc_fb
-                        _gc_fb.collect()
-                        try:
-                            import ctypes
-                            _libc_fb = ctypes.CDLL("libc.so.6")
-                            _libc_fb.malloc_trim(0)
-                        except Exception:
-                            pass
-                    except Exception:
-                        pass
-                if fallback_attempted % 5 == 1:
-                    try:
-                        import psutil, os
-                        _fb_mem = psutil.Process(os.getpid()).memory_info().rss // (1024 * 1024)
-                        logger.warning(f"[BATCH-FALLBACK-MEM] After {fallback_attempted} fallbacks: {_fb_mem}MB")
-                    except Exception:
-                        pass
-                # Use position-based metadata mapping. citations.index(...) breaks on duplicates.
                 idx = result_idx if result_idx < len(citations) else None
-                if idx is None:
-                    logger.warning(f"[BATCH-FALLBACK] Citation index out of range at result_idx={result_idx}")
                 case_name = extracted_case_names[idx] if (extracted_case_names and idx is not None and idx < len(extracted_case_names)) else None
                 date = extracted_dates[idx] if (extracted_dates and idx is not None and idx < len(extracted_dates)) else None
-
-                cl_canonical_name = result.get("canonical_name") if needs_url else None
-                logger.warning(
-                    f"[BATCH-FALLBACK] {'Needs URL' if needs_url else 'Unverified'}: '{result['citation'][:60]}' "
-                    f"case_name='{case_name}' cl_canonical='{cl_canonical_name}' - trying fallbacks..."
+                _cit_txt_early = str(result.get("citation", "") or "")
+                is_proprietary = (
+                    proprietary_flags[idx]
+                    if (proprietary_flags and idx is not None and idx < len(proprietary_flags))
+                    else bool(re.match(r"^\s*\d{4}\s+WL\s+\d+\s*$", _cit_txt_early.strip()))
                 )
+                cl_canonical_name = result.get("canonical_name") if needs_url else None
+                need_fallback.append((result, case_name, date, is_proprietary, cl_canonical_name))
 
-                # Step A: CL search API fallback (citation-first; case name optional)
-                remaining_time = max(0.0, fallback_deadline - time.time())
-                if remaining_time <= 0.0:
-                    skipped_due_time_budget += 1
-                else:
-                    search_result = await cl_search_fallback(
-                        self.session, self.api_key, result["citation"],
-                        case_name, date, min(timeout_per_citation, remaining_time, 8.0)
+        fallback_attempted = len(need_fallback)
+        if need_fallback:
+            try:
+                from src.config import VERIFICATION_FALLBACK_CONCURRENCY
+                concurrency = max(1, int(VERIFICATION_FALLBACK_CONCURRENCY))
+            except Exception:
+                concurrency = 1
+            if concurrency <= 1:
+                for (result, case_name, date, is_proprietary, cl_canonical_name) in need_fallback:
+                    if time.time() >= fallback_deadline:
+                        break
+                    fallback_success_count += await self._run_single_citation_fallback(
+                        result, case_name, date, is_proprietary, cl_canonical_name,
+                        fallback_deadline, timeout_per_citation,
                     )
-                    if search_result.get("verified"):
-                        if not self._passes_two_point_gate(result["citation"], case_name, date, search_result):
-                            logger.warning(
-                                f"[BATCH-GATE-REJECT] CL search rejected '{result['citation'][:60]}' -> "
-                                f"'{search_result.get('canonical_name')}' ({search_result.get('canonical_date')})"
-                            )
-                            search_result = {"verified": False, "error": "Rejected by strict citation/year gate"}
-                        else:
-                            result.update(search_result)
-                            # Preserve CL canonical name if it was better
-                            if cl_canonical_name and not search_result.get("canonical_name"):
-                                result["canonical_name"] = cl_canonical_name
-                            verified = True
-                            # If CL search found the case but still no URL, try web fallback for URL
-                            needs_url = bool(not result.get("canonical_url"))
-                            if not needs_url:
-                                fallback_success_count += 1
-                            cl_canonical_name = cl_canonical_name or result.get("canonical_name")
-                            logger.warning(
-                                f"[BATCH-FALLBACK] CL search succeeded: '{result['citation'][:60]}' -> "
-                                f"'{search_result.get('canonical_name')}' url={'yes' if result.get('canonical_url') else 'MISSING'}"
-                            )
+            else:
+                sem = asyncio.Semaphore(concurrency)
 
-                # Step B: Web fallback (Google Scholar, Justia, Cornell LII, OpenJurist)
-                if not verified or needs_url:
-                    skip_web_fallback = False
-                    # Avoid weak-name web matches that cause cross-case contamination.
-                    _name_txt = str(case_name or "").strip()
-                    _name_tokens = [t for t in _name_txt.replace(".", " ").split() if t]
-                    _has_v = (" v" in _name_txt.lower()) or (" v." in _name_txt.lower())
-                    _strong_name = bool(_name_txt and _name_txt.upper() != "N/A" and len(_name_tokens) >= 3 and _has_v)
-                    _cit_txt = str(result.get("citation", "") or "")
-                    _is_proprietary = (" WL " in _cit_txt) or (" Lexis " in _cit_txt) or (" U.S. Lexis " in _cit_txt)
-                    if not _strong_name:
-                        # WL/Lexis focus: allow citation-first Scholar fallback even with weak names.
-                        # FallbackVerifier limits this lane to Scholar-only for weak-name WL/LEXIS.
-                        if _is_proprietary:
-                            logger.info(
-                                f"[BATCH-FALLBACK] Weak-name proprietary cite; trying citation-first Scholar lane: "
-                                f"'{result['citation'][:60]}'"
-                            )
-                        else:
-                            logger.info(
-                                f"[BATCH-FALLBACK] Skipping web fallback for weak/no case name: "
-                                f"'{result['citation'][:60]}' case_name='{case_name}'"
-                            )
-                            skip_web_fallback = True
-                    # Proprietary WL/Lexis citations with weak/no case name are very
-                    # expensive in web fallback and rarely yield usable URLs.
-                    # Keep citation-first CL search (Step A), then skip web fallback.
-                    _weak_name = (not _name_txt) or (_name_txt.upper() == "N/A") or (len(_name_tokens) <= 1) or (" v" not in _name_txt.lower())
-                    if _is_proprietary and _weak_name and skip_web_fallback:
-                        logger.info(
-                            f"[BATCH-FALLBACK] Skipping proprietary web fallback due to weak/no case name: "
-                            f"'{result['citation'][:60]}'"
+                async def run_with_sem(item):
+                    result, case_name, date, is_proprietary, cl_canonical_name = item
+                    async with sem:
+                        if time.time() >= fallback_deadline:
+                            return 0
+                        return await self._run_single_citation_fallback(
+                            result, case_name, date, is_proprietary, cl_canonical_name,
+                            fallback_deadline, timeout_per_citation,
                         )
-                    if not skip_web_fallback:
-                        remaining_time = max(0.0, fallback_deadline - time.time())
-                        if remaining_time <= 0.0:
-                            skipped_due_time_budget += 1
-                        else:
-                            fallback_result = await self.fallback.verify(
-                                result["citation"],
-                                case_name,
-                                date,
-                                min(timeout_per_citation, remaining_time, 8.0)
-                            )
-                            if fallback_result.get("verified"):
-                                if not self._passes_two_point_gate(result["citation"], case_name, date, fallback_result):
-                                    logger.warning(
-                                        f"[BATCH-GATE-REJECT] Web fallback rejected '{result['citation'][:60]}' -> "
-                                        f"'{fallback_result.get('canonical_name')}' ({fallback_result.get('canonical_date')})"
-                                    )
-                                else:
-                                    # Preserve CL canonical name when fallback only adds URL
-                                    if cl_canonical_name:
-                                        fallback_result.setdefault("canonical_name", cl_canonical_name)
-                                    result.update(fallback_result)
-                                    verified = True
-                                    needs_url = False
-                                    fallback_success_count += 1
-                                    logger.warning(
-                                        f"[BATCH-FALLBACK] Web fallback succeeded: '{result['citation'][:60]}' -> "
-                                        f"'{fallback_result.get('canonical_name')}' via {fallback_result.get('source')}"
-                                    )
-                            else:
-                                logger.warning(
-                                    f"[BATCH-FALLBACK] All fallbacks failed for '{result['citation'][:60]}': "
-                                    f"{fallback_result.get('error', 'unknown')}"
-                                )
 
-            # Ensure unverified citations always have an error reason for UI/API
+                deltas = await asyncio.gather(*[run_with_sem(item) for item in need_fallback])
+                fallback_success_count = sum(deltas)
+
+        for result in batch_results:
+            verified = result.get("verified", False)
             err = result.get("error")
             if not verified and not err:
                 err = "No results"
@@ -625,6 +854,8 @@ class UnifiedVerificationMaster:
                 confidence=result.get("confidence", 0.0),
                 method=result.get("method", "unknown"),
                 error=err,
+                possible_match=bool(result.get("possible_match", False)),
+                raw_data=result.get("raw_data"),
             ))
         
         # Final progress update

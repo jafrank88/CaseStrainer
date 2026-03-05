@@ -37,17 +37,20 @@ api.interceptors.request.use(config => {
     config.timeout = 300000; // 5 minutes for URL analysis
     config.retryCount = 0;
     config.maxRetries = 3;
+    config.enableRateLimitRetry = true;
   } else if (config.url === '/analyze' && config.data instanceof FormData) {
     // Set longer timeout for file uploads (PDF processing can take time)
     config.timeout = 600000; // 10 minutes for file uploads
     config.retryCount = 0;
     config.maxRetries = 1;
+    config.enableRateLimitRetry = true;
     // Remove Content-Type header for FormData to let the browser set it with the correct boundary
     delete config.headers['Content-Type'];
   } else {
     config.timeout = 120000; // 2 minutes for other endpoints
     config.retryCount = 0;
     config.maxRetries = 1;
+    config.enableRateLimitRetry = config.url === '/analyze';
   }
   return config;
 });
@@ -58,21 +61,31 @@ api.interceptors.response.use(
   async error => {
     const config = error.config;
     
-    // Only retry on timeout or network errors
-    if (!config || !config.retryCount || 
-      config.retryCount >= config.maxRetries || 
-      !(error.code === 'ECONNABORTED' || error.message.includes('timeout') || error.message.includes('Network Error'))) {
+    const status = error?.response?.status;
+    const isTimeoutOrNetwork = error.code === 'ECONNABORTED' || error.message.includes('timeout') || error.message.includes('Network Error');
+    const isRateLimited = status === 429 && config?.enableRateLimitRetry;
+    // Retry on timeout/network errors and optionally on 429 rate limits.
+    if (!config || !config.retryCount ||
+      config.retryCount >= config.maxRetries ||
+      !(isTimeoutOrNetwork || isRateLimited)) {
       return Promise.reject(error);
     }
 
     // Increment retry count
     config.retryCount += 1;
     
-    // Calculate delay with exponential backoff
-    const delay = Math.min(1000 * Math.pow(2, config.retryCount), 30000);
+    // Calculate delay with exponential backoff, respecting Retry-After when provided.
+    const retryAfterHeader = error?.response?.headers?.['retry-after'];
+    const retryAfterMs = retryAfterHeader ? Number(retryAfterHeader) * 1000 : 0;
+    const exponentialDelay = Math.min(1000 * Math.pow(2, config.retryCount), 30000);
+    const jitter = Math.floor(Math.random() * 500);
+    const delay = Math.max(retryAfterMs, exponentialDelay + jitter);
     
     // Log retry attempt
-    console.log(`Retrying request to ${config.url} (attempt ${config.retryCount}/${config.maxRetries}) after ${delay}ms delay`);
+    console.log(
+      `Retrying request to ${config.url} (attempt ${config.retryCount}/${config.maxRetries})` +
+      ` after ${delay}ms${isRateLimited ? ' due to 429' : ''}`
+    );
     
     // Wait before retrying
     await new Promise(resolve => setTimeout(resolve, delay));
@@ -266,11 +279,13 @@ async function pollForResults(requestId, clientRequestId = null, startTime = Dat
       return pollForResults(requestId, clientRequestId, startTime, onProgress);
     }
     
-    // Check for completion - CRITICAL: Check status first, then data presence
-    // Empty arrays are falsy, so check for array existence explicitly
+    // Check for completion - ONLY trust backend explicit completion status.
+    // Do NOT stop polling just because citations/clusters arrays exist: the backend may return
+    // partial or progress data (e.g. citation count) while still processing; stopping early
+    // would show incomplete results (no names, 0 clusters) while the worker is still running.
     const hasCitations = Array.isArray(result.citations);
     const hasClusters = Array.isArray(result.clusters);
-    const isComplete = status === 'completed' || status === 'finished' || hasCitations || hasClusters;
+    const isComplete = status === 'completed' || status === 'finished' || responseData.is_finished === true;
     
     if (isComplete) {
       console.log('✅ Task completed successfully:', {

@@ -25,12 +25,26 @@
     <div v-if="(clusters?.length || 0) > 0" class="results-content">
       <div class="results-header">
         <h2>{{ clusters?.length || 0 }} Case{{ (clusters?.length || 0) !== 1 ? 's' : '' }} Found</h2>
-        <p v-if="(verifiedCitations?.length || 0) > 0">{{ verifiedCitations?.length || 0 }} citation{{ (verifiedCitations?.length || 0) !== 1 ? 's' : '' }} verified</p>
+        <p>
+          {{ citations?.length || 0 }} citation{{ (citations?.length || 0) !== 1 ? 's' : '' }} identified •
+          {{ verifiedCitations?.length || 0 }} matched to a source •
+          {{ ((citations?.length || 0) - (verifiedCitations?.length || 0)) }} need review
+        </p>
+        <p class="results-explainer">
+          One case can include multiple citations, so citation totals are usually higher than case totals.
+        </p>
+        <div v-if="results?.metadata?.verification_requested_but_none_matched" class="verification-hint-banner">
+          <strong>Verification was requested but no citations were matched.</strong>
+          {{ results?.metadata?.verification_hint || 'Ensure COURTLISTENER_API_KEY is set in the worker environment (check server/worker logs).' }}
+        </div>
       </div>
       
       <div class="clusters-list">
         <template v-if="(clustersUnverified?.length || 0) > 0">
-          <div class="results-header"><h3>⏳ Unverified</h3></div>
+          <div class="results-header">
+            <h3>⏳ Unverified</h3>
+            <p class="results-explainer">Some sites with cases block automated tools - click on the link to search the web for unverified cases.</p>
+          </div>
           <ClusterCard v-for="cluster in clustersUnverified" :key="cluster.cluster_id + '-unv'" :cluster="cluster" section-key="unv" :helpers="clusterHelpers" :show-mismatch-badge="true" />
         </template>
         <template v-if="(clustersCaseMismatch?.length || 0) > 0">
@@ -41,17 +55,16 @@
           <div class="results-header"><h3>📅 Date Differences</h3></div>
           <ClusterCard v-for="cluster in clustersDateMismatch" :key="cluster.cluster_id + '-dm'" :cluster="cluster" section-key="dm" :helpers="clusterHelpers" :show-mismatch-badge="true" />
         </template>
-        <template v-if="(clustersVerifiedByParallel?.length || 0) > 0">
-          <div class="results-header"><h3>🟠 Verified by Parallel</h3></div>
-          <ClusterCard v-for="cluster in clustersVerifiedByParallel" :key="cluster.cluster_id + '-vbp'" :cluster="cluster" section-key="vbp" :helpers="clusterHelpers" :show-mismatch-badge="false" />
+        <template v-if="(clustersOther?.length || 0) > 0">
+          <div class="results-header">
+            <h3>Possible Matches</h3>
+            <p class="results-explainer">These are likely candidates for review and may not include a canonical URL, case name, or year yet.</p>
+          </div>
+          <ClusterCard v-for="cluster in clustersOther" :key="cluster.cluster_id + '-oth'" :cluster="cluster" section-key="oth" :helpers="clusterHelpers" :show-mismatch-badge="false" />
         </template>
         <template v-if="(clustersVerifiedStrict?.length || 0) > 0">
           <div class="results-header"><h3>✅ Verified</h3></div>
           <ClusterCard v-for="cluster in clustersVerifiedStrict" :key="cluster.cluster_id + '-verified'" :cluster="cluster" section-key="verified" :helpers="clusterHelpers" :show-mismatch-badge="false" />
-        </template>
-        <template v-if="(clustersOther?.length || 0) > 0">
-          <div class="results-header"><h3>Other Cases</h3></div>
-          <ClusterCard v-for="cluster in clustersOther" :key="cluster.cluster_id + '-oth'" :cluster="cluster" section-key="oth" :helpers="clusterHelpers" :show-mismatch-badge="false" />
         </template>
       </div>
     </div>
@@ -113,6 +126,7 @@ export default {
       getClusterVerifyingUrl: clusterDisplay.getClusterVerifyingUrl,
       getClusterVerifyingName: clusterDisplay.getClusterVerifyingName,
       getClusterVerifyingDate: clusterDisplay.getClusterVerifyingDate,
+      getClusterFoundCanonicalDate: clusterDisplay.getClusterFoundCanonicalDate,
       getClusterSubmittedName: clusterDisplay.getClusterSubmittedName,
       getClusterSubmittedDate: clusterDisplay.getClusterSubmittedDate,
       hasNameMismatch: clusterDisplay.hasNameMismatch,
@@ -120,8 +134,8 @@ export default {
       getClusterCitations: clusterDisplay.getClusterCitations,
       getCitationExtractedLabel: clusterDisplay.getCitationExtractedLabel,
       formatCitationText: clusterDisplay.formatCitationText,
-      getCitationStatusClass: (citation) => clusterDisplay.getCitationStatusClass(citation, isEffectivelyVerified, isNaAndPartial),
-      getCitationStatusText: (citation) => clusterDisplay.getCitationStatusText(citation, isEffectivelyVerified, isNaAndPartial),
+      getCitationStatusClass: (citation, cluster) => clusterDisplay.getCitationStatusClass(citation, cluster, isEffectivelyVerified, isNaAndPartial),
+      getCitationStatusText: (citation, cluster) => clusterDisplay.getCitationStatusText(citation, cluster, isEffectivelyVerified, isNaAndPartial),
     }
 
     return {
@@ -167,6 +181,12 @@ export default {
   letter-spacing: -0.02em;
 }
 
+.results-explainer {
+  margin: 6px 0 0 0;
+  color: #5f6f86;
+  font-size: 0.9rem;
+}
+
 .citation-details {
   margin-top: 8px;
   font-size: 0.9em;
@@ -178,6 +198,16 @@ export default {
   font-size: 0.85em;
   color: #d32f2f;
   font-style: italic;
+}
+
+.verification-hint-banner {
+  margin-top: 12px;
+  padding: 12px 16px;
+  background: #FFF3E0;
+  border: 1px solid #FF9800;
+  border-radius: 6px;
+  font-size: 0.9em;
+  color: #E65100;
 }
 
 .perfect-score-celebration {

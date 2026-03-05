@@ -83,10 +83,28 @@ def _filter_headers_and_footnotes_from_context(context: str) -> str:
         r"[^.]*ET\s+AL\.?\s*[^.]*(?:Petitioners?|Appellants?|Plaintiffs?|Appellees?|Respondents?)[^.]*",
         # Pattern: Role word followed by "NO" (common header format)
         r"[^.]*(?:Petitioners?|Appellants?|Plaintiffs?|Appellees?|Respondents?)\s*[,\.]\s*NO\.?\s*\d*[^.]*",
+        # Pattern: Document caption with federal docket (e.g. "Ill. Union Ins. Co. No. C10-5943 RJB Milgard Mfg., Inc. v. Ill")
+        # Prevents context bleed when WL citation appears under a different case's caption.
+        # EXCEPTION: Do NOT remove if match contains WL or reporter citation - real citation line
+        r"[^.]*(?:Ins\.?\s*Co\.?|Inc\.?|Corp\.?|L\.?L\.?C\.?)\s+No\.?\s*[A-Z]?\d+[-\.]\d+[^.]*",
     ]
+    _citation_in_context = re.compile(
+        r"\d{4}\s+WL\s+\d+|\d+\s+(?:F\.?3d|F\.?2d|U\.S\.|P\.?3d|N\.E\.2d|S\.E\.2d|S\.W\.2d|Wn\.2d|Cal\.)\s+\d+",
+        re.IGNORECASE,
+    )
 
-    for pattern in additional_header_patterns:
-        context = re.sub(pattern, "", context, flags=re.IGNORECASE | re.DOTALL)
+    for i, pattern in enumerate(additional_header_patterns):
+        # Third pattern (index 2): docket caption - only remove if match has no WL/reporter citation
+        if i == 2:
+            # Docket caption pattern: only remove if match does NOT contain a citation
+            def _replacer(m):
+                if _citation_in_context.search(m.group(0)):
+                    return m.group(0)  # Keep - real citation line
+                return ""
+
+            context = re.sub(pattern, _replacer, context, flags=re.IGNORECASE | re.DOTALL)
+        else:
+            context = re.sub(pattern, "", context, flags=re.IGNORECASE | re.DOTALL)
 
     lines = context.split("\n")
     filtered_lines = []
@@ -120,6 +138,28 @@ def _filter_headers_and_footnotes_from_context(context: str) -> str:
         ):
             logger.debug(f"[HEADER-FILTER] Filtering line with Respondent. NO pattern: '{line_stripped[:50]}...'")
             continue
+
+        # Skip lines with federal docket caption (e.g. "Ill. Union Ins. Co. No. C10-5943 RJB Milgard Mfg., Inc. v. Ill")
+        # Prevents context bleed when citation appears under a different case's caption.
+        # EXCEPTION: Do NOT filter if line contains a WL or reporter citation - those are real citation
+        # lines (e.g. "Milgard Mfg., Inc. v. Ill. Union Ins. Co., No. C10-5943 RJB, 2011 WL 3298912, at *3")
+        # not document headers.
+        if re.search(
+            r"(?:Ins\.?\s*Co\.?|Inc\.?|Corp\.?|L\.?L\.?C\.?)\s+No\.?\s*[A-Z]?\d+[-\.]\d+",
+            line_stripped,
+            re.IGNORECASE,
+        ):
+            has_citation_in_line = bool(
+                re.search(r"\d{4}\s+WL\s+\d+", line_stripped)  # 2011 WL 3298912
+                or re.search(
+                    r"\d+\s+(?:F\.?3d|F\.?2d|U\.S\.|P\.?3d|N\.E\.2d|S\.E\.2d|S\.W\.2d|Wn\.2d|Cal\.)\s+\d+",
+                    line_stripped,
+                    re.IGNORECASE,
+                )
+            )
+            if not has_citation_in_line:
+                logger.debug(f"[HEADER-FILTER] Filtering docket caption line: '{line_stripped[:60]}...'")
+                continue
 
         # Skip lines that are clearly footnotes (standalone numbers or short numeric lines)
         # Pattern: "24" or "4" (standalone numbers, often footnotes)
@@ -195,9 +235,9 @@ def _expand_abbreviations(case_name: str) -> str:
     Expand common legal abbreviations to improve accuracy.
 
     Examples:
-    "Dep't of Ecology" → "Department of Ecology"
-    "Lakeside Indus." → "Lakeside Industries"
-    "Bd. of Regents" → "Board of Regents"
+    "Dep't of Ecology" -> "Department of Ecology"
+    "Lakeside Indus." -> "Lakeside Industries"
+    "Bd. of Regents" -> "Board of Regents"
     """
     # Common abbreviation mappings
     abbreviations = {
@@ -255,7 +295,7 @@ def _add_missing_words(case_name: str, context: str) -> str:
     Add missing common words based on context analysis.
 
     Examples:
-    "Rozner v. Bellevue" → "Rozner v. City of Bellevue" (if "City of Bellevue" appears in context)
+    "Rozner v. Bellevue" -> "Rozner v. City of Bellevue" (if "City of Bellevue" appears in context)
     """
     # Check for missing "City of" before city names
     cities = [
@@ -411,7 +451,7 @@ def get_adaptive_context_for_citation(
     This function:
     1. Starts with a TINY window (25 chars) immediately before citation
     2. Looks for case name that ENDS near the citation start
-    3. If N/A, expands window progressively (25 → 50 → 75 → 100 → max)
+    3. If N/A, expands window progressively (25 -> 50 -> 75 -> 100 -> max)
     4. Always prefers the case name CLOSEST to the citation
 
     Args:
@@ -480,7 +520,7 @@ def get_adaptive_context_for_citation(
     # USER FIX: Progressive window sizes - start small and expand only if needed
     # This ensures we get the CLOSEST case name to the citation first
     # FIX DEC 2025 v10: Increased initial windows to capture longer corporate names
-    # like "Fisher Broad.–Seattle TV LLC v. City of Seattle" (56 chars)
+    # like "Fisher Broad.-Seattle TV LLC v. City of Seattle" (56 chars)
     # FIX JAN 2026: Further increased to handle very long case names like
     # "New York Civil Liberties Union v. New York City Transit Authority" (77 chars)
     window_sizes = [100, 150, 200, 250, max_lookback]
@@ -539,7 +579,7 @@ def _contains_case_name(context: str) -> bool:
         r"\bsupra\b",  # "supra" without case name
     ]
     if re.search(r"\bid\.?\b", context_lower) and not re.search(r"\b[A-Z][a-zA-Z\'\.\&\-\s]*\s+v\.?\s+[A-Z]", context):
-        # "id." with no "X v. Y" pattern → skip
+        # "id." with no "X v. Y" pattern -> skip
         logger.debug("[ADAPTIVE-CONTEXT] Skipping context with id. and no case name")
         return False
 
@@ -801,7 +841,7 @@ def get_strict_context_for_citation(
         
         # Also trim after the last em-dash or long dash which often separates cites
         # FIX DEC 2025 v10: Don't trim if dash is part of a case name (followed by corporate suffix)
-        for dash in ("—", "–", "--"):
+        for dash in ("\u2014", "\u2013", "--"):
             last_dash = strict_context.rfind(dash)
             if last_dash != -1:
                 after_dash = strict_context[last_dash + 1 :].strip()[:25].lower()
@@ -982,13 +1022,13 @@ def extract_case_name_from_strict_context(context: str, citation_text: str) -> O
 
     # CRITICAL: Normalize Unicode characters BEFORE pattern matching
     # Convert smart quotes and apostrophes to ASCII equivalents
-    context = context.replace("\u2019", "'")  # Right single quotation mark → apostrophe
-    context = context.replace("\u2018", "'")  # Left single quotation mark → apostrophe
+    context = context.replace("\u2019", "'")  # Right single quotation mark -> apostrophe
+    context = context.replace("\u2018", "'")  # Left single quotation mark -> apostrophe
     context = context.replace("\u201c", '"')  # Left double quotation mark
     context = context.replace("\u201d", '"')  # Right double quotation mark
-    context = context.replace("\u00b4", "'")  # Acute accent → apostrophe
-    context = context.replace("\u0060", "'")  # Grave accent → apostrophe
-    context = context.replace("\u00a0", " ")  # Non-breaking space → space
+    context = context.replace("\u00b4", "'")  # Acute accent -> apostrophe
+    context = context.replace("\u0060", "'")  # Grave accent -> apostrophe
+    context = context.replace("\u00a0", " ")  # Non-breaking space -> space
     # Normalize dashes and unusual spaces
     context = context.replace("\u2013", "-")  # En dash
     context = context.replace("\u2014", "-")  # Em dash
@@ -1064,12 +1104,20 @@ def extract_case_name_from_strict_context(context: str, citation_text: str) -> O
     # Examples: "Opinion of the Court Sprint Communications Co. v. APCC Services"
     # Should extract "Sprint Communications Co. v. APCC Services" not "Opinion of the Court Sprint..."
     # USER FIX 2026-01-27: Enhanced to catch more variations and be more aggressive
+    # USER FIX 2026-02: Add context-bleed patterns - "Americancourts.", "Syllabusmat"
     header_text_patterns = [
         r"^Opinion\s+of\s+the\s+Court\s+",  # "Opinion of the Court" at start
         r"^Opinion\s+of\s+the\s+",  # "Opinion of the" at start
         r"\bOpinion\s+of\s+the\s+Court\s+",  # "Opinion of the Court" anywhere
         r"\bOpinion\s+of\s+the\s+Court\b",  # "Opinion of the Court" (no trailing space needed)
         r"Opinion\s+of\s+the\s+Court\s+TransUnion",  # Specific pattern for TransUnion case
+        # Context bleed: "Americancourts. Spokeo" -> "Spokeo" (prose before case name)
+        r"^(?:American|Federal)\s*courts?\.?\s*",
+        r"\b(?:American|Federal)\s*courts?\.?\s+",
+        # Context bleed: "Syllabusmat" / "Syllabus" header concatenated with case name
+        r"^Syllabus\s*",  # "Syllabus" at start (header)
+        r"\bSyllabus\s+",  # "Syllabus " anywhere (header word)
+        r"Syllabusmat\b",  # "Syllabusmat" = Syllabus + mat (contamination)
     ]
     for pattern in header_text_patterns:
         context = re.sub(pattern, "", context, flags=re.IGNORECASE)
@@ -1131,7 +1179,7 @@ def extract_case_name_from_strict_context(context: str, citation_text: str) -> O
         context = re.sub(signal_pattern, "", context, flags=re.IGNORECASE)
 
     if context != original_context:
-        logger.debug(f"[STRICT-EXTRACT] Cleaned signal words: '{original_context[-50:]}' → '{context[-50:]}'")
+        logger.debug(f"[STRICT-EXTRACT] Cleaned signal words: '{original_context[-50:]}' -> '{context[-50:]}'")
 
     # Additional cleanup: remove any remaining isolated docket patterns that might have been missed
     context_before_clean = context
@@ -1568,12 +1616,12 @@ def extract_case_name_from_strict_context(context: str, citation_text: str) -> O
                 plaintiff = re.sub(r"\s+", " ", plaintiff).strip(" ,;\n")
                 defendant = re.sub(r"\s+", " ", defendant).strip(" ,;\n")
 
-                # Fix corporate name punctuation: "Spokeo , Inc." → "Spokeo, Inc."
+                # Fix corporate name punctuation: "Spokeo , Inc." -> "Spokeo, Inc."
                 plaintiff = re.sub(r"\s+,\s+", ", ", plaintiff)
                 defendant = re.sub(r"\s+,\s+", ", ", defendant)
 
                 # Remove trailing incomplete words (truncation artifacts)
-                plaintiff = re.sub(r"\s+[a-z]{1,2}$", "", plaintiff)  # "Name v. Ca" → "Name v."
+                plaintiff = re.sub(r"\s+[a-z]{1,2}$", "", plaintiff)  # "Name v. Ca" -> "Name v."
                 defendant = re.sub(r"\s+[a-z]{1,2}$", "", defendant)
 
                 # Check for truncation at start (lowercase start indicates truncation)
@@ -1650,7 +1698,7 @@ def extract_case_name_from_strict_context(context: str, citation_text: str) -> O
                 # Trim plaintiff to text after the last sentence boundary to remove narrative prefixes
                 try:
                     boundaries = []
-                    for token in [". ", "; ", "—", "–"]:
+                    for token in [". ", "; ", "-"]:
                         idx = plaintiff.rfind(token)
                         if idx != -1:
                             boundaries.append(idx + (2 if token in [". ", "; "] else 1))
@@ -1717,6 +1765,8 @@ def extract_case_name_from_strict_context(context: str, citation_text: str) -> O
                     r"\b(?:Petitioners?|Appellants?|Plaintiffs?|Appellees?|Respondents?)\s*[,\.]\s*NO\.?\s*$",  # Ends with "Respondent. NO" or "Petitioners, NO"
                     # Pattern 11: CRITICAL - Catch "ERICKSON ET AL., Petitioners, v. PHARMACIA LLC, Respondent. NO"
                     r"[A-Z]+\s+ET\s+AL\.?\s*,?\s*(?:Petitioners?|Appellants?|Plaintiffs?|Appellees?|Respondents?)\s*,?\s*v\.\s+[A-Z]+\s+(?:Petitioners?|Appellants?|Plaintiffs?|Appellees?|Respondents?)\s*[,\.]\s*NO\.?",  # "ERICKSON ET AL., Petitioners, v. PHARMACIA LLC, Respondent. NO"
+                    # Pattern 12: Federal docket caption bleed (e.g. "Ill. Union Ins. Co. No. C10-5943 RJB Milgard Mfg., Inc. v. Ill")
+                    r"(?:Ins\.?\s*Co\.?|Inc\.?|Corp\.?|L\.?L\.?C\.?)\s+No\.?\s*[A-Z]?\d+[-\.]\d+",  # Corporate + federal docket
                 ]
 
                 # CRITICAL: Check patterns case-insensitively
@@ -1806,6 +1856,8 @@ def extract_case_name_from_strict_context(context: str, citation_text: str) -> O
                 r"\b(?:Petitioners?|Appellants?|Plaintiffs?|Appellees?|Respondents?)\s*[,\.]\s*NO\.?\s*$",  # Ends with "Respondent. NO" or "Petitioners, NO"
                 # Pattern 11: CRITICAL - Catch "ERICKSON ET AL., Petitioners, v. PHARMACIA LLC, Respondent. NO"
                 r"[A-Z]+\s+ET\s+AL\.?\s*,?\s*(?:Petitioners?|Appellants?|Plaintiffs?|Appellees?|Respondents?)\s*,?\s*v\.\s+[A-Z]+\s+(?:Petitioners?|Appellants?|Plaintiffs?|Appellees?|Respondents?)\s*[,\.]\s*NO\.?",  # "ERICKSON ET AL., Petitioners, v. PHARMACIA LLC, Respondent. NO"
+                # Pattern 12: Federal docket caption bleed (e.g. "Ill. Union Ins. Co. No. C10-5943 RJB Milgard Mfg., Inc. v. Ill")
+                r"(?:Ins\.?\s*Co\.?|Inc\.?|Corp\.?|L\.?L\.?C\.?)\s+No\.?\s*[A-Z]?\d+[-\.]\d+",  # Corporate + federal docket
             ]
 
             # CRITICAL: Check patterns case-insensitively
@@ -2130,7 +2182,7 @@ def extract_case_name_from_strict_context(context: str, citation_text: str) -> O
                 
                 # If cleaning removed significant content, use cleaned version
                 if case_name_cleaned != case_name and len(case_name_cleaned) >= 5:
-                    logger.warning(f"[STRICT-EXTRACT-CLEANUP] Cleaned 'Opinion of the Court' from '{case_name}' → '{case_name_cleaned}'")
+                    logger.warning(f"[STRICT-EXTRACT-CLEANUP] Cleaned 'Opinion of the Court' from '{case_name}' -> '{case_name_cleaned}'")
                     case_name = case_name_cleaned
                 
                 # Final check - reject if it still contains "Opinion of the Court"
@@ -2185,7 +2237,7 @@ def extract_case_name_from_strict_context(context: str, citation_text: str) -> O
             # Trim narrative prefixes from plaintiff using last sentence/delimiter boundary
             try:
                 boundaries = []
-                for token in [". ", "; ", "—", "–"]:
+                for token in [". ", "; ", "-"]:
                     idx = plaintiff.rfind(token)
                     if idx != -1:
                         boundaries.append(idx + (2 if token in [". ", "; "] else 1))
@@ -2285,7 +2337,7 @@ def extract_with_strict_isolation(text: str, citations: List[Any], force_reextra
             results[citation_text] = case_name
             # Update the citation object
             citation.extracted_case_name = case_name
-            logger.info(f"[STRICT-ISOLATION] {citation_text} → '{case_name}'")
+            logger.info(f"[STRICT-ISOLATION] {citation_text} -> '{case_name}'")
         else:
             logger.warning(f"[STRICT-ISOLATION] Failed to extract for {citation_text}")
 

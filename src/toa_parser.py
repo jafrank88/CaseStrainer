@@ -278,7 +278,7 @@ class ImprovedToAParser:
         """Safely parse a single chunk."""
         chunk = chunk.strip()
 
-        chunk = re.sub(r"[ \t\u2022\u00b7]*[.·•]+[ \t]*\d+\s*$", "", chunk)
+        chunk = re.sub(r"[ \t\u2022\u00b7]*[.\u00b7\u2022]+[ \t]*\d+\s*$", "", chunk)
 
         for i, pattern in enumerate(self.toa_entry_patterns):
             try:

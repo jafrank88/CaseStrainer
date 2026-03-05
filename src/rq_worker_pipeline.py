@@ -88,6 +88,7 @@ def _ensure_redis_and_service(task_id: str, input_type: str, input_data: dict, l
 
 
 def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=None):  # pyright: ignore
+    import os  # Ensure os in local scope (avoids "referenced before assignment" from inner imports)
     if logger is None:
         logger = logging.getLogger(__name__)
 
@@ -186,7 +187,7 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
                     logger.info(f"[TASK:{task_id}] Extracting text from URL...")
                     import requests
                     import tempfile
-                    import os
+                    # os already imported at module level
 
                     # Download the content
                     # CRITICAL FIX: Follow redirects to handle HTTP->HTTPS redirects
@@ -1665,6 +1666,19 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
                                     f"[TASK:{task_id}] WL-DEDUP: removed {len(wl_to_remove)} duplicate WL/LEXIS clusters, now {len(clusters_list)}"
                                 )
 
+                        # Merge clusters that share any citation (catches duplicates with different extracted names/years)
+                        if clusters_list and len(clusters_list) > 1:
+                            try:
+                                from src.utils.response_enrichment import merge_clusters_by_shared_citation
+                                before_shared = len(clusters_list)
+                                clusters_list = merge_clusters_by_shared_citation(clusters_list)
+                                if len(clusters_list) < before_shared:
+                                    logger.info(
+                                        f"[TASK:{task_id}] Shared-citation merge: {before_shared} -> {len(clusters_list)} clusters"
+                                    )
+                            except Exception as _merge_err:
+                                logger.warning(f"[TASK:{task_id}] Shared-citation merge skipped: {_merge_err}")
+
                         # Merge clusters that are the same case: same normalized name, same year, ≥1 citation in common
                         if clusters_list and len(clusters_list) > 1:
                             try:
@@ -2000,10 +2014,13 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
                                 if has_conflict:
                                     continue  # Skip this group - these are NOT parallels
                                 
-                                # Find source citation: MUST be verified=True with canonical data
+                                # Find source citation: MUST be verified=True with canonical data and real URL (not Google search)
                                 source_citation = None
                                 for gc in group_cits:
                                     if gc.get("verified") == True and gc.get("canonical_name"):
+                                        src_url = (gc.get("canonical_url") or gc.get("url") or "").strip()
+                                        if src_url and (src_url.startswith("https://www.google.com/search") or src_url.startswith("http://www.google.com/search")):
+                                            continue  # Google search URL = not real verification
                                         source_citation = gc
                                         break
 
@@ -2042,6 +2059,14 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
                                                     continue
                                             except Exception:
                                                 pass
+                                            # Do NOT mark true_by_parallel if source has Google search URL
+                                            src_url = (source_citation.get("canonical_url") or source_citation.get("url") or "").strip()
+                                            if src_url and (src_url.startswith("https://www.google.com/search") or src_url.startswith("http://www.google.com/search")):
+                                                logger.info(
+                                                    f"[TASK:{task_id}] PARALLEL-CONSISTENCY: SKIPPING {gc.get('citation')} "
+                                                    f"- source has Google search URL (not real verification)"
+                                                )
+                                                continue
                                             gc["true_by_parallel"] = True
                                             # Also update the original object if this was converted from an object
                                             if "_original_obj" in gc:
@@ -2104,10 +2129,13 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
                                     visited_cites.update(group)
                                     continue
 
-                                # Find source citation: MUST be verified=True with canonical data
+                                # Find source citation: MUST be verified=True with canonical data and real URL (not Google search)
                                 source_citation = None
                                 for gc in group_citations:
                                     if gc.get("verified") == True and gc.get("canonical_name"):
+                                        src_url = (gc.get("canonical_url") or gc.get("url") or "").strip()
+                                        if src_url and (src_url.startswith("https://www.google.com/search") or src_url.startswith("http://www.google.com/search")):
+                                            continue  # Google search URL = not real verification
                                         source_citation = gc
                                         break
 
@@ -2139,6 +2167,14 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
                                                     continue
                                             except Exception:
                                                 pass
+                                            # Do NOT mark true_by_parallel if source has Google search URL
+                                            src_url = (source_citation.get("canonical_url") or source_citation.get("url") or "").strip()
+                                            if src_url and (src_url.startswith("https://www.google.com/search") or src_url.startswith("http://www.google.com/search")):
+                                                logger.info(
+                                                    f"[TASK:{task_id}] PARALLEL-CONSISTENCY: SKIPPING {gc.get('citation')} "
+                                                    f"- source has Google search URL (explicit group)"
+                                                )
+                                                continue
                                             gc["true_by_parallel"] = True
                                             if source_citation.get("canonical_name") and not gc.get("canonical_name"):
                                                 gc["canonical_name"] = source_citation.get("canonical_name")
@@ -2218,6 +2254,10 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
                                     if not matched_source:
                                         continue
 
+                                    # Do NOT mark true_by_parallel if source has Google search URL
+                                    src_url = (matched_source.get("canonical_url") or matched_source.get("url") or "").strip()
+                                    if src_url and (src_url.startswith("https://www.google.com/search") or src_url.startswith("http://www.google.com/search")):
+                                        continue
                                     gc["true_by_parallel"] = True
                                     if matched_source.get("canonical_name") and not gc.get("canonical_name"):
                                         gc["canonical_name"] = matched_source.get("canonical_name")
@@ -2411,9 +2451,12 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
                                                 if cite_text in citation_lookup:
                                                     updated = citation_lookup[cite_text]
                                                     # Update true_by_parallel status (add or clear)
+                                                    # Do NOT propagate true_by_parallel if source has Google search URL
+                                                    upd_url = (updated.get("canonical_url") or updated.get("url") or "").strip()
+                                                    upd_has_google = upd_url and (upd_url.startswith("https://www.google.com/search") or upd_url.startswith("http://www.google.com/search"))
                                                     if updated.get("true_by_parallel") and not cit.get(
                                                         "true_by_parallel"
-                                                    ):
+                                                    ) and not upd_has_google:
                                                         cit["true_by_parallel"] = True
                                                         if updated.get("canonical_name") and not cit.get(
                                                             "canonical_name"
@@ -2520,6 +2563,64 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
                             if final_orphan_cleared > 0:
                                 logger.info(
                                     f"[TASK:{task_id}] CLUSTER-ORPHAN: Cleared {final_orphan_cleared} orphaned true_by_parallel flags at cluster level"
+                                )
+
+                            # STEP 5: Google search URL → Unverified
+                            # When canonical_url is a Google search, status must be unverified (not Verified or Verified by Parallel)
+                            def _is_google_url(u):
+                                if not u or not str(u).strip():
+                                    return False
+                                s = str(u).strip()
+                                return s.startswith("https://www.google.com/search") or s.startswith("http://www.google.com/search")
+
+                            google_downgraded = 0
+                            for _c in citation_lookup.values():
+                                if not isinstance(_c, dict):
+                                    continue
+                                url = (_c.get("canonical_url") or _c.get("url") or "").strip()
+                                if not _is_google_url(url):
+                                    continue
+                                if _c.get("verified") == True:
+                                    _c["verified"] = False
+                                    _c["is_verified"] = False
+                                    _c["verification_status"] = _c.get("verification_status") or "unverified"
+                                    if "_original_obj" in _c:
+                                        orig = _c["_original_obj"]
+                                        orig.verified = False
+                                        orig.is_verified = False
+                                    google_downgraded += 1
+                                    logger.info(
+                                        f"[TASK:{task_id}] GOOGLE-URL: Downgraded verified {_c.get('citation')} to unverified"
+                                    )
+                                if _c.get("true_by_parallel", False):
+                                    _c["true_by_parallel"] = False
+                                    if "_original_obj" in _c:
+                                        orig = _c["_original_obj"]
+                                        orig.true_by_parallel = False
+                                    google_downgraded += 1
+                                    logger.info(
+                                        f"[TASK:{task_id}] GOOGLE-URL: Cleared true_by_parallel from {_c.get('citation')}"
+                                    )
+                            for cluster in (clusters_list or []):
+                                if not isinstance(cluster, dict):
+                                    continue
+                                for cit in cluster.get("citations", []):
+                                    if not isinstance(cit, dict):
+                                        continue
+                                    url = (cit.get("canonical_url") or cit.get("url") or "").strip()
+                                    if not _is_google_url(url):
+                                        continue
+                                    if cit.get("verified") == True:
+                                        cit["verified"] = False
+                                        cit["is_verified"] = False
+                                        cit["verification_status"] = cit.get("verification_status") or "unverified"
+                                        google_downgraded += 1
+                                    if cit.get("true_by_parallel", False):
+                                        cit["true_by_parallel"] = False
+                                        google_downgraded += 1
+                            if google_downgraded > 0:
+                                logger.info(
+                                    f"[TASK:{task_id}] GOOGLE-URL: Downgraded {google_downgraded} citations with Google search canonical URL to unverified"
                                 )
 
                         if len(citations_list) > 0:
@@ -2862,7 +2963,7 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
                     # phantom name fixes, or PDF missing-space normalization were applied
                     try:
                         from src.utils.mismatch_utils import annotate_mismatch_flags
-                        annotate_mismatch_flags(citations_list, clusters_list, name_threshold=0.4, year_tolerance=1)
+                        annotate_mismatch_flags(citations_list, clusters_list, name_threshold=0.4, year_tolerance=0)
                         logger.info(f"[TASK:{task_id}] Re-annotated mismatch flags after post-processing")
                     except Exception as mismatch_err:
                         logger.warning(f"[TASK:{task_id}] Mismatch re-annotation failed: {mismatch_err}")
@@ -3029,31 +3130,148 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
                     try:
                         import re
 
+                        # Broad coverage: regional reporters, state reporters, federal
                         citation_patterns = [
-                            r"\d+\s+Wn\.2d\s+\d+",  # Washington 2d
-                            r"\d+\s+Wn\.\s+App\.\s+2d\s+\d+",  # Washington App 2d
-                            r"\d+\s+P\.3d\s+\d+",  # Pacific 3d
-                            r"\d+\s+U\.S\.\s+\d+",  # US Supreme Court
-                            r"\d+\s+F\.3d\s+\d+",  # Federal 3d
-                            r"\d+\s+P\.2d\s+\d+",  # Pacific 2d
+                            # Washington
+                            r"\d+\s+Wn\.2d\s+\d+",
+                            r"\d+\s+Wn\.\s+App\.\s+2d\s+\d+",
+                            # Pacific
+                            r"\d+\s+P\.3d\s+\d+",
+                            r"\d+\s+P\.2d\s+\d+",
+                            # Federal
+                            r"\d+\s+U\.S\.\s+\d+",
+                            r"\d+\s+F\.3d\s+\d+",
+                            r"\d+\s+F\.2d\s+\d+",
+                            r"\d+\s+F\.4th\s+\d+",
+                            r"\d+\s+F\.\s*Supp\.\s*2d\s+\d+",
+                            r"\d+\s+F\.\s*Supp\.\s*3d\s+\d+",
+                            r"\d+\s+F\.\s*Supp\.\s+\d+",
+                            # Regional: N.E., S.E., N.W., S.W., A., So.
+                            r"\d+\s+N\.E\.2d\s+\d+",
+                            r"\d+\s+N\.E\.3d\s+\d+",
+                            r"\d+\s+N\.E\.\s+\d+",
+                            r"\d+\s+S\.E\.2d\s+\d+",
+                            r"\d+\s+S\.E\.\s+\d+",
+                            r"\d+\s+N\.W\.2d\s+\d+",
+                            r"\d+\s+N\.W\.\s+\d+",
+                            r"\d+\s+S\.W\.2d\s+\d+",
+                            r"\d+\s+S\.W\.3d\s+\d+",
+                            r"\d+\s+S\.W\.\s+\d+",
+                            r"\d+\s+A\.2d\s+\d+",
+                            r"\d+\s+A\.3d\s+\d+",
+                            r"\d+\s+A\.\s+\d+",
+                            r"\d+\s+So\.2d\s+\d+",
+                            r"\d+\s+So\.3d\s+\d+",
+                            # Illinois
+                            r"\d+\s+Ill\.\s*App\.\s*3d\s+\d+",
+                            r"\d+\s+Ill\.\s*App\.\s*2d\s+\d+",
+                            r"\d+\s+Ill\.\s*2d\s+\d+",
+                            r"\d+\s+Ill\.\s+\d+",
+                            # Virginia, California, New York, Ohio, Missouri, etc.
+                            r"\d+\s+Va\.\s+\d+",
+                            r"\d+\s+Va\.\s+App\.\s+\d+",
+                            r"\d+\s+Cal\.\s*App\.\s*4th\s+\d+",
+                            r"\d+\s+Cal\.\s*App\.\s*3d\s+\d+",
+                            r"\d+\s+Cal\.\s*4th\s+\d+",
+                            r"\d+\s+Cal\.\s*3d\s+\d+",
+                            r"\d+\s+Cal\.\s*2d\s+\d+",
+                            r"\d+\s+Cal\.\s+\d+",
+                            r"\d+\s+N\.Y\.2d\s+\d+",
+                            r"\d+\s+N\.Y\.3d\s+\d+",
+                            r"\d+\s+N\.Y\.\s+\d+",
+                            r"\d+\s+Ohio\s+St\.\s*3d\s+\d+",
+                            r"\d+\s+Ohio\s+St\.\s*2d\s+\d+",
+                            r"\d+\s+Ohio\s+App\.\s+\d+",
+                            r"\d+\s+Mo\.\s+App\.\s+\d+",
+                            r"\d+\s+Mo\.\s+\d+",
+                            r"\d+\s+Tenn\.\s+\d+",
+                            r"\d+\s+Tex\.\s+App\.\s+\d+",
+                            r"\d+\s+Fla\.\s+\d+",
+                            r"\d+\s+N\.J\.\s+\d+",
+                            r"\d+\s+N\.J\.\s*Super\.\s+\d+",
+                            r"\d+\s+Mass\.\s+App\.\s+[Cc]t\.\s+\d+",
+                            r"\d+\s+Mass\.\s+\d+",
+                            r"\d+\s+Ga\.\s+\d+",
+                            r"\d+\s+N\.C\.\s+App\.\s+\d+",
+                            r"\d+\s+N\.C\.\s+\d+",
+                            r"\d+\s+Colo\.\s+App\.\s+\d+",
+                            r"\d+\s+Colo\.\s+\d+",
+                            r"\d+\s+Mich\.\s+App\.\s+\d+",
+                            r"\d+\s+Mich\.\s+\d+",
+                            r"\d+\s+Minn\.\s+\d+",
+                            r"\d+\s+Wis\.\s*2d\s+\d+",
+                            r"\d+\s+Wyo\.\s+\d+",
+                            r"\d+\s+Idaho\s+\d+",
+                            r"\d+\s+Or\.\s+App\.\s+\d+",
+                            r"\d+\s+Or\.\s+\d+",
+                            r"\d+\s+Mont\.\s+\d+",
+                            r"\d+\s+Ala\.\s+\d+",
+                            r"\d+\s+Conn\.\s+App\.\s+\d+",
+                            r"\d+\s+Conn\.\s+\d+",
+                            r"\d+\s+Md\.\s+App\.\s+\d+",
+                            r"\d+\s+Md\.\s+\d+",
+                            r"\d+\s+Pa\.\s+Super\.\s+\d+",
+                            r"\d+\s+Pa\.\s+\d+",
+                            r"\d+\s+Ind\.\s+App\.\s+\d+",
+                            r"\d+\s+Ind\.\s+\d+",
+                            r"\d+\s+Ariz\.\s+App\.\s+\d+",
+                            r"\d+\s+Ariz\.\s+\d+",
+                            r"\d+\s+N\.M\.\s+App\.\s+\d+",
+                            r"\d+\s+N\.M\.\s+\d+",
+                            r"\d+\s+Utah\s+App\.\s+\d+",
+                            r"\d+\s+Utah\s+\d+",
+                            r"\d+\s+Nev\.\s+\d+",
+                            r"\d+\s+Haw\.\s+App\.\s+\d+",
+                            r"\d+\s+Haw\.\s+\d+",
+                            r"\d+\s+Alaska\s+\d+",
+                            r"\d+\s+Kan\.\s+App\.\s*2d\s+\d+",
+                            r"\d+\s+Kan\.\s+\d+",
+                            r"\d+\s+Neb\.\s+App\.\s+\d+",
+                            r"\d+\s+Neb\.\s+\d+",
+                            r"\d+\s+Iowa\s+App\.\s+\d+",
+                            r"\d+\s+Iowa\s+\d+",
+                            r"\d+\s+S\.D\.\s+\d+",
+                            r"\d+\s+N\.D\.\s+\d+",
+                            r"\d+\s+La\.\s+App\.\s+\d+",
+                            r"\d+\s+La\.\s+\d+",
+                            r"\d+\s+Miss\.\s+App\.\s+\d+",
+                            r"\d+\s+Miss\.\s+\d+",
+                            r"\d+\s+Okla\.\s+Civ\.\s+App\.\s+\d+",
+                            r"\d+\s+Okla\.\s+\d+",
+                            r"\d+\s+Ark\.\s+App\.\s+\d+",
+                            r"\d+\s+Ark\.\s+\d+",
+                            r"\d+\s+Ky\.\s+App\.\s+\d+",
+                            r"\d+\s+Ky\.\s+\d+",
+                            r"\d+\s+S\.C\.\s+\d+",
+                            r"\d+\s+Me\.\s+\d+",
+                            r"\d+\s+Vt\.\s+\d+",
+                            r"\d+\s+N\.H\.\s+\d+",
+                            r"\d+\s+R\.I\.\s+\d+",
+                            r"\d+\s+Del\.\s+\d+",
+                            r"\d+\s+D\.C\.\s+\d+",
+                            r"\d+\s+W\.\s*Va\.\s+\d+",
+                            # WL/LEXIS (optional - often need docket context)
+                            r"\d+\s+WL\s+\d+",
                         ]
 
+                        seen = set()
                         citations_found = []
                         for pattern in citation_patterns:
-                            matches = re.findall(pattern, text)
-                            for match in matches:
-                                citations_found.append(
-                                    {
-                                        "citation": match,
-                                        "case_name": "N/A",  # FIXED: Add case_name field
-                                        "extracted_case_name": None,
-                                        "canonical_name": None,
-                                        "cluster_case_name": None,
-                                        "verified": False,
-                                        "confidence": 0.8,
-                                        "method": "fallback_async",
-                                    }
-                                )
+                            for match in re.findall(pattern, text, re.IGNORECASE):
+                                if match not in seen:
+                                    seen.add(match)
+                                    citations_found.append(
+                                        {
+                                            "citation": match,
+                                            "case_name": "N/A",
+                                            "extracted_case_name": None,
+                                            "canonical_name": None,
+                                            "cluster_case_name": None,
+                                            "verified": False,
+                                            "confidence": 0.8,
+                                            "method": "fallback_async",
+                                        }
+                                    )
 
                         result = {
                             "success": True,
@@ -3164,18 +3382,40 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
                     except Exception as cb_err:
                         logger.debug(f"[TASK:{task_id}] Progress callback error (non-critical): {cb_err}")
 
-                # Call pipeline directly with asyncio
+                # Call pipeline directly with asyncio; use same timeout as text path to avoid runaway runs
                 import asyncio
 
-                pipeline_result = asyncio.run(
-                    process_citations_unified(
-                        text,
-                        processing_mode="enhanced_sync",
-                        enable_parallel_verification=enable_verification,
-                        enable_verification=enable_verification,
-                        progress_callback=file_progress_callback,
+                pipeline_timeout = int(os.environ.get("PIPELINE_TIMEOUT_SECONDS", "600"))
+                try:
+                    pipeline_result = asyncio.run(
+                        asyncio.wait_for(
+                            process_citations_unified(
+                                text,
+                                processing_mode="enhanced_sync",
+                                enable_parallel_verification=enable_verification,
+                                enable_verification=enable_verification,
+                                progress_callback=file_progress_callback,
+                            ),
+                            timeout=float(pipeline_timeout),
+                        )
                     )
-                )
+                except asyncio.TimeoutError:
+                    logger.error(f"[TASK:{task_id}] File pipeline timed out after {pipeline_timeout}s")
+                    try:
+                        vm.update_progress(
+                            task_id, processed=0, total=1, message="Pipeline timed out; document may be too large"
+                        )
+                    except Exception:
+                        pass
+                    result = {
+                        "status": "failed",
+                        "task_id": task_id,
+                        "error": f"Processing timed out after {pipeline_timeout} seconds. The document may be too large.",
+                        "citations": [],
+                        "clusters": [],
+                        "success": False,
+                    }
+                    return result
                 logger.info(f"[TASK:{task_id}] Unified pipeline processing completed (file path)")
             except Exception as e:
                 logger.error(f"[TASK:{task_id}] Full pipeline failed: {e}")
@@ -3248,7 +3488,7 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
             # FIX 2026-02-09: Re-annotate mismatch flags after pipeline post-processing
             try:
                 from src.utils.mismatch_utils import annotate_mismatch_flags
-                annotate_mismatch_flags(citations, clusters, name_threshold=0.4, year_tolerance=1)
+                annotate_mismatch_flags(citations, clusters, name_threshold=0.4, year_tolerance=0)
                 logger.info(f"[TASK:{task_id}] Re-annotated mismatch flags (file path)")
             except Exception as mismatch_err:
                 logger.warning(f"[TASK:{task_id}] Mismatch re-annotation failed: {mismatch_err}")
@@ -3260,6 +3500,8 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
                 1 for c in citations
                 if isinstance(c, dict) and c.get("verified", False)
             )
+            pipeline_meta = pipeline_result.get("metadata") or {}
+            clustering_ver = pipeline_meta.get("clustering_version") or "unknown"
             meta_file = {
                 "processing_strategy": "full_async_with_verification",
                 "text_length": len(text),
@@ -3267,6 +3509,7 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
                 "verified_count": verified_count_file,
                 "cluster_count": len(clusters),
                 "verification_completed": enable_verification,
+                "clustering_version": clustering_ver,
             }
             if enable_verification and len(citations) > 0 and verified_count_file == 0:
                 meta_file["verification_requested_but_none_matched"] = True
@@ -3286,6 +3529,31 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
                 vm.complete(task_id, result)
             except Exception as complete_err:
                 logger.debug(f"[TASK:{task_id}] File-path complete update skipped: {complete_err}")
+
+            # Diagnostic: log clustering version and sample clusters (Kustura/Perry) for debugging
+            logger.info(
+                f"[TASK:{task_id}] CLUSTER-DIAG clustering_version={clustering_ver} clusters={len(clusters)}"
+            )
+            for i, cl in enumerate(clusters or []):
+                if not isinstance(cl, dict):
+                    continue
+                name = (
+                    (cl.get("cluster_case_name") or cl.get("submitted_display_name") or cl.get("verifying_display_name") or "")
+                ).strip()
+                cits = cl.get("citations") or cl.get("citation_objects") or []
+                if not name:
+                    continue
+                name_lower = name.lower()
+                if "kustura" in name_lower or ("perry" in name_lower and "beverage" in name_lower):
+                    cite_texts = [
+                        (c.get("citation") or c.get("text") or "")[:50]
+                        for c in cits
+                        if isinstance(c, dict)
+                    ]
+                    logger.info(
+                        f"[TASK:{task_id}] CLUSTER-DIAG cluster_id={cl.get('cluster_id')} name={name[:50]} "
+                        f"citations={len(cits)} refs={cite_texts}"
+                    )
 
         # Ensure the result is JSON serializable
         processing_time = time.time() - start_time

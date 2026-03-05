@@ -235,7 +235,7 @@ def get_progress_data(task_id: str) -> Optional[Dict[str, Any]]:
 
         if redis_data:
             progress_data = json.loads(redis_data.decode("utf-8") if isinstance(redis_data, bytes) else redis_data)
-            logger.info(f"✅ FIX #21: Retrieved progress from Redis for {task_id}: {progress_data.get('progress')}%")
+            logger.info(f"[OK] FIX #21: Retrieved progress from Redis for {task_id}: {progress_data.get('progress')}%")
             return progress_data
 
     except Exception as e:

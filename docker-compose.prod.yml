@@ -24,7 +24,7 @@ services:
   backend:
     build: .
     container_name: casestrainer-backend-prod
-    command: waitress-serve --host=0.0.0.0 --port=5000 src.app_final_vue:app
+    command: sh -c "waitress-serve --host=0.0.0.0 --port=5000 --threads=${WAITRESS_THREADS:-8} src.app_final_vue:app"
     ports:
       - "5000:5000"
     depends_on:
@@ -41,6 +41,10 @@ services:
       - COURTLISTENER_API_KEY=${COURTLISTENER_API_KEY}
       - ENABLE_VERIFICATION=true
       - SKIP_FALLBACK_VERIFICATION=true
+      - WAITRESS_THREADS=${WAITRESS_THREADS:-8}
+      # Optional: controlled load-test bypass key for API rate limiter (keep empty in normal production).
+      - RATE_LIMIT_BYPASS_KEY=${RATE_LIMIT_BYPASS_KEY:-}
+      - RATE_LIMIT_BYPASS_HEADER=${RATE_LIMIT_BYPASS_HEADER:-X-Load-Test-Key}
     volumes:
       - ./src:/app/src
       - ./data:/app/data
@@ -385,10 +389,12 @@ services:
         condition: service_healthy
     environment:
       - REDIS_URL=redis://:${REDIS_PASSWORD}@casestrainer-redis-prod:6379/0
+      - SECRET_KEY=${SECRET_KEY}
       - PYTHONPATH=/app
       - JOB_STUCK_THRESHOLD_SEC=600
     volumes:
       - ./src:/app/src
+      - ./data:/app/data
       - ./logs:/app/logs
     restart: always
     networks:

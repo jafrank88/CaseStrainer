@@ -5,6 +5,7 @@ HTTP session management, citation validation, and case name overlap calculation.
 Extracted from unified_verification_master.py (P1 refactoring).
 """
 
+import os
 import re
 import logging
 import requests
@@ -31,6 +32,10 @@ def get_retrying_session(total: int = 3, backoff: float = 0.5, statuses=None) ->
     )
     adapter = HTTPAdapter(max_retries=retry)
     s = requests.Session()
+    # Do not inherit host HTTP(S)_PROXY by default. On some deployments, stale
+    # localhost proxy env vars make all CourtListener/fallback requests fail.
+    trust_env_raw = (os.getenv("VERIFICATION_TRUST_ENV", "false") or "").strip().lower()
+    s.trust_env = trust_env_raw in ("1", "true", "yes", "on")
     s.mount("http://", adapter)
     s.mount("https://", adapter)
     return s

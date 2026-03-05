@@ -2,56 +2,35 @@
 
 export function useCitationNormalization() {
   const normalizeCitation = (citation) => {
-    let score = 0;
-    let scoreColor = 'text-muted';
-    
-    // Check if we have canonical name
-    if (citation.canonical_name && citation.canonical_name !== 'N/A') {
-      score += 2;
-    }
-    
-    // Check if extracted and canonical names match
-    if (citation.extracted_case_name && citation.extracted_case_name !== 'N/A' &&
-        citation.canonical_name && citation.canonical_name !== 'N/A') {
-      const canonicalWords = citation.canonical_name.toLowerCase().split(/\s+/).filter(w => w.length > 2);
-      const extractedWords = citation.extracted_case_name.toLowerCase().split(/\s+/).filter(w => w.length > 2);
-      
-      const commonWords = canonicalWords.filter(word => extractedWords.includes(word));
-      const similarity = commonWords.length / Math.max(canonicalWords.length, extractedWords.length);
-      
-      if (similarity >= 0.5) {
-        score += 1;
+    // Prefer backend-provided score/color when present
+    let score = typeof citation.citation_score === 'number' ? citation.citation_score : null;
+    let scoreColor = citation.score_color || null;
+    if (score === null) {
+      score = 0;
+      if (citation.canonical_name && citation.canonical_name !== 'N/A') score += 2;
+      if (citation.extracted_case_name && citation.extracted_case_name !== 'N/A' &&
+          citation.canonical_name && citation.canonical_name !== 'N/A') {
+        const canonicalWords = citation.canonical_name.toLowerCase().split(/\s+/).filter(w => w.length > 2);
+        const extractedWords = citation.extracted_case_name.toLowerCase().split(/\s+/).filter(w => w.length > 2);
+        const commonWords = canonicalWords.filter(word => extractedWords.includes(word));
+        const similarity = commonWords.length / Math.max(canonicalWords.length, extractedWords.length);
+        if (similarity >= 0.5) score += 1;
       }
+      if (citation.canonical_date && citation.canonical_date !== 'N/A') score += 1;
+      if ((citation.url || citation.canonical_url) && (citation.url || citation.canonical_url || '').trim() !== '') score += 1;
     }
-    
-    // Check if we have canonical date
-    if (citation.canonical_date && citation.canonical_date !== 'N/A') {
-      score += 1;
+    if (!scoreColor) {
+      scoreColor = score >= 4 ? 'text-success' : (score >= 2 ? 'text-warning' : 'text-danger');
     }
-    
-    // Check if we have URL
-    if (citation.url && citation.url !== '') {
-      score += 1;
-    }
-    
-    // Determine color based on score
-    if (score >= 4) {
-      scoreColor = 'text-success';
-    } else if (score >= 2) {
-      scoreColor = 'text-warning';
-    } else {
-      scoreColor = 'text-danger';
-    }
-    
     return {
-      score,
-      scoreColor,
+      score: typeof score === 'number' ? score : 0,
+      scoreColor: scoreColor || 'text-muted',
       normalized: {
         canonical_name: citation.canonical_name || 'N/A',
         extracted_case_name: citation.extracted_case_name || 'N/A',
         canonical_date: citation.canonical_date || 'N/A',
         extracted_date: citation.extracted_date || 'N/A',
-        url: citation.url || '',
+        url: citation.url || citation.canonical_url || '',
         verified: citation.verified || false
       }
     };
@@ -78,19 +57,15 @@ export function useCitationNormalization() {
   };
   
   const calculateSimilarity = (citation) => {
-    if (citation.canonical_name && citation.canonical_name !== 'N/A') {
-      return 1.0;
-    }
-    
+    if (typeof citation.name_similarity === 'number') return citation.name_similarity;
+    if (citation.canonical_name && citation.canonical_name !== 'N/A') return 1.0;
     if (citation.extracted_case_name && citation.extracted_case_name !== 'N/A' &&
         citation.canonical_name && citation.canonical_name !== 'N/A') {
       const canonicalWords = citation.canonical_name.toLowerCase().split(/\s+/).filter(w => w.length > 2);
       const extractedWords = citation.extracted_case_name.toLowerCase().split(/\s+/).filter(w => w.length > 2);
-      
       const commonWords = canonicalWords.filter(word => extractedWords.includes(word));
       return commonWords.length / Math.max(canonicalWords.length, extractedWords.length);
     }
-    
     return 0.0;
   };
   

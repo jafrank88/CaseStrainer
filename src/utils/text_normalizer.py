@@ -61,6 +61,10 @@ UNICODE_MAPPINGS = {
     "\u2025": "..",  # Two dot leader
     "\u2026": "...",  # Horizontal ellipsis
     "\u2027": ".",  # Hyphenation point
+    # Commas (ensure Unicode comma variants become ASCII comma so citation regexes see them)
+    "\u060c": ",",  # Arabic comma
+    "\u3001": ",",  # Ideographic comma
+    "\uff0c": ",",  # Fullwidth comma
     # Other punctuation
     "\u055a": ":",  # Armenian apostrophe
     "\u055b": ":",  # Armenian emphasis mark
@@ -80,10 +84,10 @@ def normalize_text(text: str) -> str:
     regex patterns to fail, such as smart quotes, em dashes, and other special characters.
     Also fixes line breaks in legal citations.
     """
-    logger.info(f"🔍 [TEXT-NORMALIZE] normalize_text called with {len(text)} chars")
+    logger.info(f"[DEBUG] [TEXT-NORMALIZE] normalize_text called with {len(text)} chars")
     
     if not text:
-        logger.info(f"🔍 [TEXT-NORMALIZE] Empty text, returning as-is")
+        logger.info(f"[DEBUG] [TEXT-NORMALIZE] Empty text, returning as-is")
         return text
 
     normalized = text
@@ -92,13 +96,25 @@ def normalize_text(text: str) -> str:
     sample = text[:100].replace('\n', '\\n').replace('\r', '\\r')
     logger.info(f" [TEXT-NORMALIZE] Original text sample: '{sample}...'")
 
-    # FIX 2026-02-04: Remove soft hyphens with their line breaks FIRST
-    # PDFs use soft hyphens (\xad / U+00AD) to indicate optional line breaks
-    # Pattern: "Trans\xad\nUnion" -> "TransUnion"
-    # CRITICAL FIX: Also remove space BEFORE the soft hyphen to prevent "Swin \xad\ndle" -> "Swin dle"
+    # FIX 2026-02-04: Remove soft hyphens (U+00AD) so word breaks normalize
+    # "Trans\xad\nUnion" -> "TransUnion"; "exer\xad cise" -> "exercise"
     normalized = re.sub(r'\s*\xad\s*[\n\r]+\s*', '', normalized)
-    # Also handle standalone soft hyphens (no line break following)
-    normalized = normalized.replace('\xad', '')
+    # Remove any remaining soft hyphen and surrounding spaces (e.g. "exer\xad cise" -> "exercise")
+    normalized = re.sub(r'\s*\xad\s*', '', normalized)
+
+    # Strip stray control characters and replacement chars from PDF extraction.
+    # These can appear inside words and break case-name matching.
+    normalized = re.sub(r'[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]', '', normalized)
+    normalized = normalized.replace('\ufffd', '')
+
+    # Fix hard-hyphen line-wrap artifacts in TitleCase names:
+    #   "Ap- ple" -> "Apple", "Deva- ney" -> "Devaney"
+    # Keep lower-case compounds (e.g., "well- known") untouched to avoid over-normalizing.
+    normalized = re.sub(
+        r'\b([A-Z][a-z]{1,12})-\s+([a-z]{2,12})\b',
+        lambda m: f"{m.group(1)}{m.group(2)}",
+        normalized
+    )
 
     # Apply Unicode character mappings
     for unicode_char, ascii_char in UNICODE_MAPPINGS.items():
@@ -144,6 +160,22 @@ def normalize_text(text: str) -> str:
     normalized = re.sub(r"(\d+)\s*[\n\r]+\s*([Uu]\.?\s*[Ss]\.?)\s+(\d+)", r"\1 \2 \3", normalized)
     normalized = re.sub(r"(\d+)\s*[\n\r]+\s*([Uu]\.?\s*[Ss]\.?)[\n\r]+\s*(\d+)", r"\1 \2 \3", normalized)
 
+    # CRITICAL: Handle U.S. App. D.C. before F.2d fix - prevents "139\nF.2d 1267" -> "139 F.2d 1267"
+    # when the real text is "205 U.S. App. D.C. 139, 636 F.2d 1267" (139 is page, 636 is F.2d volume)
+    # Pattern: "U.S. App. D.C. 139,\n636 F.2d 1267" or "U.S. App. D.C. 139\n636 F.2d 1267" -> join with comma
+    normalized = re.sub(
+        r"(U\.?\s*S\.?\s*App\.?\s*D\.?\s*C\.?\s+\d+)\s*,\s*[\n\r]+\s*(\d+)\s+([Ff])\.?\s*(\d+)[a-z]?\s+(\d+)",
+        r"\1, \2 \3.\4d \5",
+        normalized,
+        flags=re.IGNORECASE,
+    )
+    normalized = re.sub(
+        r"(U\.?\s*S\.?\s*App\.?\s*D\.?\s*C\.?\s+\d+)\s*[\n\r]+\s*(\d+)\s+([Ff])\.?\s*(\d+)[a-z]?\s+(\d+)",
+        r"\1, \2 \3.\4d \5",
+        normalized,
+        flags=re.IGNORECASE,
+    )
+
     # Handle F.3d, F.2d, F. citations with line breaks in various positions
     # Pattern: "617\nF. 3d 688" -> "617 F.3d 688" (volume on separate line)
     normalized = re.sub(r"(\d+)\s*[\n\r]+\s*([Ff])\.?\s*(\d+)\s*[a-z]?\s+(\d+)", r"\1 \2.\3d \4", normalized)
@@ -175,6 +207,23 @@ def normalize_text(text: str) -> str:
     # Handle Cranch, Wheat., How. (early Supreme Court reporters)
     normalized = re.sub(r"(\d+)\s+([Cc]ranch|[Ww]heat\.?|[Hh]ow\.?)\s*[\n\r]+\s*(\d+)", r"\1 \2 \3", normalized)
 
+    # PDF artifact: list numbering + broken name (e.g. "1-"crdman" or "1. \"crdman" -> "Friedman")
+    normalized = re.sub(
+        r"\d+[-–.)]\s*[\"\u201c\u2018]?\s*[A-Za-z]?rdman\b", "Friedman", normalized, flags=re.IGNORECASE
+    )
+    # Backslash/apostrophe in docket: "17 C\' 7507", "17 C' 7507" -> "17 Cv. 7507"
+    # Match C + one or more of backslash/apostrophe (OCR corrupts "v" to \ or ')
+    normalized = re.sub(r"\s+C[\x5c\u2018\u2019'\u02bc`]+\s*(\d+)", r" Cv. \1", normalized)
+    normalized = re.sub(r"\s+Cv\s+(\d+)", r" Cv. \1", normalized)
+    # Court abbreviation: F.DNY (OCR corruption) -> S.D.N.Y. (Southern District of New York)
+    normalized = re.sub(r"\bF\.D\.?N\.?Y\.?\b", "S.D.N.Y.", normalized, flags=re.IGNORECASE)
+    normalized = re.sub(r"\bF\.\s*D\.?N\.?Y\.?\b", "S.D.N.Y.", normalized, flags=re.IGNORECASE)
+    # Reporter without space (e.g. "Supp3d" so F. Supp. 3d pattern matches)
+    normalized = re.sub(r"\bSupp\.?3d\b", "Supp. 3d", normalized, flags=re.IGNORECASE)
+    normalized = re.sub(r"\bSupp\.?2d\b", "Supp. 2d", normalized, flags=re.IGNORECASE)
+    normalized = re.sub(r"(\d+)\s+F\.\s*Supp\.?3d\s+(\d+)", r"\1 F. Supp. 3d \2", normalized, flags=re.IGNORECASE)
+    normalized = re.sub(r"(\d+)\s+F\.\s*Supp\.?2d\s+(\d+)", r"\1 F. Supp. 2d \2", normalized, flags=re.IGNORECASE)
+
     # Replace remaining newlines/tabs with spaces (general cleanup)
     normalized = re.sub(r"[\n\r\t]+", " ", normalized)
 
@@ -186,14 +235,14 @@ def normalize_text(text: str) -> str:
 
     # Show sample of normalized text
     sample_after = normalized[:100].replace('\n', '\\n').replace('\r', '\\r')
-    logger.info(f"🔍 [TEXT-NORMALIZE] Normalized text sample: '{sample_after}...'")
+    logger.info(f"[DEBUG] [TEXT-NORMALIZE] Normalized text sample: '{sample_after}...'")
 
     # Check if we fixed the broken citation
     if "200\n U. S. 321" in before_fix or "200\nU. S. 321" in before_fix:
         if "200 U. S. 321" in normalized:
-            logger.info(f"✅ [TEXT-NORMALIZE] FIXED: Found '200 U. S. 321' in normalized text")
+            logger.info(f"[OK] [TEXT-NORMALIZE] FIXED: Found '200 U. S. 321' in normalized text")
         else:
-            logger.warning(f"⚠️ [TEXT-NORMALIZE] NOT FIXED: Still no '200 U. S. 321' in normalized text")
+            logger.warning(f"[WARNING] [TEXT-NORMALIZE] NOT FIXED: Still no '200 U. S. 321' in normalized text")
 
     logger.debug(f"Text normalization: '{text[:50]}...' -> '{normalized[:50]}...'")
 
@@ -241,13 +290,14 @@ def normalize_case_name(case_name: str) -> str:
             'tele', 'commc', 'telecommc', 'telecommunications',
             'international', 'int', 'l', 'national', 'nat', 'department', 'dep',
             'government', 'gov', 'corp', 'corporation', 'inc', 'incorporated',
+            'exercise', 'exer', 'cise',
         }
         
         # Only rejoin if the combined word or its parts are in common fragments
         if combined.lower() in common_fragments:
             return combined
         # Also rejoin if part1 is a clear prefix (ends with common split points)
-        if part1.lower() in ['swin', 'gard', 'reserv', 'madi', 'labo', 'commu', 'tele', 'trans']:
+        if part1.lower() in ['swin', 'gard', 'reserv', 'madi', 'labo', 'commu', 'tele', 'trans', 'exer']:
             return combined
         # Don't rejoin - return original with space
         return match.group(0)
@@ -280,59 +330,6 @@ def normalize_case_name(case_name: str) -> str:
     logger.debug(f"Case name normalization: '{case_name}' -> '{normalized}'")
 
     return normalized.strip()
-
-
-def clean_extracted_case_name(case_name: str) -> str:
-    """
-    Clean up extracted case names by removing leading text that doesn't belong.
-
-    This function handles cases where regex patterns capture too much text,
-    such as when "court. Lopez Demetrio v. Sakuma Bros. Farms" should be
-    cleaned to "Lopez Demetrio v. Sakuma Bros. Farms".
-
-    Args:
-        case_name: Extracted case name to clean
-
-    Returns:
-        Cleaned case name
-    """
-    if not case_name:
-        return case_name
-
-    # Remove leading text that doesn't belong to case names
-    # FIXED: More specific patterns that don't destroy valid case names like "Spokeo, Inc."
-    leading_patterns = [
-        # Remove specific legal phrases that appear before case names
-        r"^(court|court\.|this\s+court|we\s+review|also\s+an?\s+issue|statutory\s+interpretation|questions?\s+of\s+law|de\s+novo|in\s+light\s+of|the\s+record\s+certified|federal\s+court)[\s\.]*",
-        r"^(and|or|but|that|this|is|also|we|may|ask|resolution|of|that|question|necessary|to|resolve|case|before)[\s\.]*",
-        r"^(see|citing|quoting|accord|id\.|ibid\.|brief\s+at|opening\s+br\.|reply\s+br\.)[\s\.]*",
-        # More specific patterns for the current issue
-        r"^[^A-Z]*an?\s+issue\s+of\s+law\s+we\s+review\s+de\s+novo[\s\.]*",
-        r"^[^A-Z]*interpretation\s+is\s+also\s+an?\s+issue\s+of\s+law\s+we\s+review\s+de\s+novo[\s\.]*",
-        r"^[^A-Z]*statutory\s+interpretation\s+is\s+also\s+an?\s+issue\s+of\s+law\s+we\s+review\s+de\s+novo[\s\.]*",
-        # REMOVED: r'^[^A-Z]*' - This was too aggressive and destroyed valid case names
-    ]
-
-    cleaned = case_name
-    for pattern in leading_patterns:
-        cleaned = re.sub(pattern, "", cleaned, flags=re.IGNORECASE)
-
-    # Remove leading punctuation and whitespace
-    cleaned = re.sub(r"^[\s\.,;:]+", "", cleaned)
-
-    # Ensure the cleaned name starts with a capital letter
-    if cleaned and not cleaned[0].isupper():
-        # Find the first capital letter
-        match = re.search(r"[A-Z]", cleaned)
-        if match:
-            cleaned = cleaned[match.start() :]
-        else:
-            # If no capital letter found, return original
-            cleaned = case_name
-
-    logger.debug(f"Case name cleaning: '{case_name}' -> '{cleaned}'")
-
-    return cleaned.strip()
 
 
 def is_unicode_problematic(text: str) -> bool:

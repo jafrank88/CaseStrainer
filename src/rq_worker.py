@@ -10,6 +10,15 @@ import sys
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), ".."))  # Add /app to path
 sys.path.insert(0, os.path.dirname(__file__))  # Add /app/src to path
 
+# Load .env from project root so COURTLISTENER_API_KEY etc. are set before config is imported.
+# (Flask loads .env via config; the worker may run with a different cwd or in Docker.)
+try:
+    from dotenv import load_dotenv
+    _root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+    load_dotenv(os.path.join(_root, ".env"))
+except Exception:
+    pass
+
 
 import logging
 import signal
@@ -27,6 +36,8 @@ try:
     persistent_logger = init_persistent_logging(f"casestrainer-worker{worker_id}", "/app/logs")
     logger = persistent_logger.get_logger()
     event_logger = persistent_logger.get_event_logger()
+    # So verification/processor logs (BATCH-FALLBACK, WL-LEFT, etc.) appear in the same worker log file
+    persistent_logger.attach_main_handler_to_root()
 except Exception as e:
     logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
     logger = logging.getLogger(__name__)
@@ -242,7 +253,7 @@ class CodeChangeMonitor:
 
         # Scan initial state
         self._scan_files()
-        logger.info(f"📁 Code monitor initialized: watching {len(self.file_mtimes)} Python files in {watch_dir}")
+        logger.info(f"[FILE] Code monitor initialized: watching {len(self.file_mtimes)} Python files in {watch_dir}")
 
     def _scan_files(self):
         """Scan all Python files and record their modification times."""
@@ -270,7 +281,7 @@ class CodeChangeMonitor:
 
                     if file_path not in self.file_mtimes:
                         # New file detected
-                        logger.info(f"🆕 New file detected: {py_file.name}")
+                        logger.info(f"[NEW] New file detected: {py_file.name}")
                         self.file_mtimes[file_path] = current_mtime
                         self.should_reload = True
                         return True

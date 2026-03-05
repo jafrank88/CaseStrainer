@@ -14,17 +14,18 @@
 
 **Canonical Endpoints (Use These):**
 
-- `POST /casestrainer/api/analyze` - Main endpoint for all document analysis
+- `POST /casestrainer/api/analyze` - **Single main endpoint** for all document analysis (file, URL, or text; sync or async)
+- `GET /casestrainer/api/task_status/<task_id>` - Task status and results for async jobs
 - `GET /casestrainer/api/health` - Health check
-- `GET /casestrainer/api/version` - Version information
-- `GET /casestrainer/api/task_status/<task_id>` - Task status
-- `GET /casestrainer/api/server_stats` - Server statistics
 - `GET /casestrainer/api/db_stats` - Database statistics
+- `GET /casestrainer/api/metrics/summary` - Metrics summary
+- `GET /casestrainer/api/analyze/progress/<request_id>` - Progress for a request
 
-**Deprecated Endpoints (Do NOT Use):**
+**Removed / Deprecated (Do NOT Use):**
 
-- `POST /casestrainer/api/process-text` - Deprecated, forwards to `/analyze`
-- `POST /casestrainer/api/analyze-document` - Deprecated, forwards to `/analyze`
+- `POST /casestrainer/api/analyze_enhanced` - **Removed**; use `POST /casestrainer/api/analyze` with JSON body (e.g. `type: "text"`) for text-only analysis.
+- `POST /casestrainer/api/process-text` - Deprecated, use `/analyze`
+- `POST /casestrainer/api/analyze-document` - Deprecated, use `/analyze`
 - All endpoints in `docker/src/deprecated_verifiers/` - Completely disabled
 
 ## Overview
@@ -68,32 +69,11 @@ CaseStrainer provides a comprehensive API for legal citation verification and an
 
 **Main endpoint for all document analysis** - This is the primary endpoint for citation verification and document analysis with async processing.
 
-### POST `/casestrainer/api/analyze_enhanced`
+### ~~POST `/casestrainer/api/analyze_enhanced`~~ (Removed)
 
-**Enhanced synchronous endpoint** - Provides immediate results for text analysis without file upload support. Best for quick testing and simple text processing.
+This endpoint has been **removed**. Use `POST /casestrainer/api/analyze` with a JSON body: `{"type": "text", "text": "..."}`. Use `force_mode: "sync"` in the request if you want immediate results for small text.
 
-#### Request
-
-```json
-{
-  "text": "The court held in State v. Rohrich, 149 Wn.2d 647, that...",
-  "source_type": "text"
-}
-
-```text
-
-#### Response (Async Processing)
-
-```json
-{
-  "task_id": "550e8400-e29b-41d4-a716-446655440000",
-  "status": "processing",
-  "message": "Document analysis started"
-}
-
-```text
-
-#### Final Response (After Processing)
+#### Example response (sync or from task_status)
 
 ```json
 {
@@ -198,21 +178,17 @@ CaseStrainer provides a comprehensive API for legal citation verification and an
 
 ```text
 
-### POST `/casestrainer/api/analyze_enhanced` (2)
-
-**Enhanced synchronous endpoint** for immediate text analysis without file upload support.
-
-#### Request Format
+#### Request format for text-only (replaces former analyze_enhanced)
 
 ```json
 {
   "type": "text",
-  "text": "The court held in State v. Rohrich, 149 Wn.2d 647, that..."
+  "text": "The court held in State v. Rohrich, 149 Wn.2d 647, that...",
+  "force_mode": "sync"
 }
+```
 
-```text
-
-#### Response Format (Immediate)
+Response format is the same as for `/analyze` (citations, clusters, metadata). For async, you receive `task_id` and poll `GET /task_status/<task_id>`.
 
 ```json
 {
@@ -252,12 +228,10 @@ CaseStrainer provides a comprehensive API for legal citation verification and an
 
 ```text
 
-#### Limitations
+#### Notes
 
-- **No file uploads** - Returns 501 "Not Implemented" error
-- **No URL processing** - Text input only
-- **No progress tracking** - Immediate results only
-- **No task IDs** - Direct response format
+- For **text-only** requests, send JSON with `type: "text"` and `text: "..."`. Optionally set `force_mode: "sync"` for immediate results on small input.
+- **File and URL** inputs use the same `POST /analyze` endpoint (multipart/form-data or JSON with `type: "url"`). Progress and task_id apply when processing is async.
 
 #### Use Cases
 

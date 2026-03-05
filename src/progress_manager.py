@@ -372,10 +372,18 @@ class ChunkedCitationProcessor:
             # CITATION-BASED PROGRESS: First do a quick citation count to determine realistic progress steps
             logger.info(f"[Task {task_id}] Counting citations for citation-based progress tracking...")
             try:
-                from src.citation_extraction_endpoint import extract_citations_with_clustering
+                import asyncio
+
+                from src.unified_processing_pipeline import process_citations_unified
 
                 # Do a quick extraction without verification to count citations
-                quick_result = extract_citations_with_clustering(document_text, enable_verification=False)
+                quick_result = asyncio.run(
+                    process_citations_unified(
+                        document_text,
+                        enable_verification=False,
+                        enable_parallel_verification=False,
+                    )
+                )
                 citation_count = len(quick_result.get("citations", []))
 
                 # Calculate realistic total steps based on citation count
@@ -386,7 +394,7 @@ class ChunkedCitationProcessor:
                 total_steps = base_steps + citation_steps
 
                 logger.info(
-                    f"[Task {task_id}] Citation-based progress: {citation_count} citations → {total_steps} total steps"
+                    f"[Task {task_id}] Citation-based progress: {citation_count} citations -> {total_steps} total steps"
                 )
             except Exception as e:
                 logger.warning(f"[Task {task_id}] Failed to count citations, using default steps: {e}")
@@ -510,7 +518,7 @@ class ChunkedCitationProcessor:
                 # Log if parallel verification was applied
                 parallel_count = sum(1 for c in citation_results if getattr(c, "true_by_parallel", False))
                 if parallel_count > 0:
-                    logger.info(f"[Chunk-{chunk_hash}] ✅ Applied parallel verification to {parallel_count} citations")
+                    logger.info(f"[Chunk-{chunk_hash}] [OK] Applied parallel verification to {parallel_count} citations")
 
             except Exception as parallel_error:
                 logger.warning(f"[Chunk-{chunk_hash}] Parallel verification failed (non-critical): {parallel_error}")
@@ -598,7 +606,7 @@ class ChunkedCitationProcessor:
         self, task_id: str, document_text: str, document_type: str, tracker: "ProgressTracker"
     ):
         """Background task to process document asynchronously"""
-        print(f"🔥🔥🔥 _process_document_async CALLED with {len(document_text)} chars, task_id={task_id}")
+        print(f"[DEBUG] _process_document_async CALLED with {len(document_text)} chars, task_id={task_id}")
         logger.info("\n" + "=" * 80)
         logger.info(f"Starting _process_document_async for task {task_id}")
         logger.info(f"Document type: {document_type}")
@@ -769,63 +777,6 @@ class ChunkedCitationProcessor:
             "high_confidence": len([c for c in citations if c.get("confidence_score", 0) > 0.8]),
             "needs_review": len([c for c in citations if c.get("confidence_score", 0) < 0.6]),
         }
-
-
-def _extract_with_pypdf2(pdf_content: bytes) -> str:
-    """Extract text using PyPDF2."""
-    import PyPDF2
-    import io
-
-    pdf_content_io = io.BytesIO(pdf_content)
-    pdf_reader = PyPDF2.PdfReader(pdf_content_io)
-    text_parts = []
-
-    for i, page in enumerate(pdf_reader.pages, 1):
-        try:
-            text = page.extract_text()
-            if text:
-                text_parts.append(text)
-        except Exception as e:
-            logger.warning(f"Error extracting text from page {i}: {str(e)}")
-
-    return "\n\n".join(text_parts)
-
-
-def _extract_with_pdfminer(pdf_content: bytes) -> str:
-    """Extract text using pdfminer."""
-    try:
-        from pdfminer.high_level import extract_text_to_fp
-        from pdfminer.layout import LAParams
-        import io
-
-        output_string = io.StringIO()
-        pdf_content_io = io.BytesIO(pdf_content)
-
-        extract_text_to_fp(pdf_content_io, output_string, laparams=LAParams(), output_type="text", codec="utf-8")
-
-        return output_string.getvalue()
-    except ImportError:
-        raise Exception("pdfminer not available")
-
-
-def _extract_with_pdfplumber(pdf_content: bytes) -> str:
-    """Extract text using pdfplumber."""
-    try:
-        import pdfplumber
-        import io
-
-        pdf_content_io = io.BytesIO(pdf_content)
-        text_parts = []
-
-        with pdfplumber.open(pdf_content_io) as pdf:
-            for page in pdf.pages:
-                text = page.extract_text()
-                if text:
-                    text_parts.append(text)
-
-        return "\n\n".join(text_parts)
-    except ImportError:
-        raise Exception("pdfplumber not available")
 
 
 def process_citation_task_direct(task_id: str, input_type: str, input_data: dict):

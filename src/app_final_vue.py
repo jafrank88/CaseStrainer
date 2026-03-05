@@ -105,7 +105,7 @@ def verify_citation_with_extraction(
 
     logger = logging.getLogger("citation_verification")
 
-    logger.info(f"🔍 DEBUG: verify_citation_with_extraction called")
+    logger.info(f"[DEBUG] DEBUG: verify_citation_with_extraction called")
     logger.info(f"  citation_text: '{citation_text}'")
     logger.info(f"  document_text length: {len(document_text) if document_text else 0}")
 
@@ -127,13 +127,13 @@ def verify_citation_with_extraction(
     }
     try:
         if document_text and document_text.strip():
-            logger.info(f"🔍 DEBUG: About to call extract_case_name_and_date_unified_master")
+            logger.info(f"[DEBUG] DEBUG: About to call extract_case_name_and_date_unified_master")
             logger.info(f"  citation_text: '{citation_text}'")
             logger.info(f"  document_text: '{document_text[:100]}...'")
 
             extraction_result = extract_case_name_and_date_unified_master(text=document_text, citation=citation_text)
 
-            logger.info(f"🔍 DEBUG: extract_case_name_and_date_unified_master returned:")
+            logger.info(f"[DEBUG] DEBUG: extract_case_name_and_date_unified_master returned:")
             logger.info(f"  Type: {type(extraction_result)}")
             logger.info(f"  Value: {extraction_result}")
 
@@ -158,7 +158,7 @@ def verify_citation_with_extraction(
                 result["canonical_name"] = extraction_result.get("canonical_name", "N/A")
                 result["canonical_date"] = extraction_result.get("canonical_date", "N/A")
 
-                logger.info(f"🔍 DEBUG: After mapping:")
+                logger.info(f"[DEBUG] DEBUG: After mapping:")
                 logger.info(f"  extracted_case_name: '{result['extracted_case_name']}'")
                 logger.info(f"  extracted_date: '{result['extracted_date']}'")
                 logger.info(f"Mapped values: name='{extracted_name}', date='{extracted_date}'")
@@ -232,7 +232,7 @@ class LoggingManager:
             logger.info("=== Logging Configuration ===")
             logger.info(f"Python version: {sys.version}")
             logger.info(f"Working directory: {os.getcwd()}")
-            logger.info("✅ PDFMiner DEBUG logging suppressed")
+            logger.info("[OK] PDFMiner DEBUG logging suppressed")
             return logger
         except Exception as e:
             return LoggingManager._setup_fallback_logging(e)
@@ -263,7 +263,7 @@ class LoggingManager:
 
         logger = logging.getLogger(__name__)
         logger.warning(f"Failed to configure centralized logging: {error}. Using fallback.")
-        logger.info("✅ PDFMiner DEBUG logging suppressed")
+        logger.info("[OK] PDFMiner DEBUG logging suppressed")
         return logger
 
 
@@ -514,11 +514,11 @@ class ApplicationFactory:
         self.logger.info("Creating new Flask application instance")
 
         if memory_monitor_available:
-            self.logger.info("🔍 Starting memory monitoring...")
+            self.logger.info("[DEBUG] Starting memory monitoring...")
             start_memory_monitoring(threshold_mb=1024, check_interval=60)
-            self.logger.info("✅ Memory monitoring started")
+            self.logger.info("[OK] Memory monitoring started")
         else:
-            self.logger.warning("⚠️ Memory monitoring not available")
+            self.logger.warning("[WARNING] Memory monitoring not available")
 
         try:
             app = self._configure_flask_app()
@@ -568,12 +568,12 @@ class ApplicationFactory:
             from src.api.blueprints import register_blueprints
 
             app = register_blueprints(app)
-            self.logger.info("✅ Successfully registered all blueprints")
+            self.logger.info("[OK] Successfully registered all blueprints")
 
             if "vue_api" in app.blueprints:
-                self.logger.info("✅ Vue API blueprint registered successfully")
+                self.logger.info("[OK] Vue API blueprint registered successfully")
             else:
-                self.logger.warning("❌ Vue API blueprint not found in registered blueprints")
+                self.logger.warning("[ERROR] Vue API blueprint not found in registered blueprints")
 
             self.logger.info("=== REGISTERED BLUEPRINTS ===")
             for name, blueprint in app.blueprints.items():
@@ -586,9 +586,9 @@ class ApplicationFactory:
                 self.logger.info(f"- {rule.endpoint}: {rule.rule} ({', '.join(rule.methods)})")
 
         except Exception as e:
-            self.logger.error(f"❌ Error registering blueprints: {e}", exc_info=True)
+            self.logger.error(f"[ERROR] Error registering blueprints: {e}", exc_info=True)
 
-            self.logger.critical(f"❌ FATAL: Could not register Vue API endpoints: {e}")
+            self.logger.critical(f"[ERROR] FATAL: Could not register Vue API endpoints: {e}")
             raise RuntimeError(f"Vue API endpoints could not be registered: {e}")
 
     def _configure_cors(self, app: Any) -> None:

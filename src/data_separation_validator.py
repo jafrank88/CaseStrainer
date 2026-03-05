@@ -60,14 +60,14 @@ class DataSeparationValidator:
         if extracted_name == canonical_name:
             warning = f"EXACT MATCH: Citation '{citation_text}' has identical extracted and canonical names: '{extracted_name}'"
             self.contamination_warnings.append(warning)
-            logger.warning(f"⚠️ {warning}")
+            logger.warning(f"[WARNING] {warning}")
             return False
 
         similarity = fuzz.ratio(extracted_name.lower(), canonical_name.lower()) / 100.0
         if similarity > self.similarity_threshold:
             warning = f"HIGH SIMILARITY ({similarity:.2f}): Citation '{citation_text}' - extracted: '{extracted_name}', canonical: '{canonical_name}'"
             self.contamination_warnings.append(warning)
-            logger.warning(f"⚠️ {warning}")
+            logger.warning(f"[WARNING] {warning}")
             return False
 
         return True
@@ -110,7 +110,7 @@ class DataSeparationValidator:
         if original_extracted_name and extracted_name == canonical_name and original_extracted_name != canonical_name:
 
             logger.info(
-                f"🔧 Fixing contamination: Restoring extracted name from '{extracted_name}' to '{original_extracted_name}'"
+                f"[FIX] Fixing contamination: Restoring extracted name from '{extracted_name}' to '{original_extracted_name}'"
             )
             citation["extracted_case_name"] = original_extracted_name
 
@@ -223,7 +223,7 @@ def restore_extracted_name_if_contaminated(citation_dict: Dict[str, Any]) -> Dic
 
     if original_extracted and current_extracted == canonical_name and original_extracted != canonical_name:
 
-        logger.info(f"🔧 Restoring contaminated extracted name: '{current_extracted}' -> '{original_extracted}'")
+        logger.info(f"[FIX] Restoring contaminated extracted name: '{current_extracted}' -> '{original_extracted}'")
         citation_dict["extracted_case_name"] = original_extracted
 
     if "_original_extracted_case_name" in citation_dict:

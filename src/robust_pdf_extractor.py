@@ -126,7 +126,7 @@ class RobustPDFExtractor:
                     try:
                         text = future.result(timeout=timeout)
                     except FutureTimeoutError:
-                        logger.warning(f"⚠️ {library} timed out after {timeout}s")
+                        logger.warning(f"[WARNING] {library} timed out after {timeout}s")
                         continue
 
                 if text and len(text.strip()) > 100:  # Minimum viable text
@@ -134,7 +134,7 @@ class RobustPDFExtractor:
                     quality_score = self._assess_text_quality_fast(text)
 
                     if self.verbose:
-                        logger.info(f"✅ {library}: {len(text):,} chars, quality={quality_score:.2f}")
+                        logger.info(f"[OK] {library}: {len(text):,} chars, quality={quality_score:.2f}")
 
                     # USER OPTIMIZATION: Lower threshold for fast libraries (they're reliable)
                     threshold = 0.2 if library in ["fitz", "pdfplumber"] else 0.3
@@ -145,30 +145,30 @@ class RobustPDFExtractor:
                             try:
                                 text, footnote_count = convert_footnotes_to_endnotes(text, enable=True)
                                 if self.verbose and footnote_count > 0:
-                                    logger.info(f"📝 Converted {footnote_count} footnotes")
+                                    logger.info(f"[NOTE] Converted {footnote_count} footnotes")
                             except:
                                 pass  # Fail silently, use original
 
                         elapsed = time.time() - start_time
-                        logger.info(f"✅ PDF extracted in {elapsed:.1f}s using {library}")
+                        logger.info(f"[OK] PDF extracted in {elapsed:.1f}s using {library}")
                         return text, library
                     else:
                         if self.verbose:
-                            logger.warning(f"⚠️ {library} quality too low ({quality_score:.2f})")
+                            logger.warning(f"[WARNING] {library} quality too low ({quality_score:.2f})")
                         continue
                 else:
                     if self.verbose:
-                        logger.warning(f"⚠️ {library} insufficient text ({len(text) if text else 0} chars)")
+                        logger.warning(f"[WARNING] {library} insufficient text ({len(text) if text else 0} chars)")
                     continue
 
             except Exception as e:
                 if self.verbose:
-                    logger.warning(f"❌ {library} failed: {e}")
+                    logger.warning(f"[ERROR] {library} failed: {e}")
                 continue
 
         # All libraries failed
         elapsed = time.time() - start_time
-        logger.error(f"❌ All PDF extraction libraries failed after {elapsed:.1f}s")
+        logger.error(f"[ERROR] All PDF extraction libraries failed after {elapsed:.1f}s")
         return "", "failed"
 
     def _extract_with_library(self, pdf_path: str, library: str, max_pages: Optional[int]) -> str:
@@ -371,11 +371,11 @@ def extract_pdf_text_robust(
     Returns:
         Tuple of (extracted_text, library_used)
     """
-    logger.info(f"🔍 [PDF-EXTRACT] Starting extraction: {pdf_path}")
+    logger.info(f"[DEBUG] [PDF-EXTRACT] Starting extraction: {pdf_path}")
     extractor = RobustPDFExtractor(convert_footnotes=convert_footnotes, verbose=verbose)
-    logger.info(f"🔍 [PDF-EXTRACT] Available libraries: {extractor.available_libraries}")
+    logger.info(f"[DEBUG] [PDF-EXTRACT] Available libraries: {extractor.available_libraries}")
     result = extractor.extract_text(pdf_path, max_pages)
-    logger.info(f"🔍 [PDF-EXTRACT] Extraction complete: {len(result[0])} chars using {result[1]}")
+    logger.info(f"[DEBUG] [PDF-EXTRACT] Extraction complete: {len(result[0])} chars using {result[1]}")
     return result
 
 
@@ -421,19 +421,19 @@ if __name__ == "__main__":
     pdf_path = sys.argv[1]
     extractor = RobustPDFExtractor()
 
-    print(f"🔍 Testing robust PDF extraction on: {pdf_path}")
+    print(f"[DEBUG] Testing robust PDF extraction on: {pdf_path}")
     text, library = extractor.extract_text(pdf_path)
 
-    print(f"✅ Extraction completed using: {library}")
-    print(f"📊 Text length: {len(text):,} characters")
+    print(f"[OK] Extraction completed using: {library}")
+    print(f"[INFO] Text length: {len(text):,} characters")
 
     if text:
         # Count citation indicators
         citation_count = text.count("U.S.") + text.count("F.3d") + text.count("F.2d") + text.count("F. Supp")
-        print(f"📋 Citation indicators found: {citation_count}")
+        print(f"[INFO] Citation indicators found: {citation_count}")
 
         # Show sample
         sample = text[:500].replace("\n", " ").strip()
-        print(f"📖 Sample text: {sample}...")
+        print(f"[INFO] Sample text: {sample}...")
     else:
-        print("❌ No text extracted")
+        print("[ERROR] No text extracted")

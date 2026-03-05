@@ -175,9 +175,9 @@ def washington_state_to_bluebook(citation: str) -> str:
 
 def normalize_illinois_oklahoma(citation: str) -> str:
     """
-    For Illinois and Oklahoma, remove paragraph markers (¶ 12, ¶ 15, etc) for deduplication.
+    For Illinois and Oklahoma, remove paragraph markers (pilcrow 12, 15, etc) for deduplication.
     """
-    citation = re.sub(r",?\s*¶+\s*\d+", "", citation)
+    citation = re.sub(r",?\s*\u00b6+\s*\d+", "", citation)  # pilcrow
     return citation
 
 

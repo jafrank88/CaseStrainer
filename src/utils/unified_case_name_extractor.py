@@ -99,7 +99,7 @@ def extract_case_name_with_strict_isolation(
 
         # Get adaptive context (starts small and expands until case name found)
         # USER FIX: Reduced from 300 to 100 chars to prevent cascading contamination
-        # The expanding window (25→50→75→100) handles legitimate distant names
+        # The expanding window (25->50->75->100) handles legitimate distant names
         adaptive_context = get_adaptive_context_for_citation(
             text, citation_start, citation_end, all_positions, max_lookback=100
         )
@@ -126,7 +126,7 @@ def extract_case_name_with_strict_isolation(
 
         # If context contains an INTERVENING citation (a different citation before our target),
         # use only text after the rightmost such citation so we get "Davis v. FEC" not "Meese v. Keene".
-        # Do NOT trim when the only match IS the target citation — then the case name is to the left.
+        # Do NOT trim when the only match IS the target citation - then the case name is to the left.
         if adaptive_context and citation_text:
             def _norm_cite(t: str) -> str:
                 t = re.sub(r"\s+", " ", t.lower()).strip()
@@ -215,7 +215,7 @@ def extract_case_name_with_strict_isolation(
         # Reject at extraction layer if result is citation/fragment/statute (after year strip)
         if case_name and is_citation_or_part_of_citation(case_name, citation_text):
             logger.debug(
-                f"[UNIFIED-EXTRACT-REJECT] {citation_text} → '{case_name}' REJECTED (citation/fragment/statute)"
+                f"[UNIFIED-EXTRACT-REJECT] {citation_text} -> '{case_name}' REJECTED (citation/fragment/statute)"
             )
             case_name = None
 
@@ -236,7 +236,7 @@ def extract_case_name_with_strict_isolation(
             
             if case_name != original_case_name:
                 logger.debug(
-                    f"[UNIFIED-EXTRACT-SIGNAL] Removed signal phrase: '{original_case_name}' → '{case_name}' for {citation_text}"
+                    f"[UNIFIED-EXTRACT-SIGNAL] Removed signal phrase: '{original_case_name}' -> '{case_name}' for {citation_text}"
                 )
         
         if is_problematic_citation:
@@ -262,7 +262,7 @@ def extract_case_name_with_strict_isolation(
             # Reject if it's clearly a header (ET AL + role word, or role word + NO)
             if (has_et_al and has_role_word) or (has_role_word and has_no):
                 logger.warning(
-                    f"[UNIFIED-EXTRACT-FINAL-REJECT] {citation_text} → '{case_name}' REJECTED (header pattern detected)"
+                    f"[UNIFIED-EXTRACT-FINAL-REJECT] {citation_text} -> '{case_name}' REJECTED (header pattern detected)"
                 )
                 case_name = None
 
@@ -279,7 +279,7 @@ def extract_case_name_with_strict_isolation(
                     }
                     if last_word in justice_surnames:
                         logger.warning(
-                            f"[UNIFIED-EXTRACT-FINAL-REJECT] {citation_text} → '{case_name}' REJECTED (all-caps + justice surname defendant)"
+                            f"[UNIFIED-EXTRACT-FINAL-REJECT] {citation_text} -> '{case_name}' REJECTED (all-caps + justice surname defendant)"
                         )
                         case_name = None
 
@@ -287,12 +287,12 @@ def extract_case_name_with_strict_isolation(
         if case_name and document_primary_case_name:
             if _is_document_case_contamination(case_name, document_primary_case_name):
                 logger.debug(
-                    f"[UNIFIED-EXTRACT-CONTAMINATION] {citation_text} → '{case_name}' REJECTED (matches primary)"
+                    f"[UNIFIED-EXTRACT-CONTAMINATION] {citation_text} -> '{case_name}' REJECTED (matches primary)"
                 )
                 return None
             else:
                 logger.info(
-                    f"[UNIFIED-EXTRACT-CONTAMINATION] {citation_text} → '{case_name}' PASSED (no contamination)"
+                    f"[UNIFIED-EXTRACT-CONTAMINATION] {citation_text} -> '{case_name}' PASSED (no contamination)"
                 )
 
         # CRITICAL FIX: Validate extracted case name before returning
@@ -306,7 +306,7 @@ def extract_case_name_with_strict_isolation(
                         f"[UNIFIED-EXTRACT-TRACE] REJECTED by is_valid_case_name: '{case_name}'"
                     )
                 logger.debug(
-                    f"[UNIFIED-EXTRACT-REJECT] {citation_text} → '{case_name}' REJECTED by validator"
+                    f"[UNIFIED-EXTRACT-REJECT] {citation_text} -> '{case_name}' REJECTED by validator"
                 )
                 return None
             
@@ -314,7 +314,7 @@ def extract_case_name_with_strict_isolation(
                 logger.debug(
                     f"[UNIFIED-EXTRACT-TRACE] FINAL RESULT for {citation_text}: '{case_name}'"
                 )
-            logger.debug(f"[UNIFIED-EXTRACT-SUCCESS] {citation_text} → '{case_name}'")
+            logger.debug(f"[UNIFIED-EXTRACT-SUCCESS] {citation_text} -> '{case_name}'")
             return case_name
         else:
             if is_problematic_citation:
@@ -386,7 +386,7 @@ def apply_unified_extraction_to_all_citations(text: str, citations: List[Any], f
                 citation["extracted_case_name"] = case_name
 
             extracted_count += 1
-            logger.info(f"[UNIFIED-EXTRACT-ALL] Set {cit_text} → '{case_name}'")
+            logger.info(f"[UNIFIED-EXTRACT-ALL] Set {cit_text} -> '{case_name}'")
         else:
             # Set to N/A if extraction failed
             if hasattr(citation, "extracted_case_name"):

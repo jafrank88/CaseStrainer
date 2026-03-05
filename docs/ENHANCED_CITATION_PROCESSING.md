@@ -50,7 +50,7 @@ Flask Blueprint that provides REST API endpoints for citation processing:
 - `/casestrainer/api/citations/extract` - Extract citations from text
 - `/casestrainer/api/citations/stats` - Get citation statistics
 - `/casestrainer/api/citations/health` - Health check endpoint
-- `/casestrainer/api/analyze_enhanced` - Enhanced analyze endpoint (legacy compatibility)
+- `/casestrainer/api/analyze` - Single analyze endpoint (file, URL, text; sync or async). The former `analyze_enhanced` is removed; use `/analyze` with JSON body for text.
 
 ## Integration with Flask Application
 

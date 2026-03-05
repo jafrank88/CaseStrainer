@@ -23,6 +23,40 @@ logger = logging.getLogger(__name__)
 class ScoringMixin:
     """Mixin providing scoring, matching, and rate-limiting helpers."""
 
+    def _normalize_citation_for_matching(self, citation: str) -> str:
+        """
+        Normalize citations for equality checks in two-point matching.
+        Uses the host class normalizer when available; otherwise falls back to
+        a lightweight local normalization.
+        """
+        if not citation:
+            return ""
+
+        # Prefer host implementation when present (e.g., UnifiedVerificationMaster).
+        normalizer = getattr(self, "_normalize_citation_comprehensive", None)
+        if callable(normalizer):
+            try:
+                return str(normalizer(str(citation), purpose="comparison"))
+            except TypeError:
+                # Compatibility with older signatures that don't accept purpose.
+                try:
+                    return str(normalizer(str(citation)))
+                except Exception:
+                    pass
+            except Exception:
+                pass
+
+        # Local fallback normalization.
+        normalized = str(citation).strip().lower()
+        normalized = re.sub(r"\s+", " ", normalized)
+        normalized = normalized.replace("u. s.", "u.s.")
+        normalized = normalized.replace("s. ct.", "s.ct.")
+        normalized = normalized.replace("f. supp.", "f.supp.")
+        normalized = normalized.replace("f. 3d", "f.3d")
+        normalized = normalized.replace("f. 2d", "f.2d")
+        normalized = re.sub(r"\s*,\s*", ", ", normalized)
+        return normalized
+
     def _calculate_confidence(
         self,
         citation: str,
@@ -102,13 +136,14 @@ class ScoringMixin:
             except Exception:
                 name_match = False
 
-        # 2) Year match with "clearly wrong extracted year" escape hatch
+        # 2) Year match with "clearly wrong extracted year" escape hatch (supports 1600-2100, e.g. 18xx)
         if extracted_date and canonical_date:
-            ext_m = re.search(r"(19|20)\d{2}", str(extracted_date))
-            can_m = re.search(r"(19|20)\d{2}", str(canonical_date))
-            if ext_m and can_m:
-                ext_year = int(ext_m.group(0))
-                can_year = int(can_m.group(0))
+            from src.utils.date_utils import extract_year_value
+            ext_str = extract_year_value(extracted_date)
+            can_str = extract_year_value(canonical_date)
+            if ext_str and can_str:
+                ext_year = int(ext_str)
+                can_year = int(can_str)
                 diff = abs(ext_year - can_year)
 
                 is_extracted_clearly_wrong = (
@@ -265,7 +300,7 @@ class ScoringMixin:
                 # Calculate similarity between party names
                 if not extracted_party or not canonical_party:
                     logger.warning(
-                        f"⚠️  [FIX #64] Could not extract party names from '{extracted_case_name}' vs '{canonical_name}'"
+                        f"[WARNING]  [FIX #64] Could not extract party names from '{extracted_case_name}' vs '{canonical_name}'"
                     )
                     continue
 
@@ -274,14 +309,14 @@ class ScoringMixin:
                 # Require high similarity for criminal cases (different defendants = different cases!)
                 if party_similarity < 0.7:
                     logger.warning(
-                        f"⚠️  [FIX #64] CRIMINAL CASE MISMATCH: '{extracted_party}' vs '{canonical_party}' (similarity: {party_similarity:.2f})"
+                        f"[WARNING]  [FIX #64] CRIMINAL CASE MISMATCH: '{extracted_party}' vs '{canonical_party}' (similarity: {party_similarity:.2f})"
                     )
                     logger.warning(f"   Full names: '{extracted_case_name}' vs '{canonical_name}'")
                     logger.warning(f"   Different defendants = different cases! Rejecting.")
                     continue
 
                 logger.info(
-                    f"✅ [FIX #64] Criminal case party names match: '{extracted_party}' vs '{canonical_party}' (similarity: {party_similarity:.2f})"
+                    f"[OK] [FIX #64] Criminal case party names match: '{extracted_party}' vs '{canonical_party}' (similarity: {party_similarity:.2f})"
                 )
 
             # FIX #56C: Require at least 30% word overlap (lowered from 50% to catch valid matches)
@@ -293,12 +328,12 @@ class ScoringMixin:
                 # Substring match detected - boost overlap to pass threshold
                 overlap = max(overlap, 0.7)  # Strong match when one name contains the other
                 logger.error(
-                    f"✅ [FIX #56C] Substring match detected - boosting overlap to {overlap:.2f}: '{canonical_name}' contains '{extracted_case_name}'"
+                    f"[OK] [FIX #56C] Substring match detected - boosting overlap to {overlap:.2f}: '{canonical_name}' contains '{extracted_case_name}'"
                 )
 
             if overlap < 0.3:
                 logger.warning(
-                    f"⚠️  [FIX #56C] Rejected search result - low overlap ({overlap:.0%}): '{canonical_name}' vs '{extracted_case_name}'"
+                    f"[WARNING]  [FIX #56C] Rejected search result - low overlap ({overlap:.0%}): '{canonical_name}' vs '{extracted_case_name}'"
                 )
                 continue
 
@@ -311,7 +346,7 @@ class ScoringMixin:
                 best_overlap = overlap
                 best_result = result
                 logger.info(
-                    f"✅ [FIX #56C] Valid search result: '{canonical_name}' (overlap: {overlap:.0%}, confidence: {score:.0%})"
+                    f"[OK] [FIX #56C] Valid search result: '{canonical_name}' (overlap: {overlap:.0%}, confidence: {score:.0%})"
                 )
 
 

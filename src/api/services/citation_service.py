@@ -109,7 +109,7 @@ class CitationService:
                 strategy = "sync"
                 reason = f"moderate complexity ({estimated_citations} citations, {text_size} bytes)"
 
-        logger.info(f"🧠 SMART ROUTING: {strategy.upper()} processing - {reason}")
+        logger.info(f"[ROUTE] SMART ROUTING: {strategy.upper()} processing - {reason}")
         return strategy
 
     def extract_text_from_input(self, input_data: Dict) -> Optional[str]:
@@ -132,23 +132,19 @@ class CitationService:
                 return None
             return self._fetch_url_content(url)
         elif input_type == "file":
-            # Extract text from file using the unified text extractor
+            # UNIFIED: Use same extractor as RQ worker (extract_text_from_file_unified)
+            # Ensures file upload routing and worker processing see identical text
             file_path = input_data.get("file_path")
             if not file_path or not os.path.exists(file_path):
                 logger.warning(f"File path not found or invalid: {file_path}")
                 return None
 
             try:
-                from src.robust_pdf_extractor import RobustPDFExtractor
+                from src.unified_text_extractor import extract_text_from_file_unified
 
-                extractor = RobustPDFExtractor()
-                result = extractor.extract_text(file_path)
-                # Text normalization happens in UnifiedTextExtractor
-                if isinstance(result, tuple):
-                    text = result[0]
-                else:
-                    text = result
-                
+                text, method = extract_text_from_file_unified(file_path, verbose=False)
+                text = text or ""
+
                 # CRITICAL FIX: Apply text normalization to fix broken citations
                 # This fixes line breaks in citations like "200\nU. S. 321" -> "200 U. S. 321"
                 if text and len(text.strip()) > 0:
@@ -163,9 +159,9 @@ class CitationService:
                     
                     # Check if we fixed the broken citation
                     if "200 U. S. 321" in text:
-                        logger.info(f"✅ [CitationService] FIXED: Found '200 U. S. 321' in normalized text")
+                        logger.info(f"[OK] [CitationService] FIXED: Found '200 U. S. 321' in normalized text")
                     else:
-                        logger.warning(f"⚠️ [CitationService] Still no '200 U. S. 321' in normalized text")
+                        logger.warning(f"[WARNING] [CitationService] Still no '200 U. S. 321' in normalized text")
                 
                 logger.info(f"Successfully extracted {len(text)} characters from file: {file_path}")
                 return text
@@ -454,30 +450,20 @@ class CitationService:
         logger.info(f"[CitationService] Text preview: '{text[:200].replace(chr(10), ' ')}'")
 
         # Use unified routing decision with optional force_mode
-        logger.error(f"[CitationService] 🔍 DEBUG: Calling determine_processing_mode with force_mode='{force_mode}'")
+        logger.error(f"[CitationService] [DEBUG] DEBUG: Calling determine_processing_mode with force_mode='{force_mode}'")
         processing_mode = self.determine_processing_mode(text, force_mode=force_mode)
-        logger.error(f"[CitationService] 🔍 DEBUG: determine_processing_mode returned: '{processing_mode}'")
+        logger.error(f"[CitationService] [DEBUG] DEBUG: determine_processing_mode returned: '{processing_mode}'")
         logger.info(f"[CitationService] Processing mode determined: {processing_mode}")
         result = processing_mode == "sync"
-        logger.error(f"[CitationService] 🔍 DEBUG: should_process_immediately returning: {result}")
+        logger.error(f"[CitationService] [DEBUG] DEBUG: should_process_immediately returning: {result}")
         return result
 
     def process_immediately(self, input_data: Dict) -> Dict[str, Any]:
-        """Process input immediately using the unified citation processor."""
+        """Process input immediately through unified processing pipeline."""
         try:
-            from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2
-            from src.config import get_citation_config
+            from src.unified_processing_pipeline import process_citations_unified
             import asyncio
-
-            # Get configuration
-            get_citation_config()
-
-            logger.info("[CitationService] Using UnifiedCitationProcessorV2 for immediate processing")
-
-            # Create processor with verification enabled
-            from src.models import ProcessingConfig
-            config = ProcessingConfig(enable_verification=True)
-            processor = UnifiedCitationProcessorV2(config)
+            logger.info("[CitationService] Using unified pipeline for immediate processing")
 
             # Extract text using unified approach
             text_content = self.extract_text_from_input(input_data)
@@ -490,8 +476,17 @@ class CitationService:
 
             logger.info(f"[CitationService] Processing {len(text_content)} characters for immediate processing")
 
-            # Process synchronously
-            result = asyncio.run(processor.process_text(text_content))
+            # Process synchronously via canonical unified entry point
+            trace_id = input_data.get("task_id") or f"immediate_{uuid.uuid4().hex[:12]}"
+            result = asyncio.run(
+                process_citations_unified(
+                    text_content,
+                    processing_mode="enhanced_sync",
+                    enable_parallel_verification=True,
+                    enable_verification=True,
+                    trace_id=trace_id,
+                )
+            )
 
             result["processing_mode"] = "immediate"
             result["success"] = True
@@ -538,7 +533,7 @@ class CitationService:
                 }
 
             logger.info(
-                f"[CitationService] Immediate processing completed via UnifiedCitationProcessorV2 in {result.get('processing_time', 0):.3f}s"
+                f"[CitationService] Immediate processing completed via unified pipeline in {result.get('processing_time', 0):.3f}s"
             )
             return result
 
@@ -608,11 +603,24 @@ class CitationService:
             return citations
 
         except Exception as e:
-            logger.warning(f"[CitationService] Fast extraction failed, falling back to unified extraction: {e}")
-            from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2
+            logger.warning(f"[CitationService] Fast extraction failed, retrying with normalized text: {e}")
+            try:
+                from src.citation_extractor import CitationExtractor
+                from src.utils.text_normalizer import normalize_text
 
-            processor = UnifiedCitationProcessorV2()
-            return processor._extract_citations_unified(text)
+                extractor = CitationExtractor()
+                normalized_text = normalize_text(text) if text else text
+                citations = extractor.extract_citations(normalized_text or "")
+                logger.info(
+                    f"[CitationService] Normalized fast extraction found {len(citations)} citations"
+                )
+                return citations
+            except Exception as retry_error:
+                logger.error(
+                    f"[CitationService] Normalized fast extraction failed: {retry_error}",
+                    exc_info=True,
+                )
+                return []
 
     def _clear_old_cache(self):
         """Clear old cache entries to prevent memory bloat."""
@@ -917,7 +925,7 @@ class CitationService:
                         return cached_result["result"]
 
                 logger.info(
-                    f"[CitationService] Processing text immediately with UnifiedCitationProcessorV2: {text[:100]}..."
+                    f"[CitationService] Processing text immediately with unified pipeline: {text[:100]}..."
                 )
 
                 # Set up progress tracking
@@ -940,22 +948,26 @@ class CitationService:
                 progress_tracker.add_update_callback(progress_callback)
                 has_progress_tracking = True
 
-                from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2
-                import asyncio
-
-                processor = UnifiedCitationProcessorV2()
+                from src.unified_processing_pipeline import process_citations_unified
 
                 # Start progress tracking
                 progress_tracker.start_step(0, "Initializing processing")
                 progress_tracker.complete_step(0, "Initialization complete")
 
                 progress_tracker.start_step(1, "Extracting citations")
-                logger.info(f"[CitationService] About to call processor.process_text()...")
+                logger.info(f"[CitationService] About to call unified pipeline...")
                 try:
-                    enhanced_result = asyncio.run(processor.process_text(text))
-                    logger.info(f"[CitationService] processor.process_text() completed successfully")
+                    enhanced_result = await process_citations_unified(
+                        text,
+                        processing_mode="enhanced_sync",
+                        enable_parallel_verification=True,
+                        enable_verification=True,
+                        trace_id=task_id,
+                        progress_callback=progress_callback,
+                    )
+                    logger.info(f"[CitationService] unified pipeline completed successfully")
                 except Exception as process_error:
-                    logger.error(f"[CitationService] processor.process_text() failed: {process_error}")
+                    logger.error(f"[CitationService] unified pipeline failed: {process_error}")
                     import traceback
 
                     logger.error(f"[CitationService] Error details: {traceback.format_exc()}")

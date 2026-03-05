@@ -2556,17 +2556,125 @@ class UnifiedCitationProcessorV2:
         _series = CitationPatterns.REPORTER_SERIES
         _app_series = CitationPatterns.APP_SERIES
         _rep = (
-            r"(?:P\.\d*d|F\.(?:2d|3d|4th)|Wn\.\s*(?:2d|3d)|Wash\.\s*(?:2d|3d|App\.\s*"
+            r"(?:P\.\d*d|P\.|F\.(?:2d|3d|4th)|Wn\.\s*(?:2d|3d)|Wash\.\s*(?:2d|3d|App\.\s*"
             + _app_series
-            + r")|S\.E\.\d*d|N\.E\.\d*d|Cal\.\s*(?:2d|3d|4th|5th|Rptr\.?|App\.\s*"
+            + r")|S\.E\.\d*d|N\.E\.\d*d|N\.W\.\d*d|S\.W\.\d*d|Cal\.\s*(?:2d|3d|4th|5th|Rptr\.?|App\.\s*"
             + _app_series
             + r")|L\.\s*Ed\.\s*\d*d)"
         )
-        # 1a) P.3d-specific fixes FIRST (before general Fix 1, which would mis-split 82961 as 82+961)
+        # 0a) When the comma is missing but a space remains (e.g. "185 9 P.3d"), use the space to infer
+        #     the break: insert comma so we get "185, 9 P.3d". No ambiguity. Repeat so "81 91 233 P.3d" -> "81, 91, 233 P.3d".
+        _space_before_rep = r"(?=\s*(?:,\s*\d+)*\s+" + _rep + r"\s+\d+\b)"
+        while True:
+            prev = normalized
+            normalized = re.sub(
+                r"(\d+)\s+(\d+)" + _space_before_rep,
+                r"\1, \2",
+                normalized,
+            )
+            if normalized == prev:
+                break
+        # 0b) Restore lost comma when digits are run together (no space): e.g. "1859 P.3d" -> "185, 9 P.3d".
+        #     Reporter-agnostic: page and volume can each be 1–4 digits. Use plausibility to avoid wrong splits.
+        def _volume_plausible(vol_str: str, vol_digits: int) -> bool:
+            if len(vol_str) != vol_digits:
+                return False
+            n = int(vol_str)
+            if vol_digits == 1:
+                return 1 <= n <= 9
+            if vol_digits == 2:
+                return 10 <= n <= 99
+            if vol_digits == 3:
+                return 100 <= n <= 599  # avoid e.g. 82961 -> 82, 961
+            if vol_digits == 4:
+                return 1000 <= n <= 9999
+            return False
+
+        def _page_plausible(page_str: str, page_digits: int) -> bool:
+            """Plausible page/pinpoint (1-4 digits). Used to avoid splitting e.g. 233 or 209."""
+            if len(page_str) != page_digits:
+                return False
+            n = int(page_str)
+            if page_digits == 1:
+                return 1 <= n <= 9
+            if page_digits == 2:
+                return 10 <= n <= 99
+            if page_digits == 3:
+                return 100 <= n <= 999
+            if page_digits == 4:
+                return 1000 <= n <= 9999
+            return False
+
+        def _make_restore(vol_digits: int, page_digits: int):
+            def _restore(m: re.Match) -> str:
+                prefix, page, vol, rest = m.group(1), m.group(2), m.group(3), m.group(4)
+                if not _volume_plausible(vol, vol_digits):
+                    return m.group(0)
+                combined = page + vol
+                # Without the original comma we cannot know for sure (e.g. 1859 = 1,859 or 18,59 or 185,9).
+                # Only refuse to split when the combined number is 2–3 digits and looks like a single page
+                # (e.g. 33, 233, 209), so we avoid breaking real page numbers. Allow 4-digit combined
+                # to be split so "1859 P.3d" can become "185, 9 P.3d" (order of tries picks first valid).
+                if len(combined) <= 3 and _page_plausible(combined, len(combined)):
+                    return m.group(0)
+                # Do not split when it's a single volume only when we'd take 1 digit as "page"
+                # (e.g. "1859" -> "1, 859" is wrong; "1859" -> "185, 9" is correct)
+                if (
+                    page_digits == 1
+                    and len(combined) <= 4
+                    and _volume_plausible(combined, len(combined))
+                ):
+                    return m.group(0)
+                return f"{prefix}{page}, {vol}{rest}"
+            return _restore
+
+        # Try (page_len, vol_len) in order: prefer 3-digit volume, then 2, 4, 1 (most common first).
+        _vol_order = (3, 2, 4, 1)
+        _series_or_app = r"(?:" + _series + r"|App\.\s*" + _app_series + r")"
+        # Case A: comma before page
+        for _v in _vol_order:
+            for _p in (1, 2, 3, 4):
+                normalized = re.sub(
+                    r"(,\s*)(\d{" + str(_p) + r"})(\d{" + str(_v) + r"})(\s+" + _rep + r"\s+\d+)\b",
+                    _make_restore(_v, _p),
+                    normalized,
+                )
+        # Case B: no comma — previous token (page/reporter) then space
+        for _v in _vol_order:
+            for _p in (1, 2, 3, 4):
+                normalized = re.sub(
+                    r"(\d+\s+)(\d{" + str(_p) + r"})(\d{" + str(_v) + r"})(\s+" + _rep + r"\s+\d+)\b",
+                    _make_restore(_v, _p),
+                    normalized,
+                )
+        # Case C: after reporter series (e.g. "Wn. App. 2d 1859 P.3d" -> "2d 185, 9 P.3d")
+        for _v in _vol_order:
+            for _p in (1, 2, 3, 4):
+                normalized = re.sub(
+                    r"(.*"
+                    + _series_or_app
+                    + r")\s+(\d{"
+                    + str(_p)
+                    + r"})(\d{"
+                    + str(_v)
+                    + r"})(\s+"
+                    + _rep
+                    + r"\s+\d+)\b",
+                    _make_restore(_v, _p),
+                    normalized,
+                )
+        # 1a) P.3d-specific fixes (after comma restore)
         # Pinpoint+volume merged (e.g. ", 616717 P.3d 1353" -> ", 616, 717 P.3d 1353")
         normalized = re.sub(r",\s*(\d{3})(\d{3}\s+P\.3d\s+\d+)\b", r", \1, \2", normalized)
         # Pinpoint+digit+volume merged (e.g. ", 82961 P.3d 1196" -> ", 61 P.3d 1196")
-        normalized = re.sub(r",\s*\d{3}(\d{2}\s+P\.3d\s+\d+)\b", r", \1", normalized)
+        # Skip stripping when the "kept" 2 digits would be "33" (invalid vol; likely "91"+"233").
+        # The restore-comma step above usually fixes that first; this is a safety net.
+        def _pinpoint_vol_sub(m: re.Match) -> str:
+            kept = m.group(1)  # e.g. "33 P.3d 853" or "61 P.3d 1196"
+            if kept.startswith("33 "):
+                return m.group(0)
+            return ", " + kept
+        normalized = re.sub(r",\s*\d{3}(\d{2}\s+P\.3d\s+\d+)\b", _pinpoint_vol_sub, normalized)
         # 1) After comma: pinpoint merged with volume (e.g. ", 299118 P.2d 985" -> ", 118 P.2d 985")
         # Use 2-3 digit pinpoint + 3 digit volume to avoid greedy wrong split (299|118 not 2991|18)
         normalized = re.sub(r",\s*(\d{2,3})(\d{3}\s+" + _rep + r"\s+\d+)\b", r", \2", normalized)
@@ -2574,7 +2682,6 @@ class UnifiedCitationProcessorV2:
         normalized = re.sub(r"(\d{2,4}-\d{1,2})(\d{2,4}\s+" + _rep + r"\s+\d+)\b", r"\2", normalized)
         # 3) After reporter: page+volume concatenated (e.g. "2d 692635 P.2d" -> "2d 692, 635 P.2d")
         # Use _series so we match 2d, 3d, 4th, App. 2d, etc. - never bare digits as series
-        _series_or_app = r"(?:" + _series + r"|App\.\s*" + _app_series + r")"
         normalized = re.sub(
             r"(" + _series_or_app + r")\s+(\d{3})(\d{3})(\s+" + _rep + r"\s+\d+)\b",
             r"\1 \2, \3\4",
@@ -3117,6 +3224,45 @@ class UnifiedCitationProcessorV2:
         extended = " ".join(reversed(prepended)) + " " + first_party
         return re.sub(r"\s+", " ", extended).strip()
 
+    def _expand_defendant_truncations(
+        self, name: str, citation_text: str, context: str = ""
+    ) -> str:
+        """Expand common defendant-side truncations (e.g. 'Winter v. Nat' -> 'Winter v. Nat. Res. Def. Council, Inc.')."""
+        if not name or " v. " not in name:
+            return name
+        search_in = citation_text or ""
+        if context:
+            search_in = (search_in + " " + context)[:2000]
+        if not search_in:
+            return name
+        parts = name.split(" v. ", 1)
+        if len(parts) != 2:
+            return name
+        plaintiff, defendant = parts[0].strip(), parts[1].strip()
+        if not defendant:
+            return name
+        # "Nat." or "Nat" at end of defendant -> look for "Nat. Res. Def. Council" etc.
+        if re.match(r"^Nat\.?\s*$", defendant, re.IGNORECASE) or defendant.rstrip(".").lower() == "nat":
+            m = re.search(
+                r"Nat\.?\s+Res\.?\s+Def\.?\s+Council,?\s*(?:Inc\.?)?",
+                search_in,
+                re.IGNORECASE,
+            )
+            if m:
+                return f"{plaintiff} v. {m.group(0).strip().rstrip(',')}"
+        # "Local No" or "Local No." at end -> look for "Local No. 82" or "Local No. 82, Furniture & Piano" etc.
+        if re.match(r"^Local\s+No\.?\s*$", defendant, re.IGNORECASE):
+            m = re.search(
+                r"Local\s+No\.?\s*\d+(?:\s*,\s*[A-Za-z][^.]*)?",
+                search_in,
+                re.IGNORECASE,
+            )
+            if m:
+                expanded = m.group(0).strip().rstrip(".,")
+                if len(expanded) > len(defendant):
+                    return f"{plaintiff} v. {expanded}"
+        return name
+
     def _repair_truncated_case_name(
         self,
         name: str,
@@ -3221,6 +3367,22 @@ class UnifiedCitationProcessorV2:
         s = s.replace("\u00ad", "").replace("\u200b", "").replace("\u200c", "").replace("\ufeff", "")
         return re.sub(r"\s+", " ", s).strip()
 
+    def _truncate_context_at_sentence_boundary(self, context: str, min_keep: int = 25) -> str:
+        """Trim context to the last sentence fragment before the citation to reduce bleed from prior text.
+        E.g. 'Hunt, 2019. Page 5. Cochise Consultancy, Inc. v. United States' -> 'Cochise Consultancy...'
+        Uses period + space + (capital + lowercase) as sentence start; avoids splitting on 'Inc.' or 'No.'."""
+        if not context or len(context) <= min_keep:
+            return context
+        # Rightmost sentence start: ". " or ".\n" followed by capital then lowercase (not "U.S." or "No.")
+        m = list(re.finditer(r"\.\s+([A-Z][a-z]\w*)", context))
+        if not m:
+            return context
+        last = m[-1]
+        start = last.start(1)
+        if len(context) - start < min_keep:
+            return context
+        return context[start:].lstrip()
+
     def _is_docket_caption_bleed(self, name: str) -> bool:
         """True if name is a document caption with federal docket (e.g. Ill. Union Ins. Co. No. C10-5943 RJB...)."""
         if not name or len(name) < 15:
@@ -3232,6 +3394,24 @@ class UnifiedCitationProcessorV2:
                 re.IGNORECASE,
             )
         )
+
+    def _is_noise_citation(self, citation_text: str) -> bool:
+        """True if citation text is likely non-citation noise (e.g. 'States 1', page refs) not a valid reporter cite."""
+        if not citation_text or not isinstance(citation_text, str):
+            return False
+        t = citation_text.strip()
+        # "States 1", "States 2" etc. - fragment of "United States" + number, not a reporter
+        if re.match(r"^States\s+\d+\s*$", t, re.IGNORECASE):
+            return True
+        # Must look like a reporter cite: volume reporter page, or WL/LEXIS
+        if re.match(r"^\d+\s+(?:WL|U\.S\.?\s*LEXIS|LEXIS)\s+\d+", t, re.IGNORECASE):
+            return False
+        if re.search(r"\d+\s+[A-Z][A-Za-z.]*\s+\d+", t):
+            return False
+        # No reporter pattern and very short (e.g. "States 1", "Page 5")
+        if len(t) < 15 and re.match(r"^(?:States|Page)\s+\d+\s*$", t, re.IGNORECASE):
+            return True
+        return False
 
     def _looks_like_quote_not_case_name(self, name: str) -> bool:
         """True if extracted 'name' is likely a quote or sentence, not a case name."""
@@ -3345,6 +3525,8 @@ class UnifiedCitationProcessorV2:
                 window = 800  # Reporter-only: name often further back
             ctx_start = max(0, start - window)
             context_before = self._clean_context_for_case_name(text[ctx_start:start])
+            # Tighten context: stop at sentence boundary to avoid pulling in "Hunt, 2019" or "see Cochise" from prior sentence
+            context_before = self._truncate_context_at_sentence_boundary(context_before)
             # Filter out docket caption lines (e.g. "Ill. Union Ins. Co. No. C10-5943 RJB Milgard Mfg., Inc. v. Ill")
             # to prevent context bleed. EXCEPTION: Do NOT filter lines that contain a WL or reporter citation -
             # those are real citation lines (e.g. "Milgard Mfg., Inc. v. Ill. Union Ins. Co., No. C10-5943 RJB, 2011 WL 3298912")
@@ -3695,9 +3877,26 @@ class UnifiedCitationProcessorV2:
             # Strategy 3: Extract year from the eyecite citation string itself
             # NOTE: This is LOWER priority because eyecite sometimes reconstructs
             # the wrong year from nearby text (e.g., document header year)
+            # Prefer year from MAIN citation (before "(quoting" or "(citing")) over nested parenthetical year.
+            main_cite_part = cit_text
+            for sep in ["(quoting ", "(citing ", "(quoted in ", "(cited in "]:
+                idx = cit_text.find(sep)
+                if idx != -1:
+                    main_cite_part = cit_text[:idx]
+                    break
+            year_in_main = re.search(r'\((?:\w+\s+)?(\d{4})\)', main_cite_part)
+            if year_in_main:
+                y = year_in_main.group(1)
+                if 1700 <= int(y) <= 2030:
+                    is_court = bool(re.search(
+                        r'\b(?:scotus|ca\d|Cir\.|dcd|cand|mnd)\s*' + re.escape(y),
+                        year_in_main.group(0),
+                        re.IGNORECASE,
+                    ))
+                    if not is_court and (not _reporter_suggests_old_case(cit_text) or int(y) < 2015):
+                        return _ret(y, "citation_text_main_parenthetical", "medium")
             # FIX: Reject (Court YYYY) - when the parenthetical is "(scotus 2025)" or "(ca9 2001)" or
             # "(9th Cir. 2014)", that is court abbreviation + year; the year is often wrong (e.g. doc year).
-            # Prefer document context (Strategy 1) or global search (Strategy 5) instead.
             year_in_cit = re.search(r'\((?:\w+\s+)?(\d{4})\)', cit_text)
             if year_in_cit:
                 full_paren = year_in_cit.group(0)
@@ -4446,6 +4645,17 @@ class UnifiedCitationProcessorV2:
         normalized_text = re.sub(r"\s+", " ", text)  # Collapse all whitespace (including \n) to single space
         logger.info(f"[UNIFIED_EXTRACTION] Text normalized: {len(text)} -> {len(normalized_text)} chars")
 
+        # Run full-document citation normalization once so all input types (file/text/URL) see the same fixes.
+        # Fixes PDF artifacts (e.g. lost comma "81 91233 P.3d" -> "81 91, 233 P.3d") before extraction.
+        # When the source already has commas ("81, 91, 233 P.3d"), these rules are no-ops.
+        try:
+            normalized_text = self._normalize_citation_comprehensive(
+                normalized_text, purpose="general", all_citations=None
+            )
+            logger.info("[UNIFIED_EXTRACTION] Full-document citation normalization applied")
+        except Exception as e:
+            logger.warning(f"[UNIFIED_EXTRACTION] Full-document normalization failed, using text as-is: {e}")
+
         # Strip pincitations before extraction to prevent false positives
         # E.g. "151 Wn. App. 137, at 210, 210 P.3d 337" -> "151 Wn. App. 137, 210 P.3d 337"
         normalized_text = self._strip_pincitations_before_extraction(normalized_text)
@@ -4523,10 +4733,22 @@ class UnifiedCitationProcessorV2:
                         citation_text=citation.citation or "",
                         context_override=getattr(citation, "context", "") or "",
                     )
+                    # Expand "Nat." / "Local No" truncations using citation text and surrounding document context
+                    ctx_start = max(0, (citation.start_index or 0) - 150)
+                    ctx_end = min(len(normalized_text), (citation.end_index or 0) + 150)
+                    ctx_window = normalized_text[ctx_start:ctx_end] if normalized_text else ""
+                    citation.extracted_case_name = self._expand_defendant_truncations(
+                        citation.extracted_case_name,
+                        citation.citation or "",
+                        context=ctx_window,
+                    )
                     citation.extracted_case_name = self._clean_extracted_case_name(citation.extracted_case_name)
                     # Reject quote/sentence misidentified as case name (e.g. "Time and again, the Supreme Court has said no")
                     if self._looks_like_quote_not_case_name(citation.extracted_case_name):
                         citation.extracted_case_name = "N/A"
+                # Reject obvious noise citations (e.g. "States 1", "Page 5") for all citations
+                if self._is_noise_citation(citation.citation or ""):
+                    citation.extracted_case_name = "N/A"
 
             except Exception as e:
                 logger.warning(

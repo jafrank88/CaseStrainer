@@ -15,6 +15,8 @@ from pathlib import Path
 from typing import Optional, Tuple
 import os
 
+from src.utils.extraction_cleaner import normalize_bold_italic_to_plain
+
 logger = logging.getLogger(__name__)
 
 # Extract timeout per format (seconds)
@@ -128,9 +130,17 @@ class UnifiedTextExtractor:
             # Step 1: Remove problematic control characters
             normalized = re.sub(r"[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]", "", text)
 
-            # Step 1.5: Remove soft hyphens with their line breaks BEFORE collapsing whitespace
+            # Step 1.4: Normalize bold/italic (markdown, HTML) to plain text for extraction.
+            # Skip Unicode math pass (skip_unicode_math=True) for full-document speed; case-name context still gets it.
+            normalized = normalize_bold_italic_to_plain(
+                normalized, collapse_whitespace=False, skip_unicode_math=True
+            )
+
+            # Step 1.5: Remove soft hyphens (U+00AD) so word breaks normalize: "exer\xad cise" -> "exercise"
+            # First join at line breaks: "exer\xad\ncise" -> "exercise"
             normalized = re.sub(r'\s*\xad\s*[\n\r]+\s*', '', normalized)
-            normalized = normalized.replace('\xad', '')
+            # Then remove any remaining soft hyphen and surrounding spaces (no newline): "exer\xad cise" -> "exercise"
+            normalized = re.sub(r'\s*\xad\s*', '', normalized)
 
             # Step 1.6: CRITICAL - Remove page headers/footers BEFORE collapsing newlines
             # Supreme Court slip opinions have headers like:

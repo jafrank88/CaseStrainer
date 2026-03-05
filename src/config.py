@@ -107,6 +107,11 @@ CORRECTION_ENGINE_MODEL_PATH: str = get_config_value(
 )
 
 UPLOAD_FOLDER = os.path.abspath("uploads")
+# Where the API saves uploaded files (default: project uploads). Set UPLOADS_DIR e.g. /app/uploads in Docker.
+UPLOADS_SAVE_DIR: str = get_config_value("UPLOADS_DIR") or os.path.join(BASE_DIR, "uploads")
+# Path prefix the worker uses to open uploads (must match volume mount in worker, e.g. /app/uploads).
+# Job payload uses this so worker can read the file; API saves to UPLOADS_SAVE_DIR (same dir when both in Docker).
+UPLOADS_WORKER_PATH: str = get_config_value("UPLOADS_WORKER_PATH", "/app/uploads")
 ALLOWED_EXTENSIONS = {"pdf", "doc", "docx", "txt", "rtf", "odt", "html", "htm"}
 MAX_CONTENT_LENGTH = 50 * 1024 * 1024  # 50MB max upload size
 
@@ -181,9 +186,24 @@ TIMEOUT_PER_EXTRA_CITATION: int = int(get_config_value("TIMEOUT_PER_EXTRA_CITATI
 # Circuit Breaker Configuration (for CourtListener)
 CIRCUIT_BREAKER_THRESHOLD: int = int(get_config_value("CIRCUIT_BREAKER_THRESHOLD", "5"))  # failures before open
 CIRCUIT_BREAKER_RESET_SECONDS: int = int(get_config_value("CIRCUIT_BREAKER_RESET_SECONDS", "300"))  # 5 minutes
+# Global CourtListener throttle (shared across workers via Redis when available).
+# Keep below observed upstream hard limit to avoid burst 429s.
+COURTLISTENER_GLOBAL_THROTTLE_ENABLED: bool = get_bool_config_value("COURTLISTENER_GLOBAL_THROTTLE_ENABLED", True)
+COURTLISTENER_GLOBAL_LIMIT_PER_MIN: int = int(get_config_value("COURTLISTENER_GLOBAL_LIMIT_PER_MIN", "240"))
+COURTLISTENER_GLOBAL_THROTTLE_MAX_WAIT_SECONDS: int = int(
+    get_config_value("COURTLISTENER_GLOBAL_THROTTLE_MAX_WAIT_SECONDS", "45")
+)
+COURTLISTENER_GLOBAL_THROTTLE_KEY: str = get_config_value(
+    "COURTLISTENER_GLOBAL_THROTTLE_KEY",
+    "casestrainer:courtlistener:throttle",
+)
+# Delay between batch API requests (seconds). Throttle already waits when at limit; this avoids burst when under limit.
+BATCH_DELAY_BETWEEN_REQUESTS_SECONDS: float = float(get_config_value("BATCH_DELAY_BETWEEN_REQUESTS_SECONDS", "0.5"))
 
 # Global Fallback Timeout
 GLOBAL_FALLBACK_TIMEOUT_SECONDS: int = int(get_config_value("GLOBAL_FALLBACK_TIMEOUT_SECONDS", "180"))  # 3 minutes for full fallback
+# Max concurrent fallback verification tasks (per batch). 1 = sequential (original); 5–10 = faster when many unverified.
+VERIFICATION_FALLBACK_CONCURRENCY: int = max(1, int(get_config_value("VERIFICATION_FALLBACK_CONCURRENCY", "5")))
 
 _REDIS_URL_RAW = get_config_value("REDIS_URL")
 if IS_PRODUCTION and (not _REDIS_URL_RAW or not _REDIS_URL_RAW.strip()):

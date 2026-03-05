@@ -4,6 +4,7 @@ Provides protection against abuse and DoS attacks
 """
 
 import time
+import os
 
 import threading
 from collections import defaultdict
@@ -22,6 +23,11 @@ class RateLimiter:
         self.lock = threading.RLock()
         self._cleanup_interval = 3600  # Clean up old entries every hour
         self._last_cleanup = time.time()
+        # Optional explicit bypass for controlled load tests.
+        # Disabled by default unless RATE_LIMIT_BYPASS_KEY is set.
+        self._bypass_key = (os.getenv("RATE_LIMIT_BYPASS_KEY") or "").strip()
+        self._bypass_header = (os.getenv("RATE_LIMIT_BYPASS_HEADER") or "X-Load-Test-Key").strip()
+        self._warned_bypass_config = False
 
     def limit(self, max_calls: int = 100, window: int = 3600, key_func=None):
         """
@@ -36,36 +42,92 @@ class RateLimiter:
         def decorator(f):
             @wraps(f)
             def wrapper(*args, **kwargs):
+                from flask import request
+
                 if key_func:
                     key = key_func(*args, **kwargs)
                 else:
-                    from flask import request
+                    # Prefer first forwarded IP when present (reverse-proxy aware)
+                    forwarded_for = request.headers.get("X-Forwarded-For", "")
+                    first_forwarded = forwarded_for.split(",")[0].strip() if forwarded_for else ""
+                    key = first_forwarded or request.remote_addr or "unknown"
 
-                    key = request.remote_addr or "unknown"
+                # Explicit bypass for trusted load testing only.
+                if self._is_bypass_request(request):
+                    return f(*args, **kwargs)
 
-                if not self._check_rate_limit(key, max_calls, window):
-                    from flask import jsonify
+                allowed, retry_after, remaining, reset_epoch = self._check_rate_limit(key, max_calls, window)
+                if not allowed:
+                    from flask import jsonify, make_response
 
-                    logger.warning(f"Rate limit exceeded for {key}: {max_calls} calls in {window}s")
-                    return (
+                    logger.warning(
+                        "Rate limit exceeded: key=%s method=%s path=%s limit=%s window=%ss retry_after=%ss ua=%s",
+                        key,
+                        request.method,
+                        request.path,
+                        max_calls,
+                        window,
+                        retry_after,
+                        request.headers.get("User-Agent", "unknown"),
+                    )
+                    response = make_response(
                         jsonify(
                             {
                                 "error": "Rate limit exceeded",
                                 "message": f"Maximum {max_calls} requests per {window} seconds",
-                                "retry_after": window,
+                                "retry_after": retry_after,
                             }
                         ),
                         429,
                     )
+                    response.headers["Retry-After"] = str(retry_after)
+                    response.headers["X-RateLimit-Limit"] = str(max_calls)
+                    response.headers["X-RateLimit-Remaining"] = "0"
+                    response.headers["X-RateLimit-Reset"] = str(reset_epoch)
+                    return response
 
-                return f(*args, **kwargs)
+                result = f(*args, **kwargs)
+                try:
+                    from flask import make_response
+
+                    response = make_response(result)
+                    response.headers["X-RateLimit-Limit"] = str(max_calls)
+                    response.headers["X-RateLimit-Remaining"] = str(remaining)
+                    response.headers["X-RateLimit-Reset"] = str(reset_epoch)
+                    return response
+                except Exception:
+                    # Keep request path robust even when response wrapping fails.
+                    return result
 
             return wrapper
 
         return decorator
 
-    def _check_rate_limit(self, key: str, max_calls: int, window: int) -> bool:
-        """Check if the key is within rate limits"""
+    def _is_bypass_request(self, request) -> bool:
+        """
+        Allow controlled bypass when a trusted load-test key is configured.
+        Disabled by default.
+        """
+        if not self._bypass_key:
+            return False
+        candidate = (request.headers.get(self._bypass_header) or "").strip()
+        if not candidate:
+            return False
+        if candidate == self._bypass_key:
+            logger.info(
+                "Rate-limit bypass accepted: header=%s method=%s path=%s",
+                self._bypass_header,
+                request.method,
+                request.path,
+            )
+            return True
+        if not self._warned_bypass_config:
+            logger.warning("Rate-limit bypass header present but key mismatch")
+            self._warned_bypass_config = True
+        return False
+
+    def _check_rate_limit(self, key: str, max_calls: int, window: int):
+        """Check limit and return (allowed, retry_after, remaining, reset_epoch)."""
         with self.lock:
             now = time.time()
 
@@ -78,10 +140,16 @@ class RateLimiter:
             calls[:] = [call_time for call_time in calls if now - call_time < window]
 
             if len(calls) >= max_calls:
-                return False
+                oldest = calls[0] if calls else now
+                retry_after = max(1, int(window - (now - oldest)))
+                reset_epoch = int(oldest + window)
+                return False, retry_after, 0, reset_epoch
 
             calls.append(now)
-            return True
+            remaining = max(0, max_calls - len(calls))
+            oldest = calls[0] if calls else now
+            reset_epoch = int(oldest + window)
+            return True, 0, remaining, reset_epoch
 
     def _cleanup_old_entries(self):
         """Remove old rate limit entries to prevent memory leaks"""

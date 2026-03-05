@@ -14,8 +14,10 @@
           <h4 class="mb-2"><i class="bi bi-info-circle me-2"></i> Planned Feature</h4>
           <p class="mb-0">
             The CaseStrainer Browser Extension is currently in the planning phase. We're working on bringing 
-            real-time citation verification to Chrome, Firefox, and Safari. Follow our development progress on 
-            <a href="https://github.com/jafrank88/casestrainer" target="_blank" class="alert-link">GitHub</a>.
+            real-time citation verification to Chrome, Firefox, and Safari. Use 
+            <a href="https://wolf.law.uw.edu/casestrainer/" target="_blank" rel="noopener" class="alert-link">CaseStrainer on the web</a> 
+            for citation analysis now, and follow development on 
+            <a href="https://github.com/jafrank88/casestrainer" target="_blank" rel="noopener" class="alert-link">GitHub</a>.
           </p>
         </div>
 
@@ -137,10 +139,15 @@
           </div>
           <div class="card-body">
             <p>
-              Interested in the browser extension development? Check out our comprehensive documentation 
-              and contributing guidelines:
+              Use CaseStrainer on the web for citation analysis today, or check out our documentation and contributing guidelines:
             </p>
             <div class="list-group">
+              <a href="https://wolf.law.uw.edu/casestrainer/" 
+                 target="_blank" 
+                 rel="noopener"
+                 class="list-group-item list-group-item-action">
+                <i class="bi bi-globe me-2"></i> CaseStrainer on the Web (wolf.law.uw.edu)
+              </a>
               <a href="https://github.com/jafrank88/casestrainer/tree/main/docs/BROWSER_EXTENSION.md" 
                  target="_blank" 
                  class="list-group-item list-group-item-action">

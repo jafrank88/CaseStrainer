@@ -165,11 +165,11 @@ def _verify_with_enhanced_fallback(citations: List, text: str, request_id: str) 
 
                 if enhanced_citation["verified"]:
                     logger.info(
-                        f"[AsyncVerificationWorker {request_id}] ✓ Verified: {citation_texts[i]} -> {enhanced_citation['canonical_name']} via {enhanced_citation['verification_source']}"
+                        f"[AsyncVerificationWorker {request_id}] [OK] Verified: {citation_texts[i]} -> {enhanced_citation['canonical_name']} via {enhanced_citation['verification_source']}"
                     )
                 else:
                     logger.info(
-                        f"[AsyncVerificationWorker {request_id}] ✗ Failed: {citation_texts[i]} - {enhanced_citation['verification_error']}"
+                        f"[AsyncVerificationWorker {request_id}] [X] Failed: {citation_texts[i]} - {enhanced_citation['verification_error']}"
                     )
 
             return results
@@ -262,11 +262,11 @@ def _verify_with_enhanced_fallback_sync_fallback(citations: List, text: str, req
 
             if enhanced_citation["verified"]:
                 logger.info(
-                    f"[AsyncVerificationWorker {request_id}] ✓ Sync batch verified: {citation_texts[i]} -> {enhanced_citation['canonical_name']}"
+                    f"[AsyncVerificationWorker {request_id}] [OK] Sync batch verified: {citation_texts[i]} -> {enhanced_citation['canonical_name']}"
                 )
             else:
                 logger.info(
-                    f"[AsyncVerificationWorker {request_id}] ✗ Sync batch failed: {citation_texts[i]} - {enhanced_citation['verification_error']}"
+                    f"[AsyncVerificationWorker {request_id}] [X] Sync batch failed: {citation_texts[i]} - {enhanced_citation['verification_error']}"
                 )
 
         return verification_results

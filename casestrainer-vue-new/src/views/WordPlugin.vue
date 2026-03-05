@@ -165,7 +165,7 @@
                 <h5>Other:</h5>
                 <ul>
                   <li>Internet connection required</li>
-                  <li>Connects to: wolf.law.uw.edu</li>
+                  <li>Connects to: <a href="https://wolf.law.uw.edu/casestrainer/" target="_blank" rel="noopener">wolf.law.uw.edu/casestrainer</a></li>
                   <li>No API key needed</li>
                 </ul>
               </div>
@@ -183,6 +183,12 @@
               For detailed installation instructions, troubleshooting, and development information:
             </p>
             <div class="list-group">
+              <a href="https://wolf.law.uw.edu/casestrainer/" 
+                 target="_blank" 
+                 rel="noopener"
+                 class="list-group-item list-group-item-action">
+                <i class="bi bi-globe me-2"></i> Use CaseStrainer on the Web (wolf.law.uw.edu)
+              </a>
               <a href="https://github.com/jafrank88/casestrainer/tree/main/docs/WORD_ADDIN.md" 
                  target="_blank" 
                  class="list-group-item list-group-item-action">

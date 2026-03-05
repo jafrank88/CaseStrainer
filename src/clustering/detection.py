@@ -3,6 +3,11 @@ Cluster Detection Module
 ========================
 
 Detects parallel citations and structural citation groups.
+
+Parallel citation = one case reported in multiple reporters (same name and date).
+Goal: all parallel citations for the same case appear in a single cluster. Rare case:
+document cites A & B here and later B & C elsewhere; then A, B, and C should all
+be in one cluster (transitive merge is applied in clustering/master.py).
 """
 
 import re
@@ -101,10 +106,17 @@ def detect_parallel_groups(
         
         # TOA guard: if the text between two close citations contains dotted leaders
         # (e.g., "............"), they are separate TOA entries, not parallel citations
+        # Semicolon guard: "A; B; C" = different cases (e.g. Dow; Frederick)
         if is_close and original_text and prev_end and curr_start:
             text_between = original_text[prev_end:curr_start]
             if _TOA_DOTS_PATTERN.search(text_between):
                 is_close = False
+            if ";" in text_between:
+                is_close = False
+                logger.debug(
+                    f"[PARALLEL-DETECTION] Semicolon between citations - different cases: "
+                    f"'{_get_attr(current_group[-1], 'citation', '')[:40]}...' and '{_get_attr(citation, 'citation', '')[:40]}...'"
+                )
         
         # Same-case check: only group if citations plausibly belong to same case
         if is_close and not _same_case_check(current_group[-1], citation):
@@ -173,6 +185,9 @@ def detect_structural_groups(
                     if text and chain_end and next_start:
                         text_between = text[chain_end:next_start]
                         if _TOA_DOTS_PATTERN.search(text_between):
+                            break
+                        # Semicolon separates different cases (e.g. "884 A.2d 667; Frederick v. City...")
+                        if ";" in text_between:
                             break
                     # Same-case check: only chain if same case
                     if not _same_case_check(citation, next_cit):

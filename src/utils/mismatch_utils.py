@@ -277,12 +277,22 @@ def annotate_mismatch_flags(
                 sim = _name_similarity(extracted, canonical) if (extracted and canonical) else 0.0
                 name_mismatch = bool(extracted and canonical and sim < name_threshold)
 
-            # Single source of truth: date_utils.validate_year_match
-            from src.utils.date_utils import validate_year_match
-            is_valid, _ = validate_year_match(
-                cit.get("extracted_date"), cit.get("canonical_date"), tolerance=year_tolerance
-            )
-            date_mismatch = not is_valid if (cit.get("extracted_date") and cit.get("canonical_date")) else False
+            # Date mismatch with year-source awareness.
+            # - Prefer backend-provided comparison year + mismatch type when present.
+            # - Soft mismatches are informational only and should not raise a date warning.
+            md = cit.get("metadata") or {}
+            mismatch_type = (md.get("year_mismatch_type") or "").lower()
+            if mismatch_type == "soft":
+                date_mismatch = False
+            elif mismatch_type == "hard":
+                date_mismatch = True
+            else:
+                from src.utils.date_utils import validate_year_match
+                compare_year = md.get("year_compare_value") or cit.get("canonical_date")
+                is_valid, _ = validate_year_match(
+                    cit.get("extracted_date"), compare_year, tolerance=year_tolerance
+                )
+                date_mismatch = not is_valid if (cit.get("extracted_date") and compare_year) else False
 
             cit["name_mismatch"] = name_mismatch
             cit["date_mismatch"] = date_mismatch

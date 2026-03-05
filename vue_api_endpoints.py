@@ -147,6 +147,13 @@ def analyze_text():
             
         # Determine input type and data
         if has_file:
+            # Ensure form params (e.g. enable_verification) are in data for file uploads
+            if not data:
+                data = {}
+            data.setdefault('type', request.form.get('type', 'text'))
+            data.setdefault('force_mode', request.form.get('force_mode'))
+            data.setdefault('enable_verification', request.form.get('enable_verification'))
+            logger.info(f"[Request {request_id}] File upload form params: enable_verification={data.get('enable_verification')}, force_mode={data.get('force_mode')}")
             # Process file upload
             file = request.files['file']
             filename = file.filename.lower() if file.filename else ''
@@ -230,7 +237,12 @@ def analyze_text():
             
             # Extract optional force_mode parameter (user override)
             force_mode = data.get('force_mode')  # Can be 'sync', 'async', or None (auto)
-            if force_mode:
+            # CRITICAL: File uploads always use async (worker) so the full pipeline (extraction + verification + clustering) runs.
+            # Sync path can return too fast or hit timeouts; worker path is the reliable path for verification.
+            if has_file and force_mode != 'sync':
+                force_mode = 'async'
+                logger.info(f"[Request {request_id}] 🎯 File upload: forcing async (worker) so full pipeline runs")
+            elif force_mode:
                 logger.info(f"[Request {request_id}] 🎯 User requested force_mode='{force_mode}'")
             
             # Extract enable_verification parameter
@@ -483,14 +495,23 @@ def get_task_status(task_id):
             
             # Flatten the result structure to match the sync response format
             if result and isinstance(result, dict):
-                # Handle nested result structure from worker
-                actual_result = result.get('result', result)  # Get nested result if it exists
-                
+                # Handle nested result structure from worker (worker returns top-level keys; no nested 'result')
+                actual_result = result.get('result', result)
+                citations = actual_result.get('citations', [])
+                clusters = actual_result.get('clusters', [])
+                # Defensive: if worker accidentally nested under 'result', pull clusters/citations from there
+                if not clusters and citations and isinstance(actual_result.get('result'), dict):
+                    inner = actual_result['result']
+                    clusters = inner.get('clusters', [])
+                    if not citations:
+                        citations = inner.get('citations', [])
                 flattened_result = {
                     'task_id': task_id,
                     'status': 'completed',
-                    'citations': actual_result.get('citations', []),
-                    'clusters': actual_result.get('clusters', []),
+                    'is_finished': True,
+                    'citations': citations,
+                    'clusters': clusters,
+                    'cluster_sections': actual_result.get('cluster_sections', {}),
                     'success': actual_result.get('success', True),
                     'message': actual_result.get('message', 'Task completed successfully'),
                     'metadata': actual_result.get('metadata', {}),
@@ -499,7 +520,10 @@ def get_task_status(task_id):
                     'progress_data': actual_result.get('progress_data', {}),
                     'statistics': actual_result.get('statistics', {})
                 }
-                logger.info(f"[Request {task_id}] Returning flattened result with {len(flattened_result.get('citations', []))} citations")
+                logger.info(
+                    f"[Request {task_id}] Returning flattened result with {len(flattened_result.get('citations', []))} citations, "
+                    f"{len(flattened_result.get('clusters', []))} clusters"
+                )
                 return jsonify(flattened_result)
             else:
                 return jsonify({

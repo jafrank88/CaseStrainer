@@ -25,6 +25,13 @@ class CitationPatterns:
     """
 
     # ============================================================================
+    # REPORTER SERIES DESIGNATIONS (part of reporter name, NOT page numbers)
+    # ============================================================================
+    # Use these to ensure 2d, 3d, 2nd, 3rd, 4th, 5th, etc. are never parsed as pages.
+    REPORTER_SERIES = r"(?:2d|3d|4d|5d|2nd|3rd|4th|5th|6th|7th|8th|9th|10th|\d+d)"
+    APP_SERIES = r"(?:2d|3d|4th|5th|6th|7th|8th|9th|10th)"  # App. 2d, App. 3d, Cal. App. 4th, etc.
+
+    # ============================================================================
     # FEDERAL REPORTERS
     # ============================================================================
 
@@ -961,7 +968,7 @@ def normalize_washington_citation(citation_text):
 
     normalized = re.sub(pattern, replacer, citation_text, flags=re.IGNORECASE)
 
-    normalized = re.sub(r"\\s+", " ", normalized).strip()
+    normalized = re.sub(r"\s+", " ", normalized).strip()
 
     return normalized
 

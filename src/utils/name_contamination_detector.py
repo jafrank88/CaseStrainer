@@ -156,7 +156,7 @@ def clean_contaminated_case_name(case_name: str) -> str:
 
         # Otherwise, take part before comma
         cleaned = before_comma.strip()
-        logger.info(f"[CONTAMINATION-CLEANED] '{case_name}' → '{cleaned}'")
+        logger.info(f"[CONTAMINATION-CLEANED] '{case_name}' -> '{cleaned}'")
         return cleaned
 
     return case_name

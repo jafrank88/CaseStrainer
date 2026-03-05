@@ -81,12 +81,21 @@ def _post_analyze(text: str, timeout: int = 90) -> Dict[str, Any]:
 
 def _extract_results(resp: Dict[str, Any]) -> Tuple[list, list]:
     """Return (citations, clusters) lists from either flat or nested response."""
-    # Prefer nested 'result' shape if present
-    res = resp.get("result") if isinstance(resp, dict) else None
+    if not isinstance(resp, dict):
+        return [], []
+
+    # Modern API shape: top-level citations/clusters.
+    top_cits = resp.get("citations")
+    top_clusters = resp.get("clusters")
+    if isinstance(top_cits, list) or isinstance(top_clusters, list):
+        return (top_cits or []), (top_clusters or [])
+
+    # Legacy nested 'result' shape.
+    res = resp.get("result")
     if isinstance(res, dict):
-        return res.get("citations", []) or [], res.get("clusters", []) or []
-    # Fallback to flat keys
-    return resp.get("citations", []) or [], resp.get("clusters", []) or []
+        return (res.get("citations") or []), (res.get("clusters") or [])
+
+    return [], []
 
 
 def _index_citations(citations: list) -> Dict[str, Dict[str, Any]]:

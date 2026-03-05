@@ -40,6 +40,9 @@ class CitationResult:
     date_mismatch: bool = False
     mismatch_confidence: float = 0.0
     possible_match: bool = False
+    # Citation-type flags (set early; drive extraction/verification/display)
+    is_proprietary_only: bool = False  # WL/Lexis only; no free reporter; use name+date fallback
+    name_likely_in_left_context: bool = False  # Reporter-only token; case name often left of citation
 
     def __post_init__(self):
         if self.parallel_citations is None:
@@ -128,7 +131,12 @@ class CitationResult:
         # Clean both canonical and extracted names
         cleaned_canonical_name = _clean_case_name(canonical_name)
         cleaned_extracted_name = _clean_case_name(extracted_case_name)
-        
+        # Repair truncated LLC (e.g. "Consumer First Legal Group, LL" -> "LLC")
+        try:
+            from src.utils.cluster_display_utils import _repair_truncated_llc
+            cleaned_canonical_name = _repair_truncated_llc(cleaned_canonical_name or "") or cleaned_canonical_name
+        except Exception:
+            pass
         case_name = cleaned_canonical_name or cleaned_extracted_name or "N/A"
         
         # CRITICAL FIX: Clean the citation field itself
@@ -137,6 +145,23 @@ class CitationResult:
             # Check if it's a Python object representation
             if "Citation(" in citation_text:
                 citation_text = _clean_case_name(citation_text)
+
+            # USER FIX 2026-03-02: Fix citation text contamination from preceding citations
+            # When citations appear in a list ("A, 404 U.S. 336, and B, 543 U.S. 335"), extraction
+            # can grab the wrong case name (e.g. "Mor, 404 U.S. 336" for United States v. Bass).
+            # If we have canonical_name from verification, replace wrong prefix with canonical.
+            if cleaned_canonical_name and "," in citation_text and self.verified:
+                import re
+                parts = citation_text.split(",", 1)
+                prefix = parts[0].strip()
+                reporter_part = parts[1].strip()
+                # Reporter should look like "404 U.S. 336 (scotus)" or "543 U.S. 335"
+                if re.match(r"^\d+\s+U\.?\s*S\.?", reporter_part, re.I):
+                    canonical_lower = (cleaned_canonical_name or "").lower()
+                    prefix_lower = prefix.lower()
+                    # Prefix is contaminated if short and not a substring of canonical
+                    if len(prefix) < 30 and prefix_lower not in canonical_lower:
+                        citation_text = cleaned_canonical_name + ", " + reporter_part
 
         # USER FIX 2026-01-08: Clean parallel_citations and cluster_members lists
         parallel_citations = self.parallel_citations or []
@@ -194,10 +219,12 @@ class CitationResult:
             "cluster_id": self.cluster_id,
             "true_by_parallel": self.true_by_parallel,  # Useful for tracking verification by parallel citations
             "is_verified": self.verified,  # Add is_verified alias for backward compatibility
-            "name_mismatch": self.name_mismatch,  # Flag when extracted ≠ canonical
+            "name_mismatch": self.name_mismatch,  # Flag when extracted != canonical
             "date_mismatch": self.date_mismatch,
             "mismatch_confidence": self.mismatch_confidence,
             "possible_match": self.possible_match,
+            "is_proprietary_only": getattr(self, "is_proprietary_only", False),
+            "name_likely_in_left_context": getattr(self, "name_likely_in_left_context", False),
         }
         return result
 

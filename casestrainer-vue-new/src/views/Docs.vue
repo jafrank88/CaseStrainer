@@ -2,6 +2,21 @@
   <div class="docs-page">
     <h1>CaseStrainer Documentation</h1>
     <p>Comprehensive guides and documentation for using CaseStrainer's citation processing system.</p>
+
+    <div class="docs-section">
+      <h2><i class="bi bi-link-45deg me-2"></i>Live Application</h2>
+      <ul class="docs-list">
+        <li>
+          <a href="https://wolf.law.uw.edu/casestrainer/" target="_blank" rel="noopener">
+            <i class="bi bi-globe me-2"></i>
+            <div>
+              <strong>CaseStrainer on the Web</strong>
+              <p class="text-muted mb-0">Use CaseStrainer at https://wolf.law.uw.edu/casestrainer/ — upload documents, paste text, or enter URLs to analyze and verify citations.</p>
+            </div>
+          </a>
+        </li>
+      </ul>
+    </div>
     
     <div class="docs-section">
       <h2><i class="bi bi-book-half me-2"></i>User Guides</h2>

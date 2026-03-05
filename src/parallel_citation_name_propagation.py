@@ -5,7 +5,7 @@ Improves extracted_case_name accuracy by propagating case names to parallel cita
 
 Problem: When citations appear together, only the first has context:
   "State v. Johnson, 159 Wn.2d 700, 153 P.3d 846 (2007)"
-                      ↑ has name        ↑ no name
+                      ^ has name        ^ no name
 
 Solution: Propagate "State v. Johnson" to both citations.
 """
@@ -237,7 +237,7 @@ class ParallelCitationPropagator:
                         if not old_name or old_name == "N/A":
                             cite_dict["extracted_case_name"] = src_ctx.case_name
                             cite_dict["propagated_from_parallel"] = True
-                            logger.info(f"[PROPAGATION] {ctx.citation} ← {src_ctx.case_name}")
+                            logger.info(f"[PROPAGATION] {ctx.citation} <- {src_ctx.case_name}")
                             propagated += 1
                             break
 

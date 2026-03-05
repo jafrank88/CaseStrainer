@@ -156,7 +156,7 @@ class CitationExtractor:
         if not text:
             return []
 
-        logger.info(f"🔍 [CITATION_BLOCKS] Starting citation block extraction for text: '{text[:200]}...'")
+        logger.info(f"[DEBUG] [CITATION_BLOCKS] Starting citation block extraction for text: '{text[:200]}...'")
         citations = []
 
         citation_block_pattern = re.compile(
@@ -169,9 +169,9 @@ class CitationExtractor:
         )
 
         matches = list(citation_block_pattern.finditer(text))
-        logger.info(f"🔍 [CITATION_BLOCKS] Pattern found {len(matches)} matches")
+        logger.info(f"[DEBUG] [CITATION_BLOCKS] Pattern found {len(matches)} matches")
         for i, match in enumerate(matches):
-            logger.info(f"🔍 [CITATION_BLOCKS] Match {i+1}: '{match.group(0)}'")
+            logger.info(f"[DEBUG] [CITATION_BLOCKS] Match {i+1}: '{match.group(0)}'")
 
         for match in citation_block_pattern.finditer(text):
             case_name = match.group(1).strip().rstrip(",")  # Remove trailing comma
@@ -224,7 +224,7 @@ class CitationExtractor:
             year = match.group(3)
             start, end = match.span()
 
-            logger.info(f"🔍 Found citation block: '{case_name}' with citations '{citations_text}' year {year}")
+            logger.info(f"[DEBUG] Found citation block: '{case_name}' with citations '{citations_text}' year {year}")
 
             individual_citations = self._extract_citations_from_block(citations_text)
 
@@ -299,7 +299,7 @@ class CitationExtractor:
         # Try to extract citation blocks (case name + citation + year format)
         citation_blocks = self._extract_citation_blocks(text)
         if citation_blocks:
-            logger.info(f"🔍 Extracted {len(citation_blocks)} citation blocks")
+            logger.info(f"[DEBUG] Extracted {len(citation_blocks)} citation blocks")
 
         # Also extract standalone citations using patterns
         citations = list(citation_blocks) if citation_blocks else []
@@ -318,7 +318,7 @@ class CitationExtractor:
                     continue
                 seen_citations.add((citation_text, start))
 
-                logger.info(f"🔍 Extracted citation: '{citation_text}' at position {start}-{end}")
+                logger.info(f"[DEBUG] Extracted citation: '{citation_text}' at position {start}-{end}")
 
                 citation = CitationResult(
                     citation=citation_text,

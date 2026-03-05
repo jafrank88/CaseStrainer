@@ -495,7 +495,12 @@ const dragOver = ref(false);
 const analysisResults = ref(null);
 const analysisError = ref('');
 const progressCompletedDisplayCount = ref(0);
-const resultClusterCount = computed(() => analysisResults.value?.clusters?.length || 0);
+// Case count: use clusters when present; when backend returns 0 clusters we show one card per citation (fallback), so use citation count
+const resultClusterCount = computed(() => {
+  const c = analysisResults.value?.clusters?.length ?? 0;
+  const n = analysisResults.value?.citations?.length ?? 0;
+  return c > 0 ? c : n;
+});
 const resultCitationCount = computed(() => analysisResults.value?.citations?.length || 0);
 
 // Async task state
@@ -1041,11 +1046,11 @@ const pollAsyncJob = async (jobId) => {
         task_id: jobData.task_id
       });
       
-      // Check for completion using multiple possible status indicators
-      const isCompleted = jobData.status === 'completed' || 
-                         jobData.status === 'finished' || 
-                         jobData.is_finished === true ||
-                         (jobData.citations && jobData.citations.length > 0);
+      // Check for completion - only trust explicit status (do not stop just because citations exist;
+      // backend may return partial data while still processing)
+      const isCompleted = jobData.status === 'completed' ||
+                         jobData.status === 'finished' ||
+                         jobData.is_finished === true;
       
       const isFailed = jobData.status === 'failed' || 
                       jobData.is_failed === true ||
@@ -1065,7 +1070,8 @@ const pollAsyncJob = async (jobId) => {
         
         return {
           citations: jobData.citations || [],
-          clusters: jobData.clusters || []
+          clusters: jobData.clusters || [],
+          cluster_sections: jobData.cluster_sections || {}
         };
       } else if (isFailed) {
         console.error('Async job failed:', jobData.error);
@@ -1107,6 +1113,7 @@ const pollAsyncJob = async (jobId) => {
         
         // Calculate time stuck
         const timeStuck = Date.now() - stuckDetection.lastStepTime;
+        const isVerificationWait = /verifying citations/i.test(currentStep || '') && citationsProcessed === 0;
         
         // Only trigger stuck detection if we have meaningful progress data
         // Don't trigger if currentStep is still "Initializing..." (might be normal for large docs)
@@ -1238,6 +1245,11 @@ const pollAsyncJob = async (jobId) => {
               }
             }
           }
+
+          // If verification has not moved for a while, make the wait reason explicit.
+          if (isVerificationWait && timeStuck > 30000) {
+            currentStep = 'Waiting on external citation source response...';
+          }
           
           // Update progress message with time estimate if available
           if (estimatedTimeRemaining && currentStep) {
@@ -1255,6 +1267,8 @@ const pollAsyncJob = async (jobId) => {
           
           // Final safety check - ensure it's a valid number
           progressPercent = Number(progressPercent) || 5;
+          // Do not regress the visible bar when backend phases briefly report lower progress.
+          progressPercent = Math.max(progressPercent, Number(globalProgress.progressPercent) || 0);
           
           // If no current step, try to find active step
           if (!currentStep && jobData.progress_data?.steps) {
@@ -1451,6 +1465,7 @@ const processImmediateResults = (response) => {
   analysisResults.value = {
     citations: response.citations || [],  // Top level for component
     clusters: mappedClusters,  // Top level for component (mapped clusters with citations array)
+    cluster_sections: response.cluster_sections || {}, // Add cluster_sections
     result: {
       citations: response.citations || [],
       clusters: clusters  // Raw clusters for backward compatibility
@@ -1656,9 +1671,9 @@ const analyzeContent = async () => {
         jobId,
         async (progressData) => {
           console.log('Task progress:', progressData);
-          // Prefer task_status progress/message (15, 30, 50, 70, 85) over /analyze/progress/ which often returns 0
-          const pct = progressData.progress;
-          const msg = progressData.message;
+          // Prefer task_status progress/message; API may send progress or progress_percent
+          const pct = progressData.progress ?? progressData.progress_percent;
+          const msg = progressData.message ?? progressData.current_message;
           if (typeof pct === 'number' && pct >= 0) {
             globalProgress.updateProgress({ step: msg || 'Processing...', progress: pct, total_progress: pct });
             if (asyncTaskProgress.value) {
@@ -1701,6 +1716,7 @@ const analyzeContent = async () => {
             analysisResults.value = {
               citations: citations,  // Top level for component
               clusters: mappedClusters,  // Top level for component (mapped clusters with citations array)
+              cluster_sections: result.cluster_sections || {}, // Add cluster_sections
               result: {
                 citations: citations,
                 clusters: clusters  // Raw clusters for backward compatibility
@@ -1825,9 +1841,8 @@ const analyzeContent = async () => {
       clustersLength: response.clusters?.length
     });
     
-    const hasCompletedResults = response.status === 'completed' || 
-                                (response.citations && response.citations.length > 0) ||
-                                (response.clusters && response.clusters.length > 0);
+    // Only treat as final when backend explicitly says completed (do not use citations/clusters presence)
+    const hasCompletedResults = response.status === 'completed' || response.is_finished === true;
     
     console.log('DEBUG: hasCompletedResults =', hasCompletedResults);
     
@@ -1989,14 +2004,14 @@ const analyzeContent = async () => {
               citations: cluster.citation_objects || cluster.citations || []
             }));
             
-            // HARMONIZED: Ensure both sync and async paths use the same structure
-            // The component expects: { citations: [...], clusters: [...] } at the top level
             analysisResults.value = {
-              citations: citations,  // Top level for component
-              clusters: mappedClusters,  // Top level for component (mapped clusters with citations array)
+              citations: citations,
+              clusters: mappedClusters,
+              cluster_sections: result.cluster_sections || {}, // Add cluster_sections
               result: {
                 citations: citations,
-                clusters: clusters  // Raw clusters for backward compatibility
+                clusters: clusters,
+                cluster_sections: result.cluster_sections || {} // Add cluster_sections
               },
               message: result.message || 'Analysis completed successfully',
               metadata: result.metadata || {},
@@ -2064,9 +2079,11 @@ const analyzeContent = async () => {
         analysisResults.value = {
           citations: citations,
           clusters: mappedClusters,
+          cluster_sections: response.cluster_sections || {},
           result: {
             citations: citations,
-            clusters: clusters
+            clusters: clusters,
+            cluster_sections: response.cluster_sections || {}
           },
           message: response.message || 'Analysis completed successfully',
           metadata: response.metadata || {},
@@ -2121,28 +2138,24 @@ const analyzeContent = async () => {
           allCitations.map(item => [item.citation || item.citation_text, item])
         ).values());
         
-        // HARMONIZED: Ensure both sync and async paths use the same structure
-        // The component expects: { citations: [...], clusters: [...] } at the top level
-        analysisResults.value = {
-          citations: uniqueCitations,  // Top level for component
-          clusters: mappedClusters,  // Top level for component (mapped clusters with citations array)
-          result: {
-            citations: uniqueCitations,
-            clusters: mappedClusters  // Raw clusters for backward compatibility
-          },
-          message: response.message || 'Analysis completed',
-          metadata: response.metadata || {},
-          success: response.success !== false, // Default to true if not specified
-          total_citations: uniqueCitations.length
-        };
-        
-        console.log('Analysis results processed:', {
-          citationsCount: uniqueCitations.length,
+        console.log('Response structure analysis (post-processing):', {
           clustersCount: mappedClusters.length,
           hasMessage: !!response.message,
           hasMetadata: !!response.metadata
         });
         
+        // Store results in analysisResults
+        analysisResults.value = {
+          citations: uniqueCitations,
+          clusters: mappedClusters,
+          cluster_sections: response.cluster_sections || {},
+          message: response.message || 'Analysis completed successfully',
+          metadata: response.metadata || {},
+          success: true,
+          total_citations: uniqueCitations.length
+        };
+        
+        analysisError.value = '';
       } catch (error) {
         console.error('Error in analyzeContent:', {
           error,

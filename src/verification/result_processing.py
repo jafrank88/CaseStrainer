@@ -6,6 +6,7 @@ Extracted from unified_verification_master.py (P1 refactoring).
 """
 
 from typing import Dict, Any, Optional, List
+from src.utils.cluster_display_utils import finalize_cluster_for_response, _is_google_search_url
 
 
 def apply_known_federal_to_citation_objects(citations: List[Any]) -> None:
@@ -28,13 +29,16 @@ def apply_known_federal_citations_and_clear_verified_without_url(
     """
     if not citations_list and not clusters_list:
         return
-    # Clear verified when no canonical_url (user rule: no Verified without canonical URL)
+    # Clear verified/true_by_parallel when no canonical_url or URL is Google search
+    # (user rule: Google search URL = unverified; never show "Verified" or "Verified by Parallel")
     def _clear(cit: Dict[str, Any]) -> None:
         if not isinstance(cit, dict):
             return
-        has_url = cit.get("canonical_url") or cit.get("url")
-        if cit.get("verified") and not has_url:
+        url = cit.get("canonical_url") or cit.get("url")
+        has_real_url = url and not _is_google_search_url(str(url or ""))
+        if not has_real_url:
             cit["verified"] = False
+            cit["true_by_parallel"] = False
             cit["canonical_name"] = None
             cit["canonical_date"] = None
             cit["canonical_url"] = None
@@ -47,14 +51,22 @@ def apply_known_federal_citations_and_clear_verified_without_url(
         for m in cl.get("citations", []) or []:
             _clear(m)
         any_ok = any(
-            isinstance(m, dict) and m.get("verified") and (m.get("canonical_url") or m.get("url"))
+            isinstance(m, dict)
+            and m.get("verified")
+            and (m.get("canonical_url") or m.get("url"))
+            and not _is_google_search_url(str(m.get("canonical_url") or m.get("url") or ""))
             for m in cl.get("citations", []) or []
         )
         if not any_ok and cl.get("verified"):
             cl["verified"] = False
             cl["canonical_name"] = None
             cl["canonical_url"] = None
-            cl["verifying_display_name"] = cl.get("submitted_display_name") or cl.get("extracted_case_name") or "N/A"
+            finalize_cluster_for_response(
+                cl,
+                clean_names=True,
+                clear_unverified_canonical=True,
+                clear_unverified_citations=True,
+            )
 
 
 def apply_last_mile_cluster_display_sync(
@@ -92,35 +104,43 @@ def apply_last_mile_cluster_display_sync(
                         if en and en.upper() != "N/A":
                             cluster["submitted_display_name"] = en
                             break
-        # 2) Map citation text -> member (with url) from cluster_members
+        # 2) Map citation text -> member (with real url) from cluster_members
         member_by_citation = {}
         for m in members:
             if isinstance(m, dict):
                 ct = (m.get("citation") or "").strip()
-                if ct and (m.get("canonical_url") or m.get("url")):
+                u = (m.get("canonical_url") or m.get("url") or "").strip()
+                if ct and u and not _is_google_search_url(u):
                     member_by_citation[ct] = m
         for cit in cits:
             if not isinstance(cit, dict):
                 continue
             ct = (cit.get("citation") or "").strip()
-            has_url = bool((cit.get("canonical_url") or cit.get("url") or "").strip())
-            if not has_url and ct and ct in member_by_citation:
+            url = (cit.get("canonical_url") or cit.get("url") or "").strip()
+            has_real_url = bool(url) and not _is_google_search_url(url)
+            if not has_real_url and ct and ct in member_by_citation:
                 mem = member_by_citation[ct]
-                cit["canonical_url"] = mem.get("canonical_url") or mem.get("url")
-                cit["url"] = mem.get("url") or mem.get("canonical_url")
-                if not cit.get("canonical_name") and mem.get("canonical_name"):
-                    cit["canonical_name"] = mem.get("canonical_name")
-            has_url = bool((cit.get("canonical_url") or cit.get("url") or "").strip())
+                u = mem.get("canonical_url") or mem.get("url")
+                if u and not _is_google_search_url(str(u)):
+                    cit["canonical_url"] = mem.get("canonical_url") or mem.get("url")
+                    cit["url"] = mem.get("url") or mem.get("canonical_url")
+                    if not cit.get("canonical_name") and mem.get("canonical_name"):
+                        cit["canonical_name"] = mem.get("canonical_name")
+            url = (cit.get("canonical_url") or cit.get("url") or "").strip()
+            has_real_url = bool(url) and not _is_google_search_url(url)
             if cit.get("verified") or cit.get("is_verified"):
-                cit["verified"] = has_url
-                cit["is_verified"] = has_url
-        # 3) Propagate canonical_url/canonical_name to cluster level so display_canonical_url and top-level canonical_url are set
+                cit["verified"] = has_real_url
+                cit["is_verified"] = has_real_url
+        # 3) Propagate canonical_url/canonical_name to cluster level so display_canonical_url and top-level canonical_url are set.
+        # Never overwrite or set a real case URL with a Google search URL.
         best_url = cluster.get("canonical_url") or cluster.get("display_canonical_url")
+        if best_url and _is_google_search_url(best_url):
+            best_url = None
         if not best_url or not (best_url or "").strip():
             for m in members:
                 if isinstance(m, dict):
                     u = (m.get("canonical_url") or m.get("url") or "").strip()
-                    if u:
+                    if u and not _is_google_search_url(u):
                         best_url = m.get("canonical_url") or m.get("url")
                         cluster["canonical_url"] = best_url
                         cluster["display_canonical_url"] = best_url
@@ -133,11 +153,19 @@ def apply_last_mile_cluster_display_sync(
             for c in cits:
                 if isinstance(c, dict):
                     u = (c.get("canonical_url") or c.get("url") or "").strip()
-                    if u:
+                    if u and not _is_google_search_url(u):
                         best_url = c.get("canonical_url") or c.get("url")
                         cluster["canonical_url"] = best_url
                         cluster["display_canonical_url"] = best_url
                         break
+
+        # Finalize with centralized display identity + canonical clearing semantics.
+        finalize_cluster_for_response(
+            cluster,
+            clean_names=True,
+            clear_unverified_canonical=True,
+            clear_unverified_citations=True,
+        )
 
 
 def apply_verification_paradox_fix(citations_list: List[Dict[str, Any]]) -> int:
@@ -155,7 +183,9 @@ def apply_verification_paradox_fix(citations_list: List[Dict[str, Any]]) -> int:
             and citation.get("canonical_date")
             and citation.get("canonical_url")
         )
-        if has_canonical_data and not citation.get("verified", False):
+        url = citation.get("canonical_url") or citation.get("url")
+        is_google = url and _is_google_search_url(str(url))
+        if has_canonical_data and not citation.get("verified", False) and not is_google:
             citation["verified"] = True
             citation["verification_status"] = "verified"
             fixed_count += 1

@@ -303,10 +303,10 @@ export const useAnalysisService = () => {
           } else if (pollResponse.data && pollResponse.data.status === 'failed') {
             throw new Error(pollResponse.data.error || 'Task failed');
           } else if (pollResponse.data && (pollResponse.data.status === 'processing' || pollResponse.data.status === 'queued')) {
-            // Task is still processing, capture progress info
-            const progress = pollResponse.data.progress || 0;
-            const statusMessage = pollResponse.data.status_message || 'Processing...';
-            const currentStep = pollResponse.data.current_step || 'Processing';
+            // Task is still processing, capture progress info (API may send progress or progress_percent)
+            const progress = pollResponse.data.progress ?? pollResponse.data.progress_percent ?? 0;
+            const statusMessage = pollResponse.data.status_message ?? pollResponse.data.message ?? 'Processing...';
+            const currentStep = pollResponse.data.current_step ?? pollResponse.data.current_message ?? 'Processing';
             const estimatedTimeRemaining = pollResponse.data.estimated_time_remaining;
             
             taskProgress = {

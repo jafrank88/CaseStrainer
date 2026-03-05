@@ -1,6 +1,12 @@
 import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
 import { resolve } from 'path';
+import { readFileSync } from 'fs';
+
+const packageJson = JSON.parse(
+  readFileSync(new URL('./package.json', import.meta.url), 'utf-8')
+);
+const appVersion = packageJson.version || '0.8.0';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -58,6 +64,7 @@ export default defineConfig({
   
   // Environment variables
   define: {
-    'process.env': {}
+    'process.env': {},
+    __APP_VERSION__: JSON.stringify(appVersion)
   }
 });

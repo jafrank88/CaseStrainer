@@ -1,5 +1,6 @@
 import re
-from typing import Any, Optional
+from datetime import date
+from typing import Any, List, Optional, Tuple
 
 
 def normalize_year(date_str: str | None) -> str | None:
@@ -116,7 +117,7 @@ def extract_date_from_text(text: str) -> Optional[str]:
 
 
 # -----------------------------------------------------------------------------
-# Year matching for verification (unified rule – single source of truth)
+# Year matching for verification (unified rule - single source of truth)
 # Used by verification, mismatch_utils, rq_worker, unified_citation_processor_v2.
 # -----------------------------------------------------------------------------
 
@@ -128,6 +129,7 @@ def validate_year_match(
 ) -> tuple[bool, int]:
     """
     Validate year matching; years must match (unified rule).
+    Uses 4-digit year extraction (1600-2100) so 18xx and 17xx are supported.
 
     Args:
         extracted_year: Year from document
@@ -140,14 +142,14 @@ def validate_year_match(
     if not extracted_year or not canonical_year:
         return True, 0  # Can't validate, assume valid
 
-    ext_match = re.search(r"(19|20)\d{2}", str(extracted_year))
-    can_match = re.search(r"(19|20)\d{2}", str(canonical_year))
+    ext_str = extract_year_value(extracted_year)
+    can_str = extract_year_value(canonical_year)
 
-    if not ext_match or not can_match:
+    if not ext_str or not can_str:
         return True, 0  # Can't parse, assume valid
 
-    ext_year = int(ext_match.group(0))
-    can_year = int(can_match.group(0))
+    ext_year = int(ext_str)
+    can_year = int(can_str)
     year_diff = abs(ext_year - can_year)
 
     return year_diff <= tolerance, year_diff
@@ -162,15 +164,16 @@ def years_match_for_verification(
     Single place for year handling in verification (unified rule).
     Returns (years_match, year_diff, extracted_clearly_wrong).
     Use: accept verification when years_match or extracted_clearly_wrong.
+    Uses 4-digit year extraction (1600-2100) so 18xx and 17xx are supported.
     """
     if not extracted_date or not canonical_date:
         return True, 0, False
-    ext_match = re.search(r"(19|20)\d{2}", str(extracted_date))
-    can_match = re.search(r"(19|20)\d{2}", str(canonical_date))
-    if not ext_match or not can_match:
+    ext_str = extract_year_value(extracted_date)
+    can_str = extract_year_value(canonical_date)
+    if not ext_str or not can_str:
         return True, 0, False
-    ext_year = int(ext_match.group(0))
-    can_year = int(can_match.group(0))
+    ext_year = int(ext_str)
+    can_year = int(can_str)
     year_diff = abs(ext_year - can_year)
     match = year_diff <= tolerance
     # Document/publication date contamination: extracted year recent, canonical old
@@ -178,3 +181,78 @@ def years_match_for_verification(
         (ext_year >= 2015 and can_year < 1950) or (year_diff > 50)
     )
     return match, year_diff, extracted_clearly_wrong
+
+
+def apply_canonical_date_overrides(
+    citations: List[Any],
+    canonical_date_str: Optional[str],
+    extracted_date_str: Optional[str],
+    has_date_mismatch: bool,
+    today: Optional[date] = None,
+) -> Tuple[Optional[str], bool]:
+    """
+    Apply "clearly wrong canonical date" overrides (single source of truth).
+
+    Rules:
+    1. Canonical is today or future (e.g. date_modified) and extracted is past -> use extracted.
+    2. abs(canonical_year - extracted_year) > 15 -> use extracted.
+    3. Canonical < 1950 and extracted >= 1990 -> use extracted.
+
+    Updates citation dicts' canonical_date in place when a correction is applied.
+    Returns (corrected_canonical_date_or_none, new_has_date_mismatch).
+    """
+    if today is None:
+        today = date.today()
+    ext_str = extract_year_value(extracted_date_str) if extracted_date_str else None
+    can_str = extract_year_value(canonical_date_str) if canonical_date_str else None
+    extracted_year_int = int(ext_str) if ext_str else None
+    can_year_int = int(can_str) if can_str else None
+    corrected: Optional[str] = None
+    new_mismatch = has_date_mismatch
+
+    if extracted_year_int is not None and can_year_int is not None:
+        # Rule 1: canonical is today/future (likely date_modified)
+        try:
+            if (
+                canonical_date_str
+                and "-" in str(canonical_date_str)
+                and len(str(canonical_date_str)) >= 10
+            ):
+                from datetime import datetime as dt
+
+                parsed = dt.strptime(
+                    str(canonical_date_str)[:10], "%Y-%m-%d"
+                ).date()
+                if (
+                    parsed >= today
+                    and extracted_year_int < today.year
+                ):
+                    corrected = str(extracted_year_int)
+                    new_mismatch = False
+        except Exception:
+            pass
+        # Rule 2: absurd year difference
+        if new_mismatch and abs(can_year_int - extracted_year_int) > 15:
+            corrected = str(extracted_year_int)
+            new_mismatch = False
+        # Rule 3: pre-1950 canonical with post-1990 extracted
+        if (
+            new_mismatch
+            and can_year_int < 1950
+            and extracted_year_int >= 1990
+        ):
+            corrected = str(extracted_year_int)
+            new_mismatch = False
+
+    if corrected and citations:
+        for c in citations:
+            if isinstance(c, dict):
+                if c.get("canonical_date"):
+                    c["canonical_date"] = corrected
+                c["date_mismatch"] = False
+            elif hasattr(c, "canonical_date"):
+                setattr(c, "canonical_date", corrected)
+                if hasattr(c, "date_mismatch"):
+                    setattr(c, "date_mismatch", False)
+
+    return corrected, new_mismatch

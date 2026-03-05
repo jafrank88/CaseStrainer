@@ -5,6 +5,8 @@ Batch Verification Module
 Batch verification for multiple citations using CourtListener's
 citation-lookup API with true text-based batch requests.
 
+Uses COURTLISTENER_API_KEY from config (env) for citation-lookup API.
+
 CourtListener API limits:
 - 250 citations matched per single request
 - 64,000 characters max per request (~50 pages)
@@ -15,31 +17,193 @@ CourtListener API limits:
 import re
 import asyncio
 import logging
-from typing import List, Dict, Any, Optional, Callable
+from concurrent.futures import ThreadPoolExecutor, TimeoutError as FuturesTimeoutError
+from typing import List, Dict, Any, Optional, Callable, Sequence, cast
 import time
 
 from .sources import CourtListenerVerifier
+from .courtlistener_throttle import throttle_courtlistener
 
 logger = logging.getLogger(__name__)
 
-# CourtListener batch limits
+# Regex for volume-reporter-page (e.g. 965 F.3d 596, 578 U.S. 330)
+_VOL_REP_PAGE = re.compile(
+    r"(\d+)\s+([A-Za-z.]+\s*(?:\d[a-z]{0,2})?)\s+(\d+)"
+)
+
+
+def _vol_rep_page_from_string(s: str) -> Optional[str]:
+    """First volume-reporter-page in string (e.g. '965 F.3d 596')."""
+    if not s:
+        return None
+    m = _VOL_REP_PAGE.search(s)
+    return f"{m.group(1)} {m.group(2).strip()} {m.group(3)}" if m else None
+
+
+def _primary_vol_rep_page(citation: str) -> Optional[str]:
+    """
+    Extract the primary (main) volume-reporter-page from a citation string.
+    When the citation contains "(quoting ...)" or "(citing ...)", use only the
+    text before that so we match the main case (e.g. 965 F.3d 596) not the
+    quoted one (799 F.3d 701). This fixes wrong binding to Levitt when
+    verifying Soo Line R.R. Co. v. Consol. Rail Corp., 965 F.3d 596 (quoting ... 799 F.3d 701).
+    """
+    if not citation or not citation.strip():
+        return None
+    text = citation.strip()
+    # Truncate at parentheticals that introduce a quoted/cited source
+    for pattern in [r"\s*\(quoting\s+", r"\s*\(citing\s+", r"\s*\(quoting\s*$", r"\s*\(citing\s*$"]:
+        idx = re.search(pattern, text, re.IGNORECASE)
+        if idx:
+            text = text[: idx.start()].strip()
+    return _vol_rep_page_from_string(text)
+
+
+def _courtlistener_api_key(api_key: Optional[str]) -> str:
+    """Use provided key or config (env) so citation-lookup always uses env-backed key."""
+    if api_key and api_key.strip():
+        return api_key.strip()
+    try:
+        from src.config import COURTLISTENER_API_KEY
+        return (COURTLISTENER_API_KEY or "").strip()
+    except Exception:
+        return ""
+
+# CourtListener batch limits (use API max to minimize API calls under 5-min rate limit)
 MAX_CITATIONS_PER_REQUEST = 250
-MAX_CHARS_PER_REQUEST = 60000  # Leave 4K buffer under 64K limit
+MAX_CHARS_PER_REQUEST = 64000  # API max 64K chars per request
+# Upstream (UnifiedCitationProcessorV2._sanitize_citation_for_verification_query) already caps at 220 chars.
+# This is a safety net if any caller passes long strings so we still get reasonable batch sizes.
+MAX_CHARS_PER_CITATION_IN_BATCH = 500
+# Keep request timeout tighter so we surface progress/fallback sooner on slow external calls.
+MAX_BATCH_REQUEST_TIMEOUT_SECONDS = 35
+# Hard cap for asyncio.wait_for around the blocking HTTP call (prevents indefinite hang).
+MAX_BATCH_ASYNCIO_TIMEOUT_SECONDS = 45
+# Per-batch wall-clock timeout (throttle + HTTP). Prevents "stuck at 10 processed" when batch 2+ hangs.
+# Must be > throttle max wait (~45s) + HTTP timeout (35s) to avoid false timeouts when rate-limited.
+MAX_SECONDS_PER_BATCH = 90
 
 
 class BatchVerifier:
-    """Batch verification using CourtListener's text-based citation-lookup API."""
+    """Batch verification using CourtListener's text-based citation-lookup API. Key from config (env)."""
     
     def __init__(self, api_key: Optional[str] = None, session=None):
-        self.api_key = api_key
+        self.api_key = _courtlistener_api_key(api_key)
         # Safety net: create session if none provided
         if session is None:
             from .utils import get_retrying_session
             session = get_retrying_session()
         self.session = session
-        self.courtlistener = CourtListenerVerifier(api_key, session)
-        self.base_url = "https://www.courtlistener.com/api/rest/v4"
+        self.courtlistener = CourtListenerVerifier(self.api_key, session)
+        try:
+            from src.config import COURTLISTENER_API_URL
+            self.base_url = (COURTLISTENER_API_URL or "https://www.courtlistener.com/api/rest/v4").rstrip("/")
+        except Exception:
+            self.base_url = "https://www.courtlistener.com/api/rest/v4"
     
+    def verify_batch_sync(
+        self,
+        citations: List[str],
+        case_names_list: Sequence[Optional[str]],
+        dates_list: Sequence[Optional[str]],
+        timeout_per_batch: float,
+        progress_callback: Optional[Callable[[int, str, str], None]],
+    ) -> List[Dict[str, Any]]:
+        """Run full batch verification synchronously (throttle + HTTP in this thread).
+        Used by verify_batch() via run_in_executor to avoid async/threading hangs."""
+        if not citations:
+            return []
+        logger.info("[BATCH] verify_batch_sync started (running in executor thread)")
+        batches = self._build_text_batches(
+            citations,
+            cast(List[Optional[str]], list(case_names_list)),
+            cast(List[Optional[str]], list(dates_list)),
+        )
+        logger.info(f"[BATCH] Split {len(citations)} citations into {len(batches)} API request(s)")
+        all_results: List[Optional[Dict[str, Any]]] = [None] * len(citations)
+        for batch_idx, batch_info in enumerate(batches):
+            n_this = len(batch_info["indices"])
+            processed_so_far = sum(len(b["indices"]) for b in batches[:batch_idx])
+            logger.info(
+                f"[BATCH] Sending batch {batch_idx + 1}/{len(batches)} ({n_this} citations), "
+                f"{processed_so_far} already processed"
+            )
+            # Do NOT call progress_callback here: it can block on Redis and cause "stuck at 10"
+            # (we never reach batch_ex.submit for batch 2). Progress is updated only after each batch.
+            # Run throttle+HTTP in a sub-thread with per-batch timeout to avoid indefinite hang.
+            with ThreadPoolExecutor(max_workers=1) as batch_ex:
+                future = batch_ex.submit(
+                    self._send_batch_request_sync,
+                    batch_info,
+                    timeout_per_batch,
+                )
+                try:
+                    batch_results = future.result(timeout=MAX_SECONDS_PER_BATCH)
+                except FuturesTimeoutError:
+                    logger.warning(
+                        f"[BATCH] Batch {batch_idx + 1}/{len(batches)} timed out after {MAX_SECONDS_PER_BATCH}s "
+                        "(throttle or HTTP); marking this batch as unverified and continuing."
+                    )
+                    batch_results = [
+                        {
+                            "citation": c,
+                            "verified": False,
+                            "error": "Batch request timed out",
+                            "extracted_case_name": cn,
+                            "extracted_date": d,
+                        }
+                        for c, cn, d in zip(
+                            batch_info["citation_strings"],
+                            batch_info["case_names"],
+                            batch_info["dates"],
+                        )
+                    ]
+            logger.info(f"[BATCH] Batch {batch_idx + 1}/{len(batches)} done ({n_this} results)")
+            for idx, result in zip(batch_info["indices"], batch_results):
+                all_results[idx] = result
+            # Update progress after each batch so UI shows 10, 20, 30... (not stuck at 10)
+            # Run callback with 5s timeout so a slow Redis write never blocks the next batch.
+            processed_after = processed_so_far + n_this
+            if progress_callback:
+                try:
+                    with ThreadPoolExecutor(max_workers=1) as _cb_ex:
+                        _cb_future = _cb_ex.submit(
+                            progress_callback,
+                            processed_after,
+                            "Verifying",
+                            f"Verifying citations... ({processed_after}/{len(citations)} citations)",
+                        )
+                        _cb_future.result(timeout=5.0)
+                except (FuturesTimeoutError, Exception) as e:
+                    logger.warning(f"[BATCH] progress_callback (after batch) failed or timed out: {e}")
+            import gc
+            gc.collect()
+            try:
+                import ctypes
+                ctypes.CDLL("libc.so.6").malloc_trim(0)
+            except Exception:
+                pass
+            if batch_idx < len(batches) - 1:
+                try:
+                    from src.config import BATCH_DELAY_BETWEEN_REQUESTS_SECONDS
+                    delay = max(0.0, float(BATCH_DELAY_BETWEEN_REQUESTS_SECONDS))
+                except Exception:
+                    delay = 0.5
+                if delay > 0:
+                    time.sleep(delay)
+        for i, result in enumerate(all_results):
+            if result is None:
+                all_results[i] = {
+                    "citation": citations[i],
+                    "verified": False,
+                    "error": "Not processed",
+                    "extracted_case_name": case_names_list[i],
+                    "extracted_date": dates_list[i],
+                }
+        verified_count = sum(1 for r in all_results if r and r.get("verified"))
+        logger.info(f"[BATCH] Completed: {verified_count}/{len(all_results)} verified")
+        return [r for r in all_results if r is not None]
+
     async def verify_batch(
         self,
         citations: List[str],
@@ -51,75 +215,49 @@ class BatchVerifier:
     ) -> List[Dict[str, Any]]:
         """
         Verify multiple citations using CourtListener batch text lookup.
-        
-        Joins citations into a text block and sends one API request per batch
-        (up to 250 citations / 64K chars per request). Much faster than
-        individual lookups.
+        Runs the entire batch loop in a single executor to avoid async/threading issues.
         """
         if not citations:
             return []
-        
         logger.info(f"[BATCH] Starting batch verification of {len(citations)} citations")
-        
-        # Prepare data
-        case_names = case_names or [None] * len(citations)
-        dates = dates or [None] * len(citations)
-        
-        # Build text batches respecting both citation count and char limits
-        batches = self._build_text_batches(citations, case_names, dates)
-        logger.info(f"[BATCH] Split {len(citations)} citations into {len(batches)} API request(s)")
-        
-        all_results = [None] * len(citations)  # Pre-allocate to preserve order
-        
-        for batch_idx, batch_info in enumerate(batches):
-            if progress_callback:
-                processed = sum(len(b["indices"]) for b in batches[:batch_idx])
-                progress_callback(
-                    processed,
-                    "Verifying",
-                    f"API batch {batch_idx + 1}/{len(batches)} ({len(batch_info['indices'])} citations)..."
-                )
-            
-            # Send batch request
-            batch_results = await self._send_batch_request(batch_info, timeout_per_batch)
-            
-            # Map results back to original indices
-            for idx, result in zip(batch_info["indices"], batch_results):
-                all_results[idx] = result
-            
-            # Free HTTP response objects between batches to reduce peak memory
-            import gc
-            gc.collect()
-            try:
-                import ctypes
-                ctypes.CDLL("libc.so.6").malloc_trim(0)
-            except Exception:
-                pass
-
-            # Rate limiting between batches (60 citations/min = wait if needed)
-            if batch_idx < len(batches) - 1:
-                await asyncio.sleep(2.0)
-        
-        # Fill any gaps with unverified results
-        for i, result in enumerate(all_results):
-            if result is None:
-                all_results[i] = {
-                    "citation": citations[i],
+        case_names_list = list(case_names) if case_names else [None] * len(citations)
+        dates_list = list(dates) if dates else [None] * len(citations)
+        loop = asyncio.get_event_loop()
+        total_timeout = 600.0
+        try:
+            result = await asyncio.wait_for(
+                loop.run_in_executor(
+                    None,
+                    lambda: self.verify_batch_sync(
+                        citations,
+                        case_names_list,
+                        dates_list,
+                        timeout_per_batch,
+                        progress_callback,
+                    ),
+                ),
+                timeout=total_timeout,
+            )
+            logger.info(f"[BATCH] verify_batch (async) completed: {len(result)} results")
+            return result
+        except asyncio.TimeoutError:
+            logger.warning(f"[BATCH] Full batch verification timed out after {total_timeout}s")
+            return [
+                {
+                    "citation": c,
                     "verified": False,
-                    "error": "Not processed",
-                    "extracted_case_name": case_names[i],
-                    "extracted_date": dates[i],
+                    "error": "Batch verification timed out",
+                    "extracted_case_name": cn,
+                    "extracted_date": d,
                 }
-        
-        verified_count = sum(1 for r in all_results if r.get("verified"))
-        logger.info(f"[BATCH] Completed: {verified_count}/{len(all_results)} verified")
-        return all_results
+                for c, cn, d in zip(citations, case_names_list, dates_list)
+            ]
     
     def _build_text_batches(
         self,
         citations: List[str],
         case_names: List[Optional[str]],
-        dates: List[Optional[str]]
+        dates: List[Optional[str]],
     ) -> List[Dict[str, Any]]:
         """
         Build text batches for the citation-lookup API.
@@ -130,113 +268,127 @@ class BatchVerifier:
         - case_names: corresponding case names
         - dates: corresponding dates
         - citation_strings: the raw citation strings
+        - spans: (start, end) offsets of each input citation inside text
         """
         batches = []
-        current_batch = {"text": "", "indices": [], "case_names": [], "dates": [], "citation_strings": []}
+        current_batch = {"text": "", "indices": [], "case_names": [], "dates": [], "citation_strings": [], "spans": []}
         current_char_count = 0
         
         for i, (citation, case_name, date) in enumerate(zip(citations, case_names, dates)):
-            # Each citation gets a separator ". " for the parser
-            entry = citation if not current_batch["indices"] else ". " + citation
+            # Use truncated citation for batch text so we don't hit char limit with long strings.
+            # Upstream should already pass pruned citations (~220 chars); this is a safety net.
+            cite_for_text = (citation or "")[:MAX_CHARS_PER_CITATION_IN_BATCH]
+            entry = cite_for_text if not current_batch["indices"] else ". " + cite_for_text
             entry_len = len(entry)
-            
+
             # Check if adding this citation would exceed limits
             if (len(current_batch["indices"]) >= MAX_CITATIONS_PER_REQUEST or
                     current_char_count + entry_len > MAX_CHARS_PER_REQUEST):
                 # Save current batch and start new one
                 if current_batch["indices"]:
                     batches.append(current_batch)
-                current_batch = {"text": "", "indices": [], "case_names": [], "dates": [], "citation_strings": []}
+                current_batch = {"text": "", "indices": [], "case_names": [], "dates": [], "citation_strings": [], "spans": []}
                 current_char_count = 0
-                entry = citation  # No separator for first entry
+                entry = cite_for_text  # No separator for first entry
                 entry_len = len(entry)
-            
+
+            start_off = len(current_batch["text"]) + (2 if current_batch["indices"] else 0)
             current_batch["text"] += entry
             current_batch["indices"].append(i)
             current_batch["case_names"].append(case_name)
             current_batch["dates"].append(date)
-            current_batch["citation_strings"].append(citation)
+            current_batch["citation_strings"].append(citation)  # full citation for result mapping
+            current_batch["spans"].append((start_off, start_off + len(cite_for_text)))  # spans into sent text
             current_char_count += entry_len
         
         # Don't forget the last batch
         if current_batch["indices"]:
             batches.append(current_batch)
-        
+
+        # Log why batch count is what it is (char limit often forces small batches when citations are long)
+        if batches:
+            sizes = [len(b["indices"]) for b in batches]
+            total_chars = sum(len(b["text"]) for b in batches)
+            logger.info(
+                f"[BATCH] Built {len(batches)} batch(es): {sizes} citations each, ~{total_chars} total chars "
+                f"(limit {MAX_CHARS_PER_REQUEST} chars / {MAX_CITATIONS_PER_REQUEST} cites per request)"
+            )
+
         return batches
-    
-    async def _send_batch_request(
+
+    def _split_batch_info(
+        self, batch_info: Dict[str, Any], start: int, end: int
+    ) -> Dict[str, Any]:
+        """Slice batch_info into a sub-batch for indices [start:end]. Rebuilds text and spans."""
+        indices = batch_info["indices"][start:end]
+        citation_strings = batch_info["citation_strings"][start:end]
+        case_names = batch_info["case_names"][start:end]
+        dates = batch_info["dates"][start:end]
+        # Rebuild text and spans for the sub-batch (same format as _build_text_batches)
+        text_parts: List[str] = []
+        spans_list: List[tuple] = []
+        offset = 0
+        for i, cite in enumerate(citation_strings):
+            cite_for_text = (cite or "")[:MAX_CHARS_PER_CITATION_IN_BATCH]
+            start_off = offset
+            text_parts.append(cite_for_text)
+            spans_list.append((start_off, start_off + len(cite_for_text)))
+            offset += len(cite_for_text)
+            if i < len(citation_strings) - 1:
+                offset += 2  # ". " separator
+        text = ". ".join(text_parts) if text_parts else ""
+        return {
+            "text": text,
+            "indices": indices,
+            "case_names": case_names,
+            "dates": dates,
+            "citation_strings": citation_strings,
+            "spans": spans_list,
+        }
+
+    def _send_batch_request_sync(
         self,
         batch_info: Dict[str, Any],
         timeout: float
     ) -> List[Dict[str, Any]]:
-        """Send a single batch text request to CourtListener citation-lookup API."""
+        """Send a single batch request synchronously (throttle + HTTP). Used when entire
+        batch verification runs in one executor to avoid async/threading issues."""
         if not self.api_key:
             return [
                 {"citation": c, "verified": False, "error": "No API key",
                  "extracted_case_name": cn, "extracted_date": d}
                 for c, cn, d in zip(batch_info["citation_strings"], batch_info["case_names"], batch_info["dates"])
             ]
-        
         url = f"{self.base_url}/citation-lookup/"
         headers = {"Authorization": f"Token {self.api_key}"}
         text = batch_info["text"]
-        
+        form_data = {"text": text}
+        req_timeout = (10, min(timeout, MAX_BATCH_REQUEST_TIMEOUT_SECONDS))
+        cost = max(1, len(batch_info.get("citation_strings") or []))
         try:
-            # Log memory before API call
             try:
                 import psutil, os
                 _mem_before = psutil.Process(os.getpid()).memory_info().rss // (1024 * 1024)
                 logger.info(f"[BATCH-MEM] Before API call: {_mem_before}MB, text_len={len(text)}")
             except Exception:
                 pass
-
-            resp = self.session.post(
-                url,
-                json={"text": text},
-                headers=headers,
-                timeout=min(timeout, 60)
-            )
-            
-            if resp.status_code == 429:
-                # Rate limited - extract wait time if available
-                try:
-                    error_data = resp.json()
-                    wait_until = error_data.get("wait_until", "unknown")
-                    logger.warning(f"[BATCH] Rate limited. Wait until: {wait_until}")
-                except Exception:
-                    logger.warning("[BATCH] Rate limited (no wait_until in response)")
-                return [
-                    {"citation": c, "verified": False, "error": "Rate limited",
-                     "extracted_case_name": cn, "extracted_date": d}
-                    for c, cn, d in zip(batch_info["citation_strings"], batch_info["case_names"], batch_info["dates"])
-                ]
-            
-            if resp.status_code != 200:
-                logger.error(f"[BATCH] API returned HTTP {resp.status_code}")
-                return [
-                    {"citation": c, "verified": False, "error": f"HTTP {resp.status_code}",
-                     "extracted_case_name": cn, "extracted_date": d}
-                    for c, cn, d in zip(batch_info["citation_strings"], batch_info["case_names"], batch_info["dates"])
-                ]
-            
-            api_results = resp.json()
-            # Explicitly release HTTP response to free memory
-            resp_size = len(resp.content) if hasattr(resp, 'content') else 0
-            resp.close()
-            del resp
-            logger.info(f"[BATCH] API returned {len(api_results)} parsed citations for {len(batch_info['indices'])} input citations (resp_size={resp_size})")
-
-            # Log memory after API call
-            try:
-                import psutil, os
-                _mem_after = psutil.Process(os.getpid()).memory_info().rss // (1024 * 1024)
-                logger.info(f"[BATCH-MEM] After API call + parse: {_mem_after}MB")
-            except Exception:
-                pass
-
-            # Match API results back to input citations
-            return self._match_results_to_citations(api_results, batch_info)
-            
+            throttle_courtlistener(cost=cost, context="batch-citation-lookup")
+            resp = self.session.post(url, data=form_data, headers=headers, timeout=req_timeout)
+            # Automatically adapt on payload too large: split batch in half and retry
+            if resp.status_code == 413 and len(batch_info.get("indices") or []) > 1:
+                n = len(batch_info["indices"])
+                mid = n // 2
+                logger.warning(
+                    f"[BATCH] API returned 413 (payload too large) for batch of {n} citations; "
+                    f"retrying as two batches of {mid} and {n - mid}"
+                )
+                resp.close()
+                first = self._split_batch_info(batch_info, 0, mid)
+                second = self._split_batch_info(batch_info, mid, n)
+                results_first = self._send_batch_request_sync(first, timeout)
+                results_second = self._send_batch_request_sync(second, timeout)
+                return results_first + results_second
+            return self._process_batch_response(resp, batch_info)
         except Exception as e:
             logger.error(f"[BATCH] Batch request failed: {e}")
             return [
@@ -244,7 +396,61 @@ class BatchVerifier:
                  "extracted_case_name": cn, "extracted_date": d}
                 for c, cn, d in zip(batch_info["citation_strings"], batch_info["case_names"], batch_info["dates"])
             ]
-    
+
+    def _process_batch_response(
+        self,
+        resp: Any,
+        batch_info: Dict[str, Any]
+    ) -> List[Dict[str, Any]]:
+        """Parse HTTP response and map to citation results. Shared by sync and async paths."""
+        if resp.status_code == 429:
+            try:
+                error_data = resp.json()
+                wait_until = error_data.get("wait_until", "unknown")
+                logger.warning(f"[BATCH] Rate limited. Wait until: {wait_until}")
+            except Exception:
+                logger.warning("[BATCH] Rate limited (no wait_until in response)")
+            return [
+                {"citation": c, "verified": False, "error": "Rate limited",
+                 "extracted_case_name": cn, "extracted_date": d}
+                for c, cn, d in zip(batch_info["citation_strings"], batch_info["case_names"], batch_info["dates"])
+            ]
+        if resp.status_code != 200:
+            logger.error(f"[BATCH] API returned HTTP {resp.status_code}")
+            return [
+                {"citation": c, "verified": False, "error": f"HTTP {resp.status_code}",
+                 "extracted_case_name": cn, "extracted_date": d}
+                for c, cn, d in zip(batch_info["citation_strings"], batch_info["case_names"], batch_info["dates"])
+            ]
+        raw = resp.json()
+        api_results = raw if isinstance(raw, list) else []
+        resp_size = len(resp.content) if hasattr(resp, 'content') else 0
+        resp.close()
+        del resp
+        num_input = len(batch_info["indices"])
+        if not isinstance(raw, list) and raw:
+            logger.warning("[BATCH-DIAG] API response was not a list (type=%s). Using empty results.", type(raw).__name__)
+        logger.info(f"[BATCH] API returned {len(api_results)} parsed citations for {num_input} input citations (resp_size={resp_size})")
+        if api_results:
+            sample = [
+                (r.get("citation"), r.get("status"), len(r.get("clusters") or []))
+                for r in api_results[:5]
+            ]
+            logger.info(f"[BATCH-DIAG] API result sample (citation, status, num_clusters): {sample}")
+        if num_input > 1 and len(api_results) <= 1:
+            logger.warning(
+                "[BATCH-DIAG] API returned %s result(s) for %s input citations. "
+                "If you sent many citations, the API may expect form-encoded body (data=text) not JSON.",
+                len(api_results), num_input,
+            )
+        try:
+            import psutil, os
+            _mem_after = psutil.Process(os.getpid()).memory_info().rss // (1024 * 1024)
+            logger.info(f"[BATCH-MEM] After API call + parse: {_mem_after}MB")
+        except Exception:
+            pass
+        return self._match_results_to_citations(api_results, batch_info)
+
     def _match_results_to_citations(
         self,
         api_results: List[Dict[str, Any]],
@@ -279,12 +485,73 @@ class BatchVerifier:
                 "matched": False,
             })
         
+        # Normalize citation for comparison (collapse spaces, strip)
+        def _norm(s: str) -> str:
+            return " ".join((s or "").split())
+
         # For each input citation, find the best matching API result
         results = []
+        matched_count = 0
+        spans = batch_info.get("spans") or [(None, None)] * len(input_citations)
+        input_norms = [_norm(c) for c in input_citations]
+
+        # Stage 1: deterministic span-based assignment (global greedy by score).
+        pair_candidates = []
+        for i, input_cit in enumerate(input_citations):
+            span_start, span_end = spans[i] if i < len(spans) else (None, None)
+            if span_start is None or span_end is None:
+                continue
+            in_norm = input_norms[i]
+            for api_idx, api in enumerate(api_by_position):
+                a_start = api.get("start", -1)
+                a_end = api.get("end", -1)
+                if a_start < 0 or a_end <= a_start:
+                    continue
+                overlap = max(0, min(span_end, a_end) - max(span_start, a_start))
+                start_inside = span_start <= a_start < span_end
+                if not overlap and not start_inside:
+                    continue
+
+                # Base score from span alignment, then boost text agreement.
+                score = overlap + (50 if start_inside else 0)
+                parsed = api.get("parsed_citation") or ""
+                parsed_norm = _norm(parsed)
+                if parsed_norm and parsed_norm == in_norm:
+                    score += 200
+                elif parsed and (parsed in input_cit or input_cit in parsed):
+                    score += 75
+                # Prefer API result that matches the primary cite (e.g. 965 F.3d 596), not a quoted one (799 F.3d 701)
+                primary_vrp = _primary_vol_rep_page(input_cit)
+                parsed_vrp = _vol_rep_page_from_string(parsed)
+                if primary_vrp and parsed_vrp and primary_vrp == parsed_vrp:
+                    score += 100
+                pair_candidates.append((score, i, api_idx))
+
+        pair_candidates.sort(reverse=True)
+        assigned_input = set()
+        assigned_api = set()
+        span_match_by_input: Dict[int, Dict[str, Any]] = {}
+        for score, input_idx, api_idx in pair_candidates:
+            if input_idx in assigned_input or api_idx in assigned_api:
+                continue
+            assigned_input.add(input_idx)
+            assigned_api.add(api_idx)
+            span_match_by_input[input_idx] = api_by_position[api_idx]
+        
         for i, (input_cit, case_name, date) in enumerate(zip(input_citations, case_names, dates)):
-            best_match = self._find_best_api_match(input_cit, api_by_position, text)
+            best_match = span_match_by_input.get(i)
+            if best_match is None:
+                # Stage 2 fallback: only consider API results without valid spans.
+                # This avoids re-binding already-positioned results to the wrong input.
+                best_match = self._find_best_api_match(
+                    input_cit,
+                    api_by_position,
+                    text,
+                    allow_positionless_only=True,
+                )
             
             if best_match and best_match["clusters"]:
+                matched_count += 1
                 best_match["matched"] = True
                 cluster = self._select_best_cluster(best_match["clusters"], case_name)
                 canonical_name = cluster.get("case_name") or cluster.get("caseName")
@@ -313,6 +580,12 @@ class BatchVerifier:
                 error = "No results"
                 if best_match and best_match["status"] == 429:
                     error = "Too many citations in request"
+                # Log first few unmatched for debugging
+                if len([r for r in results if not r.get("verified")]) <= 3:
+                    logger.info(
+                        "[BATCH-DIAG] No match for input #%s %r (best_match=%s, clusters=%s)",
+                        i, input_cit, best_match is not None, len(best_match["clusters"]) if best_match else 0,
+                    )
                 results.append({
                     "citation": input_cit,
                     "verified": False,
@@ -321,6 +594,7 @@ class BatchVerifier:
                     "extracted_date": date,
                 })
         
+        logger.info(f"[BATCH-DIAG] Matched {matched_count}/{len(input_citations)} input citations to API results (API returned {len(api_by_position)} results)")
         return results
     
     def _select_best_cluster(
@@ -389,48 +663,46 @@ class BatchVerifier:
         self,
         input_citation: str,
         api_results: List[Dict[str, Any]],
-        text: str
+        text: str,
+        allow_positionless_only: bool = False,
     ) -> Optional[Dict[str, Any]]:
         """Find the best API result matching an input citation."""
-        # Strategy: find API results whose parsed citation appears in the input citation
-        # or whose text position overlaps with where the input citation is in the text
-        
-        # First try: exact substring match on citation string
+        # Prefer the API result whose vol-rep-page matches the *primary* cite (before "(quoting ...)")
+        # so we bind Soo Line (965 F.3d 596) to the Soo Line opinion, not Levitt (799 F.3d 701).
+        primary_vrp = _primary_vol_rep_page(input_citation)
+
+        # First try: exact substring match, but prefer match to primary cite
+        primary_match = None
+        other_matches = []
         for api_result in api_results:
             if api_result["matched"]:
                 continue
+            if allow_positionless_only and api_result.get("start", -1) >= 0:
+                continue
             parsed = api_result["parsed_citation"]
-            # Check if the parsed citation is a substring of the input (common case)
-            # e.g. parsed "578 U.S. 330" matches input "Spokeo, Inc. v. Robins, 578 U.S. 330 (2016)"
-            if parsed and parsed in input_citation:
-                return api_result
-        
-        # Second try: check if input citation appears near the API result's position in text
-        input_pos = text.find(input_citation)
-        if input_pos >= 0:
+            if not parsed or parsed not in input_citation:
+                continue
+            parsed_vrp = _vol_rep_page_from_string(parsed)
+            if primary_vrp and parsed_vrp and primary_vrp == parsed_vrp:
+                primary_match = api_result
+                break
+            other_matches.append(api_result)
+        if primary_match:
+            return primary_match
+        if other_matches:
+            return other_matches[0]
+
+        # Second try: normalized volume/reporter/page match (use primary cite for input)
+        input_normalized = primary_vrp or _vol_rep_page_from_string(input_citation)
+        if input_normalized:
             for api_result in api_results:
                 if api_result["matched"]:
                     continue
-                start = api_result["start"]
-                end = api_result["end"]
-                # Check if positions overlap or are very close
-                if (start >= input_pos and start < input_pos + len(input_citation) + 5) or \
-                   (input_pos >= start and input_pos < end + 5):
-                    return api_result
-        
-        # Third try: normalized volume/reporter/page match
-        vol_rep_page = re.search(r"(\d+)\s+([A-Za-z.]+\s*(?:\d[a-z]{0,2})?)\s+(\d+)", input_citation)
-        if vol_rep_page:
-            input_normalized = f"{vol_rep_page.group(1)} {vol_rep_page.group(2).strip()} {vol_rep_page.group(3)}"
-            for api_result in api_results:
-                if api_result["matched"]:
+                if allow_positionless_only and api_result.get("start", -1) >= 0:
                     continue
                 parsed = api_result["parsed_citation"]
-                if parsed:
-                    parsed_vrp = re.search(r"(\d+)\s+([A-Za-z.]+\s*(?:\d[a-z]{0,2})?)\s+(\d+)", parsed)
-                    if parsed_vrp:
-                        parsed_normalized = f"{parsed_vrp.group(1)} {parsed_vrp.group(2).strip()} {parsed_vrp.group(3)}"
-                        if input_normalized == parsed_normalized:
-                            return api_result
-        
+                parsed_normalized = _vol_rep_page_from_string(parsed) if parsed else None
+                if parsed_normalized and input_normalized == parsed_normalized:
+                    return api_result
+
         return None

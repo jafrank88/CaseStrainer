@@ -3,6 +3,8 @@ import logging
 import re
 
 from src.utils.mismatch_utils import compute_cluster_mismatch_flags
+from src.utils.same_case import names_are_same_case
+from src.utils.cluster_display_utils import _is_google_search_url
 
 logger = logging.getLogger(__name__)
 
@@ -300,6 +302,79 @@ def split_clusters_by_distinct_wl(clusters, task_id=""):
     return result
 
 
+def split_clusters_by_extracted_name(clusters, task_id=""):
+    """
+    Split clusters when citations have clearly different extracted case names
+    (e.g. "Soo Line R.R. Co. v. Consol. Rail Corp." vs "In re Sw. Airlines Voucher Litig.").
+    Uses same_case logic so two citations stay together only if names_are_same_case(ecn_a, ecn_b).
+    Prevents one cluster showing a single wrong canonical when the document cites two different cases.
+    """
+    if not clusters:
+        return clusters
+    result = []
+    for cl in clusters:
+        if not isinstance(cl, dict):
+            result.append(cl)
+            continue
+        cits = cl.get("citations", [])
+        if len(cits) <= 1:
+            result.append(cl)
+            continue
+        # Group citations by extracted-case equivalence (same_case)
+        groups = []
+        unv = []
+        for c in cits:
+            if not isinstance(c, dict):
+                unv.append(c)
+                continue
+            ecn = (c.get("extracted_case_name") or "").strip() or None
+            placed = False
+            for _, group in groups:
+                ref = next((x for x in group if isinstance(x, dict)), None)
+                if not ref:
+                    continue
+                ref_ecn = (ref.get("extracted_case_name") or "").strip() or None
+                if names_are_same_case(ecn, ref_ecn):
+                    group.append(c)
+                    placed = True
+                    break
+            if not placed:
+                groups.append((ecn, [c]))
+        if unv:
+            # Attach non-dict citations to first group to avoid extra fragment cluster
+            if groups:
+                groups[0][1].extend(unv)
+            else:
+                groups.append((None, unv))
+        if len(groups) <= 1:
+            result.append(cl)
+            continue
+        bid = cl.get("cluster_id", "c0")
+        logger.info(
+            f"[TASK:{task_id}] POST-VERIFY-SPLIT-EXTRACTED: '{bid}' has {len(groups)} distinct extracted names; splitting"
+        )
+        for si, (ecn, group) in enumerate(groups):
+            nc = dict(cl)
+            nc["cluster_id"] = f"{bid}_ecn_{si}"
+            nc["citations"] = group
+            ct_set = {x.get("citation", "") for x in group if isinstance(x, dict)}
+            nc["cluster_members"] = [
+                m for m in cl.get("cluster_members", [])
+                if (m.get("citation", "") if isinstance(m, dict) else str(m)) in ct_set
+            ]
+            nc["cluster_size"] = len(group)
+            if group and isinstance(group[0], dict):
+                nc["canonical_name"] = next((x.get("canonical_name") for x in group if x.get("canonical_name")), nc.get("canonical_name"))
+                nc["canonical_url"] = next((x.get("canonical_url") for x in group if x.get("canonical_url")), nc.get("canonical_url"))
+                nc["extracted_case_name"] = ecn or next((x.get("extracted_case_name") for x in group if x.get("extracted_case_name")), "")
+                nc["verified"] = any(x.get("verified") for x in group if isinstance(x, dict))
+            compute_cluster_mismatch_flags(nc)
+            result.append(nc)
+    if len(result) != len(clusters):
+        logger.info(f"[TASK:{task_id}] POST-VERIFY-SPLIT-EXTRACTED: {len(clusters)} -> {len(result)} clusters")
+    return result
+
+
 def split_clusters_by_canonical_name(clusters, task_id=""):
     if not clusters:
         return clusters
@@ -390,7 +465,7 @@ def split_clusters_by_canonical_name(clusters, task_id=""):
                 nc["canonical_date"] = cd
                 nc["cluster_year"] = str(cd)
             cu = next((x.get("canonical_url") for x in cl_list if x.get("canonical_url")), None)
-            if cu:
+            if cu and not _is_google_search_url(cu):
                 nc["canonical_url"] = cu
                 nc["display_canonical_url"] = cu
             ecn = next((x.get("extracted_case_name","") for x in cl_list if x.get("extracted_case_name") and x.get("extracted_case_name")!="N/A"), "")

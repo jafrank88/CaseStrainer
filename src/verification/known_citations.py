@@ -102,6 +102,19 @@ KNOWN_FEDERAL_CITATIONS = {
         "canonical_year": "2025",
         "canonical_url": "https://supreme.justia.com/cases/federal/us/605/24a1007/",
     },
+    # CourtListener "No results" fallbacks - valid federal cases often missed by API
+    "573 u.s. 149": {
+        "canonical_name": "Susan B. Anthony List v. Driehaus",
+        "canonical_date": "2014-06-16",
+        "canonical_year": "2014",
+        "canonical_url": "https://supreme.justia.com/cases/federal/us/573/149/",
+    },
+    "964 f.3d 990": {
+        "canonical_name": "Trichell v. Midland Credit Mgmt., Inc.",
+        "canonical_date": "2020-07-06",
+        "canonical_year": "2020",
+        "canonical_url": "https://law.justia.com/cases/federal/appellate-courts/ca11/18-14144/18-14144-2020-07-06.html",
+    },
 }
 
 # Slip opinions (e.g. 588 U.S. ___): key = "volume year", value = list of { canonical_name, canonical_date, canonical_url }
@@ -149,7 +162,26 @@ def _lookup_known_federal(cit_str: str) -> Optional[Dict[str, Any]]:
         )
         if base_m:
             lookup = base_m.group(1).strip().lower()
-    return KNOWN_FEDERAL_CITATIONS.get(lookup)
+    if lookup in KNOWN_FEDERAL_CITATIONS:
+        return KNOWN_FEDERAL_CITATIONS.get(lookup)
+
+    # Fallback: citation strings can include lead case-name text/pincites, e.g.
+    # "DHS v. Regents ..., 591 U.S. 1 (2020)". Extract embedded core cite.
+    embedded_patterns = [
+        r"(\d+\s+u\.s\.\s*\d+)",
+        r"(\d+\s+wheat\.\s*\d+)",
+        r"(\d+\s+f\.3d\s*\d+)",
+        r"(\d+\s+f\.2d\s*\d+)",
+        r"(\d+\s+f\.4th\s*\d+)",
+    ]
+    for pat in embedded_patterns:
+        m = _re.search(pat, norm)
+        if not m:
+            continue
+        embedded_lookup = m.group(1).strip().lower()
+        if embedded_lookup in KNOWN_FEDERAL_CITATIONS:
+            return KNOWN_FEDERAL_CITATIONS.get(embedded_lookup)
+    return None
 
 
 def _lookup_known_slip(

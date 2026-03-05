@@ -4,6 +4,9 @@ Minimal fast clustering fallback - groups citations simply and quickly.
 Parallel citations (same case, multiple reporters) should appear in one cluster.
 If the doc cites A & B and later B & C, transitive merge puts A, B, C in one cluster.
 """
+# Bump when clustering logic changes so API/workers can report which version ran
+CLUSTERING_VERSION = "2026-03-v2"
+
 import re
 import logging
 import time
@@ -68,27 +71,45 @@ def _merge_groups_transitive(groups_list: List[List[Dict[str, Any]]]) -> List[Li
             return False
         return any(abs((a or 0) - (b or 0)) > 2 for a in yi for b in yj)
 
-    # Build citation_key -> [group indices]; O(n)
-    key_to_groups: Dict[str, List[int]] = {}
+    # Build citation_key -> list of (group_idx, citation_dict) so we can check same-case when merging
+    key_to_pairs: Dict[str, List[Tuple[int, Dict[str, Any]]]] = {}
     for i, g in enumerate(groups_list):
         if not g:
             continue
         for c in g:
             k = _get_citation_key(c)
             if k:
-                key_to_groups.setdefault(k, []).append(i)
+                key_to_pairs.setdefault(k, []).append((i, c))
 
-    # For each citation shared by multiple groups, union them if no year conflict; O(keys * k^2)
-    for _group_ids in key_to_groups.values():
-        ids = list(dict.fromkeys(_group_ids))
+    def _name(c: Dict[str, Any]) -> str:
+        return (c.get("canonical_name") or c.get("extracted_case_name") or c.get("case_name") or "").strip() or ""
+
+    # Merge only when the same *exact* key appears in both groups and the citations with that key refer to the same case
+    for _key, pairs in key_to_pairs.items():
+        # Pairs are (group_idx, citation_dict); collect unique group indices and one citation per group for name check
+        group_to_citation: Dict[int, Dict[str, Any]] = {}
+        for i, c in pairs:
+            group_to_citation[i] = c  # last citation with this key in group i
+        ids = list(group_to_citation.keys())
         for a in range(len(ids)):
             for b in range(a + 1, len(ids)):
                 i, j = ids[a], ids[b]
-                if find(i) != find(j) and not has_year_conflict(i, j):
-                    union(i, j)
+                if find(i) == find(j):
+                    continue
+                if has_year_conflict(i, j):
+                    continue
+                # Same exact key: only merge if the citations with this key in each group refer to the same case
+                ci, cj = group_to_citation[i], group_to_citation[j]
+                ni, nj = _name(ci), _name(cj)
+                if ni and nj and not names_are_same_case(ni, nj):
                     logger.debug(
-                        f"[MINIMAL-CLUSTER] Union groups {i},{j} (share citation)"
+                        f"[MINIMAL-CLUSTER] Skip union groups {i},{j} (share key but different case: '{ni[:30]}' vs '{nj[:30]}')"
                     )
+                    continue
+                union(i, j)
+                logger.debug(
+                    f"[MINIMAL-CLUSTER] Union groups {i},{j} (share citation)"
+                )
 
     # Second pass: merge groups with same canonical case (e.g. CFE I 86 N.Y.2d 307 + CFE II 100 N.Y.2d 893)
     # even when they don't share a citation. Different extracted names ("Fiscal Equity v. State" vs
@@ -140,8 +161,10 @@ def _reassign_bare_citations_by_containment(
 ) -> List[List[Dict[str, Any]]]:
     """
     Move citations whose text is a bare reporter (e.g. "857 N.W.2d 569") from group A
-    to group B when that text appears as substring in a citation in group B.
-    Single-pass O(bare * n) instead of O(n^2) iterative.
+    to group B when that text appears as substring in a citation in group B **and** the
+    containing citation refers to the same case (by extracted/canonical name).
+    Prevents moving e.g. "587 U.S. 262" (Students for Fair Admissions) into a group
+    that only contains it inside "(citing SFA, 587 U.S. 262)" under a different case.
     """
     if len(groups_list) < 2:
         return groups_list
@@ -149,19 +172,22 @@ def _reassign_bare_citations_by_containment(
     def get_text(c: Dict[str, Any]) -> str:
         return (c.get("citation") or c.get("text") or "").strip()
 
+    def get_name(c: Dict[str, Any]) -> str:
+        return (c.get("canonical_name") or c.get("extracted_case_name") or c.get("case_name") or "").strip() or ""
+
     bare_pattern = re.compile(r"\d+\s+[A-Z]\.?\s*[A-Za-z0-9\.]+\s+\d+")
 
-    # Build flat list (group_idx, citation_text) for containment checks; O(n)
-    other_entries: List[Tuple[int, str]] = []
+    # Build list (group_idx, citation_dict, citation_text) for containment + name check
+    other_entries: List[Tuple[int, Dict[str, Any], str]] = []
     for j, group in enumerate(groups_list):
         if not group:
             continue
         for oc in group:
             ot = get_text(oc)
             if ot:
-                other_entries.append((j, ot))
+                other_entries.append((j, oc, ot))
 
-    # Single pass: collect moves (cit, from_group, to_group); O(bare * n)
+    # Single pass: collect moves only when target citation is same case as bare citation
     moves: List[Tuple[Dict[str, Any], int, int]] = []
     for i, group in enumerate(groups_list):
         if not group:
@@ -172,15 +198,30 @@ def _reassign_bare_citations_by_containment(
                 continue
             if not bare_pattern.search(cit_text):
                 continue
-            for j, oc_text in other_entries:
+            bare_name = get_name(cit)
+            for j, oc, oc_text in other_entries:
                 if j == i:
                     continue
-                if cit_text in oc_text and cit_text != oc_text:
-                    moves.append((cit, i, j))
-                    logger.debug(
-                        f"[MINIMAL-CLUSTER] Reassign bare cite '{cit_text}' to group {j}"
-                    )
-                    break
+                if cit_text not in oc_text or cit_text == oc_text:
+                    continue
+                # Only reassign when the citation that contains this bare string
+                # refers to the same case (avoids mixing e.g. SFA into Cochise cluster)
+                target_name = get_name(oc)
+                if bare_name and target_name:
+                    if not names_are_same_case(bare_name, target_name):
+                        logger.debug(
+                            f"[MINIMAL-CLUSTER] Skip reassign bare '{cit_text[:40]}' to group {j}: "
+                            f"bare name '{bare_name[:30]}' vs target '{target_name[:30]}'"
+                        )
+                        continue
+                elif bare_name and not target_name:
+                    # Bare has a name, target citation has no name - don't move into unnamed
+                    continue
+                moves.append((cit, i, j))
+                logger.debug(
+                    f"[MINIMAL-CLUSTER] Reassign bare cite '{cit_text}' to group {j} (same case)"
+                )
+                break
 
     # Apply moves; O(moves)
     for cit, from_i, to_j in moves:
@@ -245,9 +286,20 @@ def _extract_case_name_with_case_from_citation_text(citation_text: str) -> str:
     return ""
 
 
+def _normalize_canonical_url(url: str) -> str:
+    """Stable key for grouping by verified opinion (same URL = same case)."""
+    if not url or not isinstance(url, str):
+        return ""
+    u = url.strip().rstrip("/")
+    return u if u.startswith("http") else ""
+
+
 def cluster_citations_minimal(citations: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
     Ultra-fast minimal clustering - group by same case (names_are_same_case) or citation text.
+    Parallel citations (same case, different reporters) are kept together by:
+    1. Grouping by canonical_url when present (same verified opinion URL = same cluster).
+    2. Then name-based grouping and transitive merge for the rest.
     Handles "Lloyd's of London Pope Res., LP" vs "Pope Res., LP" as same case.
     Complexity: O(n * g) where g = number of groups.
     """
@@ -257,9 +309,33 @@ def cluster_citations_minimal(citations: List[Dict[str, Any]]) -> List[Dict[str,
     # Group by same case: (representative_key, [citations])
     groups: List[tuple[str, List[Dict[str, Any]]]] = []
     no_name_groups: Dict[str, List[Dict[str, Any]]] = {}  # O(1) lookup for bare citations
+    # Same canonical_url => same opinion => one cluster (best way to keep parallel citations together)
+    url_to_group_index: Dict[str, int] = {}
 
     for citation in citations:
-        case_name = citation.get("extracted_case_name") or citation.get("case_name")
+        # 1) Group by canonical_url when present (verified parallel citations share the same opinion URL)
+        canonical_url = citation.get("canonical_url") or ""
+        url_key = _normalize_canonical_url(canonical_url)
+        if url_key:
+            if url_key in url_to_group_index:
+                groups[url_to_group_index[url_key]][1].append(citation)
+                continue
+            rep_key = (
+                citation.get("canonical_name")
+                or citation.get("extracted_case_name")
+                or citation.get("case_name")
+                or url_key
+            )
+            groups.append((rep_key, [citation]))
+            url_to_group_index[url_key] = len(groups) - 1
+            continue
+
+        # 2) No canonical_url: use name-based grouping (extracted, case_name, or canonical for reporter-only)
+        case_name = (
+            citation.get("extracted_case_name")
+            or citation.get("case_name")
+            or citation.get("canonical_name")
+        )
         citation_text = citation.get("citation", "")
 
         # FIX 2026-02-10: Cross-check that the citation text doesn't contain
@@ -279,7 +355,12 @@ def cluster_citations_minimal(citations: List[Dict[str, Any]]) -> List[Dict[str,
             # Find existing group where names_are_same_case(case_name, group_rep)
             matched = False
             for i, (rep_key, group_cits) in enumerate(groups):
-                rep_name = group_cits[0].get("extracted_case_name") or group_cits[0].get("case_name") or rep_key
+                rep_name = (
+                    group_cits[0].get("extracted_case_name")
+                    or group_cits[0].get("case_name")
+                    or group_cits[0].get("canonical_name")
+                    or rep_key
+                )
                 if names_are_same_case(case_name, rep_name) and not citation_conflicts_with_group(citation, group_cits):
                     group_cits.append(citation)
                     matched = True

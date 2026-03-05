@@ -139,7 +139,7 @@ class PersistentLogger:
 
         # Log to event log
         self.event_logger.info("=" * 80)
-        self.event_logger.info(f"🚀 APPLICATION STARTUP - Session: {self.session_id}")
+        self.event_logger.info(f"[START] APPLICATION STARTUP - Session: {self.session_id}")
         self.event_logger.info("=" * 80)
         self.event_logger.info(f"PID: {startup_info['pid']}")
         self.event_logger.info(f"Python: {platform.python_version()}")
@@ -171,7 +171,7 @@ class PersistentLogger:
             uptime = datetime.utcnow() - start_time
 
             self.event_logger.info("=" * 80)
-            self.event_logger.info(f"🛑 NORMAL SHUTDOWN - Session: {self.session_id}")
+            self.event_logger.info(f"[STOP] NORMAL SHUTDOWN - Session: {self.session_id}")
             self.event_logger.info(f"Uptime: {uptime}")
             self.event_logger.info("=" * 80)
 
@@ -190,7 +190,7 @@ class PersistentLogger:
         signal_name = signal.Signals(signum).name
 
         self.event_logger.warning("=" * 80)
-        self.event_logger.warning(f"⚠️  SIGNAL RECEIVED: {signal_name} ({signum})")
+        self.event_logger.warning(f"[WARNING]  SIGNAL RECEIVED: {signal_name} ({signum})")
         self.event_logger.warning(f"Session: {self.session_id}")
         self.event_logger.warning("=" * 80)
 
@@ -219,7 +219,7 @@ class PersistentLogger:
 
         # Log to crash log
         self.crash_logger.error("=" * 80)
-        self.crash_logger.error(f"💥 UNCAUGHT EXCEPTION - Session: {self.session_id}")
+        self.crash_logger.error(f"[CRASH] UNCAUGHT EXCEPTION - Session: {self.session_id}")
         self.crash_logger.error("=" * 80)
         self.crash_logger.error(f"Exception Type: {exc_type.__name__}")
         self.crash_logger.error(f"Exception Value: {exc_value}")
@@ -229,7 +229,7 @@ class PersistentLogger:
 
         # Log to event log
         self.event_logger.error("=" * 80)
-        self.event_logger.error(f"💥 APPLICATION CRASH - Session: {self.session_id}")
+        self.event_logger.error(f"[CRASH] APPLICATION CRASH - Session: {self.session_id}")
         self.event_logger.error(f"Exception: {exc_type.__name__}: {exc_value}")
         self.event_logger.error("=" * 80)
 
@@ -252,7 +252,7 @@ class PersistentLogger:
 
     def log_critical_event(self, message, **kwargs):
         """Log a critical event that might indicate problems"""
-        self.event_logger.warning(f"⚠️  {message}")
+        self.event_logger.warning(f"[WARNING]  {message}")
         if kwargs:
             self.event_logger.warning(f"   Details: {kwargs}")
         self.logger.warning(message, extra=kwargs)
@@ -268,12 +268,23 @@ class PersistentLogger:
     def log_memory_warning(self, memory_mb, threshold_mb):
         """Log memory usage warnings"""
         msg = f"Memory usage high: {memory_mb}MB / {threshold_mb}MB threshold"
-        self.event_logger.warning(f"⚠️  {msg}")
+        self.event_logger.warning(f"[WARNING]  {msg}")
         self.logger.warning(msg)
 
     def get_logger(self):
         """Get the main application logger"""
         return self.logger
+
+    def attach_main_handler_to_root(self):
+        """Attach the main logger's file handler to the root logger so that all
+        propagating loggers (e.g. src.verification.master, src.unified_citation_processor_v2)
+        write to the same worker log file. Call this only in worker processes."""
+        root = logging.getLogger()
+        for h in self.logger.handlers:
+            if isinstance(h, (logging.FileHandler, RotatingFileHandler)):
+                root.addHandler(h)
+                root.setLevel(min(root.level, logging.INFO))
+                return
 
     def get_event_logger(self):
         """Get the event logger"""

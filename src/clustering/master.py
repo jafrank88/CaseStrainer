@@ -113,6 +113,10 @@ class UnifiedClusteringMaster:
         # Step 3: Merge groups
         all_groups = self._merge_groups(parallel_groups, structural_groups)
         
+        # Step 3.25: Transitive merge — same case cited as A&B here and B&C later => one cluster
+        # (Parallel citations = one case in multiple reporters; rare: A&B and B&C => A,B,C together.)
+        all_groups = self._merge_groups_transitive(all_groups)
+        
         # Step 3.5: Split groups by extracted_case_name
         # Proximity grouping may combine different cases cited near each other
         # (e.g., "Larimore v. Blaylock, 259 Va. 568 ... Swindle v. State, 10 Tenn. 581")
@@ -235,6 +239,82 @@ class UnifiedClusteringMaster:
         
         return merged
 
+    def _get_citation_key(self, c: Any) -> str:
+        """Stable key for a citation (dict or object)."""
+        if isinstance(c, dict):
+            return (c.get("citation") or c.get("text") or str(c)).strip()
+        return (getattr(c, "citation", None) or getattr(c, "text", None) or str(c)).strip()
+
+    def _extract_year(self, c: Any) -> Optional[int]:
+        """Extract 4-digit year from citation (dict or object)."""
+        for key in ("extracted_date", "canonical_date", "date"):
+            val = propagation._get_attr(c, key)
+            if val:
+                m = re.search(r"(19|20)\d{2}", str(val))
+                if m:
+                    return int(m.group(0))
+        return None
+
+    def _merge_groups_transitive(self, groups: List[List[Any]]) -> List[List[Any]]:
+        """
+        Merge groups that share at least one citation (transitive closure).
+        Goal: parallel citations = one case in multiple reporters; if doc cites A & B
+        and later B & C, all three (A, B, C) should end up in one cluster.
+        """
+        if not groups or len(groups) <= 1:
+            return groups
+
+        def keys_of(g: List[Any]) -> set:
+            return {self._get_citation_key(c) for c in g}
+
+        merged = list(groups)
+        while True:
+            changed = False
+            for i in range(len(merged)):
+                if not merged[i]:
+                    continue
+                ki = keys_of(merged[i])
+                for j in range(i + 1, len(merged)):
+                    if not merged[j]:
+                        continue
+                    kj = keys_of(merged[j])
+                    if ki & kj:
+                        # Don't merge if years conflict (e.g. Dow 2005 vs Frederick 2015)
+                        years_i = {self._extract_year(c) for c in merged[i]}
+                        years_j = {self._extract_year(c) for c in merged[j]}
+                        years_i.discard(None)
+                        years_j.discard(None)
+                        if years_i and years_j:
+                            if any(abs((yi or 0) - (yj or 0)) > 2 for yi in years_i for yj in years_j):
+                                logger.info(
+                                    f"[CLUSTERING] Skip transitive merge: year conflict {years_i} vs {years_j}"
+                                )
+                                continue
+                        # Share at least one citation: merge, dedupe by citation key
+                        seen_key: set = set()
+                        combined: List[Any] = []
+                        for c in merged[i] + merged[j]:
+                            k = self._get_citation_key(c)
+                            if k not in seen_key:
+                                seen_key.add(k)
+                                combined.append(c)
+                        merged[i] = combined
+                        merged[j] = []
+                        changed = True
+                        break
+                if changed:
+                    break
+            if not changed:
+                break
+
+        out = [g for g in merged if g]
+        if len(out) < len(groups):
+            logger.info(
+                f"[CLUSTERING] Transitive merge: {len(groups)} groups -> {len(out)} "
+                "(parallel groups sharing a citation merged)"
+            )
+        return out
+
     def _split_groups_by_extracted_name(self, groups: List[List[Any]]) -> List[List[Any]]:
         """
         Split proximity groups where citations have different extracted_case_name values.
@@ -293,7 +373,10 @@ class UnifiedClusteringMaster:
             )
             
             # Try to assign no-name citations to a matching named group
-            # by checking if the bare citation text appears in any named citation's full text
+            # by checking if the bare citation text appears in any named citation's full text.
+            # CRITICAL: Bare citation (e.g. "857 N.W.2d 569") that appears IN another citation
+            # belongs to that citation's case, not the prior case. Prefer containment over
+            # verification-assigned name when the bare cite is a substring of a different case.
             remaining_no_name = []
             for nn_cit in no_name_cits:
                 nn_text = propagation._get_attr(nn_cit, "citation", "")
@@ -310,6 +393,26 @@ class UnifiedClusteringMaster:
                             break
                 if not matched_to_group:
                     remaining_no_name.append(nn_cit)
+
+            # Also reassign named citations when bare cite is substring: "857 N.W.2d 569"
+            # with Dow's name should go to Frederick if "857 N.W.2d 569" is in Frederick's citation
+            for name, cits in list(name_to_cits.items()):
+                to_move = []
+                for cit in cits:
+                    cit_text = propagation._get_attr(cit, "citation", "")
+                    if not cit_text or len(cit_text) > 50:
+                        continue
+                    for other_name, other_cits in name_to_cits.items():
+                        if other_name == name:
+                            continue
+                        for oc in other_cits:
+                            oc_text = propagation._get_attr(oc, "citation", "")
+                            if cit_text in oc_text and cit_text != oc_text:
+                                to_move.append((cit, other_cits))
+                                break
+                for cit, target in to_move:
+                    cits.remove(cit)
+                    target.append(cit)
             
             for name, cits in name_to_cits.items():
                 result.append(cits)
@@ -351,7 +454,7 @@ class UnifiedClusteringMaster:
             before_case_num = header[:case_number_match.start()]
             
             # Look for "Plaintiffs" or "Plaintiff" marker
-            plaintiffs_marker = re.search(r'Plaintiffs?\s*[-–]\s*Appellants?', before_case_num, re.IGNORECASE)
+            plaintiffs_marker = re.search(r'Plaintiffs?\s*[-]\s*Appellants?', before_case_num, re.IGNORECASE)
             if plaintiffs_marker:
                 # Extract from start to plaintiffs marker
                 plaintiff_section = before_case_num[:plaintiffs_marker.start()].strip()

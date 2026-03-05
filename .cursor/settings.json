@@ -4,7 +4,6 @@
     "python.analysis.typeCheckingMode": "basic",
     "python.analysis.diagnosticMode": "workspace",
     "python.analysis.autoSearchPaths": true,
-    "python.analysis.stubPath": "./typings",
     "python.analysis.include": [
         "src/app_final_vue.py",
         "src/citation_extractor.py",

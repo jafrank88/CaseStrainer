@@ -44,7 +44,7 @@ def test_file_upload(file_path: str):
         request_id = "test_file_upload"
         
         result = processor.process_any_input(
-            file_storage, 'file', request_id, 'test', enable_verification=True
+            file_storage, 'file', request_id, 'test', force_mode='sync', enable_verification=True
         )
         
         citations = result.get('citations', [])
@@ -108,7 +108,7 @@ def test_url_processing(url: str):
         request_id = "test_url_processing"
         
         result = processor.process_any_input(
-            url, 'url', request_id, 'test', enable_verification=True
+            url, 'url', request_id, 'test', force_mode='sync', enable_verification=True
         )
         
         citations = result.get('citations', [])

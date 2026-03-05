@@ -231,6 +231,8 @@ For detailed troubleshooting, see [TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md).
 
 ## 📚 Documentation
 
+- [Pipeline Entry Points](docs/PIPELINE_ENTRY_POINTS.md) - How citation processing works (sync/async, entry points)
+- [Production Readiness](docs/PRODUCTION_READINESS.md) - Production deployment checklist and run tests/deploy
 - [API Documentation](docs/API_DOCUMENTATION.md) - Backend API reference
 - [Enhanced Citation Processing](docs/ENHANCED_CITATION_PROCESSING.md) - Citation processing details
 - [Troubleshooting Guide](docs/TROUBLESHOOTING.md) - Common issues and solutions

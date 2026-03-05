@@ -35,16 +35,6 @@
             </div>
           </div>
 
-          <!-- Processing Stats -->
-          <div class="stats-row centered-stats">
-            <div class="stat-item">
-              <i class="bi bi-clock me-1"></i>
-              <span>{{ elapsedTimeFormatted }}</span>
-            </div>
-            <div v-if="pollCount > 0" class="stat-item text-muted">
-              <small>Updates: {{ pollCount }}</small>
-            </div>
-          </div>
         </div>
 
         <!-- Error Message -->

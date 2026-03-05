@@ -136,7 +136,7 @@ class FallbackVerifier:
                         is_valid, year_diff = validate_year_match(
                             extracted_date, 
                             canonical_date, 
-                            tolerance=0
+                            tolerance=1
                         )
                         if not is_valid:
                             logger.warning(
@@ -157,7 +157,82 @@ class FallbackVerifier:
         if not attempted_any_source:
             return {"verified": False, "error": "All fallback sources temporarily rate-limited"}
         return {"verified": False, "error": "All fallback sources failed"}
-    
+
+    async def verify_name_and_date_only(
+        self,
+        extracted_case_name: Optional[str] = None,
+        extracted_date: Optional[str] = None,
+        timeout: float = 20.0,
+    ) -> Dict[str, Any]:
+        """
+        Last-resort verification using only case name and date (no citation).
+        Tries Google Scholar and FindLaw with query like "Webber v. Zimmerlein 2025".
+        """
+        name = (extracted_case_name or "").strip()
+        if not name or name.upper() == "N/A":
+            return {"verified": False, "error": "No case name for name+date-only search"}
+        year = None
+        if extracted_date:
+            m = re.search(r"(19|20)\d{2}", str(extracted_date))
+            if m:
+                year = m.group(0)
+        if not year:
+            return {"verified": False, "error": "No year for name+date-only search"}
+        # Allow "Case v. Defendant" or single-party names (e.g. "Zimmerlein", "Zimmerlein, 2025") when we have a year
+        has_v = (" v" in name.lower()) or (" v." in name.lower())
+        name_for_query = name
+        if not has_v:
+            # Strip trailing ", YYYY" or " YYYY" so "Zimmerlein, 2025" is treated as "Zimmerlein"
+            name_for_query = re.sub(r",?\s*(19|20)\d{2}\s*$", "", name).strip() or name
+            tokens = [t for t in re.sub(r",?\s+", " ", name_for_query).strip().split() if t]
+            # Reject long prose; allow 1-4 word party names
+            if len(tokens) > 4 or not tokens:
+                return {"verified": False, "error": "Case name too weak for name+date-only search"}
+            # Allow if no token is a 4-digit year (avoid "Smith 2024" as name)
+            if any(re.search(r"^(19|20)\d{2}$", t) for t in tokens):
+                return {"verified": False, "error": "Case name too weak for name+date-only search"}
+
+        query = f"{name_for_query} {year}"
+        time_per_source = timeout / 2.0 if timeout else 5.0  # Scholar and FindLaw
+        sources = ["google_scholar", "findlaw"]
+
+        for source_name in sources:
+            try:
+                if self._is_source_cooled_down(source_name):
+                    continue
+                verifier = self.verifiers.get(source_name)
+                if not verifier:
+                    continue
+                # Scholar: search by query string (citation param is the search query)
+                # FindLaw: pass year as citation so search_query = name + " " + citation
+                if source_name == "google_scholar":
+                    result = await verifier.verify(
+                        citation=query,
+                        extracted_case_name=name,
+                        timeout=time_per_source,
+                    )
+                else:
+                    result = await verifier.verify(
+                        citation=year,
+                        extracted_case_name=name,
+                        timeout=time_per_source,
+                    )
+                if result.get("verified"):
+                    canonical_date = result.get("canonical_date")
+                    if canonical_date:
+                        is_valid, _ = validate_year_match(year, canonical_date, tolerance=1)
+                        if not is_valid:
+                            continue
+                    result["method"] = f"fallback_{source_name}_name_date_only"
+                    logger.info(
+                        f"[FALLBACK] Name+date-only verified via {source_name}: '{name}' {year}"
+                    )
+                    return result
+            except Exception as e:
+                logger.debug(f"Name+date-only {source_name} failed: {e}")
+                continue
+        return {"verified": False, "error": "Name+date-only search found no match"}
+
     def _select_sources(self, citation: str, extracted_case_name: Optional[str] = None) -> List[str]:
         """Select appropriate sources based on citation type."""
         citation_text = str(citation or "")

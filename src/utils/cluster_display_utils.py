@@ -125,6 +125,39 @@ def get_cluster_citations(cluster: Dict[str, Any]) -> List[Any]:
     return cluster.get("citations", []) or cluster.get("citation_objects", [])
 
 
+def _get_best_citation_text_for_cluster(cluster: Dict[str, Any]) -> Optional[str]:
+    """
+    Get the fullest citation text for search/display. Prefers cluster_members when
+    citations have truncated text (e.g. "31 Wn. App. 2" vs "31 Wn. App. 2d 100, 110").
+    """
+    all_texts: List[str] = []
+    for c in get_cluster_citations(cluster):
+        ct = str(get_citation_value(c, "citation", "") or get_citation_value(c, "text", "") or "").strip()
+        if ct:
+            all_texts.append(ct)
+    for m in cluster.get("cluster_members", []) or []:
+        if isinstance(m, str) and m.strip():
+            all_texts.append(m.strip())
+        elif isinstance(m, dict):
+            ct = str(m.get("citation") or m.get("text") or "").strip()
+            if ct:
+                all_texts.append(ct)
+    if not all_texts:
+        return None
+    try:
+        from src.utils.response_enrichment import extract_display_base_citation
+    except ImportError:
+        return max(all_texts, key=len)
+    best = None
+    best_len = -1
+    for t in all_texts:
+        base = extract_display_base_citation(t)
+        if base and len(t) > best_len:
+            best = t
+            best_len = len(t)
+    return best if best else max(all_texts, key=len)
+
+
 def get_citation_value(cit: Any, key: str, default: Any = None) -> Any:
     """Get a value from a citation, handling both dict and object formats."""
     if isinstance(cit, dict):
@@ -374,14 +407,25 @@ def get_verifying_name(cluster: Dict[str, Any]) -> str:
 
 
 def get_verifying_date(cluster: Dict[str, Any]) -> str:
-    """Get canonical/verifying date from canonical fields only (no extracted fallback)."""
+    """Get canonical/verifying date from canonical fields only (no extracted fallback).
+    Returns year-only (e.g. '1982') when canonical_date is a full date (e.g. '1982-06-15')
+    so display matches submitted_display_date format and avoids false 'Different date' when years match."""
+    from src.utils.date_utils import extract_year_value
+
+    def _normalize_for_display(date_val: Optional[str]) -> Optional[str]:
+        if not date_val or date_val == "N/A":
+            return None
+        # Full date (YYYY-MM-DD or ISO) -> use year for display consistency with submitted_display_date
+        yr = extract_year_value(date_val)
+        return yr if yr else date_val
+
     rep = get_representative_verified_citation(cluster)
     if rep:
         date = get_citation_value(rep, "canonical_date")
         if (not date or date == "N/A") and isinstance(rep, dict) and isinstance(rep.get("metadata"), dict):
             date = rep["metadata"].get("possible_match_date")
         if date and date != "N/A":
-            return date
+            return _normalize_for_display(date) or date
     # FIX 2026-02-24: Check for true_by_parallel citations which have propagated canonical_date
     for cit in get_cluster_citations(cluster):
         if not cit or not isinstance(cit, dict):
@@ -390,7 +434,7 @@ def get_verifying_date(cluster: Dict[str, Any]) -> str:
         if cit.get("true_by_parallel"):
             date = cit.get("canonical_date")
             if date and date != "N/A":
-                return date
+                return _normalize_for_display(date) or date
     return "Not Found"
 
 
@@ -474,6 +518,26 @@ def get_canonical_url(cluster: Dict[str, Any]) -> Optional[str]:
     return None
 
 
+# Trailing pinpoint pattern: ", 110" or ", 110-11" or ", 110 n.5" at end of citation.
+# Used to strip pin cites from search queries so Google returns more results.
+_PIN_CITE_TRAILING_RE = re.compile(
+    r",\s*\d{1,4}(?:-\d{1,4})?(?:\s+n\.?\s*\d+)?\s*$"
+)
+
+
+def _strip_pin_cites_for_search(citation_text: str) -> str:
+    """Remove trailing pin cites (e.g. ', 110', ', 110-12') from citation text for search queries."""
+    if not citation_text or not isinstance(citation_text, str):
+        return citation_text or ""
+    s = str(citation_text).strip()
+    while True:
+        m = _PIN_CITE_TRAILING_RE.search(s)
+        if not m:
+            break
+        s = s[: m.start()].rstrip()
+    return s
+
+
 def _google_search_url_for_cluster(cluster: Dict[str, Any]) -> Optional[str]:
     """Build a basic Google search URL from extracted case name + year, or citation fallback."""
     submitted_name = str(cluster.get("submitted_display_name") or get_best_extracted_name(cluster) or "").strip()
@@ -482,13 +546,11 @@ def _google_search_url_for_cluster(cluster: Dict[str, Any]) -> Optional[str]:
     if submitted_name and submitted_name != "N/A":
         query = submitted_name
     else:
-        # If name is unavailable, build search using first citation text.
-        cits = get_cluster_citations(cluster)
-        for cit in cits:
-            ct = str(get_citation_value(cit, "citation", "") or get_citation_value(cit, "text", "") or "").strip()
-            if ct:
-                query = ct
-                break
+        # If name is unavailable, build search using best (fullest) citation.
+        # Prefer cluster_members when citations are truncated (e.g. "31 Wn. App. 2" vs "31 Wn. App. 2d 100").
+        ct = _get_best_citation_text_for_cluster(cluster)
+        if ct:
+            query = _strip_pin_cites_for_search(ct)
     if not query:
         return None
     if submitted_year and submitted_year not in {"N/A", "Unknown Year", "unknown"}:
@@ -537,15 +599,16 @@ def apply_display_fields_to_cluster(cluster: Dict[str, Any]) -> None:
         search_url = _google_search_url_for_cluster(cluster)
         if search_url:
             cluster["display_canonical_url"] = search_url
+            # USER RULE: Google search URL = unverified. Clear true_by_parallel on all citations.
+            for cit in get_cluster_citations(cluster):
+                if isinstance(cit, dict) and cit.get("true_by_parallel"):
+                    cit["true_by_parallel"] = False
             # UI helper label for explicit "Search Google for:" link text.
             search_label = str(cluster.get("submitted_display_name") or "").strip()
             if not search_label or search_label == "N/A":
-                cits = get_cluster_citations(cluster)
-                for cit in cits:
-                    ct = str(get_citation_value(cit, "citation", "") or get_citation_value(cit, "text", "") or "").strip()
-                    if ct:
-                        search_label = ct
-                        break
+                ct = _get_best_citation_text_for_cluster(cluster)
+                if ct:
+                    search_label = _strip_pin_cites_for_search(ct)
             if cluster.get("submitted_display_date") and str(cluster.get("submitted_display_date")) not in {"N/A", "Unknown Year", "unknown"}:
                 if search_label and not search_label.endswith(str(cluster.get("submitted_display_date"))):
                     search_label = f"{search_label} {cluster.get('submitted_display_date')}"
@@ -657,9 +720,19 @@ def clear_unverified_citation_canonical_fields(cluster: Dict[str, Any]) -> None:
     """
     For non-effectively-verified clusters, clear canonical data on child citations
     that are not effectively verified. Keeps UI and sectioning semantics consistent.
+    USER RULE: When cluster has only Google search URL, clear true_by_parallel from all
+    citations so we never show "Verified by Parallel" for unverified clusters.
     """
     if not isinstance(cluster, dict):
         return
+    # When cluster's display URL is Google search, no citation can be "Verified by Parallel"
+    display_url = str(cluster.get("display_canonical_url") or cluster.get("canonical_url") or "").strip()
+    if _is_google_search_url(display_url):
+        for c in get_cluster_citations(cluster):
+            if isinstance(c, dict) and c.get("true_by_parallel"):
+                c["true_by_parallel"] = False
+                if isinstance(c.get("metadata"), dict):
+                    c["metadata"]["true_by_parallel"] = False
     if cluster_has_effective_verified(cluster):
         return
     if cluster_has_diagnostic_candidate(cluster):

@@ -32,7 +32,8 @@ def remove_context_phrases(case_name: str) -> str:
 
     context_patterns = [
         r"^The\s+(dissent|majority|plurality|concurrence),?\s+(quoting|citing|in|from)\s+",
-        r"^(Quoting|Citing|See|In|As|where|when|while)\s+",
+        # Exclude "In" when part of "In re" (case name prefix) - preserve "In re Rosier"
+        r"^(Quoting|Citing|See|In(?!\s+re\s)|As|where|when|while)\s+",
         r"^(As|Where|When|While)\s+(?:the\s+)?(?:Court|dissent|majority)\s+(?:stated|noted|held)\s+in\s+",
     ]
 
@@ -53,6 +54,13 @@ def clean_extracted_case_name(case_name: str) -> str:
         return case_name
 
     name = case_name
+
+    # Fix "Nat' Life" / "Nat' L" (split apostrophe) so expand_abbreviations can normalize Nat'l -> National
+    name = re.sub(r"\bNat'\s+Life\b", "Nat'l Life", name, flags=re.IGNORECASE)
+    name = re.sub(r"\bNat'\s+L\b", "Nat'l", name, flags=re.IGNORECASE)
+
+    # Fix PDF/OCR accent corruption: "Garc A-Ayala" (í lost) -> "Garcia-Ayala" (ASCII for v. regex)
+    name = re.sub(r"\bGarc\s+A\s*-\s*([A-Z][a-z]+)\b", r"Garcia-\1", name, flags=re.IGNORECASE)
 
     # Fix PDF line-break hyphenation (e.g., "Co- hens" -> "Cohens", "Vir- ginia" -> "Virginia")
     # Pattern: word fragment + hyphen/dash + whitespace(s) + lowercase continuation
@@ -103,12 +111,26 @@ def clean_extracted_case_name(case_name: str) -> str:
     name = re.sub(r"[\s\.,;:]+$", "", name)
 
     # Remove obvious prose/sentence starters before a case name
+    # (Consolidated from case_name_cleaner + text_normalizer leading patterns)
     cleanup_patterns = [
+        # Docket number prefix (e.g. "Trump No. 24-1287 Learning Resources" -> "Learning Resources")
+        r"^[A-Za-z]+\s+No\.\s*\d+[-–](?:\w+[-–])?\d+\s+",
+        r"^No\.\s*\d+[-–](?:\w+[-–])?\d+\s+",
+        # Prose before case name (e.g. "Generalis concurrently filing... in Trump v. Washington")
+        r"^(?:Generalis|Parties?|Petitioner|Respondent)\s+concurrently\s+filing\s+a\s+petition\s+for\s+(?:a\s+)?writ\s+of\s+certiorari\s+in\s+",
         r"^(?:that\s+and\s+by\s+the\s+|that\s+and\s+|is\s+also\s+an\s+|also\s+an\s+|also\s+|that\s+|this\s+is\s+|this\s+)\.?\s*",
-        # Remove "novo" and similar legal terms at the start
         r"^(?:novo\.?\s+|de\s+novo\.?\s+)",
-        # REMOVED: r'^[^A-Za-z]*' - This was destroying valid case names like "Spokeo, Inc."
-        # Only remove specific punctuation at start, not letters
+        # Court-attribution full sentences
+        r"^The\s+(?:district|trial|circuit|state)\s+court\s+[^.]*\.\s*",
+        r"^The\s+court\s+[^.]*\.\s*",
+        # Single legal phrases (from text_normalizer) e.g. "court. Lopez" -> "Lopez"
+        r"^(?:court|court\.|this\s+court|we\s+review|also\s+an?\s+issue|statutory\s+interpretation|questions?\s+of\s+law|de\s+novo|in\s+light\s+of|the\s+record\s+certified|federal\s+court)[\s\.]*",
+        r"^(?:and|or|but|that|this|is|also|we\b|may|ask|resolution|of|question|necessary|to|resolve|case|before)[\s\.]*",
+        r"^(?:see|citing|quoting|accord|id\.|ibid\.|brief\s+at|opening\s+br\.|reply\s+br\.)[\s\.]*",
+        # Long de novo / issue-of-law phrases
+        r"^[^A-Z]*an?\s+issue\s+of\s+law\s+we\s+review\s+de\s+novo[\s\.]*",
+        r"^[^A-Z]*interpretation\s+is\s+also\s+an?\s+issue\s+of\s+law\s+we\s+review\s+de\s+novo[\s\.]*",
+        r"^[^A-Z]*statutory\s+interpretation\s+is\s+also\s+an?\s+issue\s+of\s+law\s+we\s+review\s+de\s+novo[\s\.]*",
         r"^[\s\.,;:!?\-]*",
     ]
     for pattern in cleanup_patterns:
@@ -161,6 +183,10 @@ def clean_extracted_case_name(case_name: str) -> str:
     name = re.sub(r"\s+", " ", name).strip()
 
     # Repair commonly joined legal tokens from PDF/OCR artifacts.
+    # "Hawkinsex rel" (space between ex and rel) -> "Hawkins ex rel."
+    name = re.sub(r"\b([A-Za-z]{4,})ex\s+rel\.?\b", r"\1 ex rel.", name, flags=re.IGNORECASE)
+    # "Rapuanoet al" (space between et and al) -> "Rapuano et al."
+    name = re.sub(r"\b([A-Za-z]*[aeiouyAEIOUY])et\s+al\.?\b", r"\1 et al.", name, flags=re.IGNORECASE)
     # Examples: "Hawkinsexrel." -> "Hawkins ex rel.", "Rapuanoetal." -> "Rapuano et al."
     name = re.sub(r"\b([A-Za-z]{3,})\s*exrel\.?\b", r"\1 ex rel.", name, flags=re.IGNORECASE)
     name = re.sub(r"\bexrel\.?\b", "ex rel.", name, flags=re.IGNORECASE)
@@ -178,6 +204,16 @@ def clean_extracted_case_name(case_name: str) -> str:
 
     # Remove context phrases ("The dissent, quoting")
     name = remove_context_phrases(name)
+
+    # Remove context bleed: "Americancourts. Spokeo" -> "Spokeo", "American courts. X" -> "X"
+    from src.utils.extraction_cleaner import remove_context_bleed_from_name
+    name = remove_context_bleed_from_name(name)
+
+    # First-capital fallback (from text_normalizer): if still leading lowercase junk, slice from first capital
+    if name and len(name) > 1 and not name[0].isupper():
+        first_cap = re.search(r"[A-Z]", name)
+        if first_cap:
+            name = name[first_cap.start() :].strip()
 
     # IMPROVED: Contamination filtering - reject case names that contain legal procedural text
     if name and len(name) > 3:
@@ -229,4 +265,6 @@ def clean_extracted_case_name(case_name: str) -> str:
             logger.warning(f"[CONTAMINATION] Rejected case name '{name}' - too long ({len(name)} chars)")
             return "N/A"
 
-    return name
+    # Ensure all Unicode is converted to ASCII for display (ligatures, smart quotes, math symbols, accents)
+    from src.utils.extraction_cleaner import normalize_to_ascii_display
+    return normalize_to_ascii_display(name)

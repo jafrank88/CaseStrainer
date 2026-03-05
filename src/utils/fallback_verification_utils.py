@@ -174,72 +174,82 @@ class HTMLExtractor:
         return False
 
 
+def _extract_citation_token(citation: str) -> str:
+    """
+    Extract the reporter citation from a string that may include a case name prefix.
+    "Susan B. Anthony List v. Driehaus, 573 U.S. 149 (2014)" -> "573 U.S. 149"
+    "Swindle v. State, 10 Tenn. 581 (1831)" -> "10 Tenn. 581"
+    """
+    s = (citation or "").strip()
+    if not s:
+        return s
+    # Find last comma before a citation pattern (case name, citation)
+    m = re.search(r",\s*(\d+\s+[A-Za-z][A-Za-z.\s]*?\s+\d+(?:\s*,\s*\d+)?)", s)
+    if m:
+        return m.group(1).strip()
+    return s
+
+
 class URLBuilder:
-    """Build URLs for legal databases."""
-    
+    """Build URLs for legal databases. Uses re.search to handle citations with case name prefix."""
+
     @staticmethod
     def build_justia_url(citation: str) -> Optional[str]:
-        """Build Justia URL from citation."""
-        # U.S. Supreme Court: 573 U.S. 149
-        us_match = re.match(r"(\d+)\s+U\.?S\.?\s+(\d+)", citation, re.IGNORECASE)
+        """Build Justia URL from citation. Handles 'Case Name, 573 U.S. 149' format."""
+        tok = _extract_citation_token(citation)
+        us_match = re.search(r"(\d+)\s+U\.?S\.?\s+(\d+)", tok, re.IGNORECASE)
         if us_match:
             volume, page = us_match.groups()
             return f"https://supreme.justia.com/us/{volume}/{page}/"
-        
-        # Federal Reporter: 964 F.3d 990
-        federal_match = re.match(r"(\d+)\s+F\.?(\d+)d?\s+(\d+)", citation, re.IGNORECASE)
+
+        federal_match = re.search(r"(\d+)\s+F\.?(\d+)d?\s+(\d+)", tok, re.IGNORECASE)
         if federal_match:
             volume, reporter_vol, page = federal_match.groups()
             reporter = f"F.{reporter_vol}d"
             return f"https://law.justia.com/cases/federal/appellate-courts/{reporter}/{volume}/{page}/"
-        
-        # Federal Supplement: 766 F. Supp. 3d 266, 123 F. Supp. 2d 456, 100 F. Supp. 789
-        fsupp_match = re.match(r"(\d+)\s+F\.?\s*Supp\.?\s*(\d+)?d?\s+(\d+)", citation, re.IGNORECASE)
+
+        fsupp_match = re.search(r"(\d+)\s+F\.?\s*Supp\.?\s*(\d+)?d?\s+(\d+)", tok, re.IGNORECASE)
         if fsupp_match:
             volume = fsupp_match.group(1)
-            series = fsupp_match.group(2)  # None for plain "F. Supp.", "2" for 2d, "3" for 3d
+            series = fsupp_match.group(2)
             page = fsupp_match.group(3)
-            if series:
-                reporter_slug = f"FSupp{series}"
-            else:
-                reporter_slug = "FSupp"
+            reporter_slug = f"FSupp{series}" if series else "FSupp"
             return f"https://law.justia.com/cases/federal/district-courts/{reporter_slug}/{volume}/{page}/"
-        
+
         return None
-    
+
     @staticmethod
     def build_cornell_lii_url(citation: str) -> Optional[str]:
         """Build Cornell LII URL from citation."""
-        us_match = re.match(r"(\d+)\s+U\.?S\.?\s+(\d+)", citation, re.IGNORECASE)
+        tok = _extract_citation_token(citation)
+        us_match = re.search(r"(\d+)\s+U\.?S\.?\s+(\d+)", tok, re.IGNORECASE)
         if us_match:
             volume, page = us_match.groups()
             return f"https://www.law.cornell.edu/supremecourt/text/{volume}/{page}"
-        
         return None
-    
+
     @staticmethod
     def build_openjurist_url(citation: str) -> Optional[str]:
         """Build OpenJurist URL from citation."""
-        us_match = re.match(r"(\d+)\s+U\.?S\.?\s+(\d+)", citation, re.IGNORECASE)
+        tok = _extract_citation_token(citation)
+        us_match = re.search(r"(\d+)\s+U\.?S\.?\s+(\d+)", tok, re.IGNORECASE)
         if us_match:
             volume, page = us_match.groups()
             return f"https://openjurist.org/{volume}/us/{page}"
-        
-        federal_match = re.match(r"(\d+)\s+F\.?(\d+)d?\s+(\d+)", citation, re.IGNORECASE)
+        federal_match = re.search(r"(\d+)\s+F\.?(\d+)d?\s+(\d+)", tok, re.IGNORECASE)
         if federal_match:
             volume, reporter_vol, page = federal_match.groups()
             return f"https://openjurist.org/{volume}/f{reporter_vol}d/{page}"
-        
         return None
-    
+
     @staticmethod
     def build_findlaw_url(citation: str) -> Optional[str]:
         """Build FindLaw URL from citation."""
-        us_match = re.match(r"(\d+)\s+U\.?S\.?\s+(\d+)", citation, re.IGNORECASE)
+        tok = _extract_citation_token(citation)
+        us_match = re.search(r"(\d+)\s+U\.?S\.?\s+(\d+)", tok, re.IGNORECASE)
         if us_match:
             volume, page = us_match.groups()
             return f"https://caselaw.findlaw.com/us-supreme-court/{volume}/{page}.html"
-        
         return None
 
 
@@ -301,9 +311,9 @@ def citation_type_detector(citation: str) -> Dict[str, bool]:
     """
     return {
         "is_us_supreme_court": bool(re.search(r"\b(\d+)\s+U\.?S\.?\s+(\d+)\b", citation, re.IGNORECASE)),
-        "is_slip": bool(re.search(r"\d+\s+U\.?\s*S\.?\s+[_–—]+", citation, re.IGNORECASE)),
+        "is_slip": bool(re.search(r"\d+\s+U\.?\s*S\.?\s+[_\-\s]+", citation, re.IGNORECASE)),
         "is_federal_reporter": bool(re.search(r"\bF\.?(2|3|4)d?\b", citation, re.IGNORECASE)),
         "is_federal_supp": bool(re.search(r"\bF\.\s*Supp\.?\s*(?:2d|3d)?\b", citation, re.IGNORECASE)),
-        "is_federal_appx": bool(re.search(r"\bF\.?\s*App['\u2019]?x\b", citation, re.IGNORECASE)),
+        "is_federal_appx": bool(re.search(r"\bF\.?\s*App[']?x\b", citation, re.IGNORECASE)),
         "is_state_citation": bool(re.search(r"\b[A-Z][a-z]+\.[A-Z][a-z]+\b", citation)),
     }

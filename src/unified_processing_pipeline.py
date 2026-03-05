@@ -59,11 +59,20 @@ from src.utils.placeholder_resolver import resolve_placeholder_citations, is_pla
 try:
     from src.unified_clustering_master_optimized import cluster_citations_optimized as cluster_citations_unified_master
 except ImportError:
-    # Fallback to regular clustering if optimized not available
     try:
         from src.unified_clustering_master import cluster_citations_unified_master
     except ImportError:
         cluster_citations_unified_master = None
+
+
+def _get_clustering_version() -> str:
+    """Return clustering version for API metadata (to verify deployed code)."""
+    try:
+        from src.unified_clustering_master_optimized import CLUSTERING_VERSION
+        return CLUSTERING_VERSION
+    except Exception:
+        return "fallback"
+
 
 logger = logging.getLogger(__name__)
 
@@ -1179,6 +1188,8 @@ class UnifiedProcessingPipeline:
                     "stages_completed": context.stages_completed,
                     # UNIFIED PIPELINE IDENTIFIER
                     "processing_path": "unified_pipeline",
+                    # Clustering version (bump in unified_clustering_master_optimized when logic changes)
+                    "clustering_version": _get_clustering_version(),
                     # Processing results
                     "parallel_verifications_applied": context.metadata.get("parallel_verifications", 0),
                     "cluster_count": context.metadata.get("cluster_count", 0),

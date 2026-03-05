@@ -17,8 +17,24 @@ from typing import Optional, Dict, Any, List
 from urllib.parse import quote
 
 from src.utils.fallback_verification_utils import URLBuilder, HTMLExtractor, NameValidator, HTTPClient
+from .courtlistener_throttle import throttle_courtlistener
 
 logger = logging.getLogger(__name__)
+
+
+def _courtlistener_key_and_base(api_key: Optional[str]):
+    """Resolve API key and base URL from config (env) when not provided. Used for citation-lookup."""
+    key = (api_key or "").strip()
+    base = "https://www.courtlistener.com/api/rest/v4"
+    try:
+        from src.config import COURTLISTENER_API_KEY, COURTLISTENER_API_URL
+        if not key:
+            key = (COURTLISTENER_API_KEY or "").strip()
+        if COURTLISTENER_API_URL:
+            base = (COURTLISTENER_API_URL or base).rstrip("/")
+    except Exception:
+        pass
+    return key, base
 
 
 class BaseURLVerifier:
@@ -114,29 +130,46 @@ class BaseURLVerifier:
             return {"verified": False, "error": str(e)}
 
 
+def _citation_text_for_lookup(citation: str) -> str:
+    """
+    Use only the primary citation for lookup when text contains "(quoting ...)" or "(citing ...)".
+    So we look up 965 F.3d 596 (Soo Line) instead of letting the API parse the inner 799 F.3d 701 (Levitt).
+    """
+    if not citation or not citation.strip():
+        return citation or ""
+    text = citation.strip()
+    for pattern in [r"\s*\(quoting\s+", r"\s*\(citing\s+"]:
+        idx = re.search(pattern, text, re.IGNORECASE)
+        if idx:
+            text = text[: idx.start()].strip()
+    return text
+
+
 class CourtListenerVerifier:
-    """Verifier for CourtListener API."""
+    """Verifier for CourtListener citation-lookup API. Key from config (env)."""
     
     def __init__(self, api_key: Optional[str] = None, session=None):
-        self.api_key = api_key
+        self.api_key, self.base_url = _courtlistener_key_and_base(api_key)
         if session is None:
             from .utils import get_retrying_session
             session = get_retrying_session()
         self.session = session
-        self.base_url = "https://www.courtlistener.com/api/rest/v4"
     
     async def verify(self, citation: str, timeout: float = 10.0, extracted_case_name: Optional[str] = None) -> Dict[str, Any]:
-        """Verify citation using CourtListener lookup API."""
+        """Verify citation using CourtListener citation-lookup API."""
         if not self.api_key:
             return {"verified": False, "error": "No API key"}
         
         url = f"{self.base_url}/citation-lookup/"
         headers = {"Authorization": f"Token {self.api_key}"}
+        # Send only primary cite so API parses 965 F.3d 596 (Soo Line), not 799 F.3d 701 (Levitt)
+        text_for_api = _citation_text_for_lookup(citation)
         
         try:
+            throttle_courtlistener(cost=1, context="citation-lookup")
             resp = self.session.post(
                 url, 
-                json={"text": citation}, 
+                json={"text": text_for_api}, 
                 headers=headers, 
                 timeout=min(timeout, 10)
             )
@@ -275,7 +308,7 @@ class OpenJuristVerifier(BaseURLVerifier):
 class GoogleScholarVerifier:
     """Verifier for Google Scholar case law (scholar.google.com).
 
-    Google Scholar has excellent coverage for all US case law — federal appellate,
+    Google Scholar has excellent coverage for all US case law - federal appellate,
     Supreme Court, and state courts.  The search page returns server-rendered HTML
     with ``/scholar_case`` links and case titles.  We visit the first result to
     extract the canonical name, year, and confirm the citation appears on the page.
@@ -374,7 +407,7 @@ class GoogleScholarVerifier:
 
     def _scholar_get(self, url: str, timeout: float) -> requests.Response:
         """Make a GET request using the Scholar session with proxy rotation."""
-        session = GoogleScholarVerifier._scholar_session or self._fallback_session
+        session = GoogleScholarVerifier._scholar_session or self._fallback_session or requests.Session()
         headers = self._get_headers()
         proxies = self._get_next_proxy()
         kwargs: Dict[str, Any] = {

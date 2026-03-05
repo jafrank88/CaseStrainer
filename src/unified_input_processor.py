@@ -102,7 +102,7 @@ class UnifiedInputProcessor:
         Returns:
             Dictionary with citation processing results
         """
-        print(f"[DEBUG] process_any_input CALLED with input_type={input_type}, request_id={request_id}")
+        logger.debug(f"[DEBUG] process_any_input CALLED with input_type={input_type}, request_id={request_id}")
         logger.info(f"[Unified Processor {request_id}] process_any_input called, processing {input_type} input")
         logger.info(f"[Unified Processor {request_id}] Input data type: {type(input_data)}")
         logger.info(
@@ -220,7 +220,7 @@ class UnifiedInputProcessor:
                 head = requests.head(url, headers={"User-Agent": "Mozilla/5.0"}, allow_redirects=True, timeout=15)
                 content_type = (head.headers.get("Content-Type") or "").lower()
                 is_pdf = "application/pdf" in content_type
-                logger.info(f"[Unified Processor {request_id}] HEAD Content-Type='{content_type}' → is_pdf={is_pdf}")
+                logger.info(f"[Unified Processor {request_id}] HEAD Content-Type='{content_type}' -> is_pdf={is_pdf}")
             except Exception as e:
                 # Fallback to suffix if HEAD fails
                 is_pdf = url.lower().endswith(".pdf")
@@ -257,7 +257,7 @@ class UnifiedInputProcessor:
                             import requests
 
                             # First attempt: non-streamed (some servers object to ranged/streamed)
-                            # CRITICAL FIX: Follow redirects to handle HTTP→HTTPS redirects
+                            # CRITICAL FIX: Follow redirects to handle HTTP->HTTPS redirects
                             resp = requests.get(url, headers=headers, timeout=60, stream=False, allow_redirects=True)
                             if resp.status_code != 200:
                                 logger.warning(
@@ -465,9 +465,9 @@ class UnifiedInputProcessor:
                     
                     # Check if we fixed the broken citation
                     if "200 U. S. 321" in text:
-                        logger.info(f"✅ [Unified Processor {request_id}] FIXED: Found '200 U. S. 321' in normalized text")
+                        logger.info(f"[OK] [Unified Processor {request_id}] FIXED: Found '200 U. S. 321' in normalized text")
                     else:
-                        logger.warning(f"⚠️ [Unified Processor {request_id}] Still no '200 U. S. 321' in normalized text")
+                        logger.warning(f"[WARNING] [Unified Processor {request_id}] Still no '200 U. S. 321' in normalized text")
 
                 if not text or len(text.strip()) < 10:
                     return {
@@ -533,7 +533,7 @@ class UnifiedInputProcessor:
             force_mode: Optional user override for sync/async processing
             enable_verification: Whether to enable citation verification
         """
-        print(f"[DEBUG] _process_citations_unified CALLED with {len(text)} chars, request_id={request_id}")
+        logger.debug(f"[DEBUG] _process_citations_unified CALLED with {len(text)} chars, request_id={request_id}")
         logger.info(f"[Unified Processor {request_id}] _process_citations_unified called")
         logger.info(f"[Unified Processor {request_id}] Processing citations from {source_name}")
         logger.info(f"[Unified Processor {request_id}] Text length: {len(text)} characters")
@@ -555,7 +555,7 @@ class UnifiedInputProcessor:
             if force_mode and str(force_mode).lower() == "sync":
                 should_process_immediately = True
                 logger.info(
-                    f"[Unified Processor {request_id}] force_mode='sync' requested → using sync path (no override)"
+                    f"[Unified Processor {request_id}] force_mode='sync' requested -> using sync path (no override)"
                 )
             else:
                 should_process_immediately = self.citation_service.should_process_immediately(
@@ -778,15 +778,15 @@ class UnifiedInputProcessor:
 
                     if not redis_conn:
                         logger.error(
-                            f"[Unified Processor {request_id}] 🚨 CRITICAL: No Redis instance available after trying all configs"
+                            f"[Unified Processor {request_id}] [CRITICAL] CRITICAL: No Redis instance available after trying all configs"
                         )
                         raise Exception("No Redis instance available")
 
-                    logger.error(f"[Unified Processor {request_id}] 🎯 Creating queue 'casestrainer'...")
+                    logger.error(f"[Unified Processor {request_id}] [DEBUG] Creating queue 'casestrainer'...")
                     queue = Queue("casestrainer", connection=redis_conn)
-                    logger.error(f"[Unified Processor {request_id}] ✅ Queue created successfully")
+                    logger.error(f"[Unified Processor {request_id}] [OK] Queue created successfully")
 
-                    logger.error(f"[Unified Processor {request_id}] 📤 About to enqueue job...")
+                    logger.error(f"[Unified Processor {request_id}] [ENQUEUE] About to enqueue job...")
                     logger.error(
                         f"[Unified Processor {request_id}]    Function: src.rq_worker.process_citation_task_direct"
                     )
@@ -809,7 +809,7 @@ class UnifiedInputProcessor:
                         failure_ttl=86400,
                     )
 
-                    logger.error(f"[Unified Processor {request_id}] ✅ Task enqueued successfully!")
+                    logger.error(f"[Unified Processor {request_id}] [OK] Task enqueued successfully!")
                     logger.error(f"[Unified Processor {request_id}]    Job ID: {job.id}")
                     logger.error(f"[Unified Processor {request_id}]    Job status: {job.get_status()}")
 
@@ -939,13 +939,10 @@ class UnifiedInputProcessor:
 
                     if should_fallback:
                         logger.warning(
-                            f"[Unified Processor {request_id}] Redis unavailable, falling back to CLEAN PIPELINE (87-93% accuracy)"
+                            f"[Unified Processor {request_id}] Redis unavailable, falling back to UNIFIED PROCESSING PIPELINE (sync)"
                         )
 
                         try:
-                            # USE CLEAN PIPELINE for extraction (87-93% accuracy)
-                            pass
-
                             # Create progress callback for fallback path
                             def progress_callback(progress: int, step: str, message: str):
                                 """Update progress via the progress manager."""
@@ -960,11 +957,14 @@ class UnifiedInputProcessor:
                             self.progress_manager.active_tasks[request_id] = tracker
 
                             # Update progress
-                            progress_callback(10, "Extract", "Using full pipeline with verification (Redis fallback)")
+                            progress_callback(
+                                10,
+                                "Extract",
+                                "Using unified processing pipeline with verification (Redis fallback)",
+                            )
 
-                            # CRITICAL FIX: Use FULL pipeline with clustering and verification
-                            # instead of just extraction
-                            from src.citation_extraction_endpoint import extract_citations_with_clustering
+                            # Use the unified processing pipeline directly (same as primary sync path)
+                            from src.unified_processing_pipeline import process_citations_unified
 
                             # Extract enable_verification flag from input_data
                             raw_enable = input_data.get("enable_verification", True)
@@ -973,38 +973,31 @@ class UnifiedInputProcessor:
                                 if isinstance(raw_enable, str)
                                 else bool(raw_enable)
                             )
-                            result = extract_citations_with_clustering(
-                                text, enable_verification=enable_verification, progress_callback=progress_callback
+
+                            logger.info(
+                                f"[Sync Fallback] Calling unified processing pipeline with enable_verification={enable_verification}"
+                            )
+                            result = asyncio.run(
+                                process_citations_unified(
+                                    text,
+                                    processing_mode="enhanced_sync",
+                                    enable_parallel_verification=enable_verification,
+                                    enable_verification=enable_verification,
+                                    progress_callback=progress_callback,
+                                )
                             )
 
-                            # Check if any citations show CourtListener rate limit messages
-                            courtlistener_rate_limited = False
-                            if result.get("citations"):
-                                for cit in result["citations"]:
-                                    error_msg = cit.get("error", "") or cit.get("verification_error", "")
-                                    if "heavy usage" in str(error_msg).lower() or "try again" in str(error_msg).lower():
-                                        courtlistener_rate_limited = True
-                                        break
-
-                            # Add user notice if CourtListener is rate-limited
-                            if courtlistener_rate_limited:
-                                if "metadata" not in result:
-                                    result["metadata"] = {}
-                                result["metadata"]["verification_notice"] = (
-                                    "Note: CourtListener is experiencing heavy usage. Citations have been verified using "
-                                    "alternative sources (Justia, OpenJurist, Cornell LII). For complete verification with "
-                                    "CourtListener, please try again in a few minutes."
-                                )
-
-                            # The result already has citations and clusters in the right format
-                            citations = result.get("citations", [])
-                            clusters = result.get("clusters", [])
+                            citations = result.get("citations", []) or []
+                            clusters = result.get("clusters", []) or []
 
                             progress_callback(
-                                100, "Complete", f"Full pipeline: {len(citations)} citations, {len(clusters)} clusters"
+                                100,
+                                "Complete",
+                                f"Unified pipeline (Redis fallback): {len(citations)} citations, {len(clusters)} clusters",
                             )
                             logger.info(
-                                f"[Sync Fallback] Extracted {len(citations)} citations, clustered into {len(clusters)} groups"
+                                f"[Sync Fallback] Unified pipeline extracted {len(citations)} citations, "
+                                f"clustered into {len(clusters)} groups"
                             )
 
                             # CRITICAL: Mark progress as complete to stop frontend polling

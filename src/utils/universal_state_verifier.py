@@ -58,7 +58,7 @@ class UniversalStateCourtVerifier:
             logger.warning(f"[WARNING] [UNIVERSAL-STATE] Cannot identify state for: {citation}")
             return {"verified": False, "error": "Cannot identify state"}
 
-        logger.info(f"📍 [UNIVERSAL-STATE] Identified state: {state_name}")
+        logger.info(f"[STATE] [UNIVERSAL-STATE] Identified state: {state_name}")
 
         # Get verification strategy
         strategy = get_verification_strategy(state_name)
@@ -73,7 +73,7 @@ class UniversalStateCourtVerifier:
 
         # Add state-specific source if available
         if strategy["has_free_database"]:
-            logger.info(f"✨ [UNIVERSAL-STATE] {state_name} has free database!")
+            logger.info(f"[OK] [UNIVERSAL-STATE] {state_name} has free database!")
             sources_to_try.insert(0, (f"{state_name}_Courts", self._verify_with_state_database))
 
         time_per_source = timeout / len(sources_to_try)

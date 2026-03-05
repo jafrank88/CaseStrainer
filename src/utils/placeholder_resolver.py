@@ -13,10 +13,16 @@ logger = logging.getLogger(__name__)
 
 
 def is_placeholder_citation(citation_text: str) -> bool:
-    """Check if a citation is a placeholder (has ____ or ___ as page number)."""
+    """Check if a citation is a placeholder (has ____, ___, or _ as page number).
+    Matches: 594 U.S. ____, 594 U.S. ___, 594 U.S. _ (scotus 2021) - document header slip-op placeholders."""
     if not citation_text:
         return False
-    return '____' in citation_text or '___' in citation_text
+    if '____' in citation_text or '___' in citation_text:
+        return True
+    # Single underscore: "594 U.S. _" or "594 U. S. _ (2021)" - Cite as header contamination
+    if re.search(r"\d+\s+U\.?\s*S\.?\s*_\s*(?:\(|$)", citation_text.strip(), re.IGNORECASE):
+        return True
+    return False
 
 
 def normalize_case_name(name: str) -> str:
@@ -87,6 +93,21 @@ def case_names_similar(name1: str, name2: str, threshold: float = 0.6) -> bool:
     return ratio >= threshold
 
 
+def _extract_volume_reporter_from_placeholder(ph_text: str) -> Optional[tuple]:
+    """
+    Extract (volume, reporter) from placeholder like '594 U.S. ____' or '578 U. S. ___'.
+    Returns (vol, reporter) e.g. ('594', 'U.S.') or None if not parseable.
+    """
+    if not ph_text:
+        return None
+    m = re.match(r"(\d+)\s+([A-Za-z.][A-Za-z.\s]*?)\s+_{1,4}\b", ph_text.strip(), re.IGNORECASE)
+    if m:
+        vol, rep = m.group(1), re.sub(r"\s+", " ", m.group(2).strip()).lower()
+        rep = re.sub(r"u\.\s*s\.?", "u.s.", rep, flags=re.IGNORECASE)
+        return (vol, rep)
+    return None
+
+
 def find_best_match_for_placeholder(
     placeholder_citation: Dict[str, Any],
     verified_citations: List[Dict[str, Any]]
@@ -95,8 +116,9 @@ def find_best_match_for_placeholder(
     Find the best matching verified citation for a placeholder citation.
     
     Matches based on:
-    1. Case name similarity
-    2. Same year (if available)
+    1. Volume/reporter match (CRITICAL: "594 U.S. ____" must match 594 U.S., not Milkovich 497 U.S.)
+    2. Case name similarity
+    3. Same year (if available)
     
     Returns the best match or None if no good match found.
     """
@@ -104,8 +126,9 @@ def find_best_match_for_placeholder(
     ph_name = placeholder_citation.get('extracted_case_name') or placeholder_citation.get('case_name', '')
     ph_date = placeholder_citation.get('extracted_date') or placeholder_citation.get('canonical_date', '')
     ph_year = extract_year_from_date(ph_date)
+    ph_vol_rep = _extract_volume_reporter_from_placeholder(ph_text)
     
-    logger.info(f"[PLACEHOLDER-MATCH] Looking for match for: {ph_text} ({ph_name}, {ph_year})")
+    logger.info(f"[PLACEHOLDER-MATCH] Looking for match for: {ph_text} ({ph_name}, {ph_year}) vol_rep={ph_vol_rep}")
     
     best_match = None
     best_score = 0.0
@@ -117,6 +140,15 @@ def find_best_match_for_placeholder(
         v_name = verified.get('case_name') or verified.get('canonical_name', '')
         v_date = verified.get('canonical_date') or verified.get('extracted_date', '')
         v_year = extract_year_from_date(v_date)
+        v_cit = verified.get('citation', '')
+        
+        # CRITICAL: Volume/reporter must match to avoid "Cite as: 594 U.S. _ (2021)" matching Milkovich (497 U.S.)
+        if ph_vol_rep:
+            vol, rep = ph_vol_rep
+            rep_esc = re.escape(rep).replace(r"\.", r"\.\s*")
+            vol_rep_pat = re.compile(rf"\b{re.escape(vol)}\s+{rep_esc}\b", re.IGNORECASE)
+            if not vol_rep_pat.search(v_cit):
+                continue  # Verified citation has different volume/reporter
         
         # Must have case name to match
         if not v_name:

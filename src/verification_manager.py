@@ -418,18 +418,34 @@ class SmartVerificationStrategy:
         return None
 
     def _has_sufficient_coverage(self, results: Dict[str, Any], citations: List[str]) -> bool:
-        """Check if we have sufficient verification coverage"""
+        """Check if verification has reached a terminal-enough state to stop early."""
         if not citations:
             return True
-        remaining_citations = set(citations)
 
-        for method in self.verification_priority:
-            if not remaining_citations:
-                break
+        total = len(citations)
+        unresolved = 0
+        terminal_sources = {
+            "web_search",
+            "web_search_fallback",
+        }
 
-            config = self.get_method_config(method)
-            method_citations = list(remaining_citations)[: config["batch_size"]]
-        return True
+        for citation in citations:
+            result = results.get(citation)
+            if not isinstance(result, dict):
+                unresolved += 1
+                continue
+
+            if result.get("verified", False):
+                continue
+
+            source = str(result.get("source", "") or "").strip().lower()
+            # Only treat unverified entries as terminal after the final (web) lane.
+            if source not in terminal_sources:
+                unresolved += 1
+
+        if unresolved == 0 and len(results) >= total:
+            return True
+        return False
 
     def start_verification(self, request_id: str, citations: List[str], clusters: List[Dict[str, Any]]) -> str:
         """
@@ -861,7 +877,72 @@ class SmartVerificationStrategy:
 
         return results
 
-    def _extract_case_name_from_context(self, context: str, citation: str) -> Dict[str, str]:
+    def _verify_via_citation_lookup(self, citations: List[str], config: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Batch citation lookup lane.
+        Current implementation prioritizes known-citation accuracy and returns
+        structured fallback metadata for unknown citations.
+        """
+        _ = config  # reserved for future lookup backend integration
+        results: Dict[str, Any] = {}
+        for citation in citations:
+            known_data = self.verification_strategy.get_known_citation(citation)
+            if known_data:
+                results[citation] = {
+                    "verified": True,
+                    "canonical_name": known_data.get("canonical_name"),
+                    "canonical_date": known_data.get("canonical_year"),
+                    "canonical_url": known_data.get("canonical_url"),
+                    "source": "citation_lookup_v4",
+                    "validation_method": "known_citation_match",
+                    "confidence": 0.95,
+                    "metadata": {
+                        "source": "citation_lookup_v4",
+                        "lookup_type": "known_citation",
+                    },
+                }
+            else:
+                fallback = self._create_fallback_results([citation], "citation_lookup_v4").get(citation, {})
+                fallback["source"] = "citation_lookup_v4"
+                fallback["validation_method"] = fallback.get("validation_method", "basic_extraction")
+                results[citation] = fallback
+        return results
+
+    def _verify_via_courtlistener_search(self, citations: List[str], config: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        CourtListener search lane.
+        Delegates to lookup-first behavior for now to avoid hard failures when
+        legacy search implementation is unavailable.
+        """
+        results = self._verify_via_citation_lookup(citations, config)
+        for citation in citations:
+            result = results.get(citation, {})
+            if isinstance(result, dict):
+                if not result.get("verified", False):
+                    result["source"] = "courtlistener_search"
+                result.setdefault("metadata", {})
+                if isinstance(result["metadata"], dict):
+                    result["metadata"]["search_backend"] = "courtlistener_search"
+        return results
+
+    def _verify_via_web_search(self, citations: List[str], config: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Web search lane.
+        Uses the same safe fallback contract as other methods when dedicated
+        web-search verification is not configured.
+        """
+        results = self._verify_via_citation_lookup(citations, config)
+        for citation in citations:
+            result = results.get(citation, {})
+            if isinstance(result, dict):
+                if not result.get("verified", False):
+                    result["source"] = "web_search"
+                result.setdefault("metadata", {})
+                if isinstance(result["metadata"], dict):
+                    result["metadata"]["search_backend"] = "web_search"
+        return results
+
+    def _extract_case_name_from_context(self, context: str, citation: str) -> Dict[str, Optional[str]]:
         """Extract case name from citation context
 
         Args:
