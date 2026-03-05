@@ -24,6 +24,11 @@
 # - Automatic crash detection and diagnostics capture
 # - Docker auto-restart service management (enabled by default, -ServicesOff to disable)
 # - Automatic Vue frontend build detection and rebuild (detects source changes, runs npm build)
+#
+# WORKERS: There are six RQ workers (rqworker1 through rqworker6). After changing verification,
+# batch, or citation pipeline code, run cslauncher so all six are rebuilt and restarted. Otherwise
+# some workers may run old code and cause inconsistent behavior (e.g. "stuck at 10 processed",
+# extraction hangs, or batch timeouts only on workers that weren't restarted).
 
 [CmdletBinding()]
 param(
@@ -58,6 +63,17 @@ param(
 # Note: -Verbose is automatically provided by [CmdletBinding()]
 
 $ErrorActionPreference = "Continue"
+
+# Worker topology (single source of truth for worker operations)
+$script:WorkerServices = @(
+    "rqworker1",
+    "rqworker2",
+    "rqworker3",
+    "rqworker4",
+    "rqworker5",
+    "rqworker6"
+)
+$script:WorkerContainers = $script:WorkerServices | ForEach-Object { "casestrainer-$($_)-prod" }
 
 # Setup logging
 $logsDir = Join-Path $PSScriptRoot "logs"
@@ -251,6 +267,80 @@ function Test-DockerHealth {
     }
 }
 
+function Invoke-DockerStartupRecovery {
+    # Deep recovery for Docker Desktop stuck in "starting" state.
+    Write-Host "   Running deep Docker startup recovery..." -ForegroundColor Yellow
+    $isAdminNow = Test-AdminPrivileges
+    $serviceBlocked = $false
+
+    try {
+        $svc = Get-Service -Name "com.docker.service" -ErrorAction SilentlyContinue
+        if ($svc -and $svc.Status -ne "Running") {
+            if ($isAdminNow) {
+                Write-Host "   Starting Docker service..." -ForegroundColor Gray
+                Start-Service -Name "com.docker.service" -ErrorAction SilentlyContinue
+                Start-Sleep -Seconds 2
+                $svc = Get-Service -Name "com.docker.service" -ErrorAction SilentlyContinue
+                if ($svc -and $svc.Status -eq "Running") {
+                    Write-Host "   Docker service is running" -ForegroundColor Green
+                } else {
+                    Write-Host "   Docker service still not running" -ForegroundColor Yellow
+                }
+            } else {
+                $serviceBlocked = $true
+                Write-Host "   Docker service is stopped and requires Administrator to start." -ForegroundColor Red
+            }
+        }
+    } catch {
+        Write-ReloadLog "Docker service check/start failed: $($_.Exception.Message)" "WARN"
+    }
+
+    try {
+        Write-Host "   Shutting down WSL..." -ForegroundColor Gray
+        wsl --shutdown 2>$null | Out-Null
+    } catch {
+        Write-ReloadLog "WSL shutdown failed: $($_.Exception.Message)" "WARN"
+    }
+
+    try {
+        Write-Host "   Stopping Docker Desktop processes..." -ForegroundColor Gray
+        Get-Process -Name "Docker Desktop","com.docker.backend" -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+        Start-Sleep -Seconds 2
+    } catch {
+        Write-ReloadLog "Docker process stop failed: $($_.Exception.Message)" "WARN"
+    }
+
+    try {
+        $dockerExe = "${env:ProgramFiles}\Docker\Docker\Docker Desktop.exe"
+        if (Test-Path $dockerExe) {
+            Write-Host "   Starting Docker Desktop..." -ForegroundColor Gray
+            Start-Process -FilePath $dockerExe -ErrorAction SilentlyContinue | Out-Null
+        }
+    } catch {
+        Write-ReloadLog "Docker Desktop start failed: $($_.Exception.Message)" "WARN"
+    }
+
+    if ($serviceBlocked) {
+        Write-Host "   Admin action required before Docker can start:" -ForegroundColor Yellow
+        Write-Host "      Start-Service com.docker.service" -ForegroundColor Gray
+        return $false
+    }
+
+    $maxWait = 120
+    $waited = 0
+    while ($waited -lt $maxWait) {
+        Start-Sleep -Seconds 5
+        $waited += 5
+        $testInfo = docker info 2>&1
+        if ($LASTEXITCODE -eq 0 -and $testInfo -notmatch "500 Internal Server Error|Cannot connect|error|ERROR") {
+            Write-Host "   Deep recovery succeeded." -ForegroundColor Green
+            return $true
+        }
+    }
+    Write-Host "   Deep recovery did not restore Docker." -ForegroundColor Red
+    return $false
+}
+
 function Invoke-DockerRecovery {
     # Attempt to recover Docker Desktop automatically
     Write-Host "   Attempting Docker Desktop recovery..." -ForegroundColor Yellow
@@ -274,6 +364,11 @@ function Invoke-DockerRecovery {
                 return $true
             }
         }
+    }
+
+    # Escalate to deep recovery path for "stuck starting" and pipe/API failures.
+    if (Invoke-DockerStartupRecovery) {
+        return $true
     }
 
     Write-Host "   Auto-recovery failed. Manual restart required." -ForegroundColor Red
@@ -627,11 +722,7 @@ function Invoke-CaptureCrashDiagnostics {
     Invoke-CaptureDockerDiagnostics -Context "CRASH DETECTED"
     
     # Try to capture container logs before they're lost
-    $containers = @(
-        "casestrainer-backend-prod",
-        "casestrainer-rqworker1-prod",
-        "casestrainer-rqworker2-prod"
-    )
+    $containers = @("casestrainer-backend-prod") + $script:WorkerContainers
     
     foreach ($container in $containers) {
         try {
@@ -863,14 +954,82 @@ if ($UpdateDocker) {
 
     # Use the installer script's -Pause option for proper handling
     $installerPath = Join-Path $PSScriptRoot "install-docker-autorestart-service.ps1"
-    if (Test-Path $installerPath) {
-        & $installerPath -Pause
+    if (Test-Path -LiteralPath $installerPath) {
+        try {
+            & $installerPath -Pause -ProjectRoot $PSScriptRoot
+            if ($LASTEXITCODE -ne 0) {
+                Write-Host "   ERROR: Installer script exited with code $LASTEXITCODE" -ForegroundColor Red
+                exit 1
+            }
+        } catch {
+            Write-Host "   ERROR: Failed to run installer: $($_.Exception.Message)" -ForegroundColor Red
+            exit 1
+        }
     } else {
+        Write-Host "   Installer not found at: $installerPath" -ForegroundColor Yellow
         Invoke-ManageDockerService -Disable:$true
     }
 
+    # Guard: ensure the monitor task is both disabled and not running.
+    # A disabled-but-running task can still touch Docker named pipes during updates.
+    # (This is a Scheduled Task in Task Scheduler, not a Windows Service.)
+    $taskName = "CaseStrainer-Docker-AutoRestart"
+    $taskSafe = $true
+    try {
+        $task = Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue
+        if (-not $task) {
+            $task = Get-ScheduledTask | Where-Object { $_.TaskName -eq $taskName } | Select-Object -First 1
+        }
+        if ($task) {
+            if ($task.State -eq "Running") {
+                Write-Host "   Stopping running auto-restart task instance..." -ForegroundColor Yellow
+                Stop-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue
+                Start-Sleep -Seconds 1
+                $task = Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue
+            }
+
+            $isEnabled = $task.Settings.Enabled
+            $isRunning = ($task.State -eq "Running")
+            if ($isEnabled -or $isRunning) {
+                $taskSafe = $false
+                Write-Host "   WARNING: Auto-restart task is still active (Enabled=$isEnabled, State=$($task.State))." -ForegroundColor Red
+                Write-Host "   Run as Administrator and execute:" -ForegroundColor Yellow
+                Write-Host "      Disable-ScheduledTask -TaskName `"$taskName`"" -ForegroundColor Gray
+                Write-Host "      Stop-ScheduledTask -TaskName `"$taskName`"" -ForegroundColor Gray
+            } else {
+                Write-Host "   Verified: Auto-restart task is disabled and not running." -ForegroundColor Green
+            }
+        } else {
+            Write-Host "   Auto-restart task not installed; safe to proceed with Docker update." -ForegroundColor Gray
+        }
+    } catch {
+        $taskSafe = $false
+        Write-Host "   WARNING: Could not verify task state: $($_.Exception.Message)" -ForegroundColor Yellow
+    }
+
     Write-Host ""
-    Write-Host "   Service paused. You can now safely update Docker Desktop." -ForegroundColor Green
+    if ($taskSafe) {
+        Write-Host "   Auto-restart paused. Stopping Docker Desktop so you can update..." -ForegroundColor Green
+        try {
+            $dockerProcs = Get-Process -Name "Docker Desktop" -ErrorAction SilentlyContinue
+            if ($dockerProcs) {
+                $dockerProcs | Stop-Process -Force -ErrorAction SilentlyContinue
+                Write-Host "   Docker Desktop process(es) stopped." -ForegroundColor Green
+                Start-Sleep -Seconds 2
+            } else {
+                Write-Host "   Docker Desktop was not running." -ForegroundColor Gray
+            }
+        } catch {
+            Write-Host "   Could not stop Docker Desktop: $($_.Exception.Message)" -ForegroundColor Yellow
+            Write-Host "   Quit Docker Desktop manually from the system tray, then run the update." -ForegroundColor Gray
+        }
+        Write-Host ""
+        Write-Host "   You can now run the Docker Desktop installer/update." -ForegroundColor Cyan
+    } else {
+        Write-Host "   Service pause is incomplete. Fix the task state first, then update Docker." -ForegroundColor Red
+        Write-Host ""
+        exit 1
+    }
     Write-Host ""
     Write-Host "   After updating Docker:" -ForegroundColor Yellow
     Write-Host "   1. Start Docker Desktop" -ForegroundColor Gray
@@ -924,11 +1083,7 @@ if ($CleanDocker) {
 Write-Host ""
 Write-ReloadLog "BYTECODE: Clearing Python cache..." "INFO"
 
-$containers = @(
-    "casestrainer-backend-prod",
-    "casestrainer-rqworker1-prod",
-    "casestrainer-rqworker2-prod"
-)
+$containers = @("casestrainer-backend-prod") + $script:WorkerContainers
 
 foreach ($container in $containers) {
     Write-Host "   Clearing $container..." -ForegroundColor Gray
@@ -1046,14 +1201,16 @@ if ($Build) {
     # Rebuilding ONLY the backend image can leave workers running old code.
     # To ensure fixes (like strict extraction + name validation) are deployed, we rebuild:
     #   - backend
-    #   - rqworker1
-    #   - rqworker2
+    #   - all configured rqworkers
     #
     # CRITICAL: Use --no-cache to ensure source code changes are picked up!
     # Docker layer caching can cause stale code to be used if files haven't changed
     # but logic within them has.
+    # ALSO CRITICAL: Remove old images to ensure volume mounts don't use stale baked-in code
+    Write-Host "   Removing old images to ensure fresh code deployment..." -ForegroundColor Yellow
+    docker rmi casestrainer-backend casestrainer-rqworker 2>$null
     Write-Host "   Building with --no-cache to ensure latest code..." -ForegroundColor Yellow
-    docker-compose -f docker-compose.prod.yml build --no-cache backend rqworker1 rqworker2
+    docker-compose -f docker-compose.prod.yml build --no-cache backend $script:WorkerServices
     if ($LASTEXITCODE -ne 0) {
         Write-ReloadLog "ERROR: Backend/worker build failed!" "ERROR"
         exit 1
@@ -1105,12 +1262,14 @@ Write-ReloadLog "   RQ cleanup complete" "SUCCESS"
 
 # Step 7: Recreate containers with new images (CRITICAL: use 'up -d' not 'restart'!)
 # 'restart' only restarts existing containers - it does NOT use newly built images!
-# 'up -d' recreates containers if the image has changed
+# We use --force-recreate so every worker/backend container is replaced from the current
+# image. Otherwise (a) a worker that crashed and was restarted by Docker keeps the old
+# container/image, and (b) compose might skip recreation if it thinks the image didn't change.
 Write-Host ""
-Write-ReloadLog "RESTART: Recreating containers with new images..." "INFO"
+Write-ReloadLog "RESTART: Recreating containers with new images (--force-recreate)..." "INFO"
 
-Write-Host "   Recreating RQ workers with new images..." -ForegroundColor Gray
-docker-compose -f docker-compose.prod.yml up -d rqworker1 rqworker2 2>&1 | Out-Null
+Write-Host "   Recreating all $script:WorkerCount RQ workers (--force-recreate so each runs the new image)..." -ForegroundColor Gray
+docker-compose -f docker-compose.prod.yml up -d --force-recreate $script:WorkerServices 2>&1 | Out-Null
 
 if ($LASTEXITCODE -ne 0) {
     Write-ReloadLog "   WARNING: Some workers may have failed" "WARN"
@@ -1119,8 +1278,8 @@ if ($LASTEXITCODE -ne 0) {
 Write-Host "   Waiting for workers to initialize..." -ForegroundColor Gray
 Start-Sleep -Seconds 3
 
-Write-Host "   Recreating backend with new image..." -ForegroundColor Gray
-docker-compose -f docker-compose.prod.yml up -d backend 2>&1 | Out-Null
+Write-Host "   Recreating backend with new image (--force-recreate)..." -ForegroundColor Gray
+docker-compose -f docker-compose.prod.yml up -d --force-recreate backend 2>&1 | Out-Null
 
 if ($LASTEXITCODE -ne 0) {
     Write-ReloadLog "ERROR: Backend recreation failed!" "ERROR"
@@ -1236,6 +1395,8 @@ $verifications = @{
     "OOM fix: gc+malloc_trim in processor (worker)" = "docker exec casestrainer-rqworker1-prod grep -c 'OOM-FIX' /app/src/unified_citation_processor_v2.py"
     "Verification pipeline (worker)" = "docker exec casestrainer-rqworker1-prod grep -c 'verify_citations_batch' /app/src/verification/master.py"
     "Clustering master (backend)" = "docker exec casestrainer-backend-prod grep -c 'cluster_citations_unified_master' /app/src/unified_processing_pipeline.py"
+    "Batch verification: form-encoded CourtListener (worker)" = "docker exec casestrainer-rqworker1-prod grep -c 'data=form_data' /app/src/verification/batch.py"
+    "Regex: broken double-backslash pattern (should be MISSING)" = "docker exec casestrainer-rqworker1-prod grep -c '\\\\s+' /app/src/citation_patterns.py"
 }
 
 # Fallback: verify against local repo when container check returns 0 (e.g. container not running or volume not mounted)
@@ -1245,6 +1406,8 @@ $localVerification = @{
     "OOM fix: gc+malloc_trim in processor (worker)" = @{ Pattern = 'OOM-FIX'; Path = 'src\unified_citation_processor_v2.py' }
     "Verification pipeline (worker)" = @{ Pattern = 'verify_citations_batch'; Path = 'src\verification\master.py' }
     "Clustering master (backend)" = @{ Pattern = 'cluster_citations_unified_master'; Path = 'src\unified_processing_pipeline.py' }
+    "Batch verification: form-encoded CourtListener (worker)" = @{ Pattern = 'data=form_data'; Path = 'src\verification\batch.py' }
+    "Regex: broken double-backslash pattern (should be MISSING)" = @{ Pattern = 're.sub\(r"\\\\s+"'; Path = 'src\citation_patterns.py' }
 }
 
 $allVerified = $true
@@ -1305,7 +1468,8 @@ if ($allVerified) {
     Write-Host ""
     Write-Host "   Volume mount may not be working. Try:" -ForegroundColor Yellow
     Write-Host "      docker-compose -f docker-compose.prod.yml down" -ForegroundColor Gray
-    Write-Host "      docker-compose -f docker-compose.prod.yml up -d" -ForegroundColor Gray
+    Write-Host "      docker rmi casestrainer-backend casestrainer-rqworker" -ForegroundColor Gray
+    Write-Host "      docker-compose -f docker-compose.prod.yml up -d --build" -ForegroundColor Gray
 }
 
 # Final summary
@@ -1325,11 +1489,12 @@ Write-Host "   Healthcheck log: $dockerHealthcheckLogPath" -ForegroundColor Cyan
 Write-Host ""
 
 Write-Host "Next steps:" -ForegroundColor Yellow
-Write-Host "   1. Clear browser cache (Ctrl+Shift+Delete or Incognito)" -ForegroundColor Gray
-Write-Host "   2. Test with fresh document/PDF" -ForegroundColor Gray
-Write-Host "   3. Check logs:" -ForegroundColor Gray
+Write-Host "   1. After verification/batch pipeline code changes, run cslauncher so all $script:WorkerCount workers get the new code" -ForegroundColor Gray
+Write-Host "   2. Clear browser cache (Ctrl+Shift+Delete or Incognito)" -ForegroundColor Gray
+Write-Host "   3. Test with fresh document/PDF" -ForegroundColor Gray
+Write-Host "   4. Check logs:" -ForegroundColor Gray
 Write-Host "      docker logs -f casestrainer-backend-prod | Select-String 'DATE|VERIFY'" -ForegroundColor DarkGray
-Write-Host "   4. If Docker crashes, check diagnostics:" -ForegroundColor Gray
+Write-Host "   5. If Docker crashes, check diagnostics:" -ForegroundColor Gray
 Write-Host "      Get-Content $dockerDiagnosticsLogPath -Tail 100" -ForegroundColor DarkGray
 Write-Host ""
 
