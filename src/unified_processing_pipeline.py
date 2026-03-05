@@ -117,8 +117,10 @@ class UnifiedProcessingPipeline:
         """
         # CRITICAL: Preprocess text BEFORE extraction to remove Cite as headers, etc.
         # Prevents "594 U.S. _ (scotus 2021)" from contaminating Milkovich (497 U.S. 1)
+        logger.info(f"[PIPELINE] process_citations entered, text_len={len(text or '')}")
         from src.input_fetchers import preprocess_extracted_text
         text = preprocess_extracted_text(text or "")
+        logger.info(f"[PIPELINE] preprocess done, text_len={len(text)}")
 
         # Create processing context for tracing
         context = ProcessingContext(

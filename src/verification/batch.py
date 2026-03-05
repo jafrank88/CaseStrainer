@@ -131,7 +131,11 @@ class BatchVerifier:
             # Do NOT call progress_callback here: it can block on Redis and cause "stuck at 10"
             # (we never reach batch_ex.submit for batch 2). Progress is updated only after each batch.
             # Run throttle+HTTP in a sub-thread with per-batch timeout to avoid indefinite hang.
-            with ThreadPoolExecutor(max_workers=1) as batch_ex:
+            # Do NOT use "with ThreadPoolExecutor": shutdown(wait=True) would block forever on a stuck
+            # thread after we've already timed out. Use shutdown(wait=False) on timeout so we continue.
+            batch_ex = ThreadPoolExecutor(max_workers=1)
+            timed_out = False
+            try:
                 future = batch_ex.submit(
                     self._send_batch_request_sync,
                     batch_info,
@@ -158,24 +162,28 @@ class BatchVerifier:
                             batch_info["dates"],
                         )
                     ]
+                    timed_out = True
+            finally:
+                batch_ex.shutdown(wait=not timed_out)
             logger.info(f"[BATCH] Batch {batch_idx + 1}/{len(batches)} done ({n_this} results)")
             for idx, result in zip(batch_info["indices"], batch_results):
                 all_results[idx] = result
-            # Update progress after each batch so UI shows 10, 20, 30... (not stuck at 10)
-            # Run callback with 5s timeout so a slow Redis write never blocks the next batch.
+            # Update progress after each batch so UI shows 10, 20, 30... (not stuck at 10).
+            # Fire-and-forget: run callback in a daemon thread so we never block the batch loop on Redis.
             processed_after = processed_so_far + n_this
             if progress_callback:
-                try:
-                    with ThreadPoolExecutor(max_workers=1) as _cb_ex:
-                        _cb_future = _cb_ex.submit(
-                            progress_callback,
+                def _run_cb():
+                    try:
+                        progress_callback(
                             processed_after,
                             "Verifying",
                             f"Verifying citations... ({processed_after}/{len(citations)} citations)",
                         )
-                        _cb_future.result(timeout=5.0)
-                except (FuturesTimeoutError, Exception) as e:
-                    logger.warning(f"[BATCH] progress_callback (after batch) failed or timed out: {e}")
+                    except Exception as e:
+                        logger.warning(f"[BATCH] progress_callback error: {e}")
+                import threading
+                t = threading.Thread(target=_run_cb, daemon=True)
+                t.start()
             import gc
             gc.collect()
             try:

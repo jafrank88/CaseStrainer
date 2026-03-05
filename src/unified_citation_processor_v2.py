@@ -2563,17 +2563,19 @@ class UnifiedCitationProcessorV2:
             + r")|L\.\s*Ed\.\s*\d*d)"
         )
         # 0a) When the comma is missing but a space remains (e.g. "185 9 P.3d"), use the space to infer
-        #     the break: insert comma so we get "185, 9 P.3d". No ambiguity. Repeat so "81 91 233 P.3d" -> "81, 91, 233 P.3d".
+        #     the break: insert comma so we get "185, 9 P.3d". Single-pass to avoid O(n^2): match full run
+        #     of space-separated digits before reporter and replace all internal spaces with ", " in one go.
         _space_before_rep = r"(?=\s*(?:,\s*\d+)*\s+" + _rep + r"\s+\d+\b)"
-        while True:
-            prev = normalized
-            normalized = re.sub(
-                r"(\d+)\s+(\d+)" + _space_before_rep,
-                r"\1, \2",
-                normalized,
-            )
-            if normalized == prev:
-                break
+
+        def _commaize_digit_run(m: re.Match) -> str:
+            run = m.group(1)
+            return re.sub(r"\s+(\d+)", r", \1", run)
+
+        normalized = re.sub(
+            r"((?:\d+\s+)+\d+)" + _space_before_rep,
+            _commaize_digit_run,
+            normalized,
+        )
         # 0b) Restore lost comma when digits are run together (no space): e.g. "1859 P.3d" -> "185, 9 P.3d".
         #     Reporter-agnostic: page and volume can each be 1–4 digits. Use plausibility to avoid wrong splits.
         def _volume_plausible(vol_str: str, vol_digits: int) -> bool:
@@ -2648,10 +2650,13 @@ class UnifiedCitationProcessorV2:
                     normalized,
                 )
         # Case C: after reporter series (e.g. "Wn. App. 2d 1859 P.3d" -> "2d 185, 9 P.3d")
+        # Bounded prefix to avoid O(n^2) catastrophic backtracking from (.*) on long text.
+        _case_c_prefix = r".{0,2000}?"
         for _v in _vol_order:
             for _p in (1, 2, 3, 4):
                 normalized = re.sub(
-                    r"(.*"
+                    r"("
+                    + _case_c_prefix
                     + _series_or_app
                     + r")\s+(\d{"
                     + str(_p)
@@ -4647,7 +4652,7 @@ class UnifiedCitationProcessorV2:
 
         # Run full-document citation normalization once so all input types (file/text/URL) see the same fixes.
         # Fixes PDF artifacts (e.g. lost comma "81 91233 P.3d" -> "81 91, 233 P.3d") before extraction.
-        # When the source already has commas ("81, 91, 233 P.3d"), these rules are no-ops.
+        # Normalization is now O(n): 0a uses single-pass; Case C uses bounded prefix to avoid backtracking.
         try:
             normalized_text = self._normalize_citation_comprehensive(
                 normalized_text, purpose="general", all_citations=None
@@ -4900,6 +4905,7 @@ class UnifiedCitationProcessorV2:
 
         # ENHANCED: Multi-method extraction with truncation repair and aggressive fallbacks
         # OPTIMIZATION: Cache extraction results by citation position to avoid duplicate work
+        logger.info(f"[UNIFIED_PIPELINE] Starting name-enhancement loop for {len(citations)} citations (can be slow)")
         extraction_cache = {}  # Key: (start_index, end_index), Value: extracted_name
         _wl_diag = "1734066"  # Diagnostic: trace WL 2025 WL 1734066 full-name extraction
         try:
@@ -5357,6 +5363,7 @@ class UnifiedCitationProcessorV2:
         logger.info(
             f"[NAME-DIAG] After enhancement loop: {names_after_enhance}/{len(citations)} citations have non-N/A extracted_case_name"
         )
+        logger.info(f"[UNIFIED_PIPELINE] Name-enhancement loop done, proceeding to Phase 2")
 
         logger.info("[UNIFIED_PIPELINE] Phase 2: Detecting parallel citations")
         citations = self._detect_parallel_citations(citations, text)

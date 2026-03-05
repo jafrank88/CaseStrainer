@@ -276,15 +276,15 @@ class PersistentLogger:
         return self.logger
 
     def attach_main_handler_to_root(self):
-        """Attach the main logger's file handler to the root logger so that all
-        propagating loggers (e.g. src.verification.master, src.unified_citation_processor_v2)
-        write to the same worker log file. Call this only in worker processes."""
+        """Attach the main logger's file and console handlers to the root logger so that all
+        propagating loggers (e.g. src.verification.batch, src.verification.master) write to the
+        same worker log file and to stdout (docker logs). Call this only in worker processes."""
         root = logging.getLogger()
         for h in self.logger.handlers:
-            if isinstance(h, (logging.FileHandler, RotatingFileHandler)):
+            if isinstance(h, (logging.FileHandler, RotatingFileHandler, logging.StreamHandler)):
                 root.addHandler(h)
                 root.setLevel(min(root.level, logging.INFO))
-                return
+        # Do not return after first handler: attach both file and console so BATCH logs appear in docker logs
 
     def get_event_logger(self):
         """Get the event logger"""

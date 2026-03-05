@@ -57,7 +57,10 @@ param(
     [switch]$UpdateDocker,  # Pause service for Docker update, then exit (run again after update)
 
     [Parameter()]
-    [switch]$InstallService  # Install the auto-restart service (requires admin, one-time setup)
+    [switch]$InstallService,  # Install the auto-restart service (requires admin, one-time setup)
+
+    [Parameter()]
+    [switch]$RunFullDocumentTest  # After reload, run scripts/test_full_document_flow.py to verify pipeline
 )
 
 # Note: -Verbose is automatically provided by [CmdletBinding()]
@@ -1502,6 +1505,28 @@ Write-ReloadLog "=== RELOAD COMPLETE ===" "SUCCESS"
 
 # Capture final diagnostics after successful reload
 Invoke-CaptureDockerDiagnostics -Context "Post-Reload Complete"
+
+# Optional: run full-document flow test (upload PDF, poll task_status until done or timeout)
+if ($RunFullDocumentTest) {
+    Write-Host ""
+    Write-Host "Running full-document flow test (upload + poll until done or 15min timeout)..." -ForegroundColor Cyan
+    $testScript = Join-Path $PSScriptRoot "scripts\test_full_document_flow.py"
+    if (-not (Test-Path $testScript)) {
+        Write-Host "Test script not found: $testScript" -ForegroundColor Red
+    } else {
+        try {
+            & python $testScript
+            $testExit = $LASTEXITCODE
+        } catch {
+            Write-Host "Test failed: $_" -ForegroundColor Red
+            $testExit = -1
+        }
+        Write-Host ""
+        Write-Host "To check if batch timeout fired (worker that ran the job):" -ForegroundColor Yellow
+        Write-Host '  docker logs casestrainer-rqworker1-prod --tail 80 2>&1 | Select-String "BATCH|timed out"' -ForegroundColor DarkGray
+        Write-Host "  (repeat for rqworker2-prod ... rqworker6-prod if job ran on another worker)" -ForegroundColor DarkGray
+    }
+}
 
 if ($Verbose) {
     Write-Host "Container Status:" -ForegroundColor Cyan
