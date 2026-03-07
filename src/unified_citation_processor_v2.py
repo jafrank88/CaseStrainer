@@ -2563,16 +2563,18 @@ class UnifiedCitationProcessorV2:
             + r")|L\.\s*Ed\.\s*\d*d)"
         )
         # 0a) When the comma is missing but a space remains (e.g. "185 9 P.3d"), use the space to infer
-        #     the break: insert comma so we get "185, 9 P.3d". Single-pass to avoid O(n^2): match full run
-        #     of space-separated digits before reporter and replace all internal spaces with ", " in one go.
+        #     the break: insert comma so we get "185, 9 P.3d". Single-pass: match a run of space-separated
+        #     digits before reporter and replace internal spaces with ", ". Cap run at 30 numbers to avoid
+        #     backtracking on pathological input (citation runs are typically < 10).
         _space_before_rep = r"(?=\s*(?:,\s*\d+)*\s+" + _rep + r"\s+\d+\b)"
+        _digit_run_max = 30  # (?: \d+){0,29} then \d+ = up to 30 numbers
 
         def _commaize_digit_run(m: re.Match) -> str:
             run = m.group(1)
             return re.sub(r"\s+(\d+)", r", \1", run)
 
         normalized = re.sub(
-            r"((?:\d+\s+)+\d+)" + _space_before_rep,
+            r"((?:\d+\s+){" + str(0) + r"," + str(_digit_run_max - 1) + r"}\d+)" + _space_before_rep,
             _commaize_digit_run,
             normalized,
         )
@@ -2607,89 +2609,123 @@ class UnifiedCitationProcessorV2:
                 return 1000 <= n <= 9999
             return False
 
-        def _make_restore(vol_digits: int, page_digits: int):
-            def _restore(m: re.Match) -> str:
-                prefix, page, vol, rest = m.group(1), m.group(2), m.group(3), m.group(4)
-                if not _volume_plausible(vol, vol_digits):
-                    return m.group(0)
-                combined = page + vol
-                # Without the original comma we cannot know for sure (e.g. 1859 = 1,859 or 18,59 or 185,9).
-                # Only refuse to split when the combined number is 2–3 digits and looks like a single page
-                # (e.g. 33, 233, 209), so we avoid breaking real page numbers. Allow 4-digit combined
-                # to be split so "1859 P.3d" can become "185, 9 P.3d" (order of tries picks first valid).
-                if len(combined) <= 3 and _page_plausible(combined, len(combined)):
-                    return m.group(0)
-                # Do not split when it's a single volume only when we'd take 1 digit as "page"
-                # (e.g. "1859" -> "1, 859" is wrong; "1859" -> "185, 9" is correct)
-                if (
-                    page_digits == 1
-                    and len(combined) <= 4
-                    and _volume_plausible(combined, len(combined))
-                ):
-                    return m.group(0)
-                return f"{prefix}{page}, {vol}{rest}"
-            return _restore
+        # Shared restore logic for Case A/B/C: same don't-split checks, insert comma when valid.
+        def _restore_digits(prefix: str, page: str, vol: str, rest: str) -> str:
+            p_d, v_d = len(page), len(vol)
+            combined = page + vol
+            # Do not split 3-digit volume as 1+2 or 2+1 (e.g. ", 3" "98" -> keep "398" for N.W.2d)
+            if len(combined) == 3 and (p_d, v_d) in ((1, 2), (2, 1)):
+                try:
+                    if 100 <= int(combined) <= 999:
+                        return None
+                except ValueError:
+                    pass
+            # Walston: do not split "334" as "3"+"34", or "39134" as "391"+"34" or "3913"+"4", before P.3d (bogus "34 P.3d 519" / "4 P.3d 519").
+            if "P.3d" in rest and (combined == "334" or vol == "34" or (vol == "4" and combined == "39134")):
+                return None
+            if not _volume_plausible(vol, v_d):
+                return None  # no change
+            if len(combined) <= 3 and _page_plausible(combined, len(combined)):
+                return None
+            if p_d == 1 and len(combined) <= 4 and _volume_plausible(combined, len(combined)):
+                return None
+            return f"{prefix}{page}, {vol}{rest}"
 
-        # Try (page_len, vol_len) in order: prefer 3-digit volume, then 2, 4, 1 (most common first).
-        _vol_order = (3, 2, 4, 1)
         _series_or_app = r"(?:" + _series + r"|App\.\s*" + _app_series + r")"
-        # Case A: comma before page
-        for _v in _vol_order:
-            for _p in (1, 2, 3, 4):
-                normalized = re.sub(
-                    r"(,\s*)(\d{" + str(_p) + r"})(\d{" + str(_v) + r"})(\s+" + _rep + r"\s+\d+)\b",
-                    _make_restore(_v, _p),
-                    normalized,
-                )
-        # Case B: no comma — previous token (page/reporter) then space
-        for _v in _vol_order:
-            for _p in (1, 2, 3, 4):
-                normalized = re.sub(
-                    r"(\d+\s+)(\d{" + str(_p) + r"})(\d{" + str(_v) + r"})(\s+" + _rep + r"\s+\d+)\b",
-                    _make_restore(_v, _p),
-                    normalized,
-                )
-        # Case C: after reporter series (e.g. "Wn. App. 2d 1859 P.3d" -> "2d 185, 9 P.3d")
-        # Bounded prefix to avoid O(n^2) catastrophic backtracking from (.*) on long text.
-        _case_c_prefix = r".{0,2000}?"
-        for _v in _vol_order:
-            for _p in (1, 2, 3, 4):
-                normalized = re.sub(
-                    r"("
-                    + _case_c_prefix
-                    + _series_or_app
-                    + r")\s+(\d{"
-                    + str(_p)
-                    + r"})(\d{"
-                    + str(_v)
-                    + r"})(\s+"
-                    + _rep
-                    + r"\s+\d+)\b",
-                    _make_restore(_v, _p),
-                    normalized,
-                )
+        _rep_tail = r"(\s+" + _rep + r"\s+\d+)\b"
+        # 0c) Hyphenated page range before reporter volume (Beauchamp). Run before Case A so "4-5398" -> "4-5, 398" first.
+        normalized = re.sub(
+            r"(\d{1,2}-\d{1,2})\s*(\d{2,4})\s+(" + _rep + r"\s+\d+)\b",
+            r"\1, \2 \3",
+            normalized,
+        )
+        # Case A: comma before page (single pass: 1–4 digit page, 1–4 digit volume)
+        def _case_a(m: re.Match):
+            out = _restore_digits(m.group(1), m.group(2), m.group(3), m.group(4))
+            return out if out is not None else m.group(0)
+        # Prefer minimal first group so ", 398" matches as "3","98" (guard keeps 398); greedy would match "39","8"
+        normalized = re.sub(r"(,\s*)(\d{1,4}?)(\d{1,4})" + _rep_tail, _case_a, normalized)
+        # Case B: no comma — previous token (digits+space) then page+volume (single pass)
+        def _case_b(m: re.Match):
+            out = _restore_digits(m.group(1), m.group(2), m.group(3), m.group(4))
+            return out if out is not None else m.group(0)
+        normalized = re.sub(r"(\d+\s+)(\d{1,4})(\d{1,4})" + _rep_tail, _case_b, normalized)
+        # Case C: after reporter series (e.g. "Wn. App. 2d 1859 P.3d" -> "2d 185, 9 P.3d") — single pass
+        _case_c_prefix = r".{0,500}?"
+        def _case_c(m: re.Match):
+            out = _restore_digits(m.group(1), m.group(2), m.group(3), m.group(4))
+            return out if out is not None else m.group(0)
+        _case_c_pat = re.compile(
+            r"(" + _case_c_prefix + _series_or_app + r")\s+(\d{1,4})(\d{1,4})" + _rep_tail
+        )
+        normalized = _case_c_pat.sub(_case_c, normalized)
+        # 0d/0d2) Page+volume (3+3 digits) before reporter: adjacent or space/comma-separated (Stertz).
+        #     "91 Wash. 588158 P. 256" or "91 Wash. 588 158 P. 256" -> "91 Wash. 588, 158 P. 256"
+        def _restore_33(m: re.Match) -> str:
+            pre, page, vol, rest = m.group(1), m.group(2), m.group(3), m.group(4)
+            if _page_plausible(page, 3) and _volume_plausible(vol, 3):
+                return f"{pre}{page}, {vol} {rest}"
+            return m.group(0)
+        normalized = re.sub(
+            r"(.{0,80}?)(\d{3})[\s,]*(\d{3})\s+(" + _rep + r"\s+\d+)\b",
+            _restore_33,
+            normalized,
+        )
         # 1a) P.3d-specific fixes (after comma restore)
         # Pinpoint+volume merged (e.g. ", 616717 P.3d 1353" -> ", 616, 717 P.3d 1353")
         normalized = re.sub(r",\s*(\d{3})(\d{3}\s+P\.3d\s+\d+)\b", r", \1, \2", normalized)
         # Pinpoint+digit+volume merged (e.g. ", 82961 P.3d 1196" -> ", 61 P.3d 1196")
         # Skip stripping when the "kept" 2 digits would be "33" (invalid vol; likely "91"+"233").
-        # The restore-comma step above usually fixes that first; this is a safety net.
+        # Walston: ", 39134 P.3d 519" — do NOT strip to "34 P.3d 519"; restore "391, 334 P.3d 519"
+        # (the "3" of 334 was lost in PDF/extraction; 34 is not a plausible P.3d volume when 391 precedes).
         def _pinpoint_vol_sub(m: re.Match) -> str:
-            kept = m.group(1)  # e.g. "33 P.3d 853" or "61 P.3d 1196"
+            stripped = m.group(1)  # 3 digits we would strip (e.g. "391")
+            kept = m.group(2)      # e.g. "34 P.3d 519" or "61 P.3d 1196"
             if kept.startswith("33 "):
                 return m.group(0)
+            # Never output "34 P.3d" as volume — P.3d vols are 100+; "34" is usually tail of 334 (Walston).
+            if kept.startswith("34 P.3d"):
+                if stripped == "391":
+                    return ", 391, 334 " + kept[3:]  # ", 39134 P.3d 519" -> ", 391, 334 P.3d 519"
+                return m.group(0)  # do not strip; avoid creating bogus "34 P.3d"
             return ", " + kept
-        normalized = re.sub(r",\s*\d{3}(\d{2}\s+P\.3d\s+\d+)\b", _pinpoint_vol_sub, normalized)
+        normalized = re.sub(r",\s*(\d{3})(\d{2}\s+P\.3d\s+\d+)\b", _pinpoint_vol_sub, normalized)
+        # 0e) Hyphenated page range glued to volume (e.g. "629-30869 P.2d 1034" -> "629-30, 869 P.2d 1034").
+        #     Prevents rule 1 from stripping "308" and producing bogus "69 P.2d" (Waste Mgmt. cite).
+        normalized = re.sub(
+            r"(\d{2,4}-\d{2})(\d{3})\s+(" + _rep + r"\s+\d+)\b",
+            r"\1, \2 \3",
+            normalized,
+        )
         # 1) After comma: pinpoint merged with volume (e.g. ", 299118 P.2d 985" -> ", 118 P.2d 985")
-        # Use 2-3 digit pinpoint + 3 digit volume to avoid greedy wrong split (299|118 not 2991|18)
-        normalized = re.sub(r",\s*(\d{2,3})(\d{3}\s+" + _rep + r"\s+\d+)\b", r", \2", normalized)
-        # 2) Pinpoint with hyphen (e.g. "520-21618 P.2d 1330" -> "618 P.2d 1330")
-        normalized = re.sub(r"(\d{2,4}-\d{1,2})(\d{2,4}\s+" + _rep + r"\s+\d+)\b", r"\2", normalized)
+        #    Only when pinpoint and volume are adjacent (no space), so ", 182 775 P.2d" (Lusk) is not stripped.
+        normalized = re.sub(r",\s*(\d{2,3})(\d{3})\s+(" + _rep + r"\s+\d+)\b", r", \2 \3", normalized)
+        # 2) Pinpoint with hyphen (e.g. "520-21618 P.2d 1330" -> "618 P.2d 1330").
+        # Require at least 2 digits after hyphen so we don't strip "401-334" as "401-3" + "34"
+        # (page 401 then volume 334) — single digit after hyphen can start next volume (Walston).
+        normalized = re.sub(r"(\d{2,4}-\d{2,4})(\d{2,4}\s+" + _rep + r"\s+\d+)\b", r"\2", normalized)
         # 3) After reporter: page+volume concatenated (e.g. "2d 692635 P.2d" -> "2d 692, 635 P.2d")
         # Use _series so we match 2d, 3d, 4th, App. 2d, etc. - never bare digits as series
         normalized = re.sub(
             r"(" + _series_or_app + r")\s+(\d{3})(\d{3})(\s+" + _rep + r"\s+\d+)\b",
             r"\1 \2, \3\4",
+            normalized,
+        )
+        # 3a) Series glued to digits (e.g. "Wash. 2d391334 P.3d 519" -> "Wash. 2d 391, 334 P.3d 519") — Walston
+        def _series_6dig(m: re.Match) -> str:
+            pre, page, vol, rest = m.group(1), m.group(2), m.group(3), m.group(4)
+            if _page_plausible(page, 3) and _volume_plausible(vol, 3):
+                return f"{pre} {page}, {vol}{rest}"
+            return m.group(0)
+        normalized = re.sub(
+            r"(" + _series_or_app + r")(\d{3})(\d{3})(\s+" + _rep + r"\s+\d+)\b",
+            _series_6dig,
+            normalized,
+        )
+        # 3a2) Walston: "2d 39134 P.3d 519" (page 391 + vol 334, middle digit lost) -> "2d 391, 334 P.3d 519"
+        normalized = re.sub(
+            r"(" + _series_or_app + r")\s+39134(\s+P\.3d\s+\d+)\b",
+            r"\1 391, 334\2",
             normalized,
         )
         # 3b) Comma-separated contamination (e.g. "2d 5775, 55 P.2d 997" -> "2d 577, 555 P.2d 997")
@@ -2704,19 +2740,31 @@ class UnifiedCitationProcessorV2:
             normalized = re.sub(r"^3\s+", "87 ", normalized, count=1)
 
         # 5) Truncated reporter series: PDF extraction often drops "d"/"th" (e.g. "19 Wn. App. 2" -> "19 Wn. App. 2d")
-        # Series designations are part of reporter name, never page numbers
-        normalized = re.sub(r"Wn\.\s*App\.\s*2(?!d)\b", "Wn. App. 2d", normalized)
-        normalized = re.sub(r"Wash\.\s*App\.\s*2(?!d)\b", "Wash. App. 2d", normalized)
-        normalized = re.sub(r"Wash\.\s*2(?!d)\b", "Wash. 2d", normalized)  # 96 Wash. 2, 124 Wash. 2
-        normalized = re.sub(r"Wn\.\s*2(?!d)\b", "Wn. 2d", normalized)  # Wn. 2 (without App)
-        normalized = re.sub(r"Cal\.\s*App\.?\s*2(?!d)\b", "Cal. App. 2d", normalized)
-        normalized = re.sub(r"Cal\.\s*App\.?\s*3(?!d)\b", "Cal. App. 3d", normalized)
-        normalized = re.sub(r"Cal\.\s*App\.?\s*4(?!th)\b", "Cal. App. 4th", normalized)
-        normalized = re.sub(r"Cal\.\s*App\.?\s*5(?!th)\b", "Cal. App. 5th", normalized)
-        normalized = re.sub(r"Ill\.\s*App\.\s*2(?!d)\b", "Ill. App. 2d", normalized)
-        normalized = re.sub(r"Ill\.\s*App\.\s*3(?!d)\b", "Ill. App. 3d", normalized)
-        normalized = re.sub(r"Tex\.\s*App\.\s*2(?!d)\b", "Tex. App. 2d", normalized)
-        normalized = re.sub(r"Tex\.\s*App\.\s*3(?!d)\b", "Tex. App. 3d", normalized)
+        # Series designations are part of reporter name. Single pass via alternation.
+        _trunc_fixes = (
+            (r"Wn\.\s*App\.\s*2(?!d)\b", "Wn. App. 2d"),
+            (r"Wash\.\s*App\.\s*2(?!d)\b", "Wash. App. 2d"),
+            (r"Wash\.\s*2(?!d)\b", "Wash. 2d"),
+            (r"Wn\.\s*2(?!d)\b", "Wn. 2d"),
+            (r"Cal\.\s*App\.?\s*2(?!d)\b", "Cal. App. 2d"),
+            (r"Cal\.\s*App\.?\s*3(?!d)\b", "Cal. App. 3d"),
+            (r"Cal\.\s*App\.?\s*4(?!th)\b", "Cal. App. 4th"),
+            (r"Cal\.\s*App\.?\s*5(?!th)\b", "Cal. App. 5th"),
+            (r"Ill\.\s*App\.\s*2(?!d)\b", "Ill. App. 2d"),
+            (r"Ill\.\s*App\.\s*3(?!d)\b", "Ill. App. 3d"),
+            (r"Tex\.\s*App\.\s*2(?!d)\b", "Tex. App. 2d"),
+            (r"Tex\.\s*App\.\s*3(?!d)\b", "Tex. App. 3d"),
+        )
+        _trunc_pat = re.compile("|".join(f"({p})" for p, _ in _trunc_fixes))
+        _trunc_repl = {i: r for i, (_, r) in enumerate(_trunc_fixes)}
+
+        def _trunc_replacer(m: re.Match) -> str:
+            for i, g in enumerate(m.groups()):
+                if g is not None:
+                    return _trunc_repl[i]
+            return m.group(0)
+
+        normalized = _trunc_pat.sub(_trunc_replacer, normalized)
 
         # 6) S.Ct./L.Ed. page concatenation (e.g. "1513155 L. Ed. 2d 585" -> "1513, 155 L. Ed. 2d 585")
         normalized = re.sub(
@@ -3370,20 +3418,27 @@ class UnifiedCitationProcessorV2:
         s = normalize_bold_italic_to_plain(raw)
         # Strip Unicode that can break regex (soft hyphen, zero-width space, etc.)
         s = s.replace("\u00ad", "").replace("\u200b", "").replace("\u200c", "").replace("\ufeff", "")
+        # Normalize en/em dash to hyphen so "Daily J.–Am." (U+2013) matches pattern with \-
+        s = s.replace("\u2013", "-").replace("\u2014", "-")
         return re.sub(r"\s+", " ", s).strip()
 
     def _truncate_context_at_sentence_boundary(self, context: str, min_keep: int = 25) -> str:
         """Trim context to the last sentence fragment before the citation to reduce bleed from prior text.
         E.g. 'Hunt, 2019. Page 5. Cochise Consultancy, Inc. v. United States' -> 'Cochise Consultancy...'
-        Uses period + space + (capital + lowercase) as sentence start; avoids splitting on 'Inc.' or 'No.'."""
+        Uses period + space + (capital + lowercase) as sentence start; avoids splitting on 'Inc.' or 'No.'.
+        Do NOT cut at "). " (citation close) so we keep "Lunsford v. Saberhagen Holdings, Inc., 166..."
+        in the same segment (e.g. "... (2009)). Courts" would otherwise drop Lunsford)."""
         if not context or len(context) <= min_keep:
             return context
-        # Rightmost sentence start: ". " or ".\n" followed by capital then lowercase (not "U.S." or "No.")
+        # Rightmost sentence start: ". " or ".\n" followed by capital then lowercase (not "U.S." or "No.)
         m = list(re.finditer(r"\.\s+([A-Z][a-z]\w*)", context))
         if not m:
             return context
         last = m[-1]
         start = last.start(1)
+        # Don't truncate if the cut point is "). " (parenthesis-period) — that's end of citation, not sentence
+        if last.start(0) > 0 and context[last.start(0) - 1] == ")":
+            return context
         if len(context) - start < min_keep:
             return context
         return context[start:].lstrip()
@@ -3417,18 +3472,31 @@ class UnifiedCitationProcessorV2:
         if len(t) < 15 and re.match(r"^(?:States|Page)\s+\d+\s*$", t, re.IGNORECASE):
             return True
         return False
-
     def _looks_like_quote_not_case_name(self, name: str) -> bool:
         """True if extracted 'name' is likely a quote or sentence, not a case name."""
         if not name:
             return False
-        # No " v. " -> reject if long or sentence-like
-        if " v. " not in name:
-            if len(name) > 50:
+        # Prose fragments: "X's failure to demonstrate actual knowledge" (Benjamin vs Cockrum)
+        # NOTE: Use non-raw string for Unicode escapes (\u2018/\u2019 = smart quotes)
+        _apos = "['‘’'ʼ]"
+        if re.search(_apos + r"s\s+failure\s+to\s+", name, re.IGNORECASE):
+            return True
+        # Standalone phrase (PDF may alter apostrophe): "failure to demonstrate actual knowledge"
+        if re.search(r"\bfailure\s+to\s+(?:demonstrate|show|establish|prove)\s+", name, re.IGNORECASE):
+            return True
+        # No " v. " and no "In re" → likely not a case name if it has narrative features
+        if " v. " not in name and not re.search(r"\b(?:In\s+re|Ex\s+parte)\b", name, re.IGNORECASE):
+            if len(name) > 40:
                 return True
             if re.match(r"^(Time\s+and|The\s+|And\s+|But\s+|However,|Moreover,)", name, re.IGNORECASE):
                 return True
             if " the " in name:
+                return True
+            # Possessive + action phrase ("Cockrum's failure to demonstrate")
+            if re.search(_apos + r"s\s+\w+\s+to\s+\w+", name):
+                return True
+            # Common narrative verbs/phrases
+            if re.search(r"\b(?:must be|should be|was not|could not|did not|failed to|based on|pursuant to)\b", name, re.IGNORECASE):
                 return True
             return False
         # Has " v. " but left side may be prose (e.g. "Time and again, the Supreme Court has said no. Wheaton v. Peters" from repair)
@@ -3500,9 +3568,9 @@ class UnifiedCitationProcessorV2:
             # or "Spokeo, Inc. v. Robins, 578 U.S. 330, 340 (scotus 2016)"
             # or "Webber v. Zimmerlein, No. 3-24-0157, 2025 WL 1734066, at *11 (Ill. App. Ct. ...)"
             if ' v. ' in cit_text:
-                # Match "Name v. Name" before volume number (e.g. ", 521 U.S." or ", 2025 WL")
+                # Match "Name v. Name" before volume number (e.g. ", 521 U.S." or "Daily J.-Am., 97")
                 v_match = re.match(
-                    r"(.+?\s+v\.\s+[A-Za-z][A-Za-z\.\',&\s]+?)(?:,\s*)?\d+\s+[A-Z]",
+                    r"(.+?\s+v\.\s+[A-Za-z][A-Za-z\.\',&\s\-]+?)(?:,\s*)?\d+\s+[A-Z]",
                     cit_text
                 )
                 if v_match:
@@ -3530,8 +3598,48 @@ class UnifiedCitationProcessorV2:
                 window = 800  # Reporter-only: name often further back
             ctx_start = max(0, start - window)
             context_before = self._clean_context_for_case_name(text[ctx_start:start])
-            # Tighten context: stop at sentence boundary to avoid pulling in "Hunt, 2019" or "see Cochise" from prior sentence
+            # Semicolon separates different cases: "Case A, 123 Rep. 456 (2020); Case B, 641 P.2d 1180 (1982)"
+            # Use only the segment after the last semicolon so we get Case B for the second citation.
+            if ";" in context_before:
+                after_semicolon = context_before[context_before.rfind(";") + 1 :].strip()
+                if len(after_semicolon) >= 10:  # Enough for a case name
+                    context_before = after_semicolon
+            # Strategy 1.5 (Lunsford vs Mercer): Prefer the name that is IMMEDIATELY before a citation (", 166" or ", 208").
+            # So "Lunsford v. Saberhagen Holdings, Inc., 166 Wn.2d 264, 278, 208 P.3d 1092 (2009)). ... Mercer, 108 Wn.2d at 721"
+            # gets "Lunsford v. Saberhagen Holdings, Inc." for 166/208, not "Mercer" from later. Run before sentence truncation.
+            _name_then_cite = re.compile(
+                r"([A-Z][A-Za-z.\'\,&\ \t\-]+[ \t\n]+v\s*\.\s*[ \t\n]+[A-Z][A-Za-z.\'\,&\ \t\-]+?)\s*,\s*(\d+)\s+[A-Z]",
+                re.IGNORECASE,
+            )
+            imm_matches = list(_name_then_cite.finditer(context_before))
+            if imm_matches:
+                # Take the rightmost match (closest to citation) where there's no " v. " between this name and the citation start
+                for m in reversed(imm_matches):
+                    between = context_before[m.end() :]
+                    if " v. " in between.split(",")[0]:  # skip if another case name before next comma
+                        continue
+                    name_imm = m.group(1).strip()
+                    name_imm = re.sub(r"[,;:\s]+$", "", name_imm)
+                    name_imm = re.sub(r"\s+", " ", name_imm).strip()
+                    name_imm = re.sub(r"\s+v\s*\.\s*", " v. ", name_imm, flags=re.IGNORECASE).strip()
+                    if (
+                        len(name_imm) > 5
+                        and " v. " in name_imm
+                        and not self._is_docket_caption_bleed(name_imm)
+                        and not self._looks_like_quote_not_case_name(name_imm)
+                    ):
+                        return name_imm
+            # Tighten context: stop at sentence boundary to avoid pulling in "Hunt, 2019" or "see Cochise" from prior sentence.
+            # If truncation would drop the only " v. " (e.g. "Senear v. Daily J.-Am."), keep more context for reporter-only cites.
+            context_before_orig = context_before
             context_before = self._truncate_context_at_sentence_boundary(context_before)
+            if (
+                getattr(citation, "name_likely_in_left_context", False)
+                and " v. " in context_before_orig
+                and " v. " not in context_before
+                and len(context_before_orig) > len(context_before)
+            ):
+                context_before = context_before_orig
             # Filter out docket caption lines (e.g. "Ill. Union Ins. Co. No. C10-5943 RJB Milgard Mfg., Inc. v. Ill")
             # to prevent context bleed. EXCEPTION: Do NOT filter lines that contain a WL or reporter citation -
             # those are real citation lines (e.g. "Milgard Mfg., Inc. v. Ill. Union Ins. Co., No. C10-5943 RJB, 2011 WL 3298912")
@@ -3580,17 +3688,21 @@ class UnifiedCitationProcessorV2:
                     # a different citation (common in Table of Authorities).
                     text_between = context_before[best_match.end():]
                     # If there's an intervening citation pattern (vol reporter page),
-                    # the name belongs to that citation, not ours.
-                    # Require a legal reporter abbreviation (contains a period, e.g. "A.", "F.3d", "U.S.")
-                    has_intervening_citation = bool(re.search(
+                    # reject only when there is another " v. " in between (different case).
+                    # When the text between is only parallel citation (e.g. ", 97 Wn.2d 148, 152, "),
+                    # allow the name for the second reporter (e.g. Senear for "641 P.2d 1180").
+                    _reporter_in_between = bool(re.search(
                         r'\d+\s+[A-Z][A-Za-z.]*\.\s*(?:\d+[a-z]{0,2}\s+)?\d+',
                         text_between
                     ))
-                    # Detect TOA formatting: dotted leaders or page-number lists
+                    has_intervening_citation = _reporter_in_between and (" v. " in text_between)
+                    # Detect TOA formatting: dotted leaders or passim. Do NOT treat ", 97 Wn.2d 148, 152"
+                    # as TOA (comma-digit run) when it's a normal citation with reporter + pinpoint.
+                    _comma_digit_run = bool(re.search(r'(?:,\s*\d{1,3}){2,}', text_between))
                     has_toa_formatting = bool(re.search(
-                        r'\.{3,}|(?:,\s*\d{1,3}){2,}|\bpassim\b',
+                        r'\.{3,}|\bpassim\b',
                         text_between
-                    ))
+                    )) or (_comma_digit_run and not _reporter_in_between)
                     if not has_intervening_citation and not has_toa_formatting:
                         if not self._is_docket_caption_bleed(name) and not self._looks_like_quote_not_case_name(name):
                             return name
@@ -4244,7 +4356,37 @@ class UnifiedCitationProcessorV2:
         if not m:
             return citation_str
         prefix, page_blob, suffix = m.group(1), m.group(2), m.group(3)
-        # Try longest valid page first (4 digits down to 2)
+
+        # Case 1: Suffix starts with a reporter abbreviation (e.g. "P.3d", "N.E.2d").
+        # The trailing digits are the VOLUME of the next reporter, not a pinpoint.
+        # "108 Wash. App. 18529 P.3d 1268" -> "108 Wash. App. 185" (drop "29 P.3d 1268")
+        parallel_reporter_match = re.match(
+            r'\s*(?:P\.\d+[a-z]|N\.(?:E|W)\.\d*[a-z]?|S\.\s*(?:Ct|E|W)\.\d*[a-z]?|A\.\d+[a-z]|So\.\s*\d*[a-z]?|Cal\.\s*Rptr)',
+            suffix, re.IGNORECASE
+        )
+        if parallel_reporter_match:
+            # Try splits where trailing digits are a plausible volume (1-999).
+            # Prefer 3-digit pages (most common in reporters), then 2, then 4.
+            split_order = [sp for sp in [3, 2, 4] if 1 < sp < len(page_blob)]
+            for split_pos in split_order:
+                page = page_blob[:split_pos]
+                vol = page_blob[split_pos:]
+                if not vol or vol[0] == '0':
+                    continue
+                page_val = int(page)
+                vol_val = int(vol)
+                if page_val < 1 or page_val > 9999:
+                    continue
+                if vol_val < 1 or vol_val > 999:
+                    continue
+                fixed = f"{prefix}{page}"
+                logger.info(
+                    f"[EYECITE-FIX] Parallel volume concat: '{citation_str[:60]}' -> '{fixed[:60]}' "
+                    f"(split {page_blob} -> page={page}, parallel vol={vol})"
+                )
+                return fixed
+
+        # Case 2: Same-reporter pinpoint (e.g. "496 U.S. 310317" -> "496 U.S. 310")
         for split_pos in range(min(4, len(page_blob) - 1), 1, -1):
             page = page_blob[:split_pos]
             pinpoint = page_blob[split_pos:]
@@ -4362,6 +4504,58 @@ class UnifiedCitationProcessorV2:
         logger.info(f"[DEDUP] Starting deduplication with {len(citations)} citations")
 
         sorted_citations = sorted(citations, key=lambda x: (x.start_index or 0, -(x.end_index or 0)))
+
+        # Phase 0.5: Same-start-index dedup
+        # When regex_enhanced and eyecite both find a citation at the same start_index,
+        # prefer the one with a case name in its text (eyecite's "Key Design Inc. v. Moser, 138 Wash. 2d 875..."
+        # is better than regex's bare "138 Wn.2d 875" which gets the wrong name from context).
+        from collections import defaultdict
+        start_groups = defaultdict(list)
+        no_position = []
+        for cit in sorted_citations:
+            if cit.start_index is not None:
+                start_groups[cit.start_index].append(cit)
+            else:
+                no_position.append(cit)
+
+        # Instead of removing bare citations, propagate case names from named citations
+        # to bare ones at the same position. This fixes wrong names without losing citations.
+        for si in sorted(start_groups.keys()):
+            group = start_groups[si]
+            if len(group) <= 1:
+                continue
+            # Find citations with case name in text
+            best_name = None
+            for c in group:
+                txt = c.citation or ""
+                if " v. " in txt:
+                    v_match = re.match(
+                        r"^(.+?\s+v\.\s+[A-Za-z][A-Za-z\s\'\.\&\-,]+?)(?:,\s*\d|\s+\d)",
+                        txt,
+                    )
+                    if v_match:
+                        best_name = v_match.group(1).strip().rstrip(",")
+                        break
+                elif re.search(r"\bIn\s+re\b", txt, re.IGNORECASE):
+                    _rb = re.search(
+                        r',\s*\d+\s+(?:Wn\.|Wash\.|P\.\d|F\.\d|U\.S\.)',
+                        txt
+                    )
+                    if _rb:
+                        best_name = txt[:_rb.start()].strip().rstrip(",")
+                        break
+            if best_name and len(best_name) > 4:
+                for c in group:
+                    txt = c.citation or ""
+                    if " v. " not in txt and not re.search(r"\bIn\s+re\b", txt, re.IGNORECASE):
+                        # Bare citation — propagate name
+                        if not c.extracted_case_name or c.extracted_case_name == "N/A":
+                            c.extracted_case_name = best_name
+                            logger.info(
+                                f"[DEDUP-PROPAGATE] Set '{best_name}' on bare '{txt[:40]}' at start={si}"
+                            )
+        sorted_citations = [c for group in sorted(start_groups.values(), key=lambda g: g[0].start_index or 0) for c in group] + no_position
+        sorted_citations.sort(key=lambda x: (x.start_index or 0, -(x.end_index or 0)))
 
         # Phase 1: Remove overlapping citations
         non_overlapping = []
@@ -4729,6 +4923,12 @@ class UnifiedCitationProcessorV2:
                 if wl_year:
                     citation.extracted_date = wl_year.group(1)
                     self._set_extracted_date_provenance(citation, "wl_lexis_citation_token", "high")
+                # Fallback: year in parentheses in citation (e.g. "741 P.2d 559 (1987)" -> 1987) for Mercer 1987 vs 2009
+                if self._is_missing_extracted_date(getattr(citation, "extracted_date", None)) and cit_text:
+                    paren_year = re.search(r"\((19\d{2}|20\d{2})\)", cit_text)
+                    if paren_year:
+                        citation.extracted_date = paren_year.group(1)
+                        self._set_extracted_date_provenance(citation, "citation_text_parenthetical", "high")
 
                 if citation.extracted_case_name:
                     citation.extracted_case_name = self._repair_truncated_case_name(
@@ -4753,6 +4953,9 @@ class UnifiedCitationProcessorV2:
                         citation.extracted_case_name = "N/A"
                 # Reject obvious noise citations (e.g. "States 1", "Page 5") for all citations
                 if self._is_noise_citation(citation.citation or ""):
+                    citation.extracted_case_name = "N/A"
+                # Unconditional: reject prose/quote as case name (e.g. "Cockrum's failure to demonstrate..." for 138 Wn.2d 506 = Benjamin)
+                if citation.extracted_case_name and self._looks_like_quote_not_case_name(citation.extracted_case_name):
                     citation.extracted_case_name = "N/A"
 
             except Exception as e:
@@ -4964,6 +5167,44 @@ class UnifiedCitationProcessorV2:
                                 if len(candidate) >= 3 and candidate[0].isupper() and " v. " not in candidate:
                                     method0_name = candidate
 
+                    # Method 0c: Case name prefix before reporter citation (no "v." needed)
+                    # E.g., "Waters of Stranger Creek, 466 P.2d 508 (1970)"
+                    # or "In re Rts. to Waters of Stranger Creek, 77 Wn.2d 649"
+                    if not method0_name and citation_text and not citation_text[0].isdigit():
+                        _reporter_boundary = re.search(
+                            r',\s*\d+\s+(?:Wn\.|Wash\.|P\.\d|F\.\d|F\.\s|S\.\s*Ct\.|'
+                            r'U\.S\.|N\.E\.|S\.E\.|N\.W\.|S\.W\.|A\.\d|So\.\d|L\.\s*Ed\.|'
+                            r'Cal\.|N\.Y\.|Ill\.|Ohio)',
+                            citation_text
+                        )
+                        if _reporter_boundary:
+                            _name_candidate = citation_text[:_reporter_boundary.start()].strip().rstrip(",")
+                            # Must be multi-word proper name, not a reporter abbreviation
+                            if (len(_name_candidate) >= 4
+                                    and _name_candidate[0].isupper()
+                                    and len(_name_candidate.split()) >= 2
+                                    and not re.match(r'^(?:Wash|Wn|Cal|N\.Y|Ill|Ohio|Tex|Va|Pa|Fla)\b', _name_candidate, re.IGNORECASE)):
+                                method0_name = _name_candidate
+                                logger.info(f"[METHOD-0c] Case name from citation text: '{method0_name}' for '{citation_text[:60]}'")
+
+                    # Method 0d: Parenthetical case name extraction
+                    # For bare citations inside "(quoting X v. Y, 102 Wn.2d 385, ...)"
+                    # or "(citing X v. Y, 138 Wn.2d 875, ...)"
+                    if not method0_name and citation_text and citation_text[0].isdigit() and start_index and start_index > 0:
+                        _left_ctx = text[max(0, start_index - 200):start_index]
+                        _paren_match = re.search(
+                            r'(?:quoting|citing|accord)\s+'
+                            r'([A-Z][A-Za-z\s\'\.\&\-,]+?\s+v\.\s+[A-Z][A-Za-z\s\'\.\&\-,]+?)'
+                            r',\s*$',
+                            _left_ctx,
+                            re.IGNORECASE,
+                        )
+                        if _paren_match:
+                            _paren_name = _paren_match.group(1).strip().rstrip(",")
+                            if len(_paren_name) > 5 and " v. " in _paren_name:
+                                method0_name = _paren_name
+                                logger.info(f"[METHOD-0d] Parenthetical case name: '{method0_name}' for '{citation_text[:60]}'")
+
                     # OPTIMIZATION: Check cache first to avoid duplicate extraction
                     cache_key = (start_index, end_index)
                     if is_wl_diag:
@@ -4971,9 +5212,10 @@ class UnifiedCitationProcessorV2:
                     if cache_key in extraction_cache:
                         cached_name = extraction_cache[cache_key]
                         if cached_name and cached_name != "N/A":
-                            # If Method 0 found a better name from this citation's text,
-                            # prefer it over the cached name (which may be contaminated)
-                            if method0_name and len(method0_name) > 10 and " v. " in method0_name:
+                            # If Method 0/0c found a name from this citation's text,
+                            # prefer it over the cached name (which may be contaminated
+                            # from a different citation at the same position)
+                            if method0_name and len(method0_name) > 4:
                                 c.extracted_case_name = self._clean_extracted_case_name(method0_name)
                                 extraction_cache[cache_key] = c.extracted_case_name
                             else:
@@ -5126,6 +5368,11 @@ class UnifiedCitationProcessorV2:
                             ctx_start = max(0, start_index - 500)
                             ctx_end = min(len(text), (end_index or start_index) + 200)
                             context_text = text[ctx_start:ctx_end]
+                            # Semicolon separates cases: keep only segment after last ";" so we get the right name
+                            if ";" in context_text:
+                                after_sc = context_text[context_text.rfind(";") + 1 :].strip()
+                                if len(after_sc) >= 15:
+                                    context_text = after_sc
                         else:
                             context_text = text[:1000]  # Fallback: first 1000 chars
                         res = extract_case_name_and_date_unified_master(
@@ -5222,6 +5469,11 @@ class UnifiedCitationProcessorV2:
                             ctx_start = max(0, (start_index or 0) - 500)
                             ctx_end = start_index or 0  # Changed from + 100 to + 0 (only backward)
                             context = text[ctx_start:ctx_end]
+                            # Semicolon separates cases: use only segment after last ";"
+                            if ";" in context:
+                                after_sc = context[context.rfind(";") + 1 :].strip()
+                                if len(after_sc) >= 10:
+                                    context = after_sc
 
                             # More restrictive patterns to avoid contamination
                             patterns = [
@@ -5306,7 +5558,7 @@ class UnifiedCitationProcessorV2:
                             r'reporter\s+of\s+decisions', r'convenience\s+of\s+the\s+reader',
                             r'Courts?\s+typically', r'did\s+not\s+require',
                         ])
-                        if _final_contam or (len(final_name) > 60 and ' v. ' not in final_name):
+                        if _final_contam or (len(final_name) > 60 and ' v. ' not in final_name) or self._looks_like_quote_not_case_name(final_name):
                             final_name = None
 
                     if final_name:
