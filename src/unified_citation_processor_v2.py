@@ -348,6 +348,10 @@ class UnifiedCitationProcessorV2:
             # N.E.2d (Ohio, Ill., etc.), N.W.2d (Nebraska, etc.), A.2d already exists
             "ne2d": re.compile(r"\b(\d+)\s+N\.E\.2d\s+(\d+)\b", re.IGNORECASE),
             "nw2d": re.compile(r"\b(\d+)\s+N\.W\.2d\s+(\d+)\b", re.IGNORECASE),
+            # Military Justice (not supported by eyecite)
+            "mj": re.compile(r"\b(\d+)\s+M\.J\.\s+(\d+)\b"),
+            # 6th Circuit FED App citation (e.g. 2001 FED App. 0138P)
+            "fed_app_six": re.compile(r"\b(\d{4})\s+FED\s+App\.?\s+([0-9][0-9a-zA-Z]*)\b", re.IGNORECASE),
             # Federal district docket citations (e.g. King v. Ortiz, 17 Cv 7507 (F.DNY May 2, 2019))
             "federal_docket": re.compile(
                 r"\b(\d{2})\s+Cv\.?\s+(\d{4,})\s*\(\s*(?:F\.?D\.?NY|S\.?D\.?NY|E\.?D\.?|W\.?D\.?|N\.?D\.?|M\.?D\.?)\s*[^)]*\d{4}\s*\)",
@@ -4991,6 +4995,8 @@ class UnifiedCitationProcessorV2:
             "neutral_ms_year",  # Mississippi: 2024 Miss. 1
             "neutral_nm",       # New Mexico: 2024-NMSC-001, 2024-NMCA-001
             "neutral_nc",       # North Carolina: 2024-NCSC-1, 2024-NCCOA-1
+            "mj",               # Military Justice - 45 M.J. 491
+            "fed_app_six",      # 6th Cir. FED App - 2001 FED App. 0138P
         ]
 
         for pattern_name in priority_patterns:

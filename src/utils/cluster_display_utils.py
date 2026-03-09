@@ -13,11 +13,17 @@ from src.utils.verification_display_utils import (
 )
 from src.utils.case_name_cleaner import clean_extracted_case_name
 from src.utils.extraction_cleaner import normalize_to_ascii_display
+from src.extraction.validation import is_valid_case_name
+from src.utils.strict_context_isolator import is_citation_fragment_not_case_name
+from src.utils.same_case import names_are_same_case
 
 # Signal phrases to strip from case names (shared with rq_worker display processing)
-SIGNAL_PHRASE_PATTERNS = [
-    r"^See,?\s+",
-    r"^See\s+also\s+",
+_SIGNAL_PHRASES = [
+    "see also",
+    "but see",
+    "see",
+    "but",
+    "also",
     r"^But\s+see\s+",
     r"^Accord\s+",
     r"^Compare\s+",
@@ -30,6 +36,82 @@ SIGNAL_PHRASE_PATTERNS = [
 _TRUNCATED_PARTY_PREFIXES = ("co", "co.", "inc", "inc.", "llc", "ltd", "ltd.", "corp", "corp.", "corporation")
 
 
+def _is_bad_submitted_name(name: str) -> bool:
+    """Reject names that are not suitable for display as submitted/extracted case names.
+    Catches fragments, reporter text, court names, and other non-case-name strings."""
+    if not name or not isinstance(name, str):
+        return True
+    s = name.strip()
+    if not s or s == "N/A":
+        return True
+    # Too short to be meaningful
+    if len(s) < 5:
+        return True
+    # Pure citation text (e.g. "159 Wn.2d 700", "726 N.W.2d 852", "45 M.J. 491")
+    if re.match(
+        r"^\d+\s+(?:"
+        r"U\.S\.|S\.\s*Ct\.|L\.\s*Ed"
+        r"|F\.(?:\d*d|\d*th|[\s]*Supp|[\s]*App|[\s]*R\.D\.|[\s]*Cas\.)"
+        r"|Fed\.\s*(?:Cl\.|App|Appx?\.)"
+        r"|Ct\.\s*Cl\.|Cl\.\s*Ct\."
+        r"|B\.R\.|T\.C\.|M\.J\.|F\.R\.D\."
+        r"|Wn\.|Wash\.|P\.(?:\d*d|[\s]*\d)"
+        r"|A\.(?:\d*d|[\s]*\d)|N\.Y\."
+        r"|N\.E\.|N\.W\.|S\.E\.|S\.W\.|So\."
+        r"|Cal\.|Or\.|Ill\.|Tex\.|Fla\.|Va\."
+        r"|Ohio|Mich\.|Pa\.|Mass\."
+        r")",
+        s,
+    ):
+        return True
+    # Pure numbers or reporter-like strings
+    if re.match(r"^[\d\s,.\-]+$", s):
+        return True
+    # Court procedural text
+    if re.match(r"^(?:Supreme Court|Court of Appeals|Superior Court|District Court|Circuit Court)", s, re.IGNORECASE):
+        return True
+    # Opinion/judge contamination
+    bad_phrases = ("opinion of the court", "j., dissenting", "j., concurring", "c.j.,", "per curiam")
+    if any(b in s.lower() for b in bad_phrases):
+        return True
+    # Sentence-like text contamination: if text before "v." is too long (>80 chars),
+    # it's likely document narrative captured as a case name, not an actual party name.
+    # E.g. "All evidence must be viewed in the light most favorable to the nonmoving party. Clements v. Travel"
+    v_match = re.search(r"\bv\.\s+", s)
+    if v_match and v_match.start() > 80:
+        return True
+    # Multiple sentences (periods followed by uppercase) indicate narrative text, not a case name
+    if re.search(r"\.\s+[A-Z][a-z].*\bv\.\s+", s):
+        return True
+    # Excessively long names (>120 chars) are almost certainly contaminated
+    if len(s) > 120:
+        return True
+    # ---- Narrative text without case-name structure ----
+    # Real case names contain "v." or "In re" / "Ex parte" / "In the Matter of" / "Estate of".
+    # Text that lacks ALL of these indicators and contains narrative signals is not a case name.
+    _has_case_structure = bool(
+        re.search(r"\bv\.\s", s)
+        or re.search(r"\b(?:In\s+re|Ex\s+parte|In\s+the\s+Matter\s+of|Estate\s+of)\b", s, re.IGNORECASE)
+    )
+    if not _has_case_structure:
+        # Possessive + abstract noun/verb phrase (e.g. "Cockrum's failure to demonstrate")
+        if re.search(r"'s\s+\w+\s+to\s+\w+", s):
+            return True
+        # Infinitive phrases ("failure to demonstrate", "right to appeal")
+        if re.search(r"\b(?:failure|ability|right|duty|obligation|attempt|refusal|decision|order)\s+to\s+\w+", s, re.IGNORECASE):
+            return True
+        # Common narrative verbs/patterns that never appear in party names
+        if re.search(r"\b(?:must be|should be|was not|were not|could not|did not|does not|cannot|failed to|based on|pursuant to)\b", s, re.IGNORECASE):
+            return True
+        # Looks like a clause: contains possessive 's followed by a common noun
+        if re.search(r"'s\s+(?:failure|refusal|ability|decision|motion|claim|argument|request|right|knowledge|conduct)\b", s, re.IGNORECASE):
+            return True
+    # Use imported validators for deeper checks
+    if is_citation_fragment_not_case_name(s):
+        return True
+    return False
+
+
 def _repair_truncated_llc(name: Optional[str]) -> str:
     """Fix truncated LLC: ', LL' at end -> ', LLC' (e.g. CFPB v. Consumer First Legal Group, LL)."""
     if not name or not isinstance(name, str):
@@ -38,6 +120,34 @@ def _repair_truncated_llc(name: Optional[str]) -> str:
     if re.search(r",\s*LL\s*$", s):
         s = re.sub(r",\s*LL\s*$", ", LLC", s)
     return s
+
+
+def _fix_all_caps_words(name: Optional[str]) -> str:
+    """Title-case ALL CAPS words from CourtListener canonical names.
+
+    E.g. "Marks v. DISTRICT COURT, ETC." → "Marks v. District Court, Etc."
+    Preserves known abbreviations (LLC, II, etc.) and dotted abbrevs (D.O., U.S.).
+    """
+    if not name:
+        return name or ""
+    _KEEP = frozenset({
+        'LLC', 'LLP', 'LP', 'PC', 'PA', 'USA', 'US',
+        'II', 'III', 'IV', 'VI', 'VII', 'VIII', 'IX', 'XI', 'XII',
+    })
+    words = name.split()
+    result = []
+    for w in words:
+        core = re.sub(r'[,;:]+$', '', w)
+        # Skip dotted abbreviations (D.O., U.S.C., L.L.C.)
+        if re.search(r'\.\w', core):
+            result.append(w)
+            continue
+        bare = core.rstrip('.')
+        if bare.isupper() and len(bare) >= 2 and bare not in _KEEP:
+            result.append(w[0] + w[1:].lower())
+        else:
+            result.append(w)
+    return ' '.join(result)
 
 
 def _normalize_display_name_comma_spacing(name: Optional[str]) -> str:
@@ -55,8 +165,8 @@ def strip_signal_phrases(name: Optional[str]) -> Optional[str]:
     """Remove leading signal phrases from a case name."""
     if not name or name == "N/A":
         return name
-    for pattern in SIGNAL_PHRASE_PATTERNS:
-        name = re.sub(pattern, "", name, flags=re.IGNORECASE).strip()
+    for phrase in _SIGNAL_PHRASES:
+        name = re.sub(phrase, "", name, flags=re.IGNORECASE).strip()
     return name
 
 
@@ -184,9 +294,11 @@ def get_best_extracted_name(cluster: Dict[str, Any]) -> str:
         # Apply normalization to fix soft hyphen artifacts like "Swin dle" -> "Swindle"
         cleaned = strip_signal_phrases(name) or name
         cleaned = normalize_case_name(cleaned)
+        if _is_bad_submitted_name(cleaned):
+            continue
         if _looks_truncated_extracted_name(cleaned):
             repaired = _recover_truncated_name_from_context(cit, cleaned)
-            if repaired:
+            if repaired and not _is_bad_submitted_name(repaired):
                 valid_names.append(repaired)
             else:
                 truncated_names.append(cleaned)
@@ -198,7 +310,11 @@ def get_best_extracted_name(cluster: Dict[str, Any]) -> str:
     if truncated_names:
         return max(truncated_names, key=len)
     fallback = cluster.get("extracted_case_name") or cluster.get("submitted_display_name") or "N/A"
-    return normalize_case_name(fallback) if fallback and fallback != "N/A" else fallback
+    if fallback and fallback != "N/A":
+        fallback = normalize_case_name(fallback)
+        if not _is_bad_submitted_name(fallback):
+            return fallback
+    return "N/A"
 
 
 def get_representative_verified_citation(cluster: Dict[str, Any]) -> Optional[Any]:
@@ -312,21 +428,21 @@ def get_representative_submitted_citation(cluster: Dict[str, Any]) -> Optional[A
                 em = re.search(r"(19|20)\d{2}", ed)
                 if em and abs(int(em.group(0)) - can_year) <= 1:
                     en = str(c.get("extracted_case_name") or "").strip()
-                    if en and en != "N/A":
+                    if en and en != "N/A" and not _is_bad_submitted_name(en):
                         return c
 
     rep = get_representative_verified_citation(cluster)
     if isinstance(rep, dict):
         en = str(rep.get("extracted_case_name") or "").strip()
         ed = str(rep.get("extracted_date") or "").strip()
-        if en and en != "N/A" and ed and ed != "N/A":
+        if en and en != "N/A" and ed and ed != "N/A" and not _is_bad_submitted_name(en):
             return rep
 
     for c in cits:
         if _is_diagnostic_candidate_citation(c):
             en = str(c.get("extracted_case_name") or "").strip()
             ed = str(c.get("extracted_date") or "").strip()
-            if en and en != "N/A" and ed and ed != "N/A":
+            if en and en != "N/A" and ed and ed != "N/A" and not _is_bad_submitted_name(en):
                 return c
 
     best = None
@@ -334,7 +450,7 @@ def get_representative_submitted_citation(cluster: Dict[str, Any]) -> Optional[A
     for c in cits:
         en = str(c.get("extracted_case_name") or "").strip()
         ed = str(c.get("extracted_date") or "").strip()
-        if not en or en == "N/A":
+        if not en or en == "N/A" or _is_bad_submitted_name(en):
             continue
         score = len(en) + (1000 if (ed and ed != "N/A") else 0)
         if score > best_score:
@@ -575,7 +691,7 @@ def apply_display_fields_to_cluster(cluster: Dict[str, Any]) -> None:
             context_year = _context_year_for_display(rep_sub)
             if context_year:
                 rep_date = context_year
-        if rep_name and rep_name != "N/A":
+        if rep_name and rep_name != "N/A" and not _is_bad_submitted_name(rep_name):
             cluster["submitted_display_name"] = _normalize_display_name_comma_spacing(normalize_case_name(rep_name))
         else:
             cluster["submitted_display_name"] = get_best_extracted_name(cluster)
@@ -589,6 +705,81 @@ def apply_display_fields_to_cluster(cluster: Dict[str, Any]) -> None:
     cluster["submitted_display_name"] = _normalize_display_name_comma_spacing(
         str(cluster.get("submitted_display_name") or "")
     )
+    # Prefer longer cluster_case_name when submitted_display_name is a truncated version
+    _sdn = (cluster.get("submitted_display_name") or "").strip()
+    _ccn = (cluster.get("cluster_case_name") or "").strip()
+    if _sdn and _ccn and len(_ccn) > len(_sdn) and not _is_bad_submitted_name(_ccn):
+        # Check same case by first party match
+        _sdn_fp = re.split(r"\s+v\.?\s+", _sdn, maxsplit=1, flags=re.IGNORECASE)
+        _ccn_fp = re.split(r"\s+v\.?\s+", _ccn, maxsplit=1, flags=re.IGNORECASE)
+        if (len(_sdn_fp) >= 2 and len(_ccn_fp) >= 2
+                and _sdn_fp[0].strip().lower().rstrip(".") == _ccn_fp[0].strip().lower().rstrip(".")):
+            cluster["submitted_display_name"] = _normalize_display_name_comma_spacing(
+                normalize_case_name(_ccn)
+            )
+
+    # --- Additional display name upgrades ---
+    _sdn = (cluster.get("submitted_display_name") or "").strip()
+    _ccn = (cluster.get("cluster_case_name") or "").strip()
+    _can = (cluster.get("canonical_name") or "").strip()
+    _best_alt = ""
+    # Pick best available alternative: canonical_name > cluster_case_name
+    for _alt in [_can, _ccn]:
+        if _alt and _alt != "N/A" and not _is_bad_submitted_name(_alt) and " v. " in _alt:
+            _best_alt = _alt
+            break
+
+    if _sdn and _best_alt and _sdn != _best_alt:
+        _needs_upgrade = False
+        # (a) Fragment: submitted starts with corporate suffix before "v."
+        if _looks_truncated_extracted_name(_sdn):
+            _needs_upgrade = True
+        # (b) Contaminated: submitted contains reporter abbreviations with numbers (citation text leaked in)
+        if not _needs_upgrade and re.search(
+            r"\d+\s+(?:Wn\.|Wash\.|P\.\d|N\.W\.\d|A\.\d|S\.W\.\d|S\.E\.\d|So\.\d|N\.E\.\d|F\.\d|U\.S\.|S\.\s*Ct\.|L\.\s*Ed|Conn\.\s*App\.|Conn\.\s*Supp|Neb\.|Or\.)",
+            _sdn, re.IGNORECASE
+        ):
+            _needs_upgrade = True
+        # (c) No "v." in submitted but cluster_case_name/canonical has full "v." name
+        #     and submitted is a substring (e.g. "Chong Yim" in "Chong Yim v. City of Seattle")
+        if not _needs_upgrade and " v. " not in _sdn and " v. " in _best_alt:
+            if _sdn.lower().rstrip(".") in _best_alt.lower():
+                _needs_upgrade = True
+        # (d) Context prefix contamination: submitted has extra words before the real case name
+        #     e.g. "City of Seattle Ford Motor Co. v. City of Seattle" where real name is "Ford Motor Co. v. City of Seattle"
+        if not _needs_upgrade and " v. " in _sdn and " v. " in _best_alt:
+            if _best_alt.lower() in _sdn.lower() and len(_sdn) > len(_best_alt) + 3:
+                _needs_upgrade = True
+        # (e) Double "v." in submitted (e.g. "Rsrv. v. Johnson" normalized to "Rsr v. v. Johnson")
+        if not _needs_upgrade and re.search(r"\bv\.\s+v\.\s", _sdn):
+            _needs_upgrade = True
+        # (f) Very short left party before "v." (< 5 meaningful chars, e.g. "Soc'")
+        if not _needs_upgrade and " v. " in _sdn:
+            _left_party = _sdn.split(" v. ", 1)[0].strip().rstrip(".'\"")
+            if len(_left_party) < 5 and len(_best_alt) > len(_sdn) + 5:
+                _needs_upgrade = True
+        # (g) General: names_are_same_case matches and names differ meaningfully
+        #     Catches context prefix (#4: sdn is LONGER but contaminated) and
+        #     garbled extraction (#20: sdn has wrong words but same structure)
+        if not _needs_upgrade and abs(len(_best_alt) - len(_sdn)) > 3:
+            if names_are_same_case(_sdn, _best_alt):
+                _needs_upgrade = True
+        if _needs_upgrade:
+            cluster["submitted_display_name"] = _normalize_display_name_comma_spacing(
+                normalize_case_name(_best_alt)
+            )
+
+    # Fallback: if submitted_display_name is still empty, use cluster_case_name or canonical_name
+    if not cluster.get("submitted_display_name") or cluster["submitted_display_name"] in ("", "N/A"):
+        fallback_name = (
+            (cluster.get("cluster_case_name") or "").strip()
+            or (cluster.get("canonical_name") or "").strip()
+            or (cluster.get("extracted_case_name") or "").strip()
+        )
+        if fallback_name and fallback_name != "N/A":
+            cluster["submitted_display_name"] = _normalize_display_name_comma_spacing(
+                normalize_case_name(fallback_name)
+            )
     if cluster.get("cluster_case_name"):
         cluster["cluster_case_name"] = _normalize_display_name_comma_spacing(
             str(cluster.get("cluster_case_name") or "")
@@ -624,6 +815,12 @@ def apply_display_fields_to_cluster(cluster: Dict[str, Any]) -> None:
                 )
             if str(cluster.get("verifying_display_date") or "").strip() in {"", "N/A", "Not Found"}:
                 cluster["verifying_display_date"] = str(cluster.get("submitted_display_date") or "N/A")
+
+    # Fix ALL CAPS words from CourtListener canonical names (applies to all clusters)
+    for _fld in ("submitted_display_name", "cluster_case_name", "verifying_display_name"):
+        _val = cluster.get(_fld)
+        if _val and isinstance(_val, str):
+            cluster[_fld] = _fix_all_caps_words(_val)
 
 
 def cluster_has_effective_verified(cluster: Dict[str, Any]) -> bool:

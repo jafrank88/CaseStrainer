@@ -50,6 +50,44 @@ class CitationPatterns:
     F_SUPP_3D = r"\b\d+\s+F\.\s*Supp\.\s*3d\s+\d+\b"
 
     # ============================================================================
+    # REGIONAL REPORTERS (multi-state series)
+    # ============================================================================
+
+    NE_GENERAL = r"\b\d+\s+N\.E\.\s+\d+\b"
+    NE_2D = r"\b\d+\s+N\.E\.\s*2d\s+\d+\b"
+    NE_3D = r"\b\d+\s+N\.E\.\s*3d\s+\d+\b"
+
+    NW_GENERAL = r"\b\d+\s+N\.W\.\s+\d+\b"
+    NW_2D = r"\b\d+\s+N\.W\.\s*2d\s+\d+\b"
+    NW_3D = r"\b\d+\s+N\.W\.\s*3d\s+\d+\b"
+
+    SE_GENERAL = r"\b\d+\s+S\.E\.\s+\d+\b"
+    SE_2D = r"\b\d+\s+S\.E\.\s*2d\s+\d+\b"
+
+    SO_GENERAL = r"\b\d+\s+So\.\s+\d+\b"
+    SO_2D = r"\b\d+\s+So\.\s*2d\s+\d+\b"
+    SO_3D = r"\b\d+\s+So\.\s*3d\s+\d+\b"
+
+    SW_GENERAL = r"\b\d+\s+S\.W\.\s+\d+\b"
+    SW_2D = r"\b\d+\s+S\.W\.\s*2d\s+\d+\b"
+    SW_3D = r"\b\d+\s+S\.W\.\s*3d\s+\d+\b"
+
+    # ============================================================================
+    # FEDERAL SPECIALTY REPORTERS
+    # ============================================================================
+
+    FED_APPX = r"\b\d+\s+Fed\.\s*App(?:x|'x)?\.\s+\d+\b"        # Federal Appendix (unpublished)
+    FED_CL = r"\b\d+\s+Fed\.\s*Cl\.\s+\d+\b"                  # Federal Claims Reporter
+    CT_CL = r"\b\d+\s+Ct\.\s*Cl\.\s+\d+\b"                    # Court of Claims (pre-1982)
+    CL_CT = r"\b\d+\s+Cl\.\s*Ct\.\s+\d+\b"                    # Claims Court (1982-1992)
+    BR = r"\b\d+\s+B\.R\.\s+\d+\b"                             # Bankruptcy Reporter
+    TC = r"\b\d+\s+T\.C\.\s+\d+\b"                             # Tax Court Reports
+    TC_MEMO = r"\b\d{4}[-\s]\d+\s+T\.C\.\s+Memo\.\s+\d+\b"   # Tax Court Memorandum
+    MJ = r"\b\d+\s+M\.J\.\s+\d+\b"                             # Military Justice
+    FRD = r"\b\d+\s+F\.R\.D\.\s+\d+\b"                        # Federal Rules Decisions
+    FED_APP_SIX = r"\b\d{4}\s+FED\s+App\.?\s+[0-9][0-9a-zA-Z]*\b"  # 6th Cir. FED App citation
+
+    # ============================================================================
     # EARLY AMERICAN SUPREME COURT REPORTERS (Pre-U.S. Reports)
     # ============================================================================
 
@@ -177,6 +215,7 @@ class CitationPatterns:
     TEX_APP_GENERAL = r"\b\d+\s+Tex\.\s*App\.\s+\d+\b"  # Texas Appellate Reports (general)
     TEX_APP_2D = r"\b\d+\s+Tex\.\s*App\.\s*2d\s+\d+\b"  # Texas Appellate Reports, Second Series
     TEX_APP_3D = r"\b\d+\s+Tex\.\s*App\.\s*3d\s+\d+\b"  # Texas Appellate Reports, Third Series
+    TEX_CRIM_APP = r"\b\d+\s+Tex\.\s*Crim\.\s*(?:App\.\s+)?\d+\b"  # Texas Criminal Appeals
 
     # Texas patterns without volume numbers (edge cases)
     TEX_NO_VOL = r"\bTex\.\s*(?:2d|3d)?\s+\d+\b"
@@ -187,6 +226,7 @@ class CitationPatterns:
     # ============================================================================
 
     # New Jersey Supreme Court and Appellate Division citations
+    NJ_SUPER = r"\b\d+\s+N\.J\.\s*Super\.\s+\d+\b"  # New Jersey Superior Court Reports
     NJ_GENERAL = r"\b\d+\s+N\.J\.\s+\d+\b"  # New Jersey Reports (general)
     NJ_2D = r"\b\d+\s+N\.J\.\s*2d\s+\d+\b"  # New Jersey Reports, Second Series
     NJ_3D = r"\b\d+\s+N\.J\.\s*3d\s+\d+\b"  # New Jersey Reports, Third Series
@@ -248,6 +288,7 @@ class CitationPatterns:
 
     KY_GENERAL = r"\b\d+\s+Ky\.\s+\d+\b"  # Kentucky Reports
     KY_APP_GENERAL = r"\b\d+\s+Ky\.\s*App\.\s+\d+\b"  # Kentucky Appellate Reports
+    KY_APP_2D = r"\b\d+\s+Ky\.\s*App\.\s*2d\s+\d+\b"   # Kentucky Appellate Reports, Second Series
 
     # ============================================================================
     # STATE REPORTERS - LOUISIANA
@@ -290,6 +331,7 @@ class CitationPatterns:
     PA_3D = r"\b\d+\s+Pa\.\s*3d\s+\d+\b"  # Pennsylvania Reports, Third Series
     PA_SUPER_GENERAL = r"\b\d+\s+Pa\.\s*Super\.\s+\d+\b"  # Pennsylvania Superior Court Reports
     PA_SUPER_2D = r"\b\d+\s+Pa\.\s*Super\.\s*2d\s+\d+\b"  # Pennsylvania Superior Court Reports, Second Series
+    PA_COMMW = r"\b\d+\s+Pa\.\s*Commw\.\s+\d+\b"           # Pennsylvania Commonwealth Court Reports
 
     # ============================================================================
     # STATE REPORTERS - NEW YORK
@@ -453,6 +495,16 @@ class CitationPatterns:
     ALASKA_GENERAL = r"\b\d+\s+Alaska\s+\d+\b"  # Alaska Reports
 
     # ============================================================================
+    # TERRITORIAL / D.C. REPORTERS
+    # ============================================================================
+
+    DC_GENERAL = r"\b\d+\s+D\.C\.\s+\d+\b"              # D.C. Court of Appeals
+    PR_GENERAL = r"\b\d+\s+P\.R\.\s+\d+\b"              # Puerto Rico Reports
+    VI_GENERAL = r"\b\d+\s+V\.I\.\s+\d+\b"              # Virgin Islands Reports
+    GUAM_GENERAL = r"\b\d+\s+Guam\s+\d+\b"              # Guam Reports
+    LA_ANN = r"\b\d+\s+La\.\s*Ann\.\s+\d+\b"           # Louisiana Annals (historical)
+
+    # ============================================================================
     # NEUTRAL/PUBLIC DOMAIN CITATIONS (Official State Citations)
     # ============================================================================
     # 20 US states issue vendor-neutral citations. Formats vary by state.
@@ -598,9 +650,11 @@ class CitationPatterns:
             "tex_app_general": re.compile(cls.TEX_APP_GENERAL, re.IGNORECASE),
             "tex_app_2d": re.compile(cls.TEX_APP_2D, re.IGNORECASE),
             "tex_app_3d": re.compile(cls.TEX_APP_3D, re.IGNORECASE),
+            "tex_crim_app": re.compile(cls.TEX_CRIM_APP, re.IGNORECASE),
             "tex_no_vol": re.compile(cls.TEX_NO_VOL, re.IGNORECASE),
             "tex_app_no_vol": re.compile(cls.TEX_APP_NO_VOL, re.IGNORECASE),
             # State reporters - New Jersey
+            "nj_super": re.compile(cls.NJ_SUPER, re.IGNORECASE),
             "nj_general": re.compile(cls.NJ_GENERAL, re.IGNORECASE),
             "nj_2d": re.compile(cls.NJ_2D, re.IGNORECASE),
             "nj_3d": re.compile(cls.NJ_3D, re.IGNORECASE),
@@ -634,6 +688,7 @@ class CitationPatterns:
             # State reporters - Kentucky
             "ky_general": re.compile(cls.KY_GENERAL, re.IGNORECASE),
             "ky_app_general": re.compile(cls.KY_APP_GENERAL, re.IGNORECASE),
+            "ky_app_2d": re.compile(cls.KY_APP_2D, re.IGNORECASE),
             # State reporters - Louisiana
             "la_general": re.compile(cls.LA_GENERAL, re.IGNORECASE),
             "la_app_general": re.compile(cls.LA_APP_GENERAL, re.IGNORECASE),
@@ -656,6 +711,7 @@ class CitationPatterns:
             "pa_3d": re.compile(cls.PA_3D, re.IGNORECASE),
             "pa_super_general": re.compile(cls.PA_SUPER_GENERAL, re.IGNORECASE),
             "pa_super_2d": re.compile(cls.PA_SUPER_2D, re.IGNORECASE),
+            "pa_commw": re.compile(cls.PA_COMMW, re.IGNORECASE),
             # State reporters - Massachusetts
             "mass_general": re.compile(cls.MASS_GENERAL, re.IGNORECASE),
             "mass_app_general": re.compile(cls.MASS_APP_GENERAL, re.IGNORECASE),
@@ -744,6 +800,12 @@ class CitationPatterns:
             "wyo_general": re.compile(cls.WYO_GENERAL, re.IGNORECASE),
             # State reporters - Alaska
             "alaska_general": re.compile(cls.ALASKA_GENERAL, re.IGNORECASE),
+            # Territorial / D.C. reporters
+            "dc_general": re.compile(cls.DC_GENERAL, re.IGNORECASE),
+            "pr_general": re.compile(cls.PR_GENERAL, re.IGNORECASE),
+            "vi_general": re.compile(cls.VI_GENERAL, re.IGNORECASE),
+            "guam_general": re.compile(cls.GUAM_GENERAL, re.IGNORECASE),
+            "la_ann": re.compile(cls.LA_ANN, re.IGNORECASE),
             # State reporters - New York
             "ny_general": re.compile(cls.NY_GENERAL, re.IGNORECASE),
             "ny_2d": re.compile(cls.NY_2D, re.IGNORECASE),
@@ -788,6 +850,32 @@ class CitationPatterns:
             "neutral_nc": re.compile(cls.NEUTRAL_NC, re.IGNORECASE),
             # Illinois uses ILL_SC_YEAR + ILL_APP_YEAR (defined separately)
             "neutral_il": re.compile(cls.ILL_SC_YEAR, re.IGNORECASE),
+            # Regional reporters
+            "ne_general": re.compile(cls.NE_GENERAL),
+            "ne_2d": re.compile(cls.NE_2D),
+            "ne_3d": re.compile(cls.NE_3D),
+            "nw_general": re.compile(cls.NW_GENERAL),
+            "nw_2d": re.compile(cls.NW_2D),
+            "nw_3d": re.compile(cls.NW_3D),
+            "se_general": re.compile(cls.SE_GENERAL),
+            "se_2d": re.compile(cls.SE_2D),
+            "so_general": re.compile(cls.SO_GENERAL),
+            "so_2d": re.compile(cls.SO_2D),
+            "so_3d": re.compile(cls.SO_3D),
+            "sw_general": re.compile(cls.SW_GENERAL),
+            "sw_2d": re.compile(cls.SW_2D),
+            "sw_3d": re.compile(cls.SW_3D),
+            # Federal specialty reporters
+            "fed_appx": re.compile(cls.FED_APPX),
+            "fed_cl": re.compile(cls.FED_CL),
+            "ct_cl": re.compile(cls.CT_CL),
+            "cl_ct": re.compile(cls.CL_CT),
+            "br": re.compile(cls.BR),
+            "tc": re.compile(cls.TC),
+            "tc_memo": re.compile(cls.TC_MEMO),
+            "mj": re.compile(cls.MJ),
+            "frd": re.compile(cls.FRD),
+            "fed_app_six": re.compile(cls.FED_APP_SIX, re.IGNORECASE),
             # Online databases
             "westlaw": re.compile(cls.WESTLAW, re.IGNORECASE),
             "westlaw_alt": re.compile(cls.WESTLAW_ALT, re.IGNORECASE),
@@ -839,6 +927,14 @@ LEGAL_REPORTERS = {
     "F.4th": "Federal Reporter, Fourth Series",
     "F.5th": "Federal Reporter, Fifth Series",
     "F.6th": "Federal Reporter, Sixth Series",
+    "Fed. Appx.": "Federal Appendix",
+    "Fed. Cl.": "Federal Claims Reporter",
+    "Ct. Cl.": "Court of Claims Reports",
+    "Cl. Ct.": "Claims Court Reporter",
+    "B.R.": "Bankruptcy Reporter",
+    "T.C.": "Tax Court Reports",
+    "M.J.": "Military Justice",
+    "F.R.D.": "Federal Rules Decisions",
     "F. Supp.": "Federal Supplement",
     "F. Supp. 2d": "Federal Supplement, Second Series",
     "F. Supp. 3d": "Federal Supplement, Third Series",
@@ -850,6 +946,7 @@ LEGAL_REPORTERS = {
     "N.E.3d": "Northeastern Reporter, Third Series",
     "N.W.": "North Western Reporter",
     "N.W.2d": "North Western Reporter, Second Series",
+    "N.W.3d": "North Western Reporter, Third Series",
     "P.": "Pacific Reporter",
     "P.2d": "Pacific Reporter, Second Series",
     "P.3d": "Pacific Reporter, Third Series",
@@ -865,6 +962,11 @@ LEGAL_REPORTERS = {
     "Wn.2d": "Washington Reports, Second Series",
     "Wash. App.": "Washington Appellate Reports",
     "WL": "Westlaw",
+    "D.C.": "District of Columbia Reports",
+    "P.R.": "Puerto Rico Reports",
+    "V.I.": "Virgin Islands Reports",
+    "Guam": "Guam Reports",
+    "La. Ann.": "Louisiana Annual Reports",
     # State Reporters (dash-separated format support)
     "Ohio": "Ohio Reports",
     "Ohio St.": "Ohio State Reports",
