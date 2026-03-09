@@ -26,6 +26,46 @@ def _get_attr(citation: Any, key: str, default: Any = None) -> Any:
 
 SEPARATOR_PATTERN = re.compile(r"[,;]\s*")
 
+# Attribute key for semicolon segment id (same case block: "Case A, cite; Case B, cite")
+SEMICOLON_SEGMENT_ATTR = "_semicolon_segment_id"
+
+
+def get_semicolon_segment_id(text: str, position: int, _semicolon_indices: Optional[List[int]] = None) -> int:
+    """
+    Return the semicolon segment index for a character position.
+    Segment 0 = from start to first ';', segment 1 = first ';' to second ';', etc.
+    Used to keep clusters within the same case block when text is "Case A, 123 Rep.; Case B, 456 Rep."
+    Pass _semicolon_indices from get_semicolon_indices(text) to avoid O(position) work per call (no bottleneck on long docs).
+    """
+    if not text or position <= 0:
+        return 0
+    if _semicolon_indices is not None:
+        import bisect
+        return bisect.bisect_left(_semicolon_indices, position)
+    return text[:position].count(";")
+
+
+def get_semicolon_indices(text: str) -> List[int]:
+    """One-pass list of semicolon positions; use with get_semicolon_segment_id(..., _semicolon_indices=...) to avoid O(n*L) bottleneck."""
+    if not text:
+        return []
+    return [i for i, c in enumerate(text) if c == ";"]
+
+
+def _set_segment_id(citation: Any, segment_id: int) -> None:
+    """Attach semicolon segment id to a citation (dict or object)."""
+    if isinstance(citation, dict):
+        citation[SEMICOLON_SEGMENT_ATTR] = segment_id
+    else:
+        setattr(citation, SEMICOLON_SEGMENT_ATTR, segment_id)
+
+
+def _get_segment_id(citation: Any) -> Optional[int]:
+    """Get semicolon segment id from a citation, or None if not set."""
+    if isinstance(citation, dict):
+        return citation.get(SEMICOLON_SEGMENT_ATTR)
+    return getattr(citation, SEMICOLON_SEGMENT_ATTR, None)
+
 
 # Pattern to detect TOA dotted leaders between citations
 _TOA_DOTS_PATTERN = re.compile(r'\.{3,}')
@@ -45,22 +85,103 @@ def _clean_ecn(raw):
     c = re.sub(r'^Page\s+(?=[A-Z])', '', c).strip()
     # Strip trailing citation text (e.g. ", 2 Cranch 64" or ", 765 F. Supp. 3d 102")
     c = re.sub(r',\s*\d+\s+(?:Cranch|Wheat|Pet|How|Wall|Black|U\.S\.|S\.Ct\.|L\.Ed|F\.\d*|F\.\s*Supp).*$', '', c).strip()
+    # Strip trailing state/regional reporter citation (e.g. ", 169 Wn. 2d 81" or ", 233 P.3d 853")
+    # so "Kustura v. Dep't of Lab. & Indus., 169 Wn. 2d 81, 2010" -> "Kustura v. Dep't of Lab. & Indus."
+    # and same-case grouping can match parallel cites (Wn.2d + P.3d). Repeat to strip multiple trailing cites.
+    for _ in range(3):
+        c_prev = c
+        c = re.sub(
+            r',\s*\d{1,4}\s+(?:Wn\.|Wash\.|P\.|N\.W\.|S\.E\.|N\.E\.|S\.W\.|A\.|So\.|Cal\.)(?:\s*\d*d?)?\s+\d{1,5}(?:\s*,?\s*\d{4})?\s*$',
+            '', c, flags=re.IGNORECASE
+        ).strip()
+        if c == c_prev:
+            break
     # Strip docket numbers: ", No. 2", ", No. CV 25", ", No. 17", ", No. 3", or bare ", No"
     c = re.sub(r',\s*No\.?\s*(?:[\w\-\.]+(?:\s+[\w\-\.]+)*)?\s*$', '', c, flags=re.IGNORECASE).strip()
-    # Strip trailing commas, numbers, and junk (e.g. ", , 1337, 2020" or ", 2020")
+    # Strip trailing commas, numbers, and junk (e.g. ", , 1337, 2020" or ", 2010")
     c = re.sub(r'(?:,\s*)+(?:\d{1,5}\s*,?\s*)*$', '', c).strip()
     # Strip trailing comma
     c = c.rstrip(',').strip()
     return c
 
+_PUBLIC_DOMAIN_BASE_RE = re.compile(
+    # Illinois: 2025 IL 130033, 2023 IL App (1st) 220990
+    r'\b(\d{4}\s+IL(?:\s+App\s+\(\d+(?:st|nd|rd|th)\))?\s+\d+)\b'
+    r'|'
+    # Two-letter codes (with appellate variants): CO/COA, ME, MT, ND/ND App,
+    # OK/OK CIV APP/OK CR, SD, UT/UT App, VT, WI/WI App, WY
+    r'\b(\d{4}\s+(?:COA|CO|ME|MT|ND(?:\s+App)?|OK(?:\s+C(?:IV\s+APP|R))?|SD|UT(?:\s+App)?|VT|WI(?:\s+App)?|WY)\s+\d+)\b'
+    r'|'
+    # Period-abbreviated: Ark./Ark. App., N.H., Miss.
+    r'\b(\d{4}\s+(?:Ark\.(?:\s+App\.)?|N\.H\.|Miss\.)\s+\d+)\b'
+    r'|'
+    # Hyphenated: Ohio, NM/NMSC/NMCA, NCSC/NCCOA
+    r'\b(\d{4}[\-\u2011\u2013\u2014](?:Ohio|NM(?:SC|CA)?|NC(?:SC|COA))[\-\u2011\u2013\u2014]\s*\d+)\b',
+    re.IGNORECASE,
+)
+
+def _shared_base_citation(cit_a, cit_b) -> bool:
+    """True if two citations share the same public domain base citation number.
+
+    E.g. '2023 IL App (1st) 220990, 27' and '2023 IL App (1st) 220990, 31'
+    both have base '2023 IL App (1st) 220990'.
+    """
+    text_a = (_get_attr(cit_a, "citation", "") or "").strip()
+    text_b = (_get_attr(cit_b, "citation", "") or "").strip()
+    if not text_a or not text_b:
+        return False
+    bases_a = {next(g for g in m.groups() if g).strip() for m in _PUBLIC_DOMAIN_BASE_RE.finditer(text_a)}
+    bases_b = {next(g for g in m.groups() if g).strip() for m in _PUBLIC_DOMAIN_BASE_RE.finditer(text_b)}
+    return bool(bases_a and bases_b and bases_a & bases_b)
+
+
 def _same_case_check(cit_a, cit_b):
     """Return True if two citations plausibly belong to the same case.
 
-    Delegates to the shared canonical implementation in src.utils.same_case.
+    Uses canonical_name when present (verified) so parallel cites (e.g. 169 Wn.2d 81 and
+    233 P.3d 853) match even when extracted_case_name is contaminated. Otherwise uses
+    cleaned extracted_case_name. Delegates to src.utils.same_case.names_are_same_case.
     """
-    ecn_a = _clean_ecn(_get_attr(cit_a, "extracted_case_name", "") or "")
-    ecn_b = _clean_ecn(_get_attr(cit_b, "extracted_case_name", "") or "")
-    return names_are_same_case(ecn_a, ecn_b)
+    # Public domain citations with same base number are always the same case
+    if _shared_base_citation(cit_a, cit_b):
+        return True
+    def _best_name(cit):
+        canonical = (_get_attr(cit, "canonical_name", "") or "").strip()
+        if canonical and " v. " in canonical:
+            return canonical
+        ecn = _clean_ecn(_get_attr(cit, "extracted_case_name", "") or "")
+        return ecn
+    return names_are_same_case(_best_name(cit_a), _best_name(cit_b))
+
+
+def _get_year(cit: Any) -> Optional[int]:
+    """Extract 4-digit year from citation (dict or object): metadata first, then (YYYY) in citation text."""
+    for key in ("extracted_date", "canonical_date", "date", "year"):
+        val = _get_attr(cit, key, None)
+        if val:
+            m = re.search(r"(19|20)\d{2}", str(val))
+            if m:
+                return int(m.group(0))
+    cit_text = _get_attr(cit, "citation", "") or _get_attr(cit, "text", "")
+    if cit_text:
+        m = re.search(r"\((19|20)\d{2}\)", str(cit_text))
+        if m:
+            return int(m.group(1))
+    return None
+
+
+def _year_conflict_with_group(citation: Any, group: List[Any]) -> bool:
+    """True if citation's year is too far from all years in group (nested/quoting different case, e.g. Deggs 2016 vs Hubbard 1995)."""
+    y = _get_year(citation)
+    if y is None:
+        return False
+    group_years = {_get_year(c) for c in group}
+    group_years.discard(None)
+    if not group_years:
+        return False
+    if any(gy is not None and abs(y - gy) <= 2 for gy in group_years):
+        return False
+    return True
 
 
 def detect_parallel_groups(
@@ -87,6 +208,14 @@ def detect_parallel_groups(
         citations, 
         key=lambda c: _get_attr(c, "start_index", 0) or _get_attr(c, "start_pos", 0)
     )
+    
+    # Assign semicolon segment id so clustering can keep "Case A, cite; Case B, cite" as separate clusters
+    # Precompute semicolon positions once to avoid O(n*L) bottleneck on long documents
+    if original_text:
+        _semi = get_semicolon_indices(original_text)
+        for c in sorted_citations:
+            pos = _get_attr(c, "start_index") or _get_attr(c, "start_pos", 0)
+            _set_segment_id(c, get_semicolon_segment_id(original_text, pos, _semicolon_indices=_semi))
     
     groups = []
     current_group = [sorted_citations[0]]
@@ -121,6 +250,14 @@ def detect_parallel_groups(
         # Same-case check: only group if citations plausibly belong to same case
         if is_close and not _same_case_check(current_group[-1], citation):
             is_close = False
+        
+        # Year guard: don't group if citation year is far from group (e.g. Deggs 2016 vs Hubbard 1995 in "(quoting Hubbard ... (1995))")
+        if is_close and _year_conflict_with_group(citation, current_group):
+            is_close = False
+            logger.debug(
+                f"[PARALLEL-DETECTION] Year conflict - citation year vs group: "
+                f"'{_get_attr(citation, 'citation', '')[:40]}...' not added to group"
+            )
         
         if is_close:
             current_group.append(citation)

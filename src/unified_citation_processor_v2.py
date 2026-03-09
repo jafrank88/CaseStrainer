@@ -357,16 +357,31 @@ class UnifiedCitationProcessorV2:
             "f_supp3d_flex": re.compile(r"\b(\d+)\s+F\.\s*Supp\.?\s*3d\s+(\d+)\b", re.IGNORECASE),
             "lexis": re.compile(r"\b(\d{4})\s+[A-Za-z\.\s]+LEXIS\s+(\d{1,12})\b", re.IGNORECASE),
             "lexis_alt": re.compile(r"\b(\d{4})\s+LEXIS\s+(\d{1,12})\b", re.IGNORECASE),
-            # Neutral/Public Domain Citations (Year-State-Number format)
-            # These are official state citations used by many states
-            "neutral_nm": re.compile(r"\b(20\d{2})-NM(?:CA)?-(\d{1,5})\b", re.IGNORECASE),  # New Mexico: 2017-NM-007
-            "neutral_nd": re.compile(r"\b(20\d{2})\s+ND\s+(\d{1,5})\b", re.IGNORECASE),  # North Dakota
-            "neutral_ok": re.compile(r"\b(20\d{2})\s+OK\s+(\d{1,5})\b", re.IGNORECASE),  # Oklahoma
-            "neutral_sd": re.compile(r"\b(20\d{2})\s+SD\s+(\d{1,5})\b", re.IGNORECASE),  # South Dakota
-            "neutral_ut": re.compile(r"\b(20\d{2})\s+UT\s+(\d{1,5})\b", re.IGNORECASE),  # Utah
-            "neutral_wi": re.compile(r"\b(20\d{2})\s+WI\s+(\d{1,5})\b", re.IGNORECASE),  # Wisconsin
-            "neutral_wy": re.compile(r"\b(20\d{2})\s+WY\s+(\d{1,5})\b", re.IGNORECASE),  # Wyoming
-            "neutral_mt": re.compile(r"\b(20\d{2})\s+MT\s+(\d{1,5})\b", re.IGNORECASE),  # Montana
+            # Neutral/Public Domain Citations (20 states with vendor-neutral formats)
+            # Group 1: Two-letter codes (no periods) — supreme + appellate courts
+            "neutral_co": re.compile(r"\b(20\d{2})\s+CO\s+(\d{1,5})\b", re.IGNORECASE),
+            "neutral_coa": re.compile(r"\b(20\d{2})\s+COA\s+(\d{1,5})\b", re.IGNORECASE),
+            "neutral_me": re.compile(r"\b(20\d{2})\s+ME\s+(\d{1,5})\b", re.IGNORECASE),
+            "neutral_mt": re.compile(r"\b(20\d{2})\s+MT\s+(\d{1,5})\b", re.IGNORECASE),
+            "neutral_nd": re.compile(r"\b(20\d{2})\s+ND\s+(\d{1,5})\b", re.IGNORECASE),
+            "neutral_nd_app": re.compile(r"\b(20\d{2})\s+ND\s+App\s+(\d{1,5})\b", re.IGNORECASE),
+            "neutral_ok": re.compile(r"\b(20\d{2})\s+OK\s+(\d{1,5})\b", re.IGNORECASE),
+            "neutral_ok_civ": re.compile(r"\b(20\d{2})\s+OK\s+CIV\s+APP\s+(\d{1,5})\b", re.IGNORECASE),
+            "neutral_ok_cr": re.compile(r"\b(20\d{2})\s+OK\s+CR\s+(\d{1,5})\b", re.IGNORECASE),
+            "neutral_sd": re.compile(r"\b(20\d{2})\s+SD\s+(\d{1,5})\b", re.IGNORECASE),
+            "neutral_ut": re.compile(r"\b(20\d{2})\s+UT\s+(\d{1,5})\b", re.IGNORECASE),
+            "neutral_ut_app": re.compile(r"\b(20\d{2})\s+UT\s+App\s+(\d{1,5})\b", re.IGNORECASE),
+            "neutral_vt": re.compile(r"\b(20\d{2})\s+VT\s+(\d{1,5})\b", re.IGNORECASE),
+            "neutral_wi": re.compile(r"\b(20\d{2})\s+WI\s+(\d{1,5})\b", re.IGNORECASE),
+            "neutral_wi_app": re.compile(r"\b(20\d{2})\s+WI\s+App\s+(\d{1,5})\b", re.IGNORECASE),
+            "neutral_wy": re.compile(r"\b(20\d{2})\s+WY\s+(\d{1,5})\b", re.IGNORECASE),
+            # Group 2: Abbreviated with periods
+            "neutral_ar": re.compile(r"\b(20\d{2})\s+Ark\.(?:\s+App\.)?\s+(\d{1,5})\b", re.IGNORECASE),
+            "neutral_nh": re.compile(r"\b(20\d{2})\s+N\.H\.\s+(\d{1,5})\b", re.IGNORECASE),
+            "neutral_ms_year": re.compile(r"\b(20\d{2})\s+Miss\.\s+(\d{1,5})\b", re.IGNORECASE),
+            # Group 3: Hyphenated formats
+            "neutral_nm": re.compile(r"\b(20\d{2})[\-\u2011\u2013\u2014]NM(?:SC|CA)?[\-\u2011\u2013\u2014]\s*(\d{1,5})\b", re.IGNORECASE),
+            "neutral_nc": re.compile(r"\b(20\d{2})[\-\u2011\u2013\u2014]NC(?:SC|COA)[\-\u2011\u2013\u2014]\s*(\d{1,5})\b", re.IGNORECASE),
             # Ohio: 2006-Ohio-4854 or 2006-Ohio- 4854 (PDFs often add space before number)
             "neutral_ohio": re.compile(
                 r"\b(20\d{2})[\-\u2011\u2013\u2014]?Ohio[\-\u2011\u2013\u2014]?\s*(\d{1,5})\b",
@@ -1928,7 +1943,7 @@ class UnifiedCitationProcessorV2:
                     if _env_fb_budget.isdigit():
                         _fb_time_budget = max(0, int(_env_fb_budget))
                     else:
-                        _fb_time_budget = 300
+                        _fb_time_budget = 120
 
                     def _run_verification_in_new_loop(
                         _verifier, _citations, _names, _dates, _proprietary_flags, _total, _max_fb_count, _fb_budget_count, _progress_cb
@@ -2541,6 +2556,9 @@ class UnifiedCitationProcessorV2:
 
         normalized = citation.strip()
         normalized = re.sub(r"\s+", " ", normalized)
+
+        # Strip paragraph symbol (¶ / pilcrow U+00B6) — PDF artifact
+        normalized = re.sub(r'\u00b6+\s*', '', normalized)
 
         # Strip leading Table of Authorities / heading noise (e.g. "TABLE OF AUTHORITIES Page() CASES A&M Recs....")
         toa_leading = re.match(
@@ -3488,7 +3506,11 @@ class UnifiedCitationProcessorV2:
         if " v. " not in name and not re.search(r"\b(?:In\s+re|Ex\s+parte)\b", name, re.IGNORECASE):
             if len(name) > 40:
                 return True
-            if re.match(r"^(Time\s+and|The\s+|And\s+|But\s+|However,|Moreover,)", name, re.IGNORECASE):
+            if re.match(r"^(Time\s+and|And\s+|But\s+|However,|Moreover,)", name, re.IGNORECASE):
+                return True
+            # "The " + lowercase word = narrative ("The court held...")
+            # "The " + capitalized word = case name ("The Pizarro", "The Venus")
+            if re.match(r"^The\s+[a-z]", name):
                 return True
             if " the " in name:
                 return True
@@ -3508,6 +3530,118 @@ class UnifiedCitationProcessorV2:
             if " the " in left and len(left) > 25:
                 return True
         return False
+
+    # ── Inline case-name extraction (from citation text prefix) ──────────
+    _INLINE_REPORTER_RE = re.compile(
+        r'(?:'
+        # Traditional reporters: volume + reporter + page
+        r'\b(\d+)\s+(?:'
+        # Modern reporters
+        r'U\.?\s*S\.?\s+\d|S\.?\s*Ct\.?\s+\d|L\.?\s*Ed\.?(?:\s*2d)?\s+\d|'
+        r'F\.?\s*(?:2d|3d|4th)\s+\d|F\.?\s*Supp\.?(?:\s*(?:2d|3d))?\s+\d|'
+        # State reporters (Ill., Ill. App., A.L.R.)
+        r'Ill\.?\s*(?:App\.?\s*)?(?:2d|3d)?\s+\d|A\.?\s*L\.?\s*R\.?\s*(?:2d|3d)?\s+\d|'
+        # Old reporters (Wheat., Cranch, Wall., How., Pet., Barb., Dall., Black.)
+        r'Wheat\.?\s+\d|Cranch\s+\d|Wall\.?\s+\d|How\.?\s+\d|Pet\.?\s+\d|'
+        r'Barb\.?\s+\d|Dall\.?\s+\d|Black\.?\s+\d'
+        r')'
+        r'|'
+        # IL public domain citations: year IL number or year IL App (Xth) number
+        r'\b(\d{4})\s+IL(?:\s+App\s+\(\d+(?:st|nd|rd|th)\))?\s+\d+'
+        r'|'
+        # Other vendor-neutral citations (two-letter codes): CO, COA, ME, MT, ND, OK, SD, UT, VT, WI, WY
+        r'\b(\d{4})\s+(?:COA|CO|ME|MT|ND(?:\s+App)?|OK(?:\s+C(?:IV\s+APP|R))?|SD|UT(?:\s+App)?|VT|WI(?:\s+App)?|WY)\s+\d+'
+        r'|'
+        # Vendor-neutral with periods: Ark., Ark. App., N.H., Miss.
+        r'\b(\d{4})\s+(?:Ark\.(?:\s+App\.)?|N\.H\.|Miss\.)\s+\d+'
+        r'|'
+        # Hyphenated vendor-neutral: Ohio, NM/NMSC/NMCA, NCSC/NCCOA
+        r'\b(\d{4})[\-\u2011\u2013\u2014](?:Ohio|NM(?:SC|CA)?|NC(?:SC|COA))[\-\u2011\u2013\u2014]\s*\d+'
+        r')',
+        re.IGNORECASE,
+    )
+
+    def _extract_inline_case_name(self, citation_text: str) -> Optional[str]:
+        """Extract case name from the citation text prefix (before the reporter).
+
+        For citations like ``The Pizarro, 2 Wheat. 227, 246 (1817)`` this
+        returns ``The Pizarro``.  For bare citations like ``2 Wheat. 227``
+        it returns ``None``.
+        """
+        if not citation_text:
+            return None
+
+        m = self._INLINE_REPORTER_RE.search(citation_text)
+        if not m:
+            return None
+
+        prefix = citation_text[: m.start()].strip()
+
+        # Strip trailing comma / semicolon
+        prefix = re.sub(r'[,;:\s]+$', '', prefix).strip()
+
+        # Strip leading signal phrases
+        prefix = re.sub(
+            r'^(?:See,?\s+e\.?g\.?,?\s*|See\s+also\s+|See\s+generally\s+|'
+            r'But\s+see\s+|Cf\.?\s+|E\.?g\.?,?\s*)',
+            '', prefix, flags=re.IGNORECASE,
+        ).strip()
+
+        # Strip leading sentence-ending fragments for IL short-form citations
+        # e.g. "State. Walker" → "Walker",  "West 2020)). Parmar" → "Parmar"
+        # Only strip if the fragment before the period/paren is NOT a "v." name
+        if " v. " not in prefix:
+            frag_m = re.match(r'^(.+?[.)]+)\s+([A-Z]\w.*)$', prefix)
+            if frag_m:
+                prefix = frag_m.group(2).strip()
+        # Strip trailing periods (e.g. "State." → "State")
+        prefix = prefix.rstrip('.')
+
+        # Strip leading junk from table-of-authorities lines
+        # e.g. "9th Cir. 2020) ... 22 The Pizarro" → "The Pizarro"
+        # e.g. "Cases-Continued: Page Murray v. Schooner..." → strip "Cases-Continued: Page"
+        # Remove leading text up to the last ") " or "... " or page-number run
+        toa_junk = re.search(
+            r'(?:\)\s+\.{2,}\s*\d+\s+|\.{2,}\s*\d+\s+|\)\s+)',
+            prefix,
+        )
+        if toa_junk:
+            after = prefix[toa_junk.end():].strip()
+            if len(after) >= 3:
+                prefix = after
+        # Strip "Cases-Continued: Page" or similar TOA header prefixes
+        prefix = re.sub(
+            r'^(?:Cases(?:-Continued)?:\s*(?:Page\s*)?)',
+            '', prefix, flags=re.IGNORECASE,
+        ).strip()
+
+        # Must be meaningful (>=3 chars, not just numbers/punctuation)
+        if len(prefix) < 3:
+            return None
+        if re.match(r'^[\d,.\s\-()]+$', prefix):
+            return None
+        # Reject if contains unbalanced parens/brackets or garbage punctuation
+        if re.search(r'[)]{2,}|[(\[{]$', prefix):
+            return None
+
+        # Reject if it looks like a partial sentence fragment without a name
+        # (e.g. "to the country in which he is")
+        words = prefix.split()
+        if len(words) > 8:
+            return None
+        # Must contain a capitalized word
+        if not any(w[0].isupper() for w in words if w):
+            return None
+        # Reject single common words that aren't case names (e.g. "State", "Party", "West")
+        _NON_NAME_SINGLES = {
+            'state', 'party', 'west', 'east', 'north', 'south', 'page',
+            'section', 'chapter', 'court', 'judge', 'justice', 'opinion',
+            'also', 'generally', 'accord', 'contra', 'but', 'and',
+        }
+        if len(words) == 1 and prefix.lower().rstrip('.') in _NON_NAME_SINGLES:
+            return None
+
+        return prefix
 
     def _extract_case_name_from_context(self, text: str, citation, all_citations=None) -> str:
         """Extract case name from citation string itself or surrounding text context."""
@@ -3893,16 +4027,20 @@ class UnifiedCitationProcessorV2:
                 context_window = text[max(0, start - 120):min(len(text), end + 50)]
                 _hy = r'[\-\u2011\u2013\u2014]'  # ASCII hyphen, non-breaking hyphen, en dash, em dash
                 neutral_year = re.search(
-                    rf'(?:^|[^\d])(20\d{{2}}){_hy}(?:Ohio|OH|ME|Neb|Neb\.|Ohio\s*St\.){_hy}?\s*\d+',
+                    rf'(?:^|[^\d])(20\d{{2}}){_hy}(?:Ohio|OH|NM(?:SC|CA)?|NC(?:SC|COA)|Neb|Neb\.|Ohio\s*St\.){_hy}?\s*\d+',
                     context_window,
                     re.IGNORECASE,
                 )
                 if neutral_year and 1990 <= int(neutral_year.group(1)) <= 2030:
                     return _ret(neutral_year.group(1), "neutral_citation_year", "high")
-                # Also match "2005 ME 113" style (Maine)
-                me_year = re.search(r'(?:^|[^\d])(20\d{2})\s+ME\s+\d+', context_window, re.IGNORECASE)
-                if me_year and 1990 <= int(me_year.group(1)) <= 2030:
-                    return _ret(me_year.group(1), "neutral_citation_year", "high")
+                # Match space-separated vendor-neutral citations (all 20 states)
+                vn_year = re.search(
+                    r'(?:^|[^\d])(20\d{2})\s+(?:IL(?:\s+App)?|COA|CO|ME|MT|ND(?:\s+App)?|OK(?:\s+C(?:IV\s+APP|R))?|SD|UT(?:\s+App)?|VT|WI(?:\s+App)?|WY|Ark\.|N\.H\.|Miss\.)\s+\d+',
+                    context_window,
+                    re.IGNORECASE,
+                )
+                if vn_year and 1990 <= int(vn_year.group(1)) <= 2030:
+                    return _ret(vn_year.group(1), "neutral_citation_year", "high")
                 # Look after the citation end for a parenthetical year
                 # Use wider window (150 chars) to handle page breaks in PDFs
                 context_after = text[end:min(len(text), end + 150)]
@@ -4124,6 +4262,8 @@ class UnifiedCitationProcessorV2:
         cleaned = re.sub(r'^Page\s+(?=[A-Z])', '', cleaned).strip()
         # Extraction-specific: trailing citation fragments (reporter + page, WL/LEXIS)
         cleaned = re.sub(r",?\s*\d+\s+(?:U\.S\.|F\.\d*d?|S\.\s*Ct\.|L\.\s*Ed|Tex\.|Pet\.|Cranch|Wall\.|Wheat\.|How\.|Barb\.|A\.|F\.\s*(?:Supp|R\.D)|WL|U\.S\.?\s*LEXIS|LEXIS).*$", "", cleaned).strip()
+        # Extraction-specific: trailing docket number fragments (", No", ", No.", ", No. CV", ", No. CIV")
+        cleaned = re.sub(r",?\s+No\.?\s*(?:C[IV]{1,3}|CA)?\s*$", "", cleaned, flags=re.IGNORECASE).strip()
         # Extraction-specific: trailing open parentheticals
         cleaned = re.sub(r"\s*\([^)]*$", "", cleaned).strip()
         # Extraction-specific: truncate at sentence boundary (prose before next sentence)
@@ -4327,86 +4467,208 @@ class UnifiedCitationProcessorV2:
             logger.warning(f"Error in eyecite extraction: {e}")
         return citations
 
-    def _fix_concatenated_page_numbers(self, citation_str: str) -> str:
-        """Fix concatenated page+pinpoint numbers from PDF text extraction artifacts.
+    # Reporter pattern used by multiple fix methods
+    _REPORTER_ABBR_PAT = (
+        r'(?:P\.\s*\d*[a-z]*|N\.(?:E|W)\.\s*\d*[a-z]*|'
+        r'S\.\s*(?:Ct|E|W)\.\s*\d*[a-z]*|A\.\s*\d*[a-z]*|'
+        r'So\.\s*\d*[a-z]*|Cal\.\s*(?:Rptr|App)|'
+        r'F\.\s*(?:Supp|2d|3d|4th)?|'
+        r'Wash\.\s*(?:2d|App)?|Wn\.\s*(?:2d|App)?|'
+        r'U\.?\s*S\.?|L\.\s*Ed|S\.\s*Ct)'
+    )
 
-        PDF extraction sometimes loses the comma/space between page and pinpoint,
-        causing eyecite to produce e.g. '496 U.S. 310317' instead of '496 U.S. 310'.
-        Detect this by checking if the page number is suspiciously long (5+ digits)
-        and splitting it into page + pinpoint where pinpoint >= page.
+    def _fix_concatenated_page_numbers(self, citation_str: str) -> str:
+        """Fix concatenated numbers from eyecite's corrected_citation_full() bug.
+
+        eyecite's corrected_citation_full() systematically drops the comma/space
+        between pinpoint pages and parallel citation volumes, producing garbled text:
+          "183 Wash. 2d 863, 879-80357 P.3d 45" (should be "879-80, 357 P.3d 45")
+          "194 Wash. 2d 651451 P.3d 675"         (should be "651, 451 P.3d 675")
+          "289 Neb. 864, 878857 N.W.2d 569"      (should be "878, 857 N.W.2d 569")
+
+        This function scans the ENTIRE citation text for these patterns and fixes them.
         """
         if not citation_str:
             return citation_str
         # WL and LEXIS citations have docket IDs, not page numbers - never split them
         if re.search(r'\b\d{4}\s+WL\s+\d+', citation_str) or re.search(r'\bLexis\s+\d+', citation_str, re.IGNORECASE):
             return citation_str
-        # Match: reporter followed by a suspiciously long page number
-        # For U.S. Reports (U.S., S.Ct., L.Ed., Wheat., Cranch, Wall., How., Pet.),
-        # pages rarely exceed 999, so 4+ digits is suspicious.
-        # For other reporters (F.2d, F.3d, etc.), pages can be 4 digits, so require 5+.
+
+        fixed = citation_str
+
+        # Strip paragraph symbol (¶ / pilcrow U+00B6) — PDF artifact that blocks
+        # digit-blob regex matching (e.g. ", ¶ 38551 P.3d" → ", 38551 P.3d").
+        fixed = re.sub(r'\u00b6+\s*', '', fixed)
+
+        # === Pass 0: Fix implausibly large volume at start of citation ===
+        # e.g. "38551 P.3d 655" -> "551 P.3d 655" (38 was stray from context)
+        # No reporter has volume >= 1000, so 4+ digit leading numbers are contaminated.
+        reporter_pat = self._REPORTER_ABBR_PAT
+        vol_start_m = re.match(
+            r'^(\d{4,})\s+(' + reporter_pat + r')\s+(\d+)(.*)',
+            fixed, re.IGNORECASE
+        )
+        if vol_start_m:
+            vol_blob = vol_start_m.group(1)
+            rep_text = vol_start_m.group(2)
+            page = vol_start_m.group(3)
+            rest = vol_start_m.group(4)
+            # Strip leading digits to get a plausible 1-3 digit volume
+            for strip_count in range(1, len(vol_blob)):
+                candidate = vol_blob[strip_count:]
+                if candidate[0] == '0':
+                    continue
+                val = int(candidate)
+                if 1 <= val <= 999:
+                    fixed = f"{candidate} {rep_text} {page}{rest}"
+                    logger.info(
+                        f"[EYECITE-FIX] Volume too large: '{vol_blob}' -> '{candidate}' "
+                        f"(stripped {strip_count} leading digits)"
+                    )
+                    break
+
+        # === Pass 1: Fix digit blobs immediately before a reporter abbreviation ===
+        # Pattern: "878857 N.W.2d" or "651451 P.3d" or "879-80357 P.3d"
+        # These are pinpoint + parallel_volume concatenated by eyecite's full text bug.
+        # Only match blobs preceded by comma or dash (pinpoint area), NOT primary page blobs.
+        reporter_pat = self._REPORTER_ABBR_PAT
+        blob_before_reporter = re.compile(
+            r'[-,]\s*(\d{4,})\s+(' + reporter_pat + r')', re.IGNORECASE
+        )
+        for _pass in range(5):  # iterate since fixes shift text
+            m = blob_before_reporter.search(fixed)
+            if not m:
+                break
+            blob = m.group(1)
+            reporter_text = m.group(2)
+            blob_start = m.start(1)
+            # Try splitting blob into pinpoint + volume where volume is 1-999
+            # Prefer 2+ digit pinpoints (split_pos >= 2) over 1-digit pinpoints
+            best_split = None
+            for split_pos in range(2, len(blob)):
+                vol_candidate = blob[split_pos:]
+                if vol_candidate[0] == '0':
+                    continue
+                vol_val = int(vol_candidate)
+                if 1 <= vol_val <= 999:
+                    best_split = split_pos
+                    break
+            # Fallback: 1-digit pinpoint
+            if best_split is None and len(blob) > 1 and blob[1:][0] != '0':
+                vol_val = int(blob[1:])
+                if 1 <= vol_val <= 999:
+                    best_split = 1
+            if best_split:
+                pinpoint_part = blob[:best_split]
+                vol_part = blob[best_split:]
+                # Replace the blob with "pinpoint, volume"
+                old_fragment = blob + fixed[m.end(1):m.start(2)]
+                new_fragment = pinpoint_part + ", " + vol_part + fixed[m.end(1):m.start(2)]
+                fixed = fixed[:blob_start] + new_fragment + fixed[m.start(2):]
+                logger.info(
+                    f"[EYECITE-FIX] Split pinpoint+volume: '{blob}' -> "
+                    f"'{pinpoint_part}, {vol_part}' before '{reporter_text}'"
+                )
+            else:
+                break  # no valid split found
+
+        # === Pass 1b: Fix "reporter_suffix + digits" with no space ===
+        # e.g. "Wash. 2d8633" -> "Wash. 2d 863" (page 863 + trailing from parallel vol)
+        nospc = re.compile(
+            r'(\b(?:Wash|Wn)\.\s*(?:2d|App\.?)\s*|'
+            r'\b(?:Ohio\s+St\.\s*(?:2d|3d))\s*|'
+            r'\b(?:Conn\.\s*(?:App|Supp)\.?)\s*)'
+            r'(\d{4,})',
+            re.IGNORECASE
+        )
+        m_nospc = nospc.search(fixed)
+        if m_nospc:
+            reporter_prefix = m_nospc.group(1)
+            page_blob = m_nospc.group(2)
+            blob_start = m_nospc.start(2)
+            suffix_after = fixed[m_nospc.end(2):]
+            # Check if suffix starts with a reporter (parallel volume concatenation)
+            par_match = re.match(r'[,\s]*(' + reporter_pat + r')', suffix_after, re.IGNORECASE)
+            if par_match:
+                # Split: prefer 3-digit page, then 2, then 4
+                for sp in [3, 2, 4]:
+                    if sp >= len(page_blob):
+                        continue
+                    page_part = page_blob[:sp]
+                    vol_part = page_blob[sp:]
+                    if vol_part and vol_part[0] != '0' and 1 <= int(vol_part) <= 999 and int(page_part) >= 1:
+                        fixed = fixed[:blob_start] + page_part
+                        logger.info(
+                            f"[EYECITE-FIX] No-space page split: '{reporter_prefix}{page_blob}' -> "
+                            f"'{reporter_prefix}{page_part}' (dropped parallel vol {vol_part})"
+                        )
+                        break
+            else:
+                # Same-reporter pinpoint: split into page + pinpoint
+                for sp in range(min(4, len(page_blob) - 1), 1, -1):
+                    page_part = page_blob[:sp]
+                    pin_part = page_blob[sp:]
+                    p_val, pin_val = int(page_part), int(pin_part)
+                    if pin_part[0] == '0':
+                        continue
+                    if p_val >= 1 and pin_val >= p_val and pin_val <= p_val * 10:
+                        fixed = fixed[:blob_start] + page_part + suffix_after
+                        logger.info(
+                            f"[EYECITE-FIX] No-space pinpoint: '{reporter_prefix}{page_blob}' -> "
+                            f"'{reporter_prefix}{page_part}'"
+                        )
+                        break
+
+        # === Pass 2: Fix primary page blob (original logic) ===
+        # "496 U.S. 310317" -> "496 U.S. 310"
         is_us_reporter = bool(re.search(
             r'\d+\s+(?:U\.?\s*S\.?|S\.\s*Ct\.|L\.\s*Ed|Wheat\.|Cranch|Wall\.|How\.|Pet\.)',
-            citation_str
+            fixed
         ))
         min_digits = 4 if is_us_reporter else 5
         m = re.match(
-            r'^(.*?\d+\s+[A-Za-z][A-Za-z.\s]+\s+)(\d{' + str(min_digits) + r',})(.*)',
-            citation_str,
+            r'^(.*?\d+\s+[A-Za-z][A-Za-z0-9.\s]*?\s)(\d{' + str(min_digits) + r',})(.*)',
+            fixed,
         )
-        if not m:
-            return citation_str
-        prefix, page_blob, suffix = m.group(1), m.group(2), m.group(3)
-
-        # Case 1: Suffix starts with a reporter abbreviation (e.g. "P.3d", "N.E.2d").
-        # The trailing digits are the VOLUME of the next reporter, not a pinpoint.
-        # "108 Wash. App. 18529 P.3d 1268" -> "108 Wash. App. 185" (drop "29 P.3d 1268")
-        parallel_reporter_match = re.match(
-            r'\s*(?:P\.\d+[a-z]|N\.(?:E|W)\.\d*[a-z]?|S\.\s*(?:Ct|E|W)\.\d*[a-z]?|A\.\d+[a-z]|So\.\s*\d*[a-z]?|Cal\.\s*Rptr)',
-            suffix, re.IGNORECASE
-        )
-        if parallel_reporter_match:
-            # Try splits where trailing digits are a plausible volume (1-999).
-            # Prefer 3-digit pages (most common in reporters), then 2, then 4.
-            split_order = [sp for sp in [3, 2, 4] if 1 < sp < len(page_blob)]
-            for split_pos in split_order:
-                page = page_blob[:split_pos]
-                vol = page_blob[split_pos:]
-                if not vol or vol[0] == '0':
-                    continue
-                page_val = int(page)
-                vol_val = int(vol)
-                if page_val < 1 or page_val > 9999:
-                    continue
-                if vol_val < 1 or vol_val > 999:
-                    continue
-                fixed = f"{prefix}{page}"
-                logger.info(
-                    f"[EYECITE-FIX] Parallel volume concat: '{citation_str[:60]}' -> '{fixed[:60]}' "
-                    f"(split {page_blob} -> page={page}, parallel vol={vol})"
-                )
-                return fixed
-
-        # Case 2: Same-reporter pinpoint (e.g. "496 U.S. 310317" -> "496 U.S. 310")
-        for split_pos in range(min(4, len(page_blob) - 1), 1, -1):
-            page = page_blob[:split_pos]
-            pinpoint = page_blob[split_pos:]
-            page_val = int(page)
-            if page_val < 1 or page_val > 9999:
-                continue
-            if not pinpoint or pinpoint[0] == '0':
-                continue
-            pin_val = int(pinpoint)
-            if pin_val < page_val:
-                continue
-            if pin_val > page_val * 10:
-                continue
-            fixed = f"{prefix}{page}{suffix}"
-            logger.info(
-                f"[EYECITE-FIX] Concatenated page numbers: '{citation_str[:60]}' -> '{fixed[:60]}' "
-                f"(split {page_blob} -> page={page}, pinpoint={pinpoint})"
+        if m:
+            prefix, page_blob, suffix = m.group(1), m.group(2), m.group(3)
+            parallel_reporter_match = re.match(
+                r'\s*(' + reporter_pat + r')', suffix, re.IGNORECASE
             )
-            return fixed
-        return citation_str
+            if parallel_reporter_match:
+                split_order = [sp for sp in [3, 2, 4] if 1 < sp < len(page_blob)]
+                for split_pos in split_order:
+                    page = page_blob[:split_pos]
+                    vol = page_blob[split_pos:]
+                    if not vol or vol[0] == '0':
+                        continue
+                    if 1 <= int(page) <= 9999 and 1 <= int(vol) <= 999:
+                        fixed = f"{prefix}{page}"
+                        logger.info(
+                            f"[EYECITE-FIX] Primary page split: '{citation_str[:60]}' -> '{fixed[:60]}'"
+                        )
+                        break
+            else:
+                for split_pos in range(min(4, len(page_blob) - 1), 1, -1):
+                    page = page_blob[:split_pos]
+                    pinpoint = page_blob[split_pos:]
+                    page_val = int(page)
+                    if page_val < 1 or page_val > 9999:
+                        continue
+                    if not pinpoint or pinpoint[0] == '0':
+                        continue
+                    pin_val = int(pinpoint)
+                    if pin_val < page_val or pin_val > page_val * 10:
+                        continue
+                    fixed = f"{prefix}{page}{suffix}"
+                    logger.info(
+                        f"[EYECITE-FIX] Primary pinpoint: '{citation_str[:60]}' -> '{fixed[:60]}'"
+                    )
+                    break
+
+        if fixed != citation_str:
+            logger.info(f"[EYECITE-FIX] Final: '{citation_str[:80]}' -> '{fixed[:80]}'")
+        return fixed
 
     def _extract_citation_text_from_eyecite(self, citation_obj) -> str:
         """Extract citation text from eyecite object."""
@@ -4430,6 +4692,27 @@ class UnifiedCitationProcessorV2:
                         return ""
                     if full.lower().startswith(('id.', 'ibid.')) or ' at ' in full.lower():
                         return ""
+                    # Fix: corrected_citation_full() sometimes prepends stray
+                    # digits from preceding context to the volume, e.g.
+                    # "38551 P.3d 655" when parsed volume is "551".
+                    parsed_vol = str(getattr(citation_obj, 'volume', '') or '')
+                    if not parsed_vol:
+                        parsed_vol = str(
+                            (getattr(citation_obj, 'groups', {}) or {}).get('volume', '') or ''
+                        )
+                    if parsed_vol:
+                        leading_m = re.match(r'^(\d+)', full)
+                        if leading_m:
+                            leading_digits = leading_m.group(1)
+                            if (leading_digits != parsed_vol
+                                    and leading_digits.endswith(parsed_vol)
+                                    and len(leading_digits) > len(parsed_vol)):
+                                stray = leading_digits[:-len(parsed_vol)]
+                                full = full[len(stray):]
+                                logger.info(
+                                    f"[EYECITE-FIX] Stripped stray volume prefix "
+                                    f"'{stray}' from '{leading_digits}' -> '{parsed_vol}'"
+                                )
                     return full
         except Exception as corr_full_err:
             logger.debug(f"[EYECITE] corrected_citation_full unavailable: {corr_full_err}")
@@ -4530,7 +4813,7 @@ class UnifiedCitationProcessorV2:
                 txt = c.citation or ""
                 if " v. " in txt:
                     v_match = re.match(
-                        r"^(.+?\s+v\.\s+[A-Za-z][A-Za-z\s\'\.\&\-,]+?)(?:,\s*\d|\s+\d)",
+                        r"^(.+?\s+v\.\s+[A-Za-z][A-Za-z0-9\s\'\.\&\-,/()]+?)(?:,\s*\d|\s+\d)",
                         txt,
                     )
                     if v_match:
@@ -4548,11 +4831,15 @@ class UnifiedCitationProcessorV2:
                 for c in group:
                     txt = c.citation or ""
                     if " v. " not in txt and not re.search(r"\bIn\s+re\b", txt, re.IGNORECASE):
-                        # Bare citation — propagate name
-                        if not c.extracted_case_name or c.extracted_case_name == "N/A":
+                        # Bare citation — always override with eyecite name.
+                        # Bare citations get names from context (unreliable);
+                        # eyecite parses the actual citation text (authoritative).
+                        old_name = c.extracted_case_name or "N/A"
+                        if old_name != best_name:
                             c.extracted_case_name = best_name
                             logger.info(
-                                f"[DEDUP-PROPAGATE] Set '{best_name}' on bare '{txt[:40]}' at start={si}"
+                                f"[DEDUP-PROPAGATE] Override '{old_name}' -> '{best_name}' "
+                                f"on bare '{txt[:40]}' at start={si}"
                             )
         sorted_citations = [c for group in sorted(start_groups.values(), key=lambda g: g[0].start_index or 0) for c in group] + no_position
         sorted_citations.sort(key=lambda x: (x.start_index or 0, -(x.end_index or 0)))
@@ -4674,6 +4961,36 @@ class UnifiedCitationProcessorV2:
             # Federal district docket (e.g. 17 Cv. 7507 (F.DNY May 2, 2019)) and F. Supp. 3d with PDF artifacts
             "federal_docket",
             "f_supp3d_flex",
+            # Illinois citations
+            "ill_2d",
+            "ill_app_3d",
+            "ill_app_2d",
+            "ill_sc_year",  # 2025 IL 130033
+            "ill_app_year",  # 2023 IL App (1st) 220990
+            "ill_general",
+            "ill_historical",
+            # Vendor-neutral / public domain citations (19 other states)
+            # Appellate variants BEFORE supreme court (longer match first)
+            "neutral_coa",      # Colorado Court of Appeals: 2024 COA 1
+            "neutral_co",       # Colorado Supreme Court: 2024 CO 1
+            "neutral_nd_app",   # North Dakota Court of Appeals: 2024 ND App 1
+            "neutral_nd",       # North Dakota Supreme Court: 2024 ND 1
+            "neutral_ok_civ",   # Oklahoma Civil Appeals: 2024 OK CIV APP 1
+            "neutral_ok_cr",    # Oklahoma Criminal Appeals: 2024 OK CR 1
+            "neutral_ok",       # Oklahoma Supreme Court: 2024 OK 1
+            "neutral_ut_app",   # Utah Court of Appeals: 2024 UT App 1
+            "neutral_ut",       # Utah Supreme Court: 2024 UT 1
+            "neutral_wi_app",   # Wisconsin Court of Appeals: 2024 WI App 1
+            "neutral_wi",       # Wisconsin Supreme Court: 2024 WI 1
+            "neutral_mt",       # Montana Supreme Court: 2024 MT 1
+            "neutral_sd",       # South Dakota Supreme Court: 2024 SD 1
+            "neutral_vt",       # Vermont Supreme Court: 2024 VT 1
+            "neutral_wy",       # Wyoming Supreme Court: 2024 WY 1
+            "neutral_ar",       # Arkansas: 2024 Ark. 1, 2024 Ark. App. 1
+            "neutral_nh",       # New Hampshire: 2024 N.H. 1
+            "neutral_ms_year",  # Mississippi: 2024 Miss. 1
+            "neutral_nm",       # New Mexico: 2024-NMSC-001, 2024-NMCA-001
+            "neutral_nc",       # North Carolina: 2024-NCSC-1, 2024-NCCOA-1
         ]
 
         for pattern_name in priority_patterns:
@@ -4909,6 +5226,26 @@ class UnifiedCitationProcessorV2:
                         normalized_text, citation, deduplicated_citations
                     )
 
+                # Override context-based name with inline name when the citation text
+                # itself contains a case name prefix before the reporter pattern.
+                # E.g. "The Pizarro, 2 Wheat. 227" → "The Pizarro" (not a nearby context name).
+                inline_name = self._extract_inline_case_name(citation.citation or "")
+                if inline_name:
+                    old_ecn = (citation.extracted_case_name or "N/A")[:40]
+                    if not citation.extracted_case_name or citation.extracted_case_name == "N/A":
+                        citation.extracted_case_name = inline_name
+                        citation._inline_name_set = True
+                        logger.info(f"[INLINE-NAME] Set ecn='{inline_name}' for '{(citation.citation or '')[:50]}'")
+                    elif inline_name.lower() != (citation.extracted_case_name or "").lower():
+                        # Inline name differs from context name — prefer inline since it's
+                        # physically attached to this citation in the document text.
+                        logger.info(
+                            f"[INLINE-NAME] Override ecn '{old_ecn}' -> '{inline_name}' "
+                            f"for '{(citation.citation or '')[:50]}'"
+                        )
+                        citation.extracted_case_name = inline_name
+                        citation._inline_name_set = True
+
                 if self._is_missing_extracted_date(getattr(citation, "extracted_date", None)):
                     extracted_year, date_source, date_confidence = self._extract_date_from_context(
                         normalized_text, citation, return_source=True
@@ -4949,13 +5286,18 @@ class UnifiedCitationProcessorV2:
                     )
                     citation.extracted_case_name = self._clean_extracted_case_name(citation.extracted_case_name)
                     # Reject quote/sentence misidentified as case name (e.g. "Time and again, the Supreme Court has said no")
-                    if self._looks_like_quote_not_case_name(citation.extracted_case_name):
+                    # But NOT for inline-extracted names (physically embedded in citation text)
+                    if (not getattr(citation, '_inline_name_set', False)
+                            and self._looks_like_quote_not_case_name(citation.extracted_case_name)):
                         citation.extracted_case_name = "N/A"
                 # Reject obvious noise citations (e.g. "States 1", "Page 5") for all citations
                 if self._is_noise_citation(citation.citation or ""):
                     citation.extracted_case_name = "N/A"
                 # Unconditional: reject prose/quote as case name (e.g. "Cockrum's failure to demonstrate..." for 138 Wn.2d 506 = Benjamin)
-                if citation.extracted_case_name and self._looks_like_quote_not_case_name(citation.extracted_case_name):
+                # But NOT for inline-extracted names (physically embedded in citation text = real case name)
+                if (citation.extracted_case_name
+                        and not getattr(citation, '_inline_name_set', False)
+                        and self._looks_like_quote_not_case_name(citation.extracted_case_name)):
                     citation.extracted_case_name = "N/A"
 
             except Exception as e:
@@ -4963,6 +5305,19 @@ class UnifiedCitationProcessorV2:
                     f"[UNIFIED_EXTRACTION] Error extracting metadata for citation '{citation.citation}': {e}"
                 )
                 continue
+
+        # Remove noise citations entirely (e.g. "States 1", "States 279") so they
+        # don't pollute clustering or appear as phantom cases in the output.
+        pre_filter_count = len(deduplicated_citations)
+        deduplicated_citations = [
+            c for c in deduplicated_citations
+            if not self._is_noise_citation(c.citation or "")
+        ]
+        if len(deduplicated_citations) < pre_filter_count:
+            logger.info(
+                f"[NOISE-FILTER] Removed {pre_filter_count - len(deduplicated_citations)} noise citations "
+                f"(e.g. 'States N', 'Page N')"
+            )
 
         names_found = sum(
             1 for c in deduplicated_citations
@@ -5126,6 +5481,19 @@ class UnifiedCitationProcessorV2:
                             f"current_name='{current_name}' start_index={start_index} "
                             f"name_likely_in_left_context={getattr(c, 'name_likely_in_left_context', None)}"
                         )
+
+                    # Compute cache key early so it's available for all checks
+                    cache_key = (start_index, end_index)
+
+                    # INLINE-NAME FIX (HIGHEST PRIORITY): If inline extraction found
+                    # a name physically embedded in the citation text (e.g. "The Pizarro,
+                    # 2 Wheat. 227"), trust it unconditionally. Must run BEFORE cache
+                    # check because a bare duplicate ("2 Wheat. 227") at the same
+                    # position may have cached a wrong context name ("Murray").
+                    if getattr(c, '_inline_name_set', False) and current_name and current_name != "N/A":
+                        extraction_cache[cache_key] = current_name
+                        logger.info(f"[INLINE-NAME-TRUST] Keeping inline name '{current_name}' for '{citation_text[:50]}'")
+                        continue
 
                     # Method 0 (FIRST): Extract case name from citation text itself
                     # This runs BEFORE the cache check because eyecite citations like

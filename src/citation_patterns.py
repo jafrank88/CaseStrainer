@@ -142,6 +142,9 @@ class CitationPatterns:
     # Illinois Supreme Court official citations (year format)
     ILL_SC_YEAR = r"\b\d{4}\s+IL\s+\d+\b"  # 2025 IL 130033
 
+    # Illinois Appellate Court public domain citations (year format)
+    ILL_APP_YEAR = r"\b\d{4}\s+IL\s+App\s+\(\d+(?:st|nd|rd|th)\)\s+\d+\b"  # 2023 IL App (1st) 220990
+
     # Illinois historical citations with parenthetical reporters
     ILL_HISTORICAL = r"\b\d+\s+Ill\.\s*\(\d+\s+\w+\.\)\s+\d+\b"  # 6 Ill. (1 Gilm.) 553
 
@@ -452,61 +455,40 @@ class CitationPatterns:
     # ============================================================================
     # NEUTRAL/PUBLIC DOMAIN CITATIONS (Official State Citations)
     # ============================================================================
-
-    # New Mexico: 2017-NM-007, 2017-NMCA-042 (Court of Appeals)
-    NEUTRAL_NM = r"\b20\d{2}-NM(?:CA)?-\d{1,5}\b"
-
-    # Other states (space-separated format): 2017 ND 123
-    NEUTRAL_ND = r"\b20\d{2}\s+ND\s+\d{1,5}\b"  # North Dakota
-    NEUTRAL_OK = r"\b20\d{2}\s+OK\s+\d{1,5}\b"  # Oklahoma
-    NEUTRAL_SD = r"\b20\d{2}\s+SD\s+\d{1,5}\b"  # South Dakota
-    NEUTRAL_UT = r"\b20\d{2}\s+UT\s+\d{1,5}\b"  # Utah
-    NEUTRAL_WI = r"\b20\d{2}\s+WI\s+\d{1,5}\b"  # Wisconsin
-    NEUTRAL_WY = r"\b20\d{2}\s+WY\s+\d{1,5}\b"  # Wyoming
-    NEUTRAL_MT = r"\b20\d{2}\s+MT\s+\d{1,5}\b"  # Montana
-
-    # Additional state-specific reporter patterns
-    NEUTRAL_AL = r"\b20\d{2}\s+AL\s+\d{1,5}\b"  # Alabama
-    NEUTRAL_AK = r"\b20\d{2}\s+AK\s+\d{1,5}\b"  # Alaska
-    NEUTRAL_AR = r"\b20\d{2}\s+AR\s+\d{1,5}\b"  # Arkansas
-    NEUTRAL_AZ = r"\b20\d{2}\s+AZ\s+\d{1,5}\b"  # Arizona
-    NEUTRAL_CA = r"\b20\d{2}\s+CA\s+\d{1,5}\b"  # California
-    NEUTRAL_CO = r"\b20\d{2}\s+CO\s+\d{1,5}\b"  # Colorado
-    NEUTRAL_CT = r"\b20\d{2}\s+CT\s+\d{1,5}\b"  # Connecticut
-    NEUTRAL_DE = r"\b20\d{2}\s+DE\s+\d{1,5}\b"  # Delaware
-    NEUTRAL_FL = r"\b20\d{2}\s+FL\s+\d{1,5}\b"  # Florida
-    NEUTRAL_GA = r"\b20\d{2}\s+GA\s+\d{1,5}\b"  # Georgia
-    NEUTRAL_HI = r"\b20\d{2}\s+HI\s+\d{1,5}\b"  # Hawaii
-    NEUTRAL_ID = r"\b20\d{2}\s+ID\s+\d{1,5}\b"  # Idaho
-    NEUTRAL_IN = r"\b20\d{2}\s+IN\s+\d{1,5}\b"  # Indiana
-    NEUTRAL_IA = r"\b20\d{2}\s+IA\s+\d{1,5}\b"  # Iowa
-    NEUTRAL_KS = r"\b20\d{2}\s+KS\s+\d{1,5}\b"  # Kansas
-    NEUTRAL_KY = r"\b20\d{2}\s+KY\s+\d{1,5}\b"  # Kentucky
-    NEUTRAL_LA = r"\b20\d{2}\s+LA\s+\d{1,5}\b"  # Louisiana
-    NEUTRAL_ME = r"\b20\d{2}\s+ME\s+\d{1,5}\b"  # Maine
-    NEUTRAL_MD = r"\b20\d{2}\s+MD\s+\d{1,5}\b"  # Maryland
-    NEUTRAL_MA = r"\b20\d{2}\s+MA\s+\d{1,5}\b"  # Massachusetts
-    NEUTRAL_MI = r"\b20\d{2}\s+MI\s+\d{1,5}\b"  # Michigan
-    NEUTRAL_MN = r"\b20\d{2}\s+MN\s+\d{1,5}\b"  # Minnesota
-    NEUTRAL_MS = r"\b20\d{2}\s+MS\s+\d{1,5}\b"  # Mississippi
-    NEUTRAL_MO = r"\b20\d{2}\s+MO\s+\d{1,5}\b"  # Missouri
-    NEUTRAL_NE = r"\b20\d{2}\s+NE\s+\d{1,5}\b"  # Nebraska
-    NEUTRAL_NV = r"\b20\d{2}\s+NV\s+\d{1,5}\b"  # Nevada
-    NEUTRAL_NH = r"\b20\d{2}\s+NH\s+\d{1,5}\b"  # New Hampshire
-    NEUTRAL_NJ = r"\b20\d{2}\s+NJ\s+\d{1,5}\b"  # New Jersey
-    NEUTRAL_NY = r"\b20\d{2}\s+NY\s+\d{1,5}\b"  # New York
-    NEUTRAL_NC = r"\b20\d{2}\s+NC\s+\d{1,5}\b"  # North Carolina
-    NEUTRAL_OH = r"\b20\d{2}\s+OH\s+\d{1,5}\b"  # Ohio
-    NEUTRAL_OR = r"\b20\d{2}\s+OR\s+\d{1,5}\b"  # Oregon
-    NEUTRAL_PA = r"\b20\d{2}\s+PA\s+\d{1,5}\b"  # Pennsylvania
-    NEUTRAL_RI = r"\b20\d{2}\s+RI\s+\d{1,5}\b"  # Rhode Island
-    NEUTRAL_SC = r"\b20\d{2}\s+SC\s+\d{1,5}\b"  # South Carolina
-    NEUTRAL_TN = r"\b20\d{2}\s+TN\s+\d{1,5}\b"  # Tennessee
-    NEUTRAL_TX = r"\b20\d{2}\s+TX\s+\d{1,5}\b"  # Texas
-    NEUTRAL_VT = r"\b20\d{2}\s+VT\s+\d{1,5}\b"  # Vermont
-    NEUTRAL_VA = r"\b20\d{2}\s+VA\s+\d{1,5}\b"  # Virginia
-    NEUTRAL_WA = r"\b20\d{2}\s+WA\s+\d{1,5}\b"  # Washington
-    NEUTRAL_WV = r"\b20\d{2}\s+WV\s+\d{1,5}\b"  # West Virginia
+    # 20 US states issue vendor-neutral citations. Formats vary by state.
+    # Sources: Free Law Project, AALL, University of South Carolina LibGuide
+    #
+    # Group 1: YEAR XX NUMBER (two-letter, no periods) — supreme court only
+    NEUTRAL_CO = r"\b20\d{2}\s+CO\s+\d{1,5}\b"      # Colorado Supreme Court: 2024 CO 1
+    NEUTRAL_COA = r"\b20\d{2}\s+COA\s+\d{1,5}\b"     # Colorado Court of Appeals: 2024 COA 1
+    NEUTRAL_ME = r"\b20\d{2}\s+ME\s+\d{1,5}\b"       # Maine Supreme Judicial Court: 2024 ME 1
+    NEUTRAL_MT = r"\b20\d{2}\s+MT\s+\d{1,5}\b"       # Montana Supreme Court: 2024 MT 1
+    NEUTRAL_ND = r"\b20\d{2}\s+ND\s+\d{1,5}\b"       # North Dakota Supreme Court: 2024 ND 1
+    NEUTRAL_ND_APP = r"\b20\d{2}\s+ND\s+App\s+\d{1,5}\b"  # ND Court of Appeals: 2024 ND App 1
+    NEUTRAL_OK = r"\b20\d{2}\s+OK\s+\d{1,5}\b"       # Oklahoma Supreme Court: 2024 OK 1
+    NEUTRAL_OK_CIV = r"\b20\d{2}\s+OK\s+CIV\s+APP\s+\d{1,5}\b"  # OK Civil Appeals: 2024 OK CIV APP 1
+    NEUTRAL_OK_CR = r"\b20\d{2}\s+OK\s+CR\s+\d{1,5}\b"  # OK Criminal Appeals: 2024 OK CR 1
+    NEUTRAL_SD = r"\b20\d{2}\s+SD\s+\d{1,5}\b"       # South Dakota Supreme Court: 2024 SD 1
+    NEUTRAL_UT = r"\b20\d{2}\s+UT\s+\d{1,5}\b"       # Utah Supreme Court: 2024 UT 1
+    NEUTRAL_UT_APP = r"\b20\d{2}\s+UT\s+App\s+\d{1,5}\b"  # Utah Court of Appeals: 2024 UT App 1
+    NEUTRAL_VT = r"\b20\d{2}\s+VT\s+\d{1,5}\b"       # Vermont Supreme Court: 2024 VT 1
+    NEUTRAL_WI = r"\b20\d{2}\s+WI\s+\d{1,5}\b"       # Wisconsin Supreme Court: 2024 WI 1
+    NEUTRAL_WI_APP = r"\b20\d{2}\s+WI\s+App\s+\d{1,5}\b"  # WI Court of Appeals: 2024 WI App 1
+    NEUTRAL_WY = r"\b20\d{2}\s+WY\s+\d{1,5}\b"       # Wyoming Supreme Court: 2024 WY 1
+    #
+    # Group 2: YEAR Abbr. NUMBER (abbreviated with periods)
+    NEUTRAL_AR = r"\b20\d{2}\s+Ark\.(?:\s+App\.)?\s+\d{1,5}\b"  # Arkansas: 2024 Ark. 1, 2024 Ark. App. 1
+    NEUTRAL_NH = r"\b20\d{2}\s+N\.H\.\s+\d{1,5}\b"   # New Hampshire: 2024 N.H. 1
+    NEUTRAL_MS = r"\b20\d{2}\s+Miss\.\s+\d{1,5}\b"   # Mississippi: 2024 Miss. 1 (rare)
+    #
+    # Group 3: YEAR-XX-NUMBER (hyphenated formats)
+    NEUTRAL_OHIO = r"\b20\d{2}[\-\u2011\u2013\u2014]Ohio[\-\u2011\u2013\u2014]\s*\d{1,5}\b"  # Ohio: 2024-Ohio-1234
+    NEUTRAL_NM = r"\b20\d{2}[\-\u2011\u2013\u2014]NM(?:SC|CA)?[\-\u2011\u2013\u2014]\s*\d{1,5}\b"  # NM: 2024-NMSC-001, 2024-NMCA-001
+    NEUTRAL_NC = r"\b20\d{2}[\-\u2011\u2013\u2014]NC(?:SC|COA)[\-\u2011\u2013\u2014]\s*\d{1,5}\b"  # NC: 2024-NCSC-1, 2024-NCCOA-1
+    #
+    # Group 4: States that adopted but use non-standard or rarely-seen formats
+    # Louisiana: docket-based (09-1234 (La. 6/28/10)) — handled by existing patterns
+    # Pennsylvania, Tennessee: adopted but standard reporters still primary
 
     # ============================================================================
     # ONLINE DATABASES
@@ -598,6 +580,7 @@ class CitationPatterns:
             "ill_app_2d": re.compile(cls.ILL_APP_2D, re.IGNORECASE),
             "ill_app_3d": re.compile(cls.ILL_APP_3D, re.IGNORECASE),
             "ill_sc_year": re.compile(cls.ILL_SC_YEAR, re.IGNORECASE),
+            "ill_app_year": re.compile(cls.ILL_APP_YEAR, re.IGNORECASE),
             "ill_historical": re.compile(cls.ILL_HISTORICAL, re.IGNORECASE),
             "ill_no_vol": re.compile(cls.ILL_NO_VOL, re.IGNORECASE),
             "ill_app_no_vol": re.compile(cls.ILL_APP_NO_VOL, re.IGNORECASE),
@@ -777,57 +760,34 @@ class CitationPatterns:
             "crim_ct": re.compile(cls.CRIM_CT, re.IGNORECASE),
             "civ_ct": re.compile(cls.CIV_CT, re.IGNORECASE),
             "hous_ct": re.compile(cls.HOUS_CT, re.IGNORECASE),
-            # Neutral/Public Domain Citations (All 50 States)
-            "neutral_al": re.compile(cls.NEUTRAL_AL, re.IGNORECASE),
-            "neutral_ak": re.compile(cls.NEUTRAL_AK, re.IGNORECASE),
-            "neutral_ar": re.compile(cls.NEUTRAL_AR, re.IGNORECASE),
-            "neutral_az": re.compile(cls.NEUTRAL_AZ, re.IGNORECASE),
-            "neutral_ca": re.compile(cls.NEUTRAL_CA, re.IGNORECASE),
+            # Neutral/Public Domain Citations (20 states that actually use them)
+            # Group 1: Two-letter codes (no periods)
             "neutral_co": re.compile(cls.NEUTRAL_CO, re.IGNORECASE),
-            "neutral_ct": re.compile(cls.NEUTRAL_CT, re.IGNORECASE),
-            "neutral_de": re.compile(cls.NEUTRAL_DE, re.IGNORECASE),
-            "neutral_fl": re.compile(cls.NEUTRAL_FL, re.IGNORECASE),
-            "neutral_ga": re.compile(cls.NEUTRAL_GA, re.IGNORECASE),
-            "neutral_hi": re.compile(cls.NEUTRAL_HI, re.IGNORECASE),
-            "neutral_id": re.compile(cls.NEUTRAL_ID, re.IGNORECASE),
-            "neutral_il": re.compile(cls.ILL_SC_YEAR, re.IGNORECASE),  # Illinois uses ILL_SC_YEAR
-            "neutral_in": re.compile(cls.NEUTRAL_IN, re.IGNORECASE),
-            "neutral_ia": re.compile(cls.NEUTRAL_IA, re.IGNORECASE),
-            "neutral_ks": re.compile(cls.NEUTRAL_KS, re.IGNORECASE),
-            "neutral_ky": re.compile(cls.NEUTRAL_KY, re.IGNORECASE),
-            "neutral_la": re.compile(cls.NEUTRAL_LA, re.IGNORECASE),
+            "neutral_coa": re.compile(cls.NEUTRAL_COA, re.IGNORECASE),
             "neutral_me": re.compile(cls.NEUTRAL_ME, re.IGNORECASE),
-            "neutral_md": re.compile(cls.NEUTRAL_MD, re.IGNORECASE),
-            "neutral_ma": re.compile(cls.NEUTRAL_MA, re.IGNORECASE),
-            "neutral_mi": re.compile(cls.NEUTRAL_MI, re.IGNORECASE),
-            "neutral_mn": re.compile(cls.NEUTRAL_MN, re.IGNORECASE),
-            "neutral_ms": re.compile(cls.NEUTRAL_MS, re.IGNORECASE),
-            "neutral_mo": re.compile(cls.NEUTRAL_MO, re.IGNORECASE),
             "neutral_mt": re.compile(cls.NEUTRAL_MT, re.IGNORECASE),
-            "neutral_ne": re.compile(cls.NEUTRAL_NE, re.IGNORECASE),
-            "neutral_nv": re.compile(cls.NEUTRAL_NV, re.IGNORECASE),
-            "neutral_nh": re.compile(cls.NEUTRAL_NH, re.IGNORECASE),
-            "neutral_nm": re.compile(cls.NEUTRAL_NM, re.IGNORECASE),
-            "neutral_nj": re.compile(cls.NEUTRAL_NJ, re.IGNORECASE),
-            "neutral_ny": re.compile(cls.NEUTRAL_NY, re.IGNORECASE),
-            "neutral_nc": re.compile(cls.NEUTRAL_NC, re.IGNORECASE),
             "neutral_nd": re.compile(cls.NEUTRAL_ND, re.IGNORECASE),
-            "neutral_oh": re.compile(cls.NEUTRAL_OH, re.IGNORECASE),
+            "neutral_nd_app": re.compile(cls.NEUTRAL_ND_APP, re.IGNORECASE),
             "neutral_ok": re.compile(cls.NEUTRAL_OK, re.IGNORECASE),
-            "neutral_or": re.compile(cls.NEUTRAL_OR, re.IGNORECASE),
-            "neutral_pa": re.compile(cls.NEUTRAL_PA, re.IGNORECASE),
-            "neutral_ri": re.compile(cls.NEUTRAL_RI, re.IGNORECASE),
-            "neutral_sc": re.compile(cls.NEUTRAL_SC, re.IGNORECASE),
+            "neutral_ok_civ": re.compile(cls.NEUTRAL_OK_CIV, re.IGNORECASE),
+            "neutral_ok_cr": re.compile(cls.NEUTRAL_OK_CR, re.IGNORECASE),
             "neutral_sd": re.compile(cls.NEUTRAL_SD, re.IGNORECASE),
-            "neutral_tn": re.compile(cls.NEUTRAL_TN, re.IGNORECASE),
-            "neutral_tx": re.compile(cls.NEUTRAL_TX, re.IGNORECASE),
             "neutral_ut": re.compile(cls.NEUTRAL_UT, re.IGNORECASE),
+            "neutral_ut_app": re.compile(cls.NEUTRAL_UT_APP, re.IGNORECASE),
             "neutral_vt": re.compile(cls.NEUTRAL_VT, re.IGNORECASE),
-            "neutral_va": re.compile(cls.NEUTRAL_VA, re.IGNORECASE),
-            "neutral_wa": re.compile(cls.NEUTRAL_WA, re.IGNORECASE),
-            "neutral_wv": re.compile(cls.NEUTRAL_WV, re.IGNORECASE),
             "neutral_wi": re.compile(cls.NEUTRAL_WI, re.IGNORECASE),
+            "neutral_wi_app": re.compile(cls.NEUTRAL_WI_APP, re.IGNORECASE),
             "neutral_wy": re.compile(cls.NEUTRAL_WY, re.IGNORECASE),
+            # Group 2: Abbreviated with periods
+            "neutral_ar": re.compile(cls.NEUTRAL_AR, re.IGNORECASE),
+            "neutral_nh": re.compile(cls.NEUTRAL_NH, re.IGNORECASE),
+            "neutral_ms": re.compile(cls.NEUTRAL_MS, re.IGNORECASE),
+            # Group 3: Hyphenated formats
+            "neutral_ohio": re.compile(cls.NEUTRAL_OHIO, re.IGNORECASE),
+            "neutral_nm": re.compile(cls.NEUTRAL_NM, re.IGNORECASE),
+            "neutral_nc": re.compile(cls.NEUTRAL_NC, re.IGNORECASE),
+            # Illinois uses ILL_SC_YEAR + ILL_APP_YEAR (defined separately)
+            "neutral_il": re.compile(cls.ILL_SC_YEAR, re.IGNORECASE),
             # Online databases
             "westlaw": re.compile(cls.WESTLAW, re.IGNORECASE),
             "westlaw_alt": re.compile(cls.WESTLAW_ALT, re.IGNORECASE),
