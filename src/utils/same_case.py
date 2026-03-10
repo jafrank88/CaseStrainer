@@ -11,11 +11,20 @@ All same-case decisions MUST go through these functions to prevent logic drift.
 import re
 from typing import Optional
 
+try:
+    from src.utils.legal_abbreviations import expand_abbreviations as _expand_abbrevs
+except Exception:
+    _expand_abbrevs = None
+
 # Stop words removed before fuzzy word overlap comparison
 _LEGAL_STOP_WORDS = frozenset({
     "the", "of", "in", "re", "a", "an", "no", "v", "v.",
+    # abbreviations
     "inc", "inc.", "llc", "co", "co.", "corp", "corp.",
-    "et", "al", "ltd", "ltd.", "llp", "lp",  # LP = Limited Partnership suffix
+    "et", "al", "ltd", "ltd.", "llp", "lp",
+    # expanded forms (after abbreviation expansion)
+    "incorporated", "corporation", "limited", "company",
+    "association", "cooperative",
 })
 
 
@@ -25,9 +34,13 @@ def has_case_name(ecn: Optional[str]) -> bool:
 
 
 def _plaintiff_last_word(ecn: str) -> str:
-    """Extract the last word of the plaintiff portion of a 'v.' name."""
+    """Extract the last meaningful word of the plaintiff portion of a 'v.' name."""
     parts = re.split(r"\s+v\.\s+", ecn.lower(), maxsplit=1)
-    return parts[0].strip().split()[-1] if parts[0].strip() else ""
+    if not parts[0].strip():
+        return ""
+    # Filter out stop words (corporate suffixes, etc.) and get last meaningful word
+    words = [w for w in parts[0].strip().split() if w not in _LEGAL_STOP_WORDS]
+    return words[-1] if words else ""
 
 
 def _defendant_last_word(ecn: str) -> str:
@@ -74,6 +87,9 @@ def names_are_same_case(name_a: Optional[str], name_b: Optional[str]) -> bool:
     """
     ecn_a = (name_a or "").strip()
     ecn_b = (name_b or "").strip()
+    if _expand_abbrevs is not None:
+        ecn_a = _expand_abbrevs(ecn_a)
+        ecn_b = _expand_abbrevs(ecn_b)
     has_a = has_case_name(ecn_a)
     has_b = has_case_name(ecn_b)
 
@@ -107,17 +123,17 @@ def names_are_same_case(name_a: Optional[str], name_b: Optional[str]) -> bool:
             if plaintiff_overlap >= 0.5:
                 return True
             return _fuzzy_word_overlap(ecn_a, ecn_b) >= 0.7
-        # Plaintiff last words match
-        # When plaintiff is generic (e.g. "State", "United States"), many cases share it —
-        # require defendant to match so we don't merge State v. Kier with State v. Stalker
-        if pl_a in _GENERIC_PLAINTIFFS or pl_b in _GENERIC_PLAINTIFFS:
-            dl_a = _defendant_last_word(ecn_a)
-            dl_b = _defendant_last_word(ecn_b)
-            if dl_a and dl_b and dl_a != dl_b:
-                def_a = ecn_a.split(" v. ", 1)[1].strip() if " v. " in ecn_a else ""
-                def_b = ecn_b.split(" v. ", 1)[1].strip() if " v. " in ecn_b else ""
-                if _fuzzy_word_overlap(def_a, def_b) < 0.5:
-                    return False
+        # Plaintiff last words match — always verify defendant too.
+        # Without this, "Berkowitz v. Chavo" merges with "Berkowitz v. Xerox" because
+        # "berkowitz" == "berkowitz" and it's not a generic plaintiff.
+        # Generic-plaintiff check is subsumed by this more general check.
+        dl_a = _defendant_last_word(ecn_a)
+        dl_b = _defendant_last_word(ecn_b)
+        if dl_a and dl_b and dl_a != dl_b:
+            def_a = ecn_a.split(" v. ", 1)[1].strip() if " v. " in ecn_a else ""
+            def_b = ecn_b.split(" v. ", 1)[1].strip() if " v. " in ecn_b else ""
+            if _fuzzy_word_overlap(def_a, def_b) < 0.5:
+                return False
         return True
 
     # Both have names but at least one lacks 'v.' - fuzzy word overlap
