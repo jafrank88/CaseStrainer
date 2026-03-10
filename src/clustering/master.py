@@ -14,7 +14,7 @@ from enum import Enum
 
 # Import modular clustering components
 from . import detection, propagation, validation, utils
-from .detection import _clean_ecn
+from .detection import _clean_ecn, _get_segment_id, _same_case_check
 
 logger = logging.getLogger(__name__)
 
@@ -122,6 +122,11 @@ class UnifiedClusteringMaster:
         # (e.g., "Larimore v. Blaylock, 259 Va. 568 ... Swindle v. State, 10 Tenn. 581")
         all_groups = self._split_groups_by_extracted_name(all_groups)
         
+        # Step 3.75: Split groups by year — catches cross-clustering that name-split misses
+        # (e.g. "16 Wall. 36" (1873) wrongly grouped with "7 Cranch 116" (1812) because
+        # both got ecn="Schooner Exchange v. McFaddon" from context/verification).
+        all_groups = self._split_groups_by_year(all_groups)
+        
         # Step 4: Validate and score clusters
         validated_clusters = []
         for group in all_groups:
@@ -223,15 +228,8 @@ class UnifiedClusteringMaster:
         merged = []
         
         for group in parallel_groups + structural_groups:
-            # Create unique key - handle both dict and object citations
-            def get_citation_key(c):
-                # Try dict-style get first, then attribute access
-                if isinstance(c, dict):
-                    return c.get("citation", str(c))
-                # For objects, try citation attribute, then string representation
-                return getattr(c, 'citation', getattr(c, 'text', str(c)))
-            
-            key = frozenset(get_citation_key(c) for c in group)
+            # Use normalized citation key (e.g. Wash. 2d -> Wn.2d) so same-case groups merge
+            key = frozenset(self._get_citation_key(c) for c in group)
             
             if key not in seen:
                 seen.add(key)
@@ -240,17 +238,23 @@ class UnifiedClusteringMaster:
         return merged
 
     def _get_citation_key(self, c: Any) -> str:
-        """Stable key for a citation (dict or object)."""
-        if isinstance(c, dict):
-            return (c.get("citation") or c.get("text") or str(c)).strip()
-        return (getattr(c, "citation", None) or getattr(c, "text", None) or str(c)).strip()
+        """Stable key for a citation (dict or object). Normalize state reporter variants so
+        e.g. 166 Wash. 2d 264 and 166 Wn.2d 264 merge (same case, same reporter)."""
+        raw = (c.get("citation") or c.get("text") or str(c)).strip() if isinstance(c, dict) else (getattr(c, "citation", None) or getattr(c, "text", None) or str(c)).strip()
+        if not raw:
+            return raw
+        # Normalize Washington reporter abbreviations to one form for merge/key purposes
+        key = re.sub(r"\bWash\.\s*2d\b", "Wn.2d", raw, flags=re.IGNORECASE)
+        key = re.sub(r"\bWash\.\s*App\.\s*2d\b", "Wn. App. 2d", key, flags=re.IGNORECASE)
+        key = re.sub(r"\s+", " ", key).strip()
+        return key
 
     def _extract_year(self, c: Any) -> Optional[int]:
         """Extract 4-digit year from citation (dict or object)."""
         for key in ("extracted_date", "canonical_date", "date"):
             val = propagation._get_attr(c, key)
             if val:
-                m = re.search(r"(19|20)\d{2}", str(val))
+                m = re.search(r"(1[7-9]|20)\d{2}", str(val))
                 if m:
                     return int(m.group(0))
         return None
@@ -258,62 +262,198 @@ class UnifiedClusteringMaster:
     def _merge_groups_transitive(self, groups: List[List[Any]]) -> List[List[Any]]:
         """
         Merge groups that share at least one citation (transitive closure).
-        Goal: parallel citations = one case in multiple reporters; if doc cites A & B
-        and later B & C, all three (A, B, C) should end up in one cluster.
+
+        Uses Union-Find for O(g × α(g)) instead of the previous O(g³) iterative
+        restart-on-change approach, which hung for 250+ seconds on 838-citation docs.
+
+        Phase 1: union groups that share an exact citation key.
+        Phase 2: union groups with the same public-domain base or same case name
+                 (using one representative name per group — not citation-by-citation).
         """
         if not groups or len(groups) <= 1:
             return groups
 
-        def keys_of(g: List[Any]) -> set:
-            return {self._get_citation_key(c) for c in g}
+        n = len(groups)
+        parent = list(range(n))
+        rank = [0] * n
 
-        merged = list(groups)
-        while True:
-            changed = False
-            for i in range(len(merged)):
-                if not merged[i]:
+        def find(x: int) -> int:
+            while parent[x] != x:
+                parent[x] = parent[parent[x]]  # path halving
+                x = parent[x]
+            return x
+
+        def union(x: int, y: int) -> None:
+            px, py = find(x), find(y)
+            if px == py:
+                return
+            if rank[px] < rank[py]:
+                px, py = py, px
+            parent[py] = px
+            if rank[px] == rank[py]:
+                rank[px] += 1
+
+        # Precompute per-group data once (avoids repeated recomputation inside loops)
+        group_keys = [{self._get_citation_key(c) for c in g} for g in groups]
+        group_years = [{self._extract_year(c) for c in g} - {None} for g in groups]
+        group_segs = [{_get_segment_id(c) for c in g} - {None} for g in groups]
+        group_rep_name = [self._best_name_from_group(g) for g in groups]
+        group_bases = [self._extract_base_citations(g) for g in groups]
+
+        from src.utils.same_case import names_are_same_case as _nsc
+
+        def segments_compatible(i: int, j: int) -> bool:
+            si, sj = group_segs[i], group_segs[j]
+            return not (si and sj and not (si & sj))
+
+        def years_conflict(i: int, j: int) -> bool:
+            yi, yj = group_years[i], group_years[j]
+            if not yi or not yj:
+                return False
+            if any(abs(a - b) <= 2 for a in yi for b in yj):
+                return False
+            # Allow same canonical name across years (e.g. CFE I + CFE II)
+            ni, nj = group_rep_name[i], group_rep_name[j]
+            if ni and nj and _nsc(ni.lower(), nj.lower()):
+                return False
+            return True
+
+        # Phase 1: union groups sharing an exact citation key
+        key_to_groups: Dict[str, List[int]] = {}
+        for i in range(n):
+            for k in group_keys[i]:
+                if k:
+                    key_to_groups.setdefault(k, []).append(i)
+
+        for _k, idxs in key_to_groups.items():
+            unique_roots = list({find(i) for i in idxs})
+            if len(unique_roots) <= 1:
+                continue
+            base = unique_roots[0]
+            for other in unique_roots[1:]:
+                if find(base) == find(other):
                     continue
-                ki = keys_of(merged[i])
-                for j in range(i + 1, len(merged)):
-                    if not merged[j]:
-                        continue
-                    kj = keys_of(merged[j])
-                    if ki & kj:
-                        # Don't merge if years conflict (e.g. Dow 2005 vs Frederick 2015)
-                        years_i = {self._extract_year(c) for c in merged[i]}
-                        years_j = {self._extract_year(c) for c in merged[j]}
-                        years_i.discard(None)
-                        years_j.discard(None)
-                        if years_i and years_j:
-                            if any(abs((yi or 0) - (yj or 0)) > 2 for yi in years_i for yj in years_j):
-                                logger.info(
-                                    f"[CLUSTERING] Skip transitive merge: year conflict {years_i} vs {years_j}"
-                                )
-                                continue
-                        # Share at least one citation: merge, dedupe by citation key
-                        seen_key: set = set()
-                        combined: List[Any] = []
-                        for c in merged[i] + merged[j]:
-                            k = self._get_citation_key(c)
-                            if k not in seen_key:
-                                seen_key.add(k)
-                                combined.append(c)
-                        merged[i] = combined
-                        merged[j] = []
-                        changed = True
-                        break
-                if changed:
-                    break
-            if not changed:
-                break
+                if not segments_compatible(base, other):
+                    continue
+                if years_conflict(base, other):
+                    continue
+                ni, nj = group_rep_name[base], group_rep_name[other]
+                if ni and nj and not _nsc(ni, nj):
+                    logger.debug(
+                        "[CLUSTERING] Skip union (shared key, different case: '%s' vs '%s')",
+                        ni[:30], nj[:30],
+                    )
+                    continue
+                union(base, other)
 
-        out = [g for g in merged if g]
-        if len(out) < len(groups):
+        # Phase 2a: union groups with shared public-domain base citation.
+        # O(g²) but O(1) set-intersection per pair — only a tiny fraction of groups have bases.
+        for i in range(n):
+            for j in range(i + 1, n):
+                if not group_bases[i] or not group_bases[j]:
+                    continue
+                if find(i) == find(j):
+                    continue
+                if not (group_bases[i] & group_bases[j]):
+                    continue
+                if not segments_compatible(i, j):
+                    continue
+                if years_conflict(i, j):
+                    continue
+                union(i, j)
+                logger.debug("[CLUSTERING] Union groups %d,%d (shared base citation)", i, j)
+
+        # Phase 2b: union groups with same case name, bucketed by normalized first-party word.
+        # Bucketing reduces comparisons from O(g²) to O(g × avg_bucket_size²).
+        # Without bucketing, names_are_same_case() costs ~0.23ms each × g² calls = tens of seconds.
+        def _first_word_key(name: str) -> str:
+            """First significant word from the plaintiff portion (before ' v. ')."""
+            part = name.split(" v. ", 1)[0] if " v. " in name else name
+            words = re.sub(r"[^\w\s]", " ", part.lower()).split()
+            stop = {"the", "in", "re", "a", "an", "of"}
+            for w in words:
+                if len(w) >= 3 and w not in stop:
+                    return w
+            return part.lower()[:8] if part else "__"
+
+        from collections import defaultdict as _dd
+        bucket: dict = _dd(list)
+        for i in range(n):
+            ni = group_rep_name[i]
+            if ni:
+                bucket[_first_word_key(ni)].append(i)
+
+        for _bkey, bidxs in bucket.items():
+            if len(bidxs) < 2:
+                continue
+            for a in range(len(bidxs)):
+                i = bidxs[a]
+                for b in range(a + 1, len(bidxs)):
+                    j = bidxs[b]
+                    if find(i) == find(j):
+                        continue
+                    if group_keys[i] & group_keys[j]:
+                        continue  # handled in Phase 1
+                    if not segments_compatible(i, j):
+                        continue
+                    if years_conflict(i, j):
+                        continue
+                    ni, nj = group_rep_name[i], group_rep_name[j]
+                    if ni and nj and _nsc(ni, nj):
+                        union(i, j)
+                        logger.debug(
+                            "[CLUSTERING] Union groups %d,%d (same case: '%s' ~ '%s')",
+                            i, j, ni[:30], nj[:30],
+                        )
+
+        # Rebuild merged groups from Union-Find, deduplicating by citation key
+        from collections import defaultdict
+        root_to_citations: Dict[int, List[Any]] = defaultdict(list)
+        for i, g in enumerate(groups):
+            root_to_citations[find(i)].extend(g)
+
+        result = []
+        for g in root_to_citations.values():
+            seen_keys: set = set()
+            deduped = []
+            for c in g:
+                k = self._get_citation_key(c)
+                if k not in seen_keys:
+                    seen_keys.add(k)
+                    deduped.append(c)
+            result.append(deduped)
+
+        if len(result) < len(groups):
             logger.info(
-                f"[CLUSTERING] Transitive merge: {len(groups)} groups -> {len(out)} "
-                "(parallel groups sharing a citation merged)"
+                "[CLUSTERING] Transitive merge: %d groups -> %d "
+                "(parallel groups sharing a citation or same case merged)",
+                len(groups), len(result),
             )
-        return out
+        return result
+
+    def _best_name_from_group(self, group: List[Any]) -> str:
+        """Return the best representative case name for a group (canonical preferred)."""
+        for c in group:
+            cn = (propagation._get_attr(c, "canonical_name") or "").strip()
+            if cn and " v. " in cn:
+                return cn
+        for c in group:
+            ecn = _clean_ecn(propagation._get_attr(c, "extracted_case_name") or "")
+            if ecn and ecn != "N/A":
+                return ecn
+        return ""
+
+    def _extract_base_citations(self, group: List[Any]) -> set:
+        """Precompute the set of public-domain base citation strings for a group."""
+        bases: set = set()
+        for c in group:
+            text = (propagation._get_attr(c, "citation") or "").strip()
+            if not text:
+                continue
+            for m in detection._PUBLIC_DOMAIN_BASE_RE.finditer(text):
+                base = next(grp for grp in m.groups() if grp)
+                bases.add(base.strip().lower())
+        return bases
 
     def _split_groups_by_extracted_name(self, groups: List[List[Any]]) -> List[List[Any]]:
         """
@@ -342,16 +482,13 @@ class UnifiedClusteringMaster:
                 if ecn and ecn != "N/A" and " v. " in ecn:
                     # Normalize: lowercase, strip whitespace
                     norm = re.sub(r"\s+", " ", ecn.strip().lower())
-                    # Extract first party for grouping (handles abbreviation differences)
-                    parts = re.split(r"\s+v\.\s+", norm, maxsplit=1)
-                    first_party = parts[0].strip().split()[-1] if parts else norm
                     
-                    # Find matching group by first party
+                    # Find matching group using names_are_same_case (handles
+                    # corporate suffixes like Inc., Corp., LLC correctly)
+                    from src.utils.same_case import names_are_same_case as _nsc
                     matched = False
                     for key in list(name_to_cits.keys()):
-                        key_parts = re.split(r"\s+v\.\s+", key, maxsplit=1)
-                        key_first = key_parts[0].strip().split()[-1] if key_parts else key
-                        if first_party == key_first:
+                        if _nsc(norm, key):
                             name_to_cits[key].append(cit)
                             matched = True
                             break
@@ -392,6 +529,13 @@ class UnifiedClusteringMaster:
                         if matched_to_group:
                             break
                 if not matched_to_group:
+                    # Fallback: shared public domain base citation
+                    for name, cits in name_to_cits.items():
+                        if any(detection._shared_base_citation(nn_cit, nc) for nc in cits):
+                            cits.append(nn_cit)
+                            matched_to_group = True
+                            break
+                if not matched_to_group:
                     remaining_no_name.append(nn_cit)
 
             # Also reassign named citations when bare cite is substring: "857 N.W.2d 569"
@@ -421,6 +565,86 @@ class UnifiedClusteringMaster:
             for nn_cit in remaining_no_name:
                 result.append([nn_cit])
         
+        return result
+
+    def _split_groups_by_year(self, groups: List[List[Any]]) -> List[List[Any]]:
+        """
+        Split groups where citations have extracted dates spanning more than 30 years.
+        
+        Catches cross-clustering that name-split misses: e.g. "16 Wall. 36" (1873)
+        grouped with "7 Cranch 116" (1812) because both got ecn="Schooner Exchange".
+        Parallel citations for the same case are always from the same year.
+        """
+        MAX_YEAR_SPAN = 30
+        result = []
+        split_count = 0
+        groups_checked = 0
+        for group in groups:
+            if len(group) <= 1:
+                result.append(group)
+                continue
+            groups_checked += 1
+            # Extract years for each citation
+            year_cit_pairs = []
+            for c in group:
+                y = self._extract_year(c)
+                year_cit_pairs.append((y, c))
+            years_present = {y for y, _ in year_cit_pairs if y}
+            if len(years_present) <= 1:
+                result.append(group)
+                continue
+            min_y, max_y = min(years_present), max(years_present)
+            if max_y - min_y > MAX_YEAR_SPAN:
+                cit_summaries = [
+                    f"{(propagation._get_attr(c, 'citation', '') or '')[:30]}(y={y})"
+                    for y, c in year_cit_pairs
+                ]
+                logger.info(
+                    f"[CLUSTER-SPLIT-YEAR] Candidate group span={max_y - min_y}: {cit_summaries[:4]}"
+                )
+            if max_y - min_y <= MAX_YEAR_SPAN:
+                result.append(group)
+                continue
+            # Year span too large: split into sub-groups by clustering years
+            # Simple approach: sort by year and split at gaps > MAX_YEAR_SPAN
+            sorted_years = sorted(years_present)
+            year_to_bucket = {}
+            bucket_id = 0
+            year_to_bucket[sorted_years[0]] = bucket_id
+            for i in range(1, len(sorted_years)):
+                if sorted_years[i] - sorted_years[i - 1] > MAX_YEAR_SPAN:
+                    bucket_id += 1
+                year_to_bucket[sorted_years[i]] = bucket_id
+            buckets: Dict[int, List[Any]] = {}
+            no_year: List[Any] = []
+            for y, c in year_cit_pairs:
+                if y is None:
+                    no_year.append(c)
+                else:
+                    b = year_to_bucket[y]
+                    buckets.setdefault(b, []).append(c)
+            # Assign no-year citations to the largest bucket
+            if no_year and buckets:
+                largest = max(buckets, key=lambda k: len(buckets[k]))
+                buckets[largest].extend(no_year)
+            elif no_year:
+                buckets[0] = no_year
+            if len(buckets) > 1:
+                cit_texts = [
+                    (propagation._get_attr(c, "citation", "") or "")[:30]
+                    for c in group
+                ]
+                logger.info(
+                    f"[CLUSTER-SPLIT-YEAR] Splitting group of {len(group)} into "
+                    f"{len(buckets)} sub-groups (year span {min_y}-{max_y}): "
+                    f"{cit_texts[:4]}"
+                )
+                split_count += 1
+            for b_cits in buckets.values():
+                result.append(b_cits)
+        logger.info(
+            f"[CLUSTER-SPLIT-YEAR] Checked {groups_checked} multi-citation groups, split {split_count}"
+        )
         return result
 
     def _extract_document_primary_case_name(self, text: str) -> Optional[str]:
