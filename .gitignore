@@ -60,8 +60,7 @@ ENV/
 .idea/
 .vscode/*
 !.vscode/settings.json
-# Test directories - with specific exceptions
-tests/
+# Test directories: track tests/ for pytest and CI (ignore only non-Python test trees at root)
 test/
 testing/
 spec/
@@ -71,10 +70,6 @@ mocks/
 stubs/
 typings/
 types/
-!tests/test_courtlistener_api.py
-!tests/test_api.py
-!tests/test_enhanced_validator.py
-!tests/test_citation_verification.py
 # Large external libraries
 python-hyperscan/
 hyperscan/
@@ -212,9 +207,7 @@ Thumbs.db
 !casestrainer-vue-new/package.json
 !casestrainer-vue-new/vite.config.js
 !casestrainer-vue-new/tsconfig.json
-# Test files that should be tracked
-!tests/conftest.py
-!tests/test_*.py
+# tests/*.py is tracked by default; keep root-level test_*.py ignored via pattern below
 !src/test_*.py
 # Allow specific log files for debugging
 !logs/app_startup_*.log

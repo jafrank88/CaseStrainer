@@ -41,13 +41,12 @@ from src.utils.response_enrichment import (
     build_fallback_clusters,
     deduplicate_cluster_citations,
     enrich_citations_with_cluster_members,
-    deduplicate_clusters_for_response,
-    merge_clusters_by_shared_real_canonical_url,
     apply_proprietary_display_fallback,
     compute_cluster_sections,
 )
 from src.utils.verification_display_utils import is_effectively_verified_citation
 from src.utils.cluster_display_utils import finalize_cluster_for_response
+from src.utils.response_finalize import merge_dedupe_and_refinalize_clusters
 from src.utils.cluster_postprocess_pipeline import apply_post_verify_cluster_splits
 from src.metrics import (
     record_document,
@@ -1712,27 +1711,11 @@ def _format_response(result, request_id, metadata, start_time):
                 cl["display_citations"] = cl.get("citations") or []
 
         try:
-            clusters_data = merge_clusters_by_shared_real_canonical_url(clusters_data)
-            for _cl in clusters_data:
-                if isinstance(_cl, dict):
-                    finalize_cluster_for_response(
-                        _cl,
-                        clean_names=False,
-                        clear_unverified_canonical=True,
-                        clear_unverified_citations=True,
-                    )
-            clusters_data = deduplicate_clusters_for_response(clusters_data)
-            for _cl in clusters_data:
-                if not isinstance(_cl, dict):
-                    continue
-                try:
-                    cits = enrich_citations_with_cluster_members(
-                        _cl.get("citations") or [],
-                        _cl.get("cluster_members") or [],
-                    )
-                    _cl["display_citations"] = deduplicate_cluster_citations(cits)
-                except Exception:
-                    _cl["display_citations"] = _cl.get("citations") or []
+            clusters_data = merge_dedupe_and_refinalize_clusters(
+                clusters_data,
+                clean_names=False,
+                rebuild_display_citations=True,
+            )
         except Exception as _dedupe_err:
             logger.warning(f"[RESPONSE] Cluster merge/dedupe after finalize failed: {_dedupe_err}")
     except Exception as _e:

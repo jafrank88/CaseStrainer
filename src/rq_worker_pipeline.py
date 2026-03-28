@@ -3079,38 +3079,16 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
                         except Exception as _npp_err:
                             logger.warning(f"[TASK:{task_id}] Cluster parallel promotion skipped: {_npp_err}")
 
-                    # FINAL DISPLAY/IDENTITY GUARD (shared helper):
-                    # one source of truth for submitted/verifying identity on unverified clusters.
+                    # FINAL DISPLAY/IDENTITY GUARD (shared with Vue API — response_finalize)
                     try:
-                        from src.utils.cluster_display_utils import (
-                            finalize_cluster_for_response,
+                        from src.utils.response_finalize import run_final_display_guard_worker
+
+                        clusters_list = run_final_display_guard_worker(
+                            citations_list,
+                            clusters_list or [],
+                            log=logger,
+                            log_prefix=f"[TASK:{task_id}] ",
                         )
-                        from src.utils.response_enrichment import (
-                            apply_proprietary_display_fallback,
-                            deduplicate_clusters_for_response,
-                            merge_clusters_by_shared_real_canonical_url,
-                        )
-                        apply_proprietary_display_fallback(citations_list)
-                        for _cl in clusters_list or []:
-                            if not isinstance(_cl, dict):
-                                continue
-                            apply_proprietary_display_fallback(_cl.get("citations") or [])
-                            finalize_cluster_for_response(
-                                _cl,
-                                clean_names=True,
-                                clear_unverified_canonical=True,
-                                clear_unverified_citations=True,
-                            )
-                        clusters_list = merge_clusters_by_shared_real_canonical_url(clusters_list)
-                        for _cl in clusters_list or []:
-                            if isinstance(_cl, dict):
-                                finalize_cluster_for_response(
-                                    _cl,
-                                    clean_names=True,
-                                    clear_unverified_canonical=True,
-                                    clear_unverified_citations=True,
-                                )
-                        clusters_list = deduplicate_clusters_for_response(clusters_list)
                     except Exception as _final_guard_err:
                         logger.warning(f"[TASK:{task_id}] Final display guard failed: {_final_guard_err}")
 
@@ -3682,35 +3660,16 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
                 except Exception as _npp_err:
                     logger.warning(f"[TASK:{task_id}] File-path cluster parallel promotion failed: {_npp_err}")
 
-            # Final display/identity guard
+            # Final display/identity guard (shared with Vue API — response_finalize)
             try:
-                from src.utils.cluster_display_utils import finalize_cluster_for_response
-                from src.utils.response_enrichment import (
-                    apply_proprietary_display_fallback,
-                    deduplicate_clusters_for_response,
-                    merge_clusters_by_shared_real_canonical_url,
+                from src.utils.response_finalize import run_final_display_guard_worker
+
+                clusters = run_final_display_guard_worker(
+                    citations,
+                    clusters or [],
+                    log=logger,
+                    log_prefix=f"[TASK:{task_id}] ",
                 )
-                apply_proprietary_display_fallback(citations)
-                for _cl in clusters or []:
-                    if not isinstance(_cl, dict):
-                        continue
-                    apply_proprietary_display_fallback(_cl.get("citations") or [])
-                    finalize_cluster_for_response(
-                        _cl,
-                        clean_names=True,
-                        clear_unverified_canonical=True,
-                        clear_unverified_citations=True,
-                    )
-                clusters = merge_clusters_by_shared_real_canonical_url(clusters)
-                for _cl in clusters or []:
-                    if isinstance(_cl, dict):
-                        finalize_cluster_for_response(
-                            _cl,
-                            clean_names=True,
-                            clear_unverified_canonical=True,
-                            clear_unverified_citations=True,
-                        )
-                clusters = deduplicate_clusters_for_response(clusters)
             except Exception as _final_err:
                 logger.warning(f"[TASK:{task_id}] File-path final display guard failed: {_final_err}")
 

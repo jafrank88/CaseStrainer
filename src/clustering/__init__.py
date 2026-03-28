@@ -1,10 +1,19 @@
 """
-Clustering Package for CaseStrainer
-====================================
+Clustering package (citation grouping during extraction/processing)
+===================================================================
 
-This package provides modular clustering functionality,
-breaking down the monolithic unified_clustering_master.py
-into focused, testable modules.
+This package builds and refines **clusters of citations** (parallel groups,
+metadata propagation, validation). It is the primary home for
+``UnifiedClusteringMaster`` and related detection/propagation helpers.
+
+**Relationship to ``src.pipeline.clustering``**
+    The **pipeline** module owns **late-stage merge helpers** used after
+    verification (e.g. ``merge_clusters_by_canonical_name``, ``merge_cluster_group``,
+    ``create_clusters_from_parallel_citations``). The unified processing pipeline
+    typically: extracts → verifies → calls into ``src.clustering`` / optimized
+    masters → then applies pipeline merge passes and ``response_enrichment`` merges
+    for API output. When adding a new merge rule, choose pipeline vs detection by
+    whether it needs **verified canonical metadata** (usually pipeline/response layer).
 
 Usage:
     from src.clustering import UnifiedClusteringMaster

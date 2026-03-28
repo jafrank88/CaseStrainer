@@ -102,6 +102,8 @@ These steps assume Docker is **not** used; use them to verify the backend and Vu
 
 **Keeping the tree clean:** comparison JSON, `tmpclaude-*` agent markers, SQLite `-wal`/`-shm` files, and similar scratch output are listed in `.gitignore`. Prefer putting one-off scripts under `scripts/adhoc/` instead of the repository root so clones stay readable.
 
+**Tests:** the `tests/` directory is tracked in git. From the repo root with your venv active and `PYTHONPATH` set as above, run `python -m pytest tests/` (or a single file such as `tests/test_response_finalize.py`).
+
 ## 🔧 Configuration
 
 ### API Keys (Secure Setup)
