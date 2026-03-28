@@ -14,7 +14,26 @@ import logging
 import re
 from typing import Any, Dict, List
 
+from src.utils.same_case import names_are_same_case
+
 logger = logging.getLogger(__name__)
+
+_RELATOR_PLAINTIFF_PREFIX = re.compile(
+    r"^(?:state|commonwealth|people|inhabitants)\s+ex\s+rel\.?\s+",
+    re.IGNORECASE,
+)
+
+
+def _strip_relator_style_plaintiff_prefix(name: str) -> str:
+    """Drop leading 'State ex rel.' / 'Commonwealth ex rel.' style caption boilerplate."""
+    s = (name or "").strip()
+    if not s:
+        return s
+    prev = None
+    while prev != s:
+        prev = s
+        s = _RELATOR_PLAINTIFF_PREFIX.sub("", s).lstrip()
+    return s.strip()
 
 
 def _normalize_name_tokens(name: str) -> set:
@@ -136,6 +155,41 @@ def _name_similarity(extracted: str, canonical: str) -> float:
     return max(j, cov_a, cov_b)
 
 
+def _extract_party_word_sets(name: str) -> tuple:
+    """Split 'Party v. Party' into two sets of significant words (lowercased)."""
+    parts = re.split(r"\bv\b", str(name).lower(), maxsplit=1)
+    if len(parts) != 2:
+        return set(), set()
+    first_party, second_party = parts[0].strip(), parts[1].strip()
+    common_words = {"the", "and", "of", "in", "on", "at", "by", "for", "with", "a", "an"}
+    first_words = set(w for w in first_party.split() if len(w) > 2 and w not in common_words)
+    second_words = set(w for w in second_party.split() if len(w) > 2 and w not in common_words)
+    return first_words, second_words
+
+
+def _party_line_mismatch(a: str, b: str) -> bool:
+    """True when both sides parse as Party v. Party but one party line clearly disagrees.
+
+    Stops fuzzy-score false positives, e.g. Barr v. Lee vs Barr v. Roane (shared plaintiff,
+    different respondent) and Miller v. Parker vs Zagorski v. Parker (shared respondent,
+    different plaintiffs without subset/fuzzy alignment).
+    """
+    first1, second1 = _extract_party_word_sets(a)
+    first2, second2 = _extract_party_word_sets(b)
+    if not first1 or not first2 or not second1 or not second2:
+        return False
+    if (first1 & first2) and not (second1 & second2):
+        return True
+    if (second1 & second2) and not (first1 & first2):
+        if first1.issubset(first2) or first2.issubset(first1):
+            return False
+        # Disjoint first parties with a shared respondent (e.g. Miller v. Parker vs Zagorski v. Parker).
+        # Do not use min(..., key=len)/max(...) on the two sets: equal cardinalities can pick the same set,
+        # falsely making first_smaller & first_larger non-empty.
+        return True
+    return False
+
+
 def _names_equivalent(
     extracted: str, canonical: str, *, verified: bool = False, canonical_url: str | None = None
 ) -> bool:
@@ -173,15 +227,22 @@ def _names_equivalent(
     if normalize_punctuation(extracted_fixed).lower() == normalize_punctuation(canonical_fixed).lower():
         return True
 
+    # Short document cite vs fuller official relator caption (e.g. "Johnson v. Karl" vs
+    # "State Ex Rel. Johnson & Johnson Corp. v. Karl").
+    if verified or canonical_url:
+        canon_no_rel = _strip_relator_style_plaintiff_prefix(canonical_clean)
+        if canon_no_rel != canonical_clean and names_are_same_case(extracted_clean, canon_no_rel):
+            return True
+
     sim = _name_similarity(extracted_fixed, canonical_fixed)
-    if sim >= 0.6:
+    if sim >= 0.6 and not _party_line_mismatch(extracted_fixed, canonical_fixed):
         return True
 
     if sim < 0.1:
         return False
 
     if verified or canonical_url:
-        if sim >= 0.5:
+        if sim >= 0.5 and not _party_line_mismatch(extracted_fixed, canonical_fixed):
             return True
 
     def gov_strip_tokens(s: str) -> set:
@@ -237,13 +298,19 @@ def _names_equivalent(
             if first1.issubset(first2) or first2.issubset(first1):
                 return True
             if first1 and first2:
-                first_smaller = min(first1, first2, key=len)
-                first_larger = max(first1, first2, key=len)
+                # When |first1| == |first2|, min/max by len can return the same set, inflating overlap.
+                if len(first1) == len(first2):
+                    first_smaller, first_larger = first1, first2
+                else:
+                    first_smaller = min(first1, first2, key=len)
+                    first_larger = max(first1, first2, key=len)
                 first_overlap_count = len(first_smaller & first_larger)
                 if first_smaller and first_overlap_count / len(first_smaller) >= 0.3:
                     return True
             if verified or canonical_url:
-                if len(second_overlap) >= 1:
+                if len(second_overlap) >= 1 and not _party_line_mismatch(
+                    extracted_fixed, canonical_fixed
+                ):
                     return True
 
     return False

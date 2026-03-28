@@ -308,6 +308,7 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
                         # Create progress callback to update citations_processed incrementally
                         # We'll set total_cites after extraction completes
                         total_cites_for_callback = [0]  # Use list to allow modification in nested function
+                        last_processed_for_callback = [0]
 
                         def update_verification_progress(processed_count, status, message):
                             """Update VerificationManager with incremental citation progress"""
@@ -325,33 +326,55 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
                                 if current_total == 0 or current_total == 100:
                                     import re
 
-                                    # Try to extract total from message
-                                    msg_match = re.search(r"(\d+)\s+citations", message)
-                                    if msg_match:
-                                        extracted_total = int(msg_match.group(1))
+                                    # Prefer explicit X/Y form if present
+                                    ratio_match = re.search(r"\((\d+)\s*/\s*(\d+)\s+citations\)", message)
+                                    if ratio_match:
+                                        extracted_total = int(ratio_match.group(2))
                                         if extracted_total > 0:
                                             current_total = extracted_total
                                             logger.info(
-                                                f"[TASK:{task_id}] Extracted total from message: {current_total}"
+                                                f"[TASK:{task_id}] Extracted total from ratio message: {current_total}"
                                             )
+                                    else:
+                                        # Fall back to "Starting verification of Y citations"
+                                        msg_match = re.search(r"starting\s+verification\s+of\s+(\d+)\s+citations", message, re.IGNORECASE)
+                                        if msg_match:
+                                            extracted_total = int(msg_match.group(1))
+                                            if extracted_total > 0:
+                                                current_total = extracted_total
+                                                logger.info(
+                                                    f"[TASK:{task_id}] Extracted total from message: {current_total}"
+                                                )
 
-                                # Use processed_count as fallback for total if still 0
+                                # Keep total monotonic and authoritative; avoid placeholder inflation
                                 if current_total == 0:
-                                    current_total = max(processed_count, 100)  # Use at least 100 or processed_count
+                                    current_total = max(total_cites_for_callback[0], last_processed_for_callback[0], processed_count)
 
+                                # Never allow processed to exceed total, and never move processed backwards
+                                safe_processed = max(int(processed_count), int(last_processed_for_callback[0]))
+                                if current_total > 0:
+                                    safe_processed = min(safe_processed, int(current_total))
+                                last_processed_for_callback[0] = safe_processed
+
+                                # CAP at 99: only vm.complete() may set the true 100%+completed.
+                                if current_total > 0 and safe_processed >= current_total:
+                                    safe_processed = current_total - 1
+                                    last_processed_for_callback[0] = safe_processed
                                 # Update progress with citation count
                                 vm.update_progress(
-                                    task_id, processed=processed_count, total=current_total, message=message
+                                    task_id, processed=safe_processed, total=current_total, message=message
                                 )
                                 logger.info(
-                                    f"[TASK:{task_id}] Progress callback: {processed_count}/{current_total} citations - {message}"
+                                    f"[TASK:{task_id}] Progress callback: {safe_processed}/{current_total} citations - {message}"
                                 )
                             except Exception as e:
                                 logger.warning(f"[TASK:{task_id}] Failed to update incremental progress: {e}")
 
                         # Single pass: full processing with verification and progress callback
                         # FIX 2026-01-30: Timeout to avoid infinite hang in clustering (e.g. "Creating citation clusters")
-                        pipeline_timeout = int(os.environ.get("PIPELINE_TIMEOUT_SECONDS", "600"))  # 10 min default
+                        # Default 600s; verification API alone can take ~300s for large docs.
+                        # The old 300s default caused asyncio.TimeoutError returning empty results.
+                        pipeline_timeout = int(os.environ.get("PIPELINE_TIMEOUT_SECONDS", "600"))
 
                         pipeline_text = text if isinstance(text, str) else (text or "")
                         async def run_pipeline_with_timeout():
@@ -391,6 +414,27 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
                             return result
 
                         logger.info(f"[TASK:{task_id}] Full pipeline processing with verification completed")
+
+                        # CRITICAL FIX: Detect pipeline error responses (text path).
+                        # Same fix as file path - see comment there for details.
+                        _pipeline_error = pipeline_result.get("error")
+                        _pipeline_meta_status = (pipeline_result.get("metadata") or {}).get("status") if isinstance(pipeline_result.get("metadata"), dict) else None
+                        if _pipeline_error or _pipeline_meta_status == "failed":
+                            _err_detail = _pipeline_error or "Pipeline returned failed status"
+                            logger.error(
+                                f"[TASK:{task_id}] Pipeline returned ERROR response (text path): {_err_detail}. "
+                                f"metadata.errors={pipeline_result.get('metadata', {}).get('errors', []) if isinstance(pipeline_result.get('metadata'), dict) else 'N/A'}"
+                            )
+                            result = {
+                                "status": "failed",
+                                "task_id": task_id,
+                                "error": f"Pipeline error: {_err_detail}",
+                                "citations": [],
+                                "clusters": [],
+                                "success": False,
+                            }
+                            return result
+
                         # Diagnostic: compare sync vs async pipeline output (see docs/PIPELINE_ENTRY_POINTS.md)
                         citations_raw = pipeline_result.get("citations", []) or []
                         logger.info(
@@ -1678,6 +1722,22 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
                                     )
                             except Exception as _merge_err:
                                 logger.warning(f"[TASK:{task_id}] Shared-citation merge skipped: {_merge_err}")
+
+                        # U.S. / S. Ct. / L. Ed. parallel cites share no citation_core_key — merge by name+year+supreme tier
+                        if clusters_list and len(clusters_list) > 1:
+                            try:
+                                from src.utils.response_enrichment import (
+                                    merge_clusters_by_scotus_parallel_reporters,
+                                )
+
+                                before_par = len(clusters_list)
+                                clusters_list = merge_clusters_by_scotus_parallel_reporters(clusters_list)
+                                if len(clusters_list) < before_par:
+                                    logger.info(
+                                        f"[TASK:{task_id}] SCOTUS parallel merge: {before_par} -> {len(clusters_list)} clusters"
+                                    )
+                            except Exception as _par_err:
+                                logger.warning(f"[TASK:{task_id}] SCOTUS parallel merge skipped: {_par_err}")
 
                         # Merge clusters that are the same case: same normalized name, same year, ≥1 citation in common
                         if clusters_list and len(clusters_list) > 1:
@@ -2978,6 +3038,47 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
                     except Exception as split_err:
                         logger.warning(f"[TASK:{task_id}] Final post-verify split failed: {split_err}")
 
+                    # Re-merge after the final split: historical reporters (Cranch, Wheat., Wall.)
+                    # share core keys with their duplicate clusters and should be reunified.
+                    if clusters_list and len(clusters_list) > 1:
+                        try:
+                            from src.utils.response_enrichment import merge_clusters_by_shared_citation
+                            before_remerge = len(clusters_list)
+                            clusters_list = merge_clusters_by_shared_citation(clusters_list)
+                            if len(clusters_list) < before_remerge:
+                                logger.info(
+                                    f"[TASK:{task_id}] Post-split re-merge: {before_remerge} -> {len(clusters_list)} clusters"
+                                )
+                        except Exception as _remerge_err:
+                            logger.warning(f"[TASK:{task_id}] Post-split re-merge skipped: {_remerge_err}")
+
+                    if clusters_list and len(clusters_list) > 1:
+                        try:
+                            from src.utils.response_enrichment import (
+                                merge_clusters_by_scotus_parallel_reporters,
+                            )
+
+                            before_par = len(clusters_list)
+                            clusters_list = merge_clusters_by_scotus_parallel_reporters(clusters_list)
+                            if len(clusters_list) < before_par:
+                                logger.info(
+                                    f"[TASK:{task_id}] Post-split SCOTUS parallel merge: {before_par} -> {len(clusters_list)} clusters"
+                                )
+                        except Exception as _par_err:
+                            logger.warning(f"[TASK:{task_id}] Post-split SCOTUS parallel merge skipped: {_par_err}")
+
+                    if clusters_list:
+                        try:
+                            from src.utils.response_enrichment import promote_parallel_siblings_in_clusters
+
+                            _npp = promote_parallel_siblings_in_clusters(clusters_list, citations_list)
+                            if _npp:
+                                logger.info(
+                                    f"[TASK:{task_id}] Cluster parallel promotion: {_npp} citation(s) marked true_by_parallel"
+                                )
+                        except Exception as _npp_err:
+                            logger.warning(f"[TASK:{task_id}] Cluster parallel promotion skipped: {_npp_err}")
+
                     # FINAL DISPLAY/IDENTITY GUARD (shared helper):
                     # one source of truth for submitted/verifying identity on unverified clusters.
                     try:
@@ -2987,6 +3088,7 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
                         from src.utils.response_enrichment import (
                             apply_proprietary_display_fallback,
                             deduplicate_clusters_for_response,
+                            merge_clusters_by_shared_real_canonical_url,
                         )
                         apply_proprietary_display_fallback(citations_list)
                         for _cl in clusters_list or []:
@@ -2999,6 +3101,15 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
                                 clear_unverified_canonical=True,
                                 clear_unverified_citations=True,
                             )
+                        clusters_list = merge_clusters_by_shared_real_canonical_url(clusters_list)
+                        for _cl in clusters_list or []:
+                            if isinstance(_cl, dict):
+                                finalize_cluster_for_response(
+                                    _cl,
+                                    clean_names=True,
+                                    clear_unverified_canonical=True,
+                                    clear_unverified_citations=True,
+                                )
                         clusters_list = deduplicate_clusters_for_response(clusters_list)
                     except Exception as _final_guard_err:
                         logger.warning(f"[TASK:{task_id}] Final display guard failed: {_final_guard_err}")
@@ -3042,10 +3153,8 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
                             f"[TASK:{task_id}]   - First citation keys: {list(result['citations'][0].keys()) if isinstance(result['citations'][0], dict) else 'Not a dict'}"
                         )
 
-                    # Ensure result is JSON serializable
+                    # Ensure result is JSON serializable (use module-level json; do not re-import or json becomes local and breaks file-path code later)
                     try:
-                        import json
-
                         json_test = json.dumps(result, default=str)
                         logger.info(f"[TASK:{task_id}] Result is JSON serializable (size: {len(json_test)} bytes)")
                     except Exception as json_err:
@@ -3373,6 +3482,11 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
                                 m3 = _re.search(r'\((\d+)\s+processed\)', message)
                                 if m3:
                                     processed = int(m3.group(1))
+                        # CAP at 99: only vm.complete() may set the true 100%+completed.
+                        # Prevents the bar sitting at 100% with status=processing while
+                        # Redis serialisation / post-processing finishes.
+                        if total > 0 and processed >= total:
+                            processed = total - 1
                         vm.update_progress(
                             task_id,
                             processed=processed,
@@ -3385,6 +3499,9 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
                 # Call pipeline directly with asyncio; use same timeout as text path to avoid runaway runs
                 import asyncio
 
+                # Default 600s; process_text() alone can take ~300s for large docs (verification API).
+                # The old 300s default caused asyncio.TimeoutError right as _format_response started,
+                # returning empty citations.  Set PIPELINE_TIMEOUT_SECONDS env var to override.
                 pipeline_timeout = int(os.environ.get("PIPELINE_TIMEOUT_SECONDS", "600"))
                 try:
                     pipeline_result = asyncio.run(
@@ -3416,10 +3533,38 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
                         "success": False,
                     }
                     return result
-                logger.info(f"[TASK:{task_id}] Unified pipeline processing completed (file path)")
+                logger.info(
+                    f"[TASK:{task_id}] Unified pipeline processing completed (file path). "
+                    f"pipeline_result keys={list(pipeline_result.keys()) if isinstance(pipeline_result, dict) else type(pipeline_result).__name__}, "
+                    f"citations={len(pipeline_result.get('citations', []))} clusters={len(pipeline_result.get('clusters', []))}"
+                )
             except Exception as e:
                 logger.error(f"[TASK:{task_id}] Full pipeline failed: {e}")
                 result = {"status": "failed", "task_id": task_id, "error": f"Pipeline failed: {str(e)}"}
+                return result
+
+            # CRITICAL FIX: Detect pipeline error responses.
+            # process_citations_unified catches exceptions in _format_response and returns
+            # _format_error_response() which has {"citations": [], "clusters": [], "error": "..."}.
+            # Previously the worker always set status="completed", silently swallowing the error.
+            pipeline_error = pipeline_result.get("error")
+            pipeline_meta_status = (pipeline_result.get("metadata") or {}).get("status") if isinstance(pipeline_result.get("metadata"), dict) else None
+            if pipeline_error or pipeline_meta_status == "failed":
+                error_detail = pipeline_error or "Pipeline returned failed status"
+                logger.error(
+                    f"[TASK:{task_id}] Pipeline returned ERROR response (not an exception): {error_detail}. "
+                    f"pipeline_result keys={list(pipeline_result.keys())}, "
+                    f"metadata.status={pipeline_meta_status}, "
+                    f"metadata.errors={pipeline_result.get('metadata', {}).get('errors', []) if isinstance(pipeline_result.get('metadata'), dict) else 'N/A'}"
+                )
+                result = {
+                    "status": "failed",
+                    "task_id": task_id,
+                    "error": f"Pipeline error: {error_detail}",
+                    "citations": [],
+                    "clusters": [],
+                    "success": False,
+                }
                 return result
 
             citations_raw = pipeline_result.get("citations", [])
@@ -3479,12 +3624,6 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
             # NOTE: Fallback verification already runs inside verify_citations_batch()
             # (Phase 4.75 enhanced_batch_fallback). No need for a second fallback here.
 
-            try:
-                total = max(4, len(citations) or 4)
-                vm.update_progress(task_id, processed=3, total=total, message="Verifying citations and finalizing")
-            except Exception as progress_err:
-                logger.debug(f"[TASK:{task_id}] File-path finalizing progress update skipped: {progress_err}")
-
             # FIX 2026-02-09: Re-annotate mismatch flags after pipeline post-processing
             try:
                 from src.utils.mismatch_utils import annotate_mismatch_flags
@@ -3492,6 +3631,88 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
                 logger.info(f"[TASK:{task_id}] Re-annotated mismatch flags (file path)")
             except Exception as mismatch_err:
                 logger.warning(f"[TASK:{task_id}] Mismatch re-annotation failed: {mismatch_err}")
+
+            # Post-verify cluster splits (same as text path)
+            try:
+                from src.utils.post_verify_split import apply_post_verify_cluster_splits
+                clusters = apply_post_verify_cluster_splits(
+                    clusters,
+                    citations,
+                    task_id=task_id,
+                    run_id=f"{task_id}:file_final",
+                )
+            except Exception as _split_err:
+                logger.warning(f"[TASK:{task_id}] File-path post-verify split failed: {_split_err}")
+
+            # Merge clusters sharing citation keys (catches duplicates from tier split)
+            if clusters and len(clusters) > 1:
+                try:
+                    from src.utils.response_enrichment import merge_clusters_by_shared_citation
+                    before_merge = len(clusters)
+                    clusters = merge_clusters_by_shared_citation(clusters)
+                    if len(clusters) < before_merge:
+                        logger.info(
+                            f"[TASK:{task_id}] File-path shared-citation merge: {before_merge} -> {len(clusters)} clusters"
+                        )
+                except Exception as _merge_err:
+                    logger.warning(f"[TASK:{task_id}] File-path shared-citation merge failed: {_merge_err}")
+
+            if clusters and len(clusters) > 1:
+                try:
+                    from src.utils.response_enrichment import merge_clusters_by_scotus_parallel_reporters
+
+                    before_par = len(clusters)
+                    clusters = merge_clusters_by_scotus_parallel_reporters(clusters)
+                    if len(clusters) < before_par:
+                        logger.info(
+                            f"[TASK:{task_id}] File-path SCOTUS parallel merge: {before_par} -> {len(clusters)} clusters"
+                        )
+                except Exception as _par_err:
+                    logger.warning(f"[TASK:{task_id}] File-path SCOTUS parallel merge failed: {_par_err}")
+
+            if clusters:
+                try:
+                    from src.utils.response_enrichment import promote_parallel_siblings_in_clusters
+
+                    _npp = promote_parallel_siblings_in_clusters(clusters, citations)
+                    if _npp:
+                        logger.info(
+                            f"[TASK:{task_id}] File-path cluster parallel promotion: {_npp} citation(s) true_by_parallel"
+                        )
+                except Exception as _npp_err:
+                    logger.warning(f"[TASK:{task_id}] File-path cluster parallel promotion failed: {_npp_err}")
+
+            # Final display/identity guard
+            try:
+                from src.utils.cluster_display_utils import finalize_cluster_for_response
+                from src.utils.response_enrichment import (
+                    apply_proprietary_display_fallback,
+                    deduplicate_clusters_for_response,
+                    merge_clusters_by_shared_real_canonical_url,
+                )
+                apply_proprietary_display_fallback(citations)
+                for _cl in clusters or []:
+                    if not isinstance(_cl, dict):
+                        continue
+                    apply_proprietary_display_fallback(_cl.get("citations") or [])
+                    finalize_cluster_for_response(
+                        _cl,
+                        clean_names=True,
+                        clear_unverified_canonical=True,
+                        clear_unverified_citations=True,
+                    )
+                clusters = merge_clusters_by_shared_real_canonical_url(clusters)
+                for _cl in clusters or []:
+                    if isinstance(_cl, dict):
+                        finalize_cluster_for_response(
+                            _cl,
+                            clean_names=True,
+                            clear_unverified_canonical=True,
+                            clear_unverified_citations=True,
+                        )
+                clusters = deduplicate_clusters_for_response(clusters)
+            except Exception as _final_err:
+                logger.warning(f"[TASK:{task_id}] File-path final display guard failed: {_final_err}")
 
             # FIX 2026-02-24: Add cluster_sections for frontend display categorization
             from src.utils.response_enrichment import compute_cluster_sections
@@ -3522,6 +3743,11 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
                 "citations": citations,
                 "clusters": clusters,
                 "cluster_sections": compute_cluster_sections(clusters),
+                "statistics": {
+                    "total_citations": len(citations),
+                    "verified_citations": verified_count_file,
+                    "total_clusters": len(clusters),
+                },
                 "metadata": meta_file,
             }
 
@@ -3529,6 +3755,30 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
                 vm.complete(task_id, result)
             except Exception as complete_err:
                 logger.debug(f"[TASK:{task_id}] File-path complete update skipped: {complete_err}")
+
+            try:
+                from redis import Redis
+
+                from src.config import REDIS_URL
+
+                redis_client = Redis.from_url(REDIS_URL)
+                early_result_payload = json.dumps(result, default=str)
+                redis_client.setex(f"rq:job:{task_id}:result", 86400, early_result_payload)
+                redis_client.setex(f"task_result:{task_id}", 86400, early_result_payload)
+                redis_client.setex(f"verification:result:{task_id}", 3600, early_result_payload)
+                early_progress_data = {
+                    "status": "completed",
+                    "progress": 100,
+                    "message": f"Processing completed! {len(citations)} citations in {len(clusters)} clusters",
+                    "current_step": "Complete",
+                    "citations_count": len(citations),
+                    "clusters_count": len(clusters),
+                    "timestamp": time.time(),
+                }
+                redis_client.setex(f"progress:{task_id}", 3600, json.dumps(early_progress_data))
+                logger.info(f"[TASK:{task_id}] Early final result persisted for task_status")
+            except Exception as early_store_err:
+                logger.warning(f"[TASK:{task_id}] Early final Redis persistence failed: {early_store_err}")
 
             # Diagnostic: log clustering version and sample clusters (Kustura/Perry) for debugging
             logger.info(

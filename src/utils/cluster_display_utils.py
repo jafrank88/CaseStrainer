@@ -368,6 +368,10 @@ def get_representative_verified_citation(cluster: Dict[str, Any]) -> Optional[An
             has_canonical or has_possible_evidence
         ):
             return cit
+        # date_mismatch citations carry canonical_name/date/url but status is often ''
+        # Return them so the Date Differences section header shows the found name, not "Not Found".
+        if cit.get("date_mismatch") is True and has_canonical:
+            return cit
     return None
 
 
@@ -445,6 +449,8 @@ def get_representative_submitted_citation(cluster: Dict[str, Any]) -> Optional[A
             if en and en != "N/A" and ed and ed != "N/A" and not _is_bad_submitted_name(en):
                 return c
 
+    canonical_name = str(cluster.get("canonical_name") or cluster.get("cluster_case_name") or "").strip()
+
     best = None
     best_score = -1
     for c in cits:
@@ -453,6 +459,8 @@ def get_representative_submitted_citation(cluster: Dict[str, Any]) -> Optional[A
         if not en or en == "N/A" or _is_bad_submitted_name(en):
             continue
         score = len(en) + (1000 if (ed and ed != "N/A") else 0)
+        if canonical_name and names_are_same_case(en, canonical_name):
+            score += 5000
         if score > best_score:
             best = c
             best_score = score
@@ -462,28 +470,39 @@ def get_representative_submitted_citation(cluster: Dict[str, Any]) -> Optional[A
 def _context_year_for_display(cit: Dict[str, Any]) -> Optional[str]:
     """
     Derive a document-year from citation context when extracted_date appears stale.
-    Prefer years that appear in parentheticals near the citation text.
-    Exclude document header years (e.g. "Argued March 30, 2021-Decided June 25") that
-    contaminate citations like Detroit Timber (1906) with TransUnion's 2021.
+    Prefer the parenthetical year that immediately follows the citation text in the
+    context, not the last one (which can be from a neighboring TOA entry).
+    Exclude document header years (e.g. "Argued March 30, 2021-Decided June 25").
     """
     if not isinstance(cit, dict):
         return None
     context = str(cit.get("context") or "").strip()
     if not context:
         return None
-    # Prefer parenthetical year tokens: "(1990)", "(D.N.H. 2021)" etc.
-    paren_years = re.findall(r"\((?:[^)]*?)(?:17|18|19|20)\d{2}(?:[^)]*?)\)", context)
-    if paren_years:
-        m = re.search(r"((?:17|18|19|20)\d{2})", paren_years[-1])
-        if m:
-            return m.group(1)
-    # Fallback: last year in context, but EXCLUDE document header years.
-    # Strip header patterns (e.g. "Argued March 30, 2021-Decided June 25") that contaminate
-    # citations like Detroit Timber (1906) with the document's 2021.
+
+    # Locate citation text in context to find the parenthetical year right after it.
+    cite_text = str(cit.get("citation") or "").strip()
+    search_start = 0
+    if cite_text and len(cite_text) >= 6:
+        # Use the reporter fragment (more stable than full text which may be truncated)
+        reporter_m = re.search(r"\d+\s+\w", cite_text)
+        lookup = cite_text[reporter_m.start():] if reporter_m else cite_text
+        pos = context.find(lookup[:30])
+        if pos >= 0:
+            search_start = pos + len(lookup[:30])
+
+    after_cite = context[search_start:]
+
+    # Find parenthetical year tokens after the citation: "(1925)", "(8th Cir.1925)" etc.
+    paren_match = re.search(r"\([^()]*?((?:17|18|19|20)\d{2})[^()]*?\)", after_cite)
+    if paren_match:
+        return paren_match.group(1)
+
+    # Fallback: first bare year after citation in context.
     context_no_headers = re.sub(
         r"(?:Argued|Decided|Filed)\s+[^.]*?(?:17|18|19|20)\d{2}[^.]{0,60}",
         "",
-        context,
+        after_cite,
         flags=re.IGNORECASE,
     )
     context_no_headers = re.sub(
@@ -492,9 +511,9 @@ def _context_year_for_display(cit: Dict[str, Any]) -> Optional[str]:
         context_no_headers,
         flags=re.IGNORECASE,
     )
-    years = re.findall(r"\b((?:17|18|19|20)\d{2})\b", context_no_headers)
-    if years:
-        return years[-1]
+    m = re.search(r"\b((?:17|18|19|20)\d{2})\b", context_no_headers)
+    if m:
+        return m.group(1)
     return None
 
 
@@ -688,9 +707,18 @@ def apply_display_fields_to_cluster(cluster: Dict[str, Any]) -> None:
         # Do NOT overwrite existing extracted year; context windows can contain
         # nearby unrelated years (e.g., subsequent parentheticals in the same sentence).
         if not rep_date or rep_date in {"N/A", "Unknown Year", "unknown"}:
-            context_year = _context_year_for_display(rep_sub)
-            if context_year:
-                rep_date = context_year
+            # Prefer canonical_date when verified — safer than a context year
+            # that can bleed from a neighboring TOA entry.
+            canonical_yr = str(cluster.get("canonical_date") or cluster.get("verifying_display_date") or "").strip()
+            if canonical_yr and canonical_yr not in {"N/A", ""}:
+                from src.utils.date_utils import extract_year_value
+                yr = extract_year_value(canonical_yr)
+                if yr:
+                    rep_date = yr
+            if not rep_date or rep_date in {"N/A", "Unknown Year", "unknown"}:
+                context_year = _context_year_for_display(rep_sub)
+                if context_year:
+                    rep_date = context_year
         if rep_name and rep_name != "N/A" and not _is_bad_submitted_name(rep_name):
             cluster["submitted_display_name"] = _normalize_display_name_comma_spacing(normalize_case_name(rep_name))
         else:
@@ -741,10 +769,20 @@ def apply_display_fields_to_cluster(cluster: Dict[str, Any]) -> None:
         ):
             _needs_upgrade = True
         # (c) No "v." in submitted but cluster_case_name/canonical has full "v." name
-        #     and submitted is a substring (e.g. "Chong Yim" in "Chong Yim v. City of Seattle")
+        #     and submitted is a substring or an abbreviation variant
+        #     (e.g. "Chong Yim" in "Chong Yim v. City of Seattle",
+        #      or "Edwards Lifesciences Corporation" vs "Edwards Lifesciences Corp.")
         if not _needs_upgrade and " v. " not in _sdn and " v. " in _best_alt:
-            if _sdn.lower().rstrip(".") in _best_alt.lower():
+            _sdn_norm = _sdn.lower().rstrip(".")
+            _alt_norm = _best_alt.lower()
+            if _sdn_norm in _alt_norm:
                 _needs_upgrade = True
+            elif not _needs_upgrade:
+                _sdn_words = set(re.sub(r"[.,;:']", "", _sdn_norm).split())
+                _alt_right = _alt_norm.split(" v. ", 1)[-1] if " v. " in _alt_norm else ""
+                _alt_right_words = set(re.sub(r"[.,;:']", "", _alt_right).split())
+                if _sdn_words and _alt_right_words and len(_sdn_words & _alt_right_words) >= len(_sdn_words) * 0.6:
+                    _needs_upgrade = True
         # (d) Context prefix contamination: submitted has extra words before the real case name
         #     e.g. "City of Seattle Ford Motor Co. v. City of Seattle" where real name is "Ford Motor Co. v. City of Seattle"
         if not _needs_upgrade and " v. " in _sdn and " v. " in _best_alt:
@@ -784,6 +822,8 @@ def apply_display_fields_to_cluster(cluster: Dict[str, Any]) -> None:
         cluster["cluster_case_name"] = _normalize_display_name_comma_spacing(
             str(cluster.get("cluster_case_name") or "")
         )
+    # Keep verifying_display_name as the CourtListener / canonical caption when it differs
+    # from the document string; submitted_display_name carries the extracted form for comparison.
     cluster["display_canonical_url"] = get_canonical_url(cluster)
     # For non-canonical rows, provide a user-clickable web search fallback.
     if not cluster.get("display_canonical_url"):

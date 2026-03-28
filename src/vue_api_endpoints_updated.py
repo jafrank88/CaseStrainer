@@ -42,6 +42,7 @@ from src.utils.response_enrichment import (
     deduplicate_cluster_citations,
     enrich_citations_with_cluster_members,
     deduplicate_clusters_for_response,
+    merge_clusters_by_shared_real_canonical_url,
     apply_proprietary_display_fallback,
     compute_cluster_sections,
 )
@@ -165,12 +166,14 @@ def _analyze_impl(request):
         service = CitationService()
 
         progress_steps = [
-            {"name": "Initializing...", "progress": 0, "message": "Starting unified processing..."},
-            {"name": "Extract", "progress": 20, "message": "Extracting citations..."},
-            {"name": "Analyze", "progress": 40, "message": "Citations analyzed and normalized..."},
-            {"name": "Extract Names", "progress": 60, "message": "Case names and years extracted..."},
-            {"name": "Cluster", "progress": 80, "message": "Citations clustered successfully..."},
-            {"name": "Verify", "progress": 90, "message": "Verification completed..."},
+            {"name": "Initializing...", "progress": 5, "message": "Starting document analysis..."},
+            {"name": "Extract", "progress": 15, "message": "Extracting citations from document..."},
+            {"name": "Enhance", "progress": 35, "message": "Enhancing citation data with case names..."},
+            {"name": "Parallel", "progress": 50, "message": "Detecting parallel citations..."},
+            {"name": "Filter", "progress": 65, "message": "Removing false positive citations..."},
+            {"name": "Verify", "progress": 75, "message": "Verifying citations with external sources..."},
+            {"name": "Cluster", "progress": 85, "message": "Creating citation clusters..."},
+            {"name": "Finalize", "progress": 95, "message": "Finalizing results..."},
         ]
         # Initialize progress manager (SSEProgressManager) and start progress for this request
         try:
@@ -1644,14 +1647,13 @@ def _format_response(result, request_id, metadata, start_time):
     except Exception as _e:
         logger.warning(f"[SCHEMAS] Cluster normalization failed, using raw dicts: {_e}")
 
-    # Last-mile response hygiene: normalize proprietary messages and remove duplicate cluster cards.
+    # Last-mile response hygiene: normalize proprietary messages (dedupe runs after display finalization).
     try:
         apply_proprietary_display_fallback(citations_serialized)
         for _cl in clusters_data:
             if not isinstance(_cl, dict):
                 continue
             apply_proprietary_display_fallback(_cl.get("citations") or [])
-        clusters_data = deduplicate_clusters_for_response(clusters_data)
     except Exception as _e:
         logger.warning(f"[RESPONSE] Final response hygiene failed: {_e}")
 
@@ -1708,6 +1710,31 @@ def _format_response(result, request_id, metadata, start_time):
                 cl["display_citations"] = deduplicate_cluster_citations(cits)
             except Exception:
                 cl["display_citations"] = cl.get("citations") or []
+
+        try:
+            clusters_data = merge_clusters_by_shared_real_canonical_url(clusters_data)
+            for _cl in clusters_data:
+                if isinstance(_cl, dict):
+                    finalize_cluster_for_response(
+                        _cl,
+                        clean_names=False,
+                        clear_unverified_canonical=True,
+                        clear_unverified_citations=True,
+                    )
+            clusters_data = deduplicate_clusters_for_response(clusters_data)
+            for _cl in clusters_data:
+                if not isinstance(_cl, dict):
+                    continue
+                try:
+                    cits = enrich_citations_with_cluster_members(
+                        _cl.get("citations") or [],
+                        _cl.get("cluster_members") or [],
+                    )
+                    _cl["display_citations"] = deduplicate_cluster_citations(cits)
+                except Exception:
+                    _cl["display_citations"] = _cl.get("citations") or []
+        except Exception as _dedupe_err:
+            logger.warning(f"[RESPONSE] Cluster merge/dedupe after finalize failed: {_dedupe_err}")
     except Exception as _e:
         logger.warning(f"[RESPONSE] Failed to add cluster display fields: {_e}")
 

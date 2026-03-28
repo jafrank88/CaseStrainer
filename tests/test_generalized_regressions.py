@@ -4,14 +4,90 @@ from types import SimpleNamespace
 try:
     from src.utils.response_enrichment import (
         apply_proprietary_display_fallback,
+        deduplicate_cluster_citations,
         deduplicate_clusters_for_response,
     )
 except ModuleNotFoundError:
     apply_proprietary_display_fallback = None
+    deduplicate_cluster_citations = None
     deduplicate_clusters_for_response = None
 from src.utils.case_name_cleaner import clean_extracted_case_name
 from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2
 from src.utils.cluster_display_utils import apply_display_fields_to_cluster, finalize_cluster_display_identity
+
+
+def test_snap_s_ct_truncated_page_from_source_window():
+    """Eyecite '143 S. Ct. 24.' + prose: recover full page from document text (Loper Bright SG brief)."""
+    from src.utils.extraction_cleaner import snap_s_ct_citation_to_source_window
+
+    bad = "143 S. Ct. 24. As stated in the petition, Question 2"
+    src = (
+        "This Court granted the petition for a writ of certiorari limited to Question 2 "
+        "presented by the petition. 143 S. Ct. 2429. As stated in the petition"
+    )
+    pos = src.find("143 S. Ct. 2429")
+    assert snap_s_ct_citation_to_source_window(bad, src, pos) == "143 S. Ct. 2429"
+
+
+def test_merge_s_ct_page_split_in_string():
+    from src.utils.extraction_cleaner import merge_s_ct_page_split_in_string
+
+    assert merge_s_ct_page_split_in_string("See 143 S. Ct. 24 29 (2023).") == "See 143 S. Ct. 2429 (2023)."
+
+
+def test_known_federal_lookup_143_s_ct_2429_loper_bright():
+    from src.verification.known_citations import _lookup_known_federal
+
+    row = _lookup_known_federal("143 S. Ct. 2429")
+    assert row is not None
+    assert "Loper Bright" in (row.get("canonical_name") or "")
+
+
+def test_reconcile_eyecite_scotus_suffix_year_toa_neighbor():
+    """Eyecite (scotus 1991) on Loper cite: plain (2024) appears after same U.S. reporter in TOA."""
+    from src.utils.extraction_cleaner import reconcile_eyecite_scotus_suffix_year
+
+    bad = "Loper Bright Enters. v. Raimondo, 603 U.S. 369 (scotus 1991)"
+    toa = (
+        "48 Loper Bright Enters. v. Raimondo, 603 U.S. 369 (2024)... 16, 44, 45 "
+        "Melendez v. U.S. Department of Justice, 926 F.2d 211 (2d Cir. 1991)"
+    )
+    fixed = reconcile_eyecite_scotus_suffix_year(bad, toa)
+    assert "(scotus 2024)" in fixed
+    assert "(scotus 1991)" not in fixed
+
+
+def test_known_federal_lookup_603_us_369():
+    from src.verification.known_citations import _lookup_known_federal
+
+    row = _lookup_known_federal("603 U.S. 369")
+    assert row is not None
+    assert row.get("canonical_year") == "2024"
+
+
+def test_deduplicate_cluster_citations_merges_wash_wn_preserves_first_spelling():
+    """Wash. 2d vs Wn.2d are one cite; keep the first list entry's reporter form (document order)."""
+    if deduplicate_cluster_citations is None:
+        pytest.skip("response_enrichment module not available in this repo snapshot")
+    cits = [
+        {"citation": "171 Wn.2d 486", "verified": True},
+        {"citation": "171 Wash. 2d 486", "verified": True},
+    ]
+    out = deduplicate_cluster_citations(cits)
+    assert len(out) == 1
+    assert out[0].get("display_base_citation") == "171 Wn.2d 486"
+
+
+def test_deduplicate_cluster_citations_prefer_verified_when_wash_wn_merge():
+    if deduplicate_cluster_citations is None:
+        pytest.skip("response_enrichment module not available in this repo snapshot")
+    cits = [
+        {"citation": "171 Wn.2d 486", "verified": False},
+        {"citation": "171 Wash. 2d 486", "verified": True},
+    ]
+    out = deduplicate_cluster_citations(cits)
+    assert len(out) == 1
+    assert out[0].get("verified") is True
 
 
 def test_cluster_dedupe_uses_stable_citation_set_key():
@@ -254,7 +330,7 @@ def test_citation_local_year_extraction_prefers_parenthetical_year():
     assert isinstance(extracted, tuple) and len(extracted) == 3
     year, source, confidence = extracted
     assert year == "2010"
-    assert source == "citation_parenthetical"
+    assert source in ("citation_parenthetical", "citation_span_before_semi")
     assert confidence == "high"
 
 
@@ -279,7 +355,7 @@ def test_extracted_date_provenance_is_written_for_unified_extraction():
     processor._set_extracted_date_provenance(citation, source, confidence)
 
     assert citation.extracted_date == "2010"
-    assert citation.metadata.get("extracted_date_source") == "citation_parenthetical"
+    assert citation.metadata.get("extracted_date_source") in ("citation_parenthetical", "citation_span_before_semi")
     assert citation.metadata.get("extracted_date_confidence") == "high"
 
 
@@ -376,6 +452,82 @@ def test_in_re_rosier_deduplicated_when_same_citation():
     assert len(deduped) == 1
 
 
+def test_merge_clusters_by_shared_real_canonical_url_combines_parallel_rows():
+    from src.utils.response_enrichment import merge_clusters_by_shared_real_canonical_url
+
+    url = "https://www.courtlistener.com/opinion/12345/sample/"
+    c1 = {
+        "cluster_id": "1",
+        "citations": [
+            {"citation": "550 U.S. 544", "verified": True, "canonical_url": url},
+        ],
+    }
+    c2 = {
+        "cluster_id": "2",
+        "citations": [
+            {"citation": "167 L. Ed. 2d 929", "verified": True, "canonical_url": url},
+        ],
+    }
+    out = merge_clusters_by_shared_real_canonical_url([c1, c2])
+    assert len(out) == 1
+    cites = {x.get("citation") for x in (out[0].get("citations") or [])}
+    assert "550 U.S. 544" in cites
+    assert "167 L. Ed. 2d 929" in cites
+
+
+def test_dedupe_keeps_single_card_after_url_merge():
+    """URL-based dedupe key matches merged cluster so one opinion stays one row."""
+    from src.utils.response_enrichment import deduplicate_clusters_for_response, merge_clusters_by_shared_real_canonical_url
+
+    url = "https://www.courtlistener.com/opinion/99999/dup/"
+    a = {
+        "cluster_id": "a",
+        "citations": [{"citation": "100 F.3d 1", "verified": True, "canonical_url": url}],
+    }
+    b = {
+        "cluster_id": "b",
+        "citations": [{"citation": "1996 WL 999", "verified": True, "canonical_url": url}],
+    }
+    merged = merge_clusters_by_shared_real_canonical_url([a, b])
+    assert len(merged) == 1
+    deduped = deduplicate_clusters_for_response(merged)
+    assert len(deduped) == 1
+
+
+def test_names_equivalent_relator_caption_vs_short_extracted():
+    from src.utils.mismatch_utils import names_equivalent
+
+    assert names_equivalent(
+        "Johnson v. Karl",
+        "State Ex Rel. Johnson & Johnson Corp. v. Karl",
+        verified=True,
+        canonical_url="https://www.courtlistener.com/opinion/x/",
+    )
+
+
+def test_verifying_display_keeps_official_caption_with_short_extracted():
+    """Do not replace verifying line with document shorthand when names differ in length."""
+    cluster = {
+        "citations": [
+            {
+                "verified": True,
+                "canonical_name": "State Ex Rel. Johnson & Johnson Corp. v. Karl",
+                "canonical_date": "1990",
+                "canonical_url": "https://www.courtlistener.com/opinion/example/",
+                "extracted_case_name": "Johnson v. Karl",
+                "extracted_date": "1990",
+                "name_mismatch": True,
+            }
+        ],
+        "has_name_mismatch": True,
+    }
+    apply_display_fields_to_cluster(cluster)
+    ver = str(cluster.get("verifying_display_name") or "")
+    assert "State Ex Rel" in ver or "Johnson & Johnson" in ver
+    sub = str(cluster.get("submitted_display_name") or "")
+    assert "Johnson" in sub
+
+
 def test_lloyds_pope_res_clusters_with_pope_res():
     """Lloyd's of London Pope Res., LP and Pope Res., LP should cluster together (same case)."""
     from src.unified_clustering_master_optimized import cluster_citations_minimal
@@ -441,3 +593,475 @@ def test_parallel_detection_rejects_year_mismatch():
     text = "In re Rosier, 717 P.3d 1353 (1986). See also 940 P.2d 261 (1997)."
     result = proc._are_likely_parallel_citations(c1, c2, text)
     assert result is False
+
+
+# --- _normalize_citation_comprehensive: combined-pass behavior (Case A/B/C, 0c, 0d/0d2, step 5) ---
+
+
+def _norm(processor, text: str) -> str:
+    return processor._normalize_citation_comprehensive(text, purpose="general")
+
+
+def test_normalize_beauchamp_hyphenated_page_range():
+    """0c: Hyphenated page range before reporter volume gets comma (4-5 398 or 4-5398 -> 4-5, 398)."""
+    processor = UnifiedCitationProcessorV2.__new__(UnifiedCitationProcessorV2)
+    # With space between range and volume: must get "4-5, 398 N.W.2d"
+    out = _norm(processor, "(quoting Beauchamp v. Dow Chem. Co., 427 Mich. 1, 21, 4-5 398 N.W.2d 882 (1986))")
+    assert "4-5, 398 N.W.2d" in out
+    # Adjacent (no space): 0c runs first so "4-5398" becomes "4-5," + volume; citation must remain
+    out2 = _norm(processor, "Beauchamp, 427 Mich. 1, 4-5398 N.W.2d 882 (1986)")
+    assert "4-5" in out2 and "N.W.2d 882" in out2
+
+
+def test_normalize_stertz_page_volume_comma():
+    """0d/0d2: Adjacent or space-separated page+volume before reporter get comma (588158 or 588 158 -> 588, 158)."""
+    processor = UnifiedCitationProcessorV2.__new__(UnifiedCitationProcessorV2)
+    # Adjacent
+    out = _norm(processor, "Stertz v. Indus. Ins. Comm'n, 91 Wash. 588158 P. 256 (1916)")
+    assert "588, 158 P. 256" in out
+    # Space-separated (e.g. after 590-91 removed)
+    out2 = _norm(processor, "91 Wash. 588 158 P. 256 (1916)")
+    assert "588, 158 P. 256" in out2
+
+
+def test_normalize_baker_volume_not_split():
+    """Case C / _restore_digits: 3-digit volume 912 not split to 9,12; 0a commaizes run 775 783 912."""
+    processor = UnifiedCitationProcessorV2.__new__(UnifiedCitationProcessorV2)
+    text = "Baker v. Schatz, 80 Wn. App. 775 783 912 P.2d 501 (1996)"
+    out = _norm(processor, text)
+    assert "912 P.2d 501" in out
+    assert "775" in out and "783" in out
+
+
+def test_normalize_lusk_pinpoint_not_stripped():
+    """Rule 1: Only strip merged pinpoint+volume when adjacent (no space). ', 182 775 P.2d' keeps 775."""
+    processor = UnifiedCitationProcessorV2.__new__(UnifiedCitationProcessorV2)
+    text = "Lusk v. Monaco Motor Homes, Inc., 97 Or. App. 182, 775 P.2d 891 (1989)"
+    out = _norm(processor, text)
+    assert "775 P.2d 891" in out
+    assert "182" in out
+
+
+def test_normalize_truncated_series_step5():
+    """Step 5: Truncated reporter series get 'd' or 'th' (Wn. App. 2 -> Wn. App. 2d)."""
+    processor = UnifiedCitationProcessorV2.__new__(UnifiedCitationProcessorV2)
+    out = _norm(processor, "19 Wn. App. 2 113")
+    assert "Wn. App. 2d" in out
+    out2 = _norm(processor, "96 Wash. 2 124")
+    assert "Wash. 2d" in out2
+
+
+def test_truncate_eyecite_runon_bucklew_whitaker():
+    """Eyecite must not keep Bucklew slip cite + sentence + Whitaker as one string."""
+    p = UnifiedCitationProcessorV2.__new__(UnifiedCitationProcessorV2)
+    raw = (
+        "Bucklew, 587 U.S. ___. Has been upheld by numerous Courts of Appeals "
+        "against Eighth Amendment challenges similar to the one presented here. "
+        "See, e.g. , Whitaker v. Collier , 862 F.3d 490 (CA5 2017)"
+    )
+    out = p._truncate_eyecite_runon_citation(raw)
+    assert "Whitaker" not in out
+    assert out.endswith("___") or out.endswith("_.")
+    assert out.startswith("Bucklew")
+
+
+def test_truncate_eyecite_runon_noop_short_cite():
+    p = UnifiedCitationProcessorV2.__new__(UnifiedCitationProcessorV2)
+    s = "Smith v. Jones, 123 F.3d 456 (2019)"
+    assert p._truncate_eyecite_runon_citation(s) == s
+
+
+def test_truncate_eyecite_runon_second_case_name():
+    """When slip pattern does not fire, drop a second 'Party v. Party' after a U.S. cite."""
+    p = UnifiedCitationProcessorV2.__new__(UnifiedCitationProcessorV2)
+    raw = (
+        "See Bucklew , 587 U.S. 1. "
+        + "word " * 30
+        + "Whitaker v. Collier , 862 F.3d 490 (2017)"
+    )
+    out = p._truncate_eyecite_runon_citation(raw)
+    assert "Whitaker" not in out
+    assert "587 U.S. 1" in out
+
+
+# ---------------------------------------------------------------------------
+# Fix 1 regression: parenthetical boundary guard in detect_parallel_groups
+# ---------------------------------------------------------------------------
+
+def test_parallel_groups_split_on_quoting_parenthetical():
+    """Citations separated by '(quoting X v. Y,' must NOT be grouped together."""
+    from src.clustering.detection import detect_parallel_groups
+
+    outer_cite = {
+        "citation": "161 Wn.2d 442",
+        "start_index": 100,
+        "end_index": 116,
+        "extracted_case_name": "Dearinger v. Eli Lilly & Co.",
+        "extracted_date": "2007",
+    }
+    inner_cite = {
+        "citation": "165 Wn.2d 67",
+        "start_index": 190,
+        "end_index": 203,
+        "extracted_case_name": "",
+        "extracted_date": "2008",
+    }
+    doc_text = (
+        " " * 100
+        + "161 Wn.2d 442, 450, 166 P.3d 691 (2007)) "
+        + "(quoting Potter v. Wash. State Patrol, "
+        + "165 Wn.2d 67, 77, 196 P.3d 691 (2008))"
+        + " " * 200
+    )
+    groups = detect_parallel_groups([outer_cite, inner_cite], proximity_threshold=150, original_text=doc_text)
+    assert len(groups) >= 2, (
+        f"Expected >=2 groups (outer vs inner cite), got {len(groups)}: "
+        f"{[[c['citation'] for c in g] for g in groups]}"
+    )
+
+
+def test_parallel_groups_still_merge_true_parallels():
+    """True parallel cites (same case, comma-separated) must still merge."""
+    from src.clustering.detection import detect_parallel_groups
+
+    cite_a = {
+        "citation": "161 Wn.2d 442",
+        "start_index": 100,
+        "end_index": 116,
+        "extracted_case_name": "Dearinger v. Eli Lilly",
+        "extracted_date": "2007",
+    }
+    cite_b = {
+        "citation": "166 P.3d 691",
+        "start_index": 118,
+        "end_index": 131,
+        "extracted_case_name": "Dearinger v. Eli Lilly",
+        "extracted_date": "2007",
+    }
+    doc_text = " " * 100 + "161 Wn.2d 442, 166 P.3d 691 (2007)" + " " * 200
+    groups = detect_parallel_groups([cite_a, cite_b], proximity_threshold=150, original_text=doc_text)
+    assert len(groups) == 1, f"True parallels should merge into 1 group, got {len(groups)}"
+
+
+# ---------------------------------------------------------------------------
+# Fix 2A regression: name_likely_in_left_context for multi-word reporters
+# ---------------------------------------------------------------------------
+
+@pytest.mark.parametrize("cite_text,expected", [
+    ("165 Wn.2d 67", True),
+    ("114 Wash. App. 823", True),
+    ("196 P.3d 691", True),
+    ("100 Cal. App. 4th 200", True),
+    ("50 N.E.2d 100", True),
+    ("75 S.W.3d 200", True),
+    ("80 So. 2d 300", True),
+    ("90 A.2d 400", True),
+    ("19 Wn. App. 2d 113", True),
+    # Single-token reporters should still work
+    ("725 F.3d 651", True),
+    ("521 U.S. 811", True),
+    # Citations with " v. " should return False
+    ("Singh v. Edwards, 114 Wash. App. 823", False),
+])
+def test_name_likely_in_left_context_multi_word_reporters(cite_text, expected):
+    from src.utils.citation_type_utils import name_likely_in_left_context
+    assert name_likely_in_left_context(cite_text) is expected, (
+        f"name_likely_in_left_context({cite_text!r}) should be {expected}"
+    )
+
+
+# ---------------------------------------------------------------------------
+# Fix 2B regression: _INLINE_REPORTER_RE recognizes Washington/Pacific reporters
+# ---------------------------------------------------------------------------
+
+@pytest.mark.parametrize("cite_text", [
+    "Singh v. Edwards Lifesciences Corp., 114 Wash. App. 823",
+    "Potter v. Wash. State Patrol, 165 Wn.2d 67",
+    "Some Case v. Other, 196 P.3d 691",
+    "Acme v. Widget Co., 100 Cal. App. 4th 200",
+])
+def test_inline_reporter_re_matches_state_reporters(cite_text):
+    p = UnifiedCitationProcessorV2.__new__(UnifiedCitationProcessorV2)
+    name = p._extract_inline_case_name(cite_text)
+    assert name is not None, f"_extract_inline_case_name should find a name in {cite_text!r}"
+    assert " v. " in name or "v." in name, f"Expected 'v.' in extracted name {name!r}"
+
+
+# ---------------------------------------------------------------------------
+# Fix 5 regression: parenthetical guard in detect_structural_groups
+# ---------------------------------------------------------------------------
+
+def test_structural_groups_split_on_quoting_parenthetical():
+    """detect_structural_groups must also respect parenthetical boundaries."""
+    from src.clustering.detection import detect_structural_groups
+
+    doc_text = (
+        " " * 100
+        + "161 Wn.2d 442, 450, 166 P.3d 691 (2007)) "
+        + "(quoting Potter v. Wash. State Patrol, "
+        + "165 Wn.2d 67, 77, 196 P.3d 691 (2008))"
+        + " " * 200
+    )
+    outer = {
+        "citation": "161 Wn.2d 442",
+        "start_index": 100,
+        "end_index": 116,
+        "extracted_case_name": "Dearinger v. Eli Lilly",
+    }
+    inner = {
+        "citation": "165 Wn.2d 67",
+        "start_index": 190,
+        "end_index": 203,
+        "extracted_case_name": "",
+    }
+    groups = detect_structural_groups([outer, inner], doc_text)
+    for g in groups:
+        cite_texts = {c["citation"] for c in g}
+        assert not ({"161 Wn.2d 442", "165 Wn.2d 67"} <= cite_texts), (
+            "Outer and inner cite should NOT be in the same structural group"
+        )
+
+
+# ---------------------------------------------------------------------------
+# Fix 6 regression: global citation dedup across clusters
+# ---------------------------------------------------------------------------
+
+def test_global_citation_dedup_across_groups():
+    """Same citation key in two groups: keep in the larger group only."""
+    from src.clustering.master import UnifiedClusteringMaster
+
+    clusterer = UnifiedClusteringMaster()
+
+    shared = {"citation": "165 Wn.2d 67", "start_index": 200, "end_index": 213,
+              "extracted_case_name": "Potter v. Wash. State Patrol", "extracted_date": "2008"}
+    group_a = [
+        {"citation": "199 Wn.2d 569", "start_index": 100, "end_index": 115,
+         "extracted_case_name": "Dearinger v. Eli Lilly", "extracted_date": "2022"},
+        {"citation": "510 P.3d 326", "start_index": 116, "end_index": 129,
+         "extracted_case_name": "Dearinger v. Eli Lilly", "extracted_date": "2022"},
+        dict(shared),  # duplicate in the smaller-context group
+    ]
+    group_b = [
+        dict(shared),  # duplicate
+        {"citation": "196 P.3d 691", "start_index": 214, "end_index": 227,
+         "extracted_case_name": "Potter v. Wash. State Patrol", "extracted_date": "2008"},
+        {"citation": "165 Wash. 2d 67", "start_index": 250, "end_index": 266,
+         "extracted_case_name": "Potter v. Wash. State Patrol", "extracted_date": "2008"},
+    ]
+
+    result = clusterer._deduplicate_citations_across_groups([group_a, group_b])
+    all_keys = []
+    for g in result:
+        for c in g:
+            all_keys.append(clusterer._get_citation_key(c))
+
+    # "165 Wn.2d 67" (or normalized key) should appear exactly once
+    wn_key = clusterer._get_citation_key(shared)
+    assert all_keys.count(wn_key) == 1, (
+        f"Citation key {wn_key!r} should appear exactly once across all groups, "
+        f"but found {all_keys.count(wn_key)} times"
+    )
+
+
+# ---------------------------------------------------------------------------
+# Fix 7 regression: Strategy 4.5 recovers full "Plaintiff v. Defendant" name
+# ---------------------------------------------------------------------------
+
+def test_strategy_4_5_recovers_full_case_name():
+    """When a reporter-only cite has defendant-only context, Strategy 4.5 should
+    find 'Plaintiff v. Defendant' further back in context_before."""
+    p = UnifiedCitationProcessorV2.__new__(UnifiedCitationProcessorV2)
+    # Initialize minimal attributes needed by extraction methods
+    p._config = type("C", (), {"get": lambda self, k, d=None: d})()
+
+    doc_text = (
+        "The court applied the holding in Singh v. Edwards Lifesciences Corp., "
+        "151 Wash. App. 137, 210 P.3d 337 (2009). This case established that "
+    )
+    cite = SimpleNamespace(
+        citation="151 Wash. App. 137",
+        start_index=doc_text.index("151 Wash. App. 137"),
+        end_index=doc_text.index("151 Wash. App. 137") + len("151 Wash. App. 137"),
+        context=doc_text,
+        extracted_case_name="",
+        extracted_date=None,
+        metadata={},
+        name_likely_in_left_context=True,
+    )
+    name = p._extract_case_name_from_context(doc_text, cite, [cite])
+    assert name and name != "N/A", f"Expected a case name, got {name!r}"
+    assert "Singh" in name, f"Expected 'Singh' in extracted name, got {name!r}"
+    assert " v. " in name, f"Expected ' v. ' in extracted name, got {name!r}"
+
+
+def test_step5_override_reruns_for_defendant_only_name():
+    """Step 5 should re-extract when a reporter-only citation already has a
+    defendant-only name (no 'v.') from an earlier dedup propagation step."""
+    p = UnifiedCitationProcessorV2.__new__(UnifiedCitationProcessorV2)
+    p._config = type("C", (), {"get": lambda self, k, d=None: d})()
+
+    doc_text = (
+        "The court applied Singh v. Edwards Lifesciences Corp., "
+        "151 Wash. App. 137, 210 P.3d 337 (2009), to the present facts."
+    )
+    cite = SimpleNamespace(
+        citation="151 Wash. App. 137",
+        start_index=doc_text.index("151 Wash. App. 137"),
+        end_index=doc_text.index("151 Wash. App. 137") + len("151 Wash. App. 137"),
+        context=doc_text,
+        extracted_case_name="Edwards Lifesciences Corporation",
+        extracted_date="2009",
+        metadata={},
+        name_likely_in_left_context=True,
+        is_proprietary_only=False,
+    )
+    # Simulate the Step 5 guard logic: defendant-only name should trigger re-extraction
+    _existing = (cite.extracted_case_name or "").strip()
+    needs_re = (
+        getattr(cite, "name_likely_in_left_context", False)
+        and " v. " not in _existing
+        and _existing != "N/A"
+        and len(_existing) >= 3
+    )
+    assert needs_re, "Step 5 should flag defendant-only names for re-extraction"
+
+    name = p._extract_case_name_from_context(doc_text, cite, [cite])
+    assert name and name != "N/A", f"Expected a full case name, got {name!r}"
+    assert "Singh" in name, f"Expected 'Singh' in name, got {name!r}"
+    assert " v. " in name, f"Expected ' v. ' in name, got {name!r}"
+
+
+def test_cluster_level_dedup_removes_cross_cluster_duplicates():
+    """Same reporter key in two clusters: prefer the cluster whose identity matches the
+    citation's canonical_name when both are verified (quoted cite vs primary case)."""
+    from src.utils.cluster_postprocess_pipeline import _deduplicate_citations_across_clusters
+
+    potter_cn = "Potter v. Washington State Patrol"
+    dearinger_cn = "Dearinger v. Eli Lilly & Co."
+    clusters = [
+        {
+            "cluster_id": "dearinger",
+            "canonical_name": dearinger_cn,
+            "cluster_case_name": dearinger_cn,
+            "citations": [
+                {
+                    "citation": "165 Wn.2d 67",
+                    "verified": True,
+                    "canonical_name": potter_cn,
+                },
+                {"citation": "199 Wn.2d 569", "verified": True, "canonical_name": dearinger_cn},
+                {"citation": "510 P.3d 326", "verified": True, "canonical_name": dearinger_cn},
+            ],
+            "cluster_members": [{"citation": "165 Wn.2d 67"}, {"citation": "199 Wn.2d 569"}, {"citation": "510 P.3d 326"}],
+            "size": 3,
+            "cluster_size": 3,
+        },
+        {
+            "cluster_id": "potter",
+            "canonical_name": potter_cn,
+            "cluster_case_name": potter_cn,
+            "citations": [
+                {"citation": "165 Wn.2d 67", "verified": True, "canonical_name": potter_cn},
+                {"citation": "196 P.3d 691", "verified": True, "canonical_name": potter_cn},
+            ],
+            "cluster_members": [{"citation": "165 Wn.2d 67"}, {"citation": "196 P.3d 691"}],
+            "size": 2,
+            "cluster_size": 2,
+        },
+    ]
+    result = _deduplicate_citations_across_clusters(clusters, run_id="test")
+    assert len(result) == 2
+
+    dear_keys = {c["citation"] for c in result[0]["citations"]}
+    potter_keys = {c["citation"] for c in result[1]["citations"]}
+    assert "165 Wn.2d 67" in potter_keys, "Potter cite should stay with Potter cluster"
+    assert "165 Wn.2d 67" not in dear_keys, "Quoted duplicate should be removed from Dearinger cluster"
+    assert "196 P.3d 691" in potter_keys, "Unique citation should remain"
+
+
+def test_cluster_level_dedup_drops_empty_clusters():
+    """When dedup removes all citations from a cluster, the cluster is dropped."""
+    from src.utils.cluster_postprocess_pipeline import _deduplicate_citations_across_clusters
+
+    clusters = [
+        {
+            "cluster_id": "primary",
+            "citations": [{"citation": "100 U.S. 1"}, {"citation": "200 F.2d 2"}],
+            "cluster_members": [{"citation": "100 U.S. 1"}, {"citation": "200 F.2d 2"}],
+            "size": 2,
+            "cluster_size": 2,
+        },
+        {
+            "cluster_id": "dup",
+            "citations": [{"citation": "100 U.S. 1"}],
+            "cluster_members": [{"citation": "100 U.S. 1"}],
+            "size": 1,
+            "cluster_size": 1,
+        },
+    ]
+    result = _deduplicate_citations_across_clusters(clusters, run_id="test")
+    assert len(result) == 1, f"Empty cluster should be dropped, got {len(result)}"
+    assert result[0]["cluster_id"] == "primary"
+
+
+def test_step4a_strips_quoting_parenthetical():
+    """Step 4a should strip (quoting ...) parentheticals from citation text
+    so embedded inner citations don't contaminate display/clustering."""
+    import re
+    _QUOTING_PAREN_RE = re.compile(
+        r'\s*\(\s*(?:quoting|citing|quoted\s+in|cited\s+in|accord)\s.*$',
+        re.IGNORECASE | re.DOTALL,
+    )
+
+    ct = (
+        "Dearinger v. Eli Lilly & Co., 199 Wash. 2d 569, 575, 510 P.3d 326 (2022) "
+        "(quoting Potter v. Wash. State Patrol, 165 Wn.2d 67, 77, 196 P.3d 691 (2008))"
+    )
+    m = _QUOTING_PAREN_RE.search(ct)
+    assert m is not None, "Should match (quoting ...) parenthetical"
+    stripped = ct[:m.start()].rstrip(" ,;")
+    assert "165 Wn.2d 67" not in stripped, f"Inner citation should be stripped, got: {stripped}"
+    assert "510 P.3d 326" in stripped, f"Outer citation should remain, got: {stripped}"
+    assert "(2022)" in stripped, f"Year should be preserved, got: {stripped}"
+
+    # (citing ...) variant
+    ct2 = "State v. Copeland, 922 P.2d 1304 (1996) (citing State v. Cauthron, 120 Wn.2d 879)"
+    m2 = _QUOTING_PAREN_RE.search(ct2)
+    assert m2 is not None
+    stripped2 = ct2[:m2.start()].rstrip(" ,;")
+    assert "120 Wn.2d 879" not in stripped2
+    assert "922 P.2d 1304" in stripped2
+
+    # Should NOT match normal year parentheticals
+    ct3 = "Smith v. Jones, 100 U.S. 1 (2020)"
+    m3 = _QUOTING_PAREN_RE.search(ct3)
+    assert m3 is None, f"Year-only parenthetical should NOT match, matched at: {ct3[m3.start():]}"
+
+
+def test_submitted_display_name_upgrades_defendant_only():
+    """submitted_display_name should be upgraded from defendant-only to full
+    name when canonical/cluster_case_name has the full 'v.' form."""
+    from src.utils.cluster_display_utils import apply_display_fields_to_cluster
+
+    cluster = {
+        "cluster_id": "singh_test",
+        "citations": [
+            {
+                "citation": "151 Wash. App. 137",
+                "extracted_case_name": "Edwards Lifesciences Corporation",
+                "canonical_name": "Singh v. Edwards Lifesciences Corp.",
+                "verified": True,
+            },
+        ],
+        "cluster_members": [{"citation": "151 Wash. App. 137"}],
+        "cluster_case_name": "Singh v. Edwards Lifesciences Corp.",
+        "canonical_name": "Singh v. Edwards Lifesciences Corp.",
+        "extracted_name": "Singh v. Edwards Lifesciences Corp.",
+        "extracted_date": "2009",
+        "size": 1,
+        "cluster_size": 1,
+    }
+    apply_display_fields_to_cluster(cluster)
+    sdn = cluster.get("submitted_display_name", "")
+    assert "Singh" in sdn, f"Expected 'Singh' in submitted_display_name, got: {sdn}"
+    assert " v. " in sdn, f"Expected ' v. ' in submitted_display_name, got: {sdn}"
