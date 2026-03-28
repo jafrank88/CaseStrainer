@@ -308,7 +308,23 @@ def clean_extracted_case_name(case_name: str, context: str = "") -> str:
     # Step 4: Fix truncation
     cleaned = fix_truncation_at_word_boundary(cleaned, context)
 
-    # Step 5: Final cleanup
+    # Step 5: Fix duplicate corporate suffixes (Inc., LLC, etc.)
+    # Pattern: "Inc. , Inc." -> "Inc."
+    # Pattern: "LLC , LLC" -> "LLC"
+    suffixes = ["Inc\\.", "LLC", "Corp\\.", "Ltd\\.", "Co\\.", "L\\.P\\.", "LLP"]
+    for suffix in suffixes:
+        # Fix "Inc. , Inc." -> "Inc."
+        cleaned = re.sub(rf"{suffix}\s*,\s*{suffix}", suffix, cleaned, flags=re.IGNORECASE)
+        # Fix "Inc., Inc." -> "Inc."
+        cleaned = re.sub(rf"{suffix},\s*{suffix}", suffix, cleaned, flags=re.IGNORECASE)
+        # Fix "Inc. Inc." -> "Inc."
+        cleaned = re.sub(rf"{suffix}\s+{suffix}", suffix, cleaned, flags=re.IGNORECASE)
+    
+    # Step 6: Fix spacing around commas
+    cleaned = re.sub(r"\s*,\s*", ", ", cleaned)  # " , " -> ", "
+    cleaned = re.sub(r",\s*,", ", ", cleaned)  # ", ," -> ", "
+    
+    # Step 7: Final cleanup
     cleaned = re.sub(r"\s+", " ", cleaned).strip()
 
     # Validate result
@@ -316,6 +332,166 @@ def clean_extracted_case_name(case_name: str, context: str = "") -> str:
         logger.warning(f"[EXTRACTION-CLEAN] Result may be invalid: '{cleaned}'")
 
     return cleaned
+
+
+# --- Supreme Court Reporter (S. Ct.) PDF / eyecite repair ---
+
+
+def _merge_s_ct_page_fragments(vol: str, a: str, b: str) -> Optional[str]:
+    """If a+b is a plausible S. Ct. page (3-4 digits, 100-9999), return merged cite body."""
+    if not a.isdigit() or not b.isdigit():
+        return None
+    comb = a + b
+    if len(comb) < 3 or len(comb) > 4:
+        return None
+    n = int(comb)
+    if 100 <= n <= 9999:
+        return f"{vol} S. Ct. {comb}"
+    return None
+
+
+def merge_s_ct_page_split_in_string(text: str) -> str:
+    """
+    Join S. Ct. page digits split across whitespace (e.g. PDF line break became space).
+    Skips when the second number starts a following U.S. cite.
+    """
+    if not text or "S." not in text and "s." not in text:
+        return text
+
+    def repl(m: re.Match) -> str:
+        merged = _merge_s_ct_page_fragments(m.group(1), m.group(2), m.group(3))
+        return merged if merged else m.group(0)
+
+    return re.sub(
+        r"\b(\d{2,3})\s+S\.\s*Ct\.\s+(\d{1,3})\s+(\d{1,3})\b(?!\s+U\.\s*S\.)",
+        repl,
+        text,
+        flags=re.IGNORECASE,
+    )
+
+
+def merge_s_ct_page_split_across_newline(text: str) -> str:
+    """Same as merge_s_ct_page_split_in_string but for newline between page fragments."""
+
+    def repl(m: re.Match) -> str:
+        merged = _merge_s_ct_page_fragments(m.group(1), m.group(2), m.group(3))
+        return merged if merged else m.group(0)
+
+    return re.sub(
+        r"(\d{2,3})\s+[Ss]\.\s*[Cc]t\.?\s+(\d{1,3})\s*[\n\r]+\s*(\d{1,3})\b",
+        repl,
+        text,
+        flags=re.IGNORECASE,
+    )
+
+
+def strip_absorbed_prose_after_s_ct_or_led2d(citation_str: str) -> str:
+    """
+    Eyecite sometimes includes the next sentence or bracket citation in the S. Ct. / L. Ed. 2d span.
+    Trim at the first clear prose boundary after a valid reporter+page core.
+    """
+    if not citation_str:
+        return citation_str
+    s = citation_str.strip()
+
+    m = re.match(
+        r"^(\d{2,3}\s+S\.\s*Ct\.\s+\d{2,4})\s*([\.,])\s+(As\s+stated|Whether\s+the|But\s+as|Question\s+\d|The\s+following)\b",
+        s,
+        re.IGNORECASE,
+    )
+    if m:
+        return m.group(1)
+
+    m = re.match(
+        r"^(\d{2,3}\s+S\.\s*Ct\.\s+\d{2,4})\s*\[\s*",
+        s,
+        re.IGNORECASE,
+    )
+    if m and len(s) > len(m.group(1)) + 8:
+        return m.group(1)
+
+    m = re.match(
+        r"^(\d+\s+L\.\s*Ed\.\s*2d\s+\d+)\s*([\.,])\s+(As\s+stated|Whether\s+the|But\s+as)\b",
+        s,
+        re.IGNORECASE,
+    )
+    if m:
+        return m.group(1)
+
+    return citation_str
+
+
+def reconcile_eyecite_scotus_suffix_year(citation_str: str, lookup_text: str) -> str:
+    """
+    Eyecite can append ``(scotus YYYY)`` using a wrong year when the Table of Authorities
+    packs many cites on one line (e.g. ``603 U.S. 369 (2024)... Melendez ... (1991)``).
+
+    If the same volume + U.S. + page appears in the citation or lookup text with a plain
+    ``(YYYY)`` parenthetical, use that year for the ``(scotus YYYY)`` suffix.
+    """
+    if not citation_str or "(scotus" not in citation_str.lower():
+        return citation_str
+    if not re.search(r"\(scotus\s+\d{4}\s*\)", citation_str, re.I):
+        return citation_str
+    vp = re.search(r"\b(\d+)\s+U\.\s*S\.\s+(\d+)", citation_str, re.I)
+    if not vp:
+        return citation_str
+    v, p = vp.group(1), vp.group(2)
+    hunter = re.compile(
+        rf"\b{re.escape(v)}\s+U\.\s*S\.\s+{re.escape(p)}\s*\((\d{{4}})\)",
+        re.I,
+    )
+    wrong_m = re.search(r"\(scotus\s+(\d{4})\s*\)", citation_str, re.I)
+    wrong_y = wrong_m.group(1) if wrong_m else ""
+    for blob in (citation_str, lookup_text or ""):
+        m = hunter.search(blob)
+        if not m:
+            continue
+        doc_y = m.group(1)
+        if wrong_y and doc_y == wrong_y:
+            return citation_str
+        if 1900 <= int(doc_y) <= 2035:
+            fixed, n = re.subn(
+                r"\(scotus\s+\d{4}\s*\)",
+                f"(scotus {doc_y})",
+                citation_str,
+                count=1,
+                flags=re.I,
+            )
+            if n:
+                return fixed
+    return citation_str
+
+
+def snap_s_ct_citation_to_source_window(
+    citation_str: str, full_text: str, start_idx: Optional[int]
+) -> str:
+    """
+    When eyecite truncates the page (e.g. 24 vs 2429) or absorbs prose, prefer the S. Ct. cite
+    found in the source text near the span start.
+    """
+    if start_idx is None or start_idx < 0 or not citation_str or "S. Ct." not in citation_str:
+        return strip_absorbed_prose_after_s_ct_or_led2d(citation_str)
+    if not full_text:
+        return strip_absorbed_prose_after_s_ct_or_led2d(citation_str)
+    win_s = max(0, start_idx - 45)
+    win_e = min(len(full_text), start_idx + max(120, len(citation_str) + 40))
+    win = full_text[win_s:win_e]
+    candidates = list(re.finditer(r"\b(\d{2,3}\s+S\.\s*Ct\.\s+\d{3,4})\b", win, re.IGNORECASE))
+    cur = citation_str.strip()
+    if not candidates:
+        return strip_absorbed_prose_after_s_ct_or_led2d(cur)
+    best = min(candidates, key=lambda m: abs(win_s + m.start() - start_idx))
+    good = best.group(1)
+    vm_c = re.match(r"^(\d{2,3})\s+S\.\s*Ct\.\s+(\d{2,4})\b", cur, re.IGNORECASE)
+    vm_g = re.match(r"^(\d{2,3})\s+S\.\s*Ct\.\s+(\d{3,4})\b", good, re.IGNORECASE)
+    if vm_c and vm_g and vm_c.group(1) == vm_g.group(1):
+        pc, pg = vm_c.group(2), vm_g.group(2)
+        if pc == pg:
+            return strip_absorbed_prose_after_s_ct_or_led2d(cur)
+        if pg.startswith(pc) and len(pg) > len(pc):
+            return strip_absorbed_prose_after_s_ct_or_led2d(good)
+    return strip_absorbed_prose_after_s_ct_or_led2d(cur)
 
 
 __all__ = [
@@ -327,4 +503,9 @@ __all__ = [
     "remove_context_bleed_from_name",
     "remove_citation_references_from_name",
     "clean_extracted_case_name",
+    "merge_s_ct_page_split_in_string",
+    "merge_s_ct_page_split_across_newline",
+    "strip_absorbed_prose_after_s_ct_or_led2d",
+    "snap_s_ct_citation_to_source_window",
+    "reconcile_eyecite_scotus_suffix_year",
 ]

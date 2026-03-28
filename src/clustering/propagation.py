@@ -6,6 +6,7 @@ Propagates metadata (case names, dates, URLs) within clusters.
 """
 
 import logging
+import re
 from typing import List, Dict, Any, Optional, Set
 from difflib import SequenceMatcher
 
@@ -163,6 +164,24 @@ def _find_best_source(cluster: List[Dict[str, Any]]) -> Optional[Dict[str, Any]]
     ))
 
 
+def _is_narrative_not_case_name(name: str) -> bool:
+    """Return True if name looks like narrative/prose text, not a case name."""
+    if not name or name == "N/A":
+        return False
+    has_case_structure = " v. " in name or bool(re.search(r"\b(?:In\s+re|Ex\s+parte)\b", name, re.IGNORECASE))
+    if has_case_structure:
+        return False
+    if len(name) > 40:
+        return True
+    if re.search(r"'s\s+\w+\s+to\s+\w+", name):
+        return True
+    if re.search(r"\b(?:must be|should be|was not|could not|did not|failed to|based on|pursuant to|failure to)\b", name, re.IGNORECASE):
+        return True
+    if " the " in name:
+        return True
+    return False
+
+
 def _select_best_case_name(cluster: List[Dict[str, Any]]) -> Optional[str]:
     """Select the best case name from a cluster."""
     names = []
@@ -170,7 +189,7 @@ def _select_best_case_name(cluster: List[Dict[str, Any]]) -> Optional[str]:
     for citation in cluster:
         for key in ["canonical_name", "case_name", "extracted_case_name"]:
             name = _get_attr(citation, key)
-            if name and name != "N/A":
+            if name and name != "N/A" and not _is_narrative_not_case_name(name):
                 # Score based on source quality
                 score = 100 if key == "canonical_name" else 50 if key == "case_name" else 25
                 names.append((score, name))

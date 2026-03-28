@@ -895,6 +895,20 @@ def get_strict_context_for_citation(
     return strict_context
 
 
+def _is_prose_not_case_name(name: str) -> bool:
+    """True if name is sentence/quote prose (e.g. \"X's failure to demonstrate actual knowledge\"), not a case name."""
+    if not name or len(name) < 10:
+        return False
+    s = name.strip()
+    # Any apostrophe-like + "s failure to" (Cockrum's failure to demonstrate actual knowledge)
+    if re.search(r"[\'\u2018\u2019\u0027]s\s+failure\s+to\s+", s, re.IGNORECASE):
+        return True
+    # Standalone phrase without requiring apostrophe (PDF may alter the character)
+    if re.search(r"\bfailure\s+to\s+(?:demonstrate|show|establish|prove)\s+(?:actual\s+)?knowledge\b", s, re.IGNORECASE):
+        return True
+    return False
+
+
 def _is_citation_fragment_not_case_name(name: str) -> bool:
     """
     Return True if the string looks like a citation fragment (e.g. "(10 Tenn.), 1831")
@@ -903,6 +917,9 @@ def _is_citation_fragment_not_case_name(name: str) -> bool:
     if not name or len(name) < 8:
         return False
     s = name.strip()
+    # Prose/sentence misidentified as case name (e.g. "Cockrum's failure to demonstrate actual knowledge")
+    if _is_prose_not_case_name(s):
+        return True
     # Reporter abbreviations that indicate citation fragment (not case name)
     reporter_abbrev = r"(?:Tenn\.|Va\.|U\.\s*S\.|F\.|P\.|S\.\s*Ct\.|Wn\.|Ill\.|Ohio|Cal\.|N\.\s*Y\.|Mass\.|Tex\.)"
     # Parenthetical citation fragment: "(10 Tenn.), 1831", "(10 Tenn.)", "(259 Va.) 2010"

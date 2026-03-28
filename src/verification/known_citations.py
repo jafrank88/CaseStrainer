@@ -16,6 +16,8 @@ def _normalize_citation_for_known_lookup(citation: str) -> str:
     s = re.sub(r"\s+", " ", citation.strip()).lower()
     # Collapse "u. s." to "u.s." so "426 u. s. 26" matches key "426 u.s. 26"
     s = re.sub(r"u\.\s*s\.?", "u.s.", s, flags=re.IGNORECASE)
+    # Supreme Court Reporter: "143 S. Ct. 2429" -> "143 s. ct. 2429"
+    s = re.sub(r"s\.\s*ct\.\s*", "s. ct. ", s, flags=re.IGNORECASE)
     # Collapse "f. 3d" / "f. 2d" / "f. 4th" to "f.3d" etc. so "199 f. 3d 263" matches "199 f.3d 263"
     s = re.sub(r"f\.\s*3d\b", "f.3d", s, flags=re.IGNORECASE)
     s = re.sub(r"f\.\s*2d\b", "f.2d", s, flags=re.IGNORECASE)
@@ -102,6 +104,19 @@ KNOWN_FEDERAL_CITATIONS = {
         "canonical_year": "2025",
         "canonical_url": "https://supreme.justia.com/cases/federal/us/605/24a1007/",
     },
+    # Cert. grant order cite often mis-resolved by search (wrong merits case at same reporter page)
+    "143 s. ct. 2429": {
+        "canonical_name": "Loper Bright Enterprises v. Raimondo",
+        "canonical_date": "2023-05-22",
+        "canonical_year": "2023",
+        "canonical_url": "https://www.supremecourt.gov/search.aspx?filename=docketfiles/html/public/22-451.html",
+    },
+    "603 u.s. 369": {
+        "canonical_name": "Loper Bright Enterprises v. Raimondo",
+        "canonical_date": "2024-06-28",
+        "canonical_year": "2024",
+        "canonical_url": "https://supreme.justia.com/cases/federal/us/603/369/",
+    },
     # CourtListener "No results" fallbacks - valid federal cases often missed by API
     "573 u.s. 149": {
         "canonical_name": "Susan B. Anthony List v. Driehaus",
@@ -116,6 +131,78 @@ KNOWN_FEDERAL_CITATIONS = {
         "canonical_url": "https://law.justia.com/cases/federal/appellate-courts/ca11/18-14144/18-14144-2020-07-06.html",
     },
 }
+
+# State citations that citation-lookup often misses. Key = normalized "vol reporter page" (lowercase).
+# Senear v. Daily Journal American: https://www.courtlistener.com/opinion/1222849/senear-v-daily-journal-american/
+KNOWN_STATE_CITATIONS = {
+    "97 wash. 2d 148": {
+        "canonical_name": "Senear v. Daily Journal American",
+        "canonical_date": "1982",
+        "canonical_year": "1982",
+        "canonical_url": "https://www.courtlistener.com/opinion/1222849/senear-v-daily-journal-american/",
+    },
+    "97 wn.2d 148": {
+        "canonical_name": "Senear v. Daily Journal American",
+        "canonical_date": "1982",
+        "canonical_year": "1982",
+        "canonical_url": "https://www.courtlistener.com/opinion/1222849/senear-v-daily-journal-american/",
+    },
+    "641 p.2d 1180": {
+        "canonical_name": "Senear v. Daily Journal American",
+        "canonical_date": "1982",
+        "canonical_year": "1982",
+        "canonical_url": "https://www.courtlistener.com/opinion/1222849/senear-v-daily-journal-american/",
+    },
+}
+
+
+def _normalize_state_citation_for_known_lookup(citation: str) -> str:
+    """Normalize state citation for KNOWN_STATE_CITATIONS key (e.g. '97 Wash. 2d 148' -> '97 wash. 2d 148')."""
+    if not citation:
+        return ""
+    s = re.sub(r"\s+", " ", citation.strip()).lower()
+    s = re.sub(r"wash\.\s*2d", "wash. 2d", s, flags=re.IGNORECASE)
+    s = re.sub(r"wn\.?\s*2d", "wn.2d", s, flags=re.IGNORECASE)
+    s = re.sub(r"p\.\s*2d", "p.2d", s, flags=re.IGNORECASE)
+    s = re.sub(r"p\.\s*3d", "p.3d", s, flags=re.IGNORECASE)
+    return s.strip()
+
+
+def _lookup_known_state(citation: str) -> Optional[Dict[str, Any]]:
+    """Return KNOWN_STATE_CITATIONS entry for citation string, or None."""
+    norm = _normalize_state_citation_for_known_lookup(citation or "")
+    if not norm:
+        return None
+    # Direct key match
+    if norm in KNOWN_STATE_CITATIONS:
+        return KNOWN_STATE_CITATIONS[norm]
+    # Extract vol-reporter-page core (e.g. "97 wash. 2d 148" or "641 p.2d 1180")
+    base_m = (
+        re.match(r"^(\d+\s+wash\.\s*2d\s+\d+)", norm)
+        or re.match(r"^(\d+\s+wn\.?2d\s+\d+)", norm)
+        or re.match(r"^(\d+\s+p\.?2d\s+\d+)", norm)
+        or re.match(r"^(\d+\s+p\.?3d\s+\d+)", norm)
+    )
+    if base_m:
+        lookup = base_m.group(1).strip().lower()
+        lookup = re.sub(r"\s+", " ", lookup)
+        if lookup in KNOWN_STATE_CITATIONS:
+            return KNOWN_STATE_CITATIONS[lookup]
+    # Embedded: "Something, 97 Wash. 2d 148 (1982)" -> extract core
+    for pat in [
+        r"(\d+\s+wash\.\s*2d\s+\d+)",
+        r"(\d+\s+wn\.?2d\s+\d+)",
+        r"(\d+\s+p\.?2d\s+\d+)",
+        r"(\d+\s+p\.?3d\s+\d+)",
+    ]:
+        m = re.search(pat, norm)
+        if m:
+            k = m.group(1).strip().lower()
+            k = re.sub(r"\s+", " ", k)
+            if k in KNOWN_STATE_CITATIONS:
+                return KNOWN_STATE_CITATIONS[k]
+    return None
+
 
 # Slip opinions (e.g. 588 U.S. ___): key = "volume year", value = list of { canonical_name, canonical_date, canonical_url }
 # Used when extracted_case_name matches so we resolve to the correct case (e.g. American Legion, not Loper Bright for 588 2019)
@@ -169,6 +256,7 @@ def _lookup_known_federal(cit_str: str) -> Optional[Dict[str, Any]]:
     # "DHS v. Regents ..., 591 U.S. 1 (2020)". Extract embedded core cite.
     embedded_patterns = [
         r"(\d+\s+u\.s\.\s*\d+)",
+        r"(\d+\s+s\.\s*ct\.\s*\d+)",
         r"(\d+\s+wheat\.\s*\d+)",
         r"(\d+\s+f\.3d\s*\d+)",
         r"(\d+\s+f\.2d\s*\d+)",

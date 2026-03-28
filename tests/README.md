@@ -1,57 +1,55 @@
-# CaseStrainer API Tests
+# CaseStrainer automated tests
 
-This directory contains automated tests for the CaseStrainer API.
+## Wolf / production UX regression
 
-## Test Suite Overview
+What users see on [wolf.law.uw.edu](https://wolf.law.uw.edu) comes from the same Flask app and clustering/display code exercised here. These tests do **not** hit the live Wolf server; they run the **same Python code** locally or in CI (with Redis on `localhost`, like Docker Compose and GitHub Actions).
 
-The test suite includes the following test cases:
+**Recommended command** (quiet, no coverage gate, skips `tests/unit` scripts):
 
-1. **Health Check** - Verifies the API is running and responsive
-2. **Citation Verification** - Tests individual citation validation
-3. **Text Analysis** - Tests citation extraction from text
-4. **File Upload** - Tests document upload and citation extraction
-5. **Batch Validation** - Tests validation of multiple citations at once
-6. **Error Handling** - Tests error responses for invalid requests
+```powershell
+# From repo root — Redis on 127.0.0.1:6379 recommended
+pwsh scripts/run_wolf_regression_tests.ps1
+```
 
-## Prerequisites
+Or:
 
-- Python 3.8+
-- `requests` library
-- CaseStrainer API server running locally on port 5000
+```powershell
+python -m pytest -c pytest-wolf.ini
+```
 
-## Running the Tests
+`pytest-wolf.ini` runs **only** these modules: `test_mismatch_party_line`, `test_generalized_regressions`, `test_imports`, `test_analyze_async_contract` (cluster/display/API paths Wolf uses).
 
-1. First, ensure the CaseStrainer API server is running:
-   ```bash
-   python src/app_final_vue.py
-   ```
+Default `pytest` uses `pytest.ini` (coverage, verbose). It still skips `tests/unit`, `tests/debug`, and other non-gated subtrees via `norecursedirs` / `collect_ignore`; add new **gated** tests as `tests/test_*.py` at the top level or extend `pytest-wolf.ini` deliberately.
 
-2. Run the test suite:
-   ```bash
-   # Run all tests with default settings
-   python -m tests.test_case_strainer_api
-   
-   # Run with verbose output
-   python -m tests.test_case_strainer_api -v
-   
-   # Test against a different API URL
-   python -m tests.test_case_strainer_api --url http://localhost:5000/casestrainer/api
-   ```
+**Environment**
 
-## Test Files
+- `tests/conftest.py` sets `REDIS_URL` / `CACHE_REDIS_URL` to `127.0.0.1` during pytest unless `CASSTRAINER_USE_TEST_REDIS=0`.
+- Start Redis locally if async/analyze tests should talk to a real broker: e.g. `docker compose up -d redis`.
 
-- `test_case_strainer_api.py`: Main test suite
-- `test_files/`: Directory containing test files used in the tests
+## PDF smoke (`1031351.pdf`)
 
-## Adding New Tests
+Optional integration test (slow, no live server):
 
-1. Add new test methods to the `TestCaseStrainerAPI` class in `test_case_strainer_api.py`
-2. Follow the naming convention `test_*` for test methods
-3. Use `self.assert*` methods to verify expected behavior
-4. Add descriptive docstrings to explain what each test verifies
+```powershell
+$env:CASSTRAINER_TEST_PDF = 'file:///D:/dev/casestrainer/1031351.pdf'
+python -m pytest tests/test_1031351_pdf_smoke.py -q --no-cov -o addopts=
+```
 
-## Troubleshooting
+If `1031351.pdf` sits at the repo root, you can omit the env var.
 
-- If tests fail, check that the API server is running and accessible
-- Enable verbose output with `-v` for more detailed error messages
-- Check the API server logs for any errors that might occur during testing
+With the wolf script, **do not pass a bare `--`** (pytest will error). Append the test path directly:
+
+```powershell
+$env:CASSTRAINER_TEST_PDF = 'file:///D:/dev/casestrainer/1031351.pdf'
+pwsh scripts/run_wolf_regression_tests.ps1 tests/test_1031351_pdf_smoke.py
+```
+
+The script strips a literal `--` so `.\scripts\run_wolf_regression_tests.ps1 -- tests/test_1031351_pdf_smoke.py` works when `--` is passed into the script. If you still see pytest complain about `--`, run without it: `.\scripts\run_wolf_regression_tests.ps1 tests/test_1031351_pdf_smoke.py`.
+
+## `tests/unit/`
+
+Manual smoke scripts (e.g. posting to Wolf with `requests`). They are **not** pytest tests and are ignored by `pytest-wolf.ini` / `collect_ignore`.
+
+## Legacy note
+
+Older docs referred to `test_case_strainer_api.py` and a server on port 5000. The current regression suite lives in `test_*.py` at the top level of `tests/` as listed in `pytest-wolf.ini`.

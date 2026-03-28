@@ -27,8 +27,10 @@
         <h2>{{ clusters?.length || 0 }} Case{{ (clusters?.length || 0) !== 1 ? 's' : '' }} Found</h2>
         <p>
           {{ citations?.length || 0 }} citation{{ (citations?.length || 0) !== 1 ? 's' : '' }} identified •
-          {{ verifiedCitations?.length || 0 }} matched to a source •
-          {{ ((citations?.length || 0) - (verifiedCitations?.length || 0)) }} need review
+          {{ verifiedCitations?.length || 0 }} matched to a source
+          <template v-if="clustersUnverified?.length > 0">
+            • {{ clustersUnverified.length }} case{{ clustersUnverified.length !== 1 ? 's' : '' }} need review
+          </template>
         </p>
         <p class="results-explainer">
           One case can include multiple citations, so citation totals are usually higher than case totals.

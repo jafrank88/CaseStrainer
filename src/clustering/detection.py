@@ -70,6 +70,13 @@ def _get_segment_id(citation: Any) -> Optional[int]:
 # Pattern to detect TOA dotted leaders between citations
 _TOA_DOTS_PATTERN = re.compile(r'\.{3,}')
 
+# Pattern to detect parenthetical citation boundaries:
+# "(quoting X v. Y, ...", "(citing X v. Y, ...", "(quoted in ...", etc.
+_PAREN_SIGNAL_RE = re.compile(
+    r'\(\s*(?:quoting|citing|quoted\s+in|cited\s+in|accord)\s',
+    re.IGNORECASE,
+)
+
 # ECN cleaning pattern for TOA prefixes
 _TOA_PREFIX_RE = re.compile(
     r'^(?:TABLE\s+OF\s+AUTHORITIES\s+)?(?:(?:I{1,3}V?|V?I{0,3})\s+)?'
@@ -246,6 +253,12 @@ def detect_parallel_groups(
                     f"[PARALLEL-DETECTION] Semicolon between citations - different cases: "
                     f"'{_get_attr(current_group[-1], 'citation', '')[:40]}...' and '{_get_attr(citation, 'citation', '')[:40]}...'"
                 )
+            if is_close and _PAREN_SIGNAL_RE.search(text_between):
+                is_close = False
+                logger.debug(
+                    f"[PARALLEL-DETECTION] Parenthetical boundary (quoting/citing) between citations: "
+                    f"'{_get_attr(current_group[-1], 'citation', '')[:40]}...' and '{_get_attr(citation, 'citation', '')[:40]}...'"
+                )
         
         # Same-case check: only group if citations plausibly belong to same case
         if is_close and not _same_case_check(current_group[-1], citation):
@@ -325,6 +338,9 @@ def detect_structural_groups(
                             break
                         # Semicolon separates different cases (e.g. "884 A.2d 667; Frederick v. City...")
                         if ";" in text_between:
+                            break
+                        # Parenthetical boundary: "(quoting X v. Y, ..." means inner cite is a different case
+                        if _PAREN_SIGNAL_RE.search(text_between):
                             break
                     # Same-case check: only chain if same case
                     if not _same_case_check(citation, next_cit):

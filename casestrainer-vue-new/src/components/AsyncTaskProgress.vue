@@ -94,9 +94,20 @@ export default {
     });
 
     const progressWidth = computed(() => {
+      // For real progress data, use the actual progress value
+      // For simulated/fallback, use status-based mapping
+      if (props.initialStatus === 'processing' && message.value.includes('Extracting')) return 10;
+      if (props.initialStatus === 'processing' && message.value.includes('Enhancing')) return 30;
+      if (props.initialStatus === 'processing' && message.value.includes('Propagating')) return 60;
+      if (props.initialStatus === 'processing' && message.value.includes('Filtering')) return 65;
+      if (props.initialStatus === 'processing' && message.value.includes('Verifying')) return 67;
+      if (props.initialStatus === 'processing' && message.value.includes('Clustering')) return 70;
+      if (props.initialStatus === 'processing' && message.value.includes('Finalizing')) return 90;
+      
+      // Fallback to simple status mapping
       switch (status.value) {
         case 'queued': return 10;
-        case 'processing': return 50;
+        case 'processing': return 50;  // Only used when no detailed message available
         case 'completed': return 100;
         case 'failed': return 100;
         case 'error': return 100;
@@ -105,6 +116,12 @@ export default {
     });
 
     const progressText = computed(() => {
+      // Show actual stage from message when available
+      if (status.value === 'processing' && message.value && !message.value.includes('Task')) {
+        return message.value;
+      }
+      
+      // Fallback to generic status
       switch (status.value) {
         case 'queued': return 'Queued';
         case 'processing': return 'Processing...';

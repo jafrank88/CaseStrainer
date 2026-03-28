@@ -5,7 +5,7 @@ Parallel citations (same case, multiple reporters) should appear in one cluster.
 If the doc cites A & B and later B & C, transitive merge puts A, B, C in one cluster.
 """
 # Bump when clustering logic changes so API/workers can report which version ran
-CLUSTERING_VERSION = "2026-03-v2"
+CLUSTERING_VERSION = "2026-03-v4"
 
 import re
 import logging
@@ -14,13 +14,22 @@ from typing import Dict, Any, List, Set, Tuple
 
 from src.utils.same_case import names_are_same_case
 from src.utils.cluster_filter import citation_conflicts_with_group, _extract_year
+from src.clustering.detection import _clean_ecn, _same_case_check
 
 logger = logging.getLogger(__name__)
 
 
 def _get_citation_key(c: Dict[str, Any]) -> str:
-    """Stable key for a citation dict."""
-    return (c.get("citation") or c.get("text") or str(c)).strip()
+    """Stable key for a citation dict. Normalize state reporter variants so
+    e.g. 166 Wash. 2d 264 and 166 Wn.2d 264 merge (same case, same reporter)."""
+    raw = (c.get("citation") or c.get("text") or str(c)).strip()
+    if not raw:
+        return raw
+    # Normalize Washington reporter abbreviations to one form for merge/key purposes
+    key = re.sub(r"\bWash\.\s*2d\b", "Wn.2d", raw, flags=re.IGNORECASE)
+    key = re.sub(r"\bWash\.\s*App\.\s*2d\b", "Wn. App. 2d", key, flags=re.IGNORECASE)
+    key = re.sub(r"\s+", " ", key).strip()
+    return key
 
 
 def _merge_groups_transitive(groups_list: List[List[Dict[str, Any]]]) -> List[List[Dict[str, Any]]]:
@@ -71,15 +80,18 @@ def _merge_groups_transitive(groups_list: List[List[Dict[str, Any]]]) -> List[Li
             return False
         return any(abs((a or 0) - (b or 0)) > 2 for a in yi for b in yj)
 
-    # Build citation_key -> list of (group_idx, citation_dict) so we can check same-case when merging
+    # Build citation_key -> list of (group_idx, citation_dict) and per-group key set
     key_to_pairs: Dict[str, List[Tuple[int, Dict[str, Any]]]] = {}
+    key_sets_by_group: Dict[int, Set[str]] = {}
     for i, g in enumerate(groups_list):
         if not g:
             continue
+        key_sets_by_group[i] = set()
         for c in g:
             k = _get_citation_key(c)
             if k:
                 key_to_pairs.setdefault(k, []).append((i, c))
+                key_sets_by_group[i].add(k)
 
     def _name(c: Dict[str, Any]) -> str:
         return (c.get("canonical_name") or c.get("extracted_case_name") or c.get("case_name") or "").strip() or ""
@@ -111,7 +123,42 @@ def _merge_groups_transitive(groups_list: List[List[Dict[str, Any]]]) -> List[Li
                     f"[MINIMAL-CLUSTER] Union groups {i},{j} (share citation)"
                 )
 
-    # Second pass: merge groups with same canonical case (e.g. CFE I 86 N.Y.2d 307 + CFE II 100 N.Y.2d 893)
+    # Phase 2 (Kustura): merge groups that share no citation key but are same case (e.g. 169 Wn.2d 81 in one
+    # group and 233 P.3d 853 in another — parallel citations with cleaned name match via _same_case_check).
+    for i in range(n):
+        if not groups_list[i]:
+            continue
+        for j in range(i + 1, n):
+            if not groups_list[j]:
+                continue
+            if find(i) == find(j):
+                continue
+            ki = key_sets_by_group.get(i, set())
+            kj = key_sets_by_group.get(j, set())
+            if ki & kj:
+                continue  # already merged in phase 1
+            if has_year_conflict(i, j):
+                continue
+            if not any(
+                _same_case_check(ci, cj)
+                for ci in groups_list[i] for cj in groups_list[j]
+            ):
+                continue
+            conflict = any(
+                citation_conflicts_with_group(c, groups_list[j])
+                for c in groups_list[i]
+            ) or any(
+                citation_conflicts_with_group(c, groups_list[i])
+                for c in groups_list[j]
+            )
+            if conflict:
+                continue
+            union(i, j)
+            logger.debug(
+                f"[MINIMAL-CLUSTER] Union groups {i},{j} (no shared key, same case e.g. Kustura Wn.2d+P.3d)"
+            )
+
+    # Third pass: merge groups with same canonical case (e.g. CFE I 86 N.Y.2d 307 + CFE II 100 N.Y.2d 893)
     # even when they don't share a citation. Different extracted names ("Fiscal Equity v. State" vs
     # "Campaign for Fiscal Equity, Inc. v. State") can split them initially.
     # Do NOT merge when citations conflict (e.g. same reporter, different volumes = different cases:
@@ -352,7 +399,10 @@ def cluster_citations_minimal(citations: List[Dict[str, Any]]) -> List[Dict[str,
                 case_name = cit_text_name
 
         if case_name and case_name != "N/A":
-            # Find existing group where names_are_same_case(case_name, group_rep)
+            # Find existing group where names_are_same_case(case_name, group_rep).
+            # Use cleaned names so contaminated extracted_case_name (e.g. "Kustura v. X, 169 Wn. 2d 81")
+            # matches "Kustura v. X, 233 P.3d 853" — works for any legal doc with parallel cites.
+            case_name_clean = _clean_ecn(case_name) or case_name
             matched = False
             for i, (rep_key, group_cits) in enumerate(groups):
                 rep_name = (
@@ -361,7 +411,8 @@ def cluster_citations_minimal(citations: List[Dict[str, Any]]) -> List[Dict[str,
                     or group_cits[0].get("canonical_name")
                     or rep_key
                 )
-                if names_are_same_case(case_name, rep_name) and not citation_conflicts_with_group(citation, group_cits):
+                rep_name_clean = _clean_ecn(rep_name) if rep_name else rep_name
+                if names_are_same_case(case_name_clean, rep_name_clean) and not citation_conflicts_with_group(citation, group_cits):
                     group_cits.append(citation)
                     matched = True
                     break

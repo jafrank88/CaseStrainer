@@ -189,7 +189,7 @@ CIRCUIT_BREAKER_RESET_SECONDS: int = int(get_config_value("CIRCUIT_BREAKER_RESET
 # Global CourtListener throttle (shared across workers via Redis when available).
 # Keep below observed upstream hard limit to avoid burst 429s.
 COURTLISTENER_GLOBAL_THROTTLE_ENABLED: bool = get_bool_config_value("COURTLISTENER_GLOBAL_THROTTLE_ENABLED", True)
-COURTLISTENER_GLOBAL_LIMIT_PER_MIN: int = int(get_config_value("COURTLISTENER_GLOBAL_LIMIT_PER_MIN", "240"))
+COURTLISTENER_GLOBAL_LIMIT_PER_MIN: int = int(get_config_value("COURTLISTENER_GLOBAL_LIMIT_PER_MIN", "5000"))
 COURTLISTENER_GLOBAL_THROTTLE_MAX_WAIT_SECONDS: int = int(
     get_config_value("COURTLISTENER_GLOBAL_THROTTLE_MAX_WAIT_SECONDS", "45")
 )
@@ -198,7 +198,7 @@ COURTLISTENER_GLOBAL_THROTTLE_KEY: str = get_config_value(
     "casestrainer:courtlistener:throttle",
 )
 # Delay between batch API requests (seconds). Throttle already waits when at limit; this avoids burst when under limit.
-BATCH_DELAY_BETWEEN_REQUESTS_SECONDS: float = float(get_config_value("BATCH_DELAY_BETWEEN_REQUESTS_SECONDS", "0.5"))
+BATCH_DELAY_BETWEEN_REQUESTS_SECONDS: float = float(get_config_value("BATCH_DELAY_BETWEEN_REQUESTS_SECONDS", "0.05"))
 
 # Global Fallback Timeout
 GLOBAL_FALLBACK_TIMEOUT_SECONDS: int = int(get_config_value("GLOBAL_FALLBACK_TIMEOUT_SECONDS", "180"))  # 3 minutes for full fallback
@@ -393,7 +393,13 @@ def configure_logging(log_level: int = logging.DEBUG) -> None:
                 except UnicodeEncodeError:
                     safe_msg = msg.encode("cp1252", errors="replace").decode("cp1252")
                     self.stream.write(safe_msg + self.terminator)
-                self.flush()
+                except (ValueError, OSError):
+                    # Stdout/stderr already closed (e.g. pytest teardown, IDE test runner)
+                    return
+                try:
+                    self.flush()
+                except (ValueError, OSError):
+                    return
             except Exception:
                 self.handleError(record)
 
@@ -408,7 +414,13 @@ def configure_logging(log_level: int = logging.DEBUG) -> None:
     root_logger.addHandler(stream_handler)
 
     for name in logging.root.manager.loggerDict:
-        logging.getLogger(name).propagate = True
+        lg = logging.getLogger(name)
+        # File-only persistent loggers: do not bubble to root StreamHandler (stdout is closed
+        # during pytest/IDE teardown; shutdown INFO would raise "I/O operation on closed file").
+        if name.endswith(".events") or name.endswith(".crashes"):
+            lg.propagate = False
+            continue
+        lg.propagate = True
 
     configure_specific_loggers()
 

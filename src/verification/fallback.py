@@ -12,7 +12,7 @@ import re
 from typing import Optional, List, Dict, Any, Callable
 from enum import Enum
 
-from .sources import JustiaVerifier, CornellLIIVerifier, OpenJuristVerifier, GoogleScholarVerifier, FindLawVerifier
+from .sources import JustiaVerifier, CornellLIIVerifier, OpenJuristVerifier, GoogleScholarVerifier, FindLawVerifier, CaseMineVerifier
 from .utils import is_federal_citation, is_supreme_court_citation, validate_year_match
 
 logger = logging.getLogger(__name__)
@@ -79,6 +79,7 @@ class FallbackVerifier:
         """Initialize source verifiers."""
         self.verifiers = {
             "google_scholar": GoogleScholarVerifier(self.session),
+            "casemine": CaseMineVerifier(self.session),
             "findlaw": FindLawVerifier(self.session),
             "justia": JustiaVerifier(self.session),
             "cornell_lii": CornellLIIVerifier(self.session),
@@ -248,15 +249,16 @@ class FallbackVerifier:
             return ["google_scholar"]
 
         # Google Scholar first - best hit rate across all citation types
-        sources = ["google_scholar"]
+        # CaseMine second - good coverage, fast response (~0.4s)
+        sources = ["google_scholar", "casemine"]
         
-        # Supreme Court citations prioritize Cornell LII
+        # Supreme Court citations: Cornell LII and OpenJurist work for U.S. Reports
         if is_supreme_court_citation(citation):
-            sources.extend(["findlaw", "cornell_lii", "justia", "openjurist"])
+            sources.extend(["cornell_lii", "openjurist", "findlaw", "justia"])
         elif is_federal_citation(citation):
-            sources.extend(["findlaw", "justia", "cornell_lii", "openjurist"])
+            sources.extend(["findlaw", "justia", "cornell_lii"])
         else:
-            sources.extend(["findlaw", "justia", "openjurist"])
+            sources.extend(["findlaw", "justia"])
         
         return sources
 

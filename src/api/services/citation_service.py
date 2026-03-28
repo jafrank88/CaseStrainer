@@ -265,13 +265,11 @@ class CitationService:
                     logger.error(f"Failed to extract PDF from URL: {pdf_error}")
                     return None
 
-            # Handle HTML content
+            # Handle HTML content — download then parse below
             elif "html" in content_type:
-                # Download content with size limit
                 content = ""
                 downloaded = 0
                 max_size = 1024 * 1024  # 1MB max
-
                 for chunk in response.iter_content(chunk_size=1024, decode_unicode=True):
                     if chunk:
                         content += chunk
@@ -279,6 +277,28 @@ class CitationService:
                         if downloaded > max_size:
                             logger.info(f"URL content exceeded size limit: {downloaded} bytes")
                             return None
+                # Apply BeautifulSoup immediately for HTML content type
+                try:
+                    from bs4 import BeautifulSoup
+                    import re as _re
+                    _soup = BeautifulSoup(content, "html.parser")
+                    for _el in _soup.find_all(["script", "style", "nav", "header", "footer", "aside"]):
+                        _el.decompose()
+                    _main = None
+                    for _sel in ["main", "article", '[role="main"]', ".content", ".main-content",
+                                 ".document", ".opinion", "#content", "#main"]:
+                        _main = _soup.select_one(_sel)
+                        if _main:
+                            break
+                    _clean = _main.get_text(" ", strip=True) if _main else _soup.get_text(" ", strip=True)
+                    _clean = _re.sub(r"\s+", " ", _clean).strip()
+                    if len(_clean) > 50000:
+                        _clean = _clean[:50000] + "... [truncated]"
+                    logger.info(f"HTML branch: extracted {len(_clean)} chars from {len(content)} bytes")
+                    return _clean if len(_clean) >= 10 else None
+                except Exception as _he:
+                    logger.warning(f"HTML BeautifulSoup parse failed: {_he}; returning raw")
+                    return content
             else:
                 # For other content types, try to download as text
                 content = ""

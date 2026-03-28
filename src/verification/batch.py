@@ -559,31 +559,43 @@ class BatchVerifier:
                 )
             
             if best_match and best_match["clusters"]:
-                matched_count += 1
-                best_match["matched"] = True
-                cluster = self._select_best_cluster(best_match["clusters"], case_name)
-                canonical_name = cluster.get("case_name") or cluster.get("caseName")
-                date_filed = cluster.get("date_filed") or cluster.get("dateFiled", "")
-                canonical_date = None
-                if date_filed:
-                    year_match = re.search(r"(\d{4})", date_filed)
-                    if year_match:
-                        canonical_date = year_match.group(1)
-                
-                absolute_url = cluster.get("absolute_url", "")
-                canonical_url = f"https://www.courtlistener.com{absolute_url}" if absolute_url else None
-                
-                results.append({
-                    "citation": input_cit,
-                    "verified": True,
-                    "canonical_name": canonical_name,
-                    "canonical_date": canonical_date,
-                    "canonical_url": canonical_url,
-                    "source": "CourtListener",
-                    "confidence": 0.95 if best_match["status"] == 200 else 0.7,
-                    "extracted_case_name": case_name,
-                    "extracted_date": date,
-                })
+                cluster = self._select_best_cluster(
+                    best_match["clusters"], case_name, extracted_date=date
+                )
+                if cluster:
+                    matched_count += 1
+                    best_match["matched"] = True
+                    canonical_name = cluster.get("case_name") or cluster.get("caseName")
+                    date_filed = cluster.get("date_filed") or cluster.get("dateFiled", "")
+                    canonical_date = None
+                    if date_filed:
+                        year_match = re.search(r"(\d{4})", date_filed)
+                        if year_match:
+                            canonical_date = year_match.group(1)
+
+                    absolute_url = cluster.get("absolute_url", "")
+                    canonical_url = f"https://www.courtlistener.com{absolute_url}" if absolute_url else None
+
+                    results.append({
+                        "citation": input_cit,
+                        "verified": True,
+                        "canonical_name": canonical_name,
+                        "canonical_date": canonical_date,
+                        "canonical_url": canonical_url,
+                        "source": "CourtListener",
+                        "confidence": 0.95 if best_match["status"] == 200 else 0.7,
+                        "extracted_case_name": case_name,
+                        "extracted_date": date,
+                    })
+                else:
+                    # Single cluster rejected: document name clearly different (e.g. Arco vs Utils. Transp. Comm'n)
+                    results.append({
+                        "citation": input_cit,
+                        "verified": False,
+                        "error": "Name mismatch",
+                        "extracted_case_name": case_name,
+                        "extracted_date": date,
+                    })
             else:
                 error = "No results"
                 if best_match and best_match["status"] == 429:
@@ -604,48 +616,118 @@ class BatchVerifier:
         
         logger.info(f"[BATCH-DIAG] Matched {matched_count}/{len(input_citations)} input citations to API results (API returned {len(api_by_position)} results)")
         return results
-    
+
+    def _cluster_name_matches_extracted(self, cluster: Dict[str, Any], extracted_case_name: str) -> bool:
+        """
+        Return False when the cluster's case name is clearly a different case than the document's.
+        E.g. document "Utils. Transp. Comm'n Seattle, Inc. v. Utils. & Transp. Comm'n" should not
+        match CourtListener "Arco Products Co. v. Utilities & Transportation Commission" (same cite, wrong case).
+        """
+        if not extracted_case_name or len(extracted_case_name.strip()) < 4:
+            return True
+        cn = (cluster.get("case_name") or cluster.get("caseName") or "").strip()
+        if not cn:
+            return True
+        ecn_lower = extracted_case_name.lower().strip()
+        cn_lower = cn.lower()
+        # First party must have some overlap (e.g. "utils" / "utilities", "arco" vs "utils" = no)
+        ecn_parts = re.split(r"\s+v\.?\s+", ecn_lower, maxsplit=1)
+        cn_parts = re.split(r"\s+v\.?\s+", cn_lower, maxsplit=1)
+        ecn_first = (ecn_parts[0].strip() if ecn_parts else "").split()
+        cn_first = (cn_parts[0].strip() if cn_parts else "").split()
+        if not ecn_first or not cn_first:
+            return True
+        # Normalize: drop common suffixes for comparison
+        stop = {"inc", "co", "ltd", "llc", "corp", "comm'n", "commission", "commissioner"}
+        ecn_tokens = set(w.strip(".,'") for w in ecn_first if w.strip(".,'") and w.strip(".,'") not in stop)
+        cn_tokens = set(w.strip(".,'") for w in cn_first if w.strip(".,'") and w.strip(".,'") not in stop)
+        if not ecn_tokens or not cn_tokens:
+            return True
+        # Reject if no token overlap (e.g. "arco","products" vs "utils","transp","seattle")
+        if ecn_tokens.isdisjoint(cn_tokens):
+            # Allow if one side is abbreviation of the other (e.g. "utils" vs "utilities")
+            ecn_str = " ".join(sorted(ecn_tokens))
+            cn_str = " ".join(sorted(cn_tokens))
+            if not (ecn_str in cn_str or cn_str in ecn_str or any(
+                a in b or b in a for a in ecn_tokens for b in cn_tokens
+            )):
+                return False
+        return True
+
     def _select_best_cluster(
         self,
         clusters: List[Dict[str, Any]],
-        extracted_case_name: Optional[str] = None
+        extracted_case_name: Optional[str] = None,
+        extracted_date: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
-        Select the best cluster from CourtListener results using extracted case name.
+        Select the best cluster from CourtListener results using extracted case name and year.
         
-        When CourtListener returns multiple clusters for a citation (e.g., '1 Cranch 137'
-        returns both 'Green v. Fry' and 'Marbury v. Madison'), pick the one whose
-        case_name best matches the extracted_case_name from the document.
+        When CourtListener returns multiple clusters for a citation (e.g. "In re Mercer"
+        returns both 1987 and 2009 opinions), prefer the cluster whose date_filed matches
+        the citation's extracted year (e.g. 1987 for "108 Wn.2d 714, 741 P.2d 559 (1987)").
+        Also pick by case_name match when names differ (e.g. '1 Cranch 137' -> Marbury v. Madison).
+        When there is only one cluster but the document's extracted name clearly refers
+        to a different case (e.g. first party mismatch), return {} so the citation is
+        not marked verified (avoids wrong URL e.g. Arco for "Utils. Transp. Comm'n Seattle").
         """
         if not clusters:
             return {}
-        if len(clusters) == 1 or not extracted_case_name or extracted_case_name == "N/A":
+        if len(clusters) == 1:
+            single = clusters[0]
+            if not extracted_case_name or (extracted_case_name or "").strip() == "N/A":
+                return single
+            # Reject single cluster when document name clearly refers to a different case
+            if not self._cluster_name_matches_extracted(single, extracted_case_name.strip()):
+                return {}
+            return single
+
+        # Prefer cluster whose date_filed year matches extracted year (e.g. Mercer 1987 vs 2009)
+        want_year = None
+        if extracted_date:
+            ym = re.search(r"(19|20)\d{2}", str(extracted_date))
+            if ym:
+                want_year = int(ym.group(0))
+
+        ecn_lower = extracted_case_name.lower().strip() if extracted_case_name else ""
+        if not ecn_lower or ecn_lower == "n/a":
+            if want_year is not None:
+                for cluster in clusters:
+                    date_filed = cluster.get("date_filed") or cluster.get("dateFiled", "")
+                    if date_filed:
+                        fm = re.search(r"(19|20)\d{2}", str(date_filed))
+                        if fm and int(fm.group(0)) == want_year:
+                            return cluster
             return clusters[0]
-        
-        ecn_lower = extracted_case_name.lower().strip()
+
         # Extract first party from extracted name for matching
         ecn_parts = re.split(r"\s+v\.?\s+", ecn_lower, maxsplit=1)
         ecn_first = ecn_parts[0].strip().split()[-1] if ecn_parts else ""
-        
+
         best_cluster = clusters[0]
         best_score = -1
-        
+
         for cluster in clusters:
             cn = (cluster.get("case_name") or cluster.get("caseName") or "").lower().strip()
             if not cn:
                 continue
             
             score = 0
+            # Year match: prefer cluster whose date_filed matches citation year (Mercer 1987 vs 2009)
+            if want_year is not None:
+                date_filed = cluster.get("date_filed") or cluster.get("dateFiled", "")
+                if date_filed:
+                    fm = re.search(r"(19|20)\d{2}", str(date_filed))
+                    if fm and int(fm.group(0)) == want_year:
+                        score += 15
             # Exact substring match
             if ecn_lower in cn or cn in ecn_lower:
                 score += 10
-            
             # First party match
             cn_parts = re.split(r"\s+v\.?\s+", cn, maxsplit=1)
             cn_first = cn_parts[0].strip().split()[-1] if cn_parts else ""
             if ecn_first and cn_first and ecn_first == cn_first:
                 score += 5
-            
             # Word overlap
             ecn_words = set(re.findall(r"[a-z]+", ecn_lower)) - {"v", "the", "of", "and", "inc", "llc"}
             cn_words = set(re.findall(r"[a-z]+", cn)) - {"v", "the", "of", "and", "inc", "llc"}

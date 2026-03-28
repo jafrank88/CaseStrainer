@@ -166,28 +166,28 @@ export function useUnifiedProgress() {
       progressState.heuristicTimerId = null;
     }
     const getHeuristicStepMs = () => {
-      // Aim to reach ~98% at ETA using 2% increments → 49 steps to cap
+      // Use smaller increments (1%) for smoother progress → 100 steps to cap
       const etaSec = Math.max(5, Number(progressState.estimatedTotalTime) || 0);
-      const stepsToCap = 49; // 98 / 2
+      const stepsToCap = 100; // 100 / 1
       const ms = Math.floor((etaSec * 1000) / stepsToCap);
       // Keep within sensible bounds
-      // Never faster than 2% every 3s (>=3000ms); allow slower for larger ETAs
-      return Math.min(12000, Math.max(3000, ms));
+      // Never faster than 1% every 2s (>=2000ms); allow slower for larger ETAs
+      return Math.min(8000, Math.max(2000, ms));
     };
 
-    // Step the progress deterministically: +2% each interval, but NEVER above last backend progress.
+    // Step the progress deterministically: +1% each interval, but NEVER above last backend progress.
     // Bar must reflect backend job progress, not polling/time.
     const stepMs = getHeuristicStepMs();
     progressState.heuristicTimerId = setInterval(() => {
       if (!progressState.isActive) return;
       const backendCap = progressState.maxProgressFromBackend;
-      const cap = progressState.hasResults ? 100 : (backendCap != null ? Math.min(98, backendCap) : 98);
-      const next = Math.min(cap, (progressState.totalProgress || 0) + 2);
+      const cap = progressState.hasResults ? 100 : (backendCap != null ? backendCap : 100);
+      const next = Math.min(cap, (progressState.totalProgress || 0) + 1);
       if (next > progressState.totalProgress) {
         progressState.totalProgress = next;
       }
       // Friendly status while finalizing
-      if (!progressState.hasResults && progressState.totalProgress >= 98) {
+      if (!progressState.hasResults && progressState.totalProgress >= 95) {
         progressState.currentStep = 'Finalizing results...';
       }
       // Stop on completion or error
@@ -310,29 +310,22 @@ export function useUnifiedProgress() {
       }
     }
     
-    // Max increase per update so the bar doesn't jump (e.g. 70% -> 98% in one step)
-    const MAX_PROGRESS_STEP = 12;
+    // Max increase per update so the bar doesn't jump too quickly
+    const MAX_PROGRESS_STEP = 8;
 
     if (update.total_progress !== undefined && update.total_progress !== null) {
       // CRITICAL FIX: Ensure progress is monotonic - never allow it to decrease
       let newProgress = Math.max(0, Math.min(100, update.total_progress));
-      // Clamp to <100 until we actually have final results
-      const cap = progressState.hasResults ? 100 : 98;
-      newProgress = Math.min(newProgress, cap);
       // Store backend cap so heuristic doesn't exceed it
       progressState.maxProgressFromBackend = newProgress;
       if (newProgress > progressState.totalProgress) {
-        // Smooth: don't jump more than MAX_PROGRESS_STEP per update (unless completing with results)
+        // Smooth: don't jump more than MAX_PROGRESS_STEP per update
         const current = progressState.totalProgress ?? 0;
-        const allowed = progressState.hasResults
-          ? newProgress
-          : Math.min(current + MAX_PROGRESS_STEP, newProgress);
+        const allowed = Math.min(current + MAX_PROGRESS_STEP, newProgress);
         progressState.totalProgress = Math.max(current, allowed);
       }
     } else if (update.overall_progress !== undefined && update.overall_progress !== null) {
       let newProgress = Math.max(0, Math.min(100, update.overall_progress));
-      const cap = progressState.hasResults ? 100 : 98;
-      newProgress = Math.min(newProgress, cap);
       progressState.maxProgressFromBackend = newProgress;
       if (newProgress > progressState.totalProgress) {
         const current = progressState.totalProgress ?? 0;

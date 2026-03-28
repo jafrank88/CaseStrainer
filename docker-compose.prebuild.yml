@@ -37,6 +37,7 @@ services:
       - PYTHONPATH=/app
       - LOG_LEVEL_CASE_NAME_EXTRACTION=INFO
       - COURTLISTENER_API_KEY=***REDACTED_COURTLISTENER_KEY***
+      - SECRET_KEY=***REDACTED_SECRET_KEY***
     volumes:
       - ./src:/app/src
       - ./data:/app/data

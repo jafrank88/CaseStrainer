@@ -124,6 +124,24 @@ def extract_case_name_with_strict_isolation(
                 )
                 adaptive_context = after_semicolon
 
+        # Defensive trim: "). " ends a citation sentence and starts a new one.
+        # Use ONLY text after the last such boundary so "Gibson v. 1997 Dodge" is found and not
+        # "Peacock v. State" from the preceding sentence.
+        # Example: "...46 P.3d 713 (Okla. 2002).\nState ex rel. Gibson v. 1997 Dodge, 2001 OK..."
+        # Require uppercase after the boundary (new sentence) to avoid trimming on abbreviations.
+        if adaptive_context:
+            last_cit_boundary = -1
+            for m in re.finditer(r'\)\.\s+(?=[A-Z])', adaptive_context):
+                last_cit_boundary = m.end()
+            if last_cit_boundary > 0:
+                after_boundary = adaptive_context[last_cit_boundary:].strip()
+                if len(after_boundary) >= 5:
+                    logger.debug(
+                        f"[UNIFIED-EXTRACT] Trimming context at ').' sentence boundary for {citation_text} "
+                        f"(kept {len(after_boundary)} chars)"
+                    )
+                    adaptive_context = after_boundary
+
         # If context contains an INTERVENING citation (a different citation before our target),
         # use only text after the rightmost such citation so we get "Davis v. FEC" not "Meese v. Keene".
         # Do NOT trim when the only match IS the target citation - then the case name is to the left.

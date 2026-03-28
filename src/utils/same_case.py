@@ -29,8 +29,17 @@ _LEGAL_STOP_WORDS = frozenset({
 
 
 def has_case_name(ecn: Optional[str]) -> bool:
-    """Return True if *ecn* is a meaningful extracted case name."""
-    return bool(ecn) and ecn != "N/A" and len(ecn) > 3
+    """Return True if *ecn* is a meaningful extracted case name.
+
+    Requires either 'v.' (adversarial case) or at least two alphabetic words
+    to avoid treating reporter fragments like 'S.Ct. 397' as case names.
+    """
+    if not ecn or ecn == "N/A" or len(ecn) <= 3:
+        return False
+    if " v. " in ecn or " v " in ecn:
+        return True
+    alpha_words = [w for w in re.sub(r"[^\w\s]", " ", ecn).split() if w.isalpha() and len(w) > 1]
+    return len(alpha_words) >= 2
 
 
 def _plaintiff_last_word(ecn: str) -> str:
@@ -43,13 +52,37 @@ def _plaintiff_last_word(ecn: str) -> str:
     return words[-1] if words else ""
 
 
+def _weak_name_is_defendant_anchor(weak: str, strong: str) -> bool:
+    """True if *weak* is a single substantive token equal to the defendant anchor in *strong*.
+
+    Handles parallel-reporter rows where extraction only keeps the defendant surname
+    (e.g. ``Twombly`` / ``Twombly, 2007``) while another cite has the full case name.
+    """
+    if not weak or not strong or " v. " not in strong:
+        return False
+    s = re.sub(r",?\s*(?:19|20)\d{2}\s*$", "", weak.strip())
+    tokens = [
+        t.lower()
+        for t in re.sub(r"[^\w\s]", " ", s).split()
+        if t.isalpha() and len(t) >= 4
+    ]
+    if len(tokens) != 1:
+        return False
+    token = tokens[0]
+    dl = _defendant_last_word(strong)
+    return bool(dl) and token == dl
+
+
 def _defendant_last_word(ecn: str) -> str:
     """Extract the last meaningful word of the defendant portion of a 'v.' name."""
     parts = re.split(r"\s+v\.\s+", ecn.lower(), maxsplit=1)
     if len(parts) < 2 or not parts[1].strip():
         return ""
+    right = parts[1].strip()
+    # Drop trailing decision year so "Twombly, 2007" yields defendant anchor "twombly", not "2007"
+    right = re.sub(r",?\s*(?:19|20)\d{2}\s*$", "", right).strip()
     # Strip trailing punctuation/abbreviations (Inc., Co., etc.) for comparison
-    right = re.sub(r"[.,]+$", "", parts[1].strip())
+    right = re.sub(r"[.,]+$", "", right)
     tokens = right.split()
     return tokens[-1] if tokens else ""
 
@@ -97,8 +130,15 @@ def names_are_same_case(name_a: Optional[str], name_b: Optional[str]) -> bool:
     if not has_a and not has_b:
         return True
 
-    # One has a name, the other doesn't -> don't merge
+    # One has a name, the other doesn't -> usually don't merge
     if has_a != has_b:
+        # Exception: TOA / short labels like "Twombly, 2007" next to full
+        # "Bell Atlantic Corp. v. Twombly" — one token matching defendant anchor.
+        strong = ecn_a if has_a else ecn_b
+        weak = ecn_b if has_a else ecn_a
+        if has_case_name(strong) and not has_case_name(weak):
+            if _weak_name_is_defendant_anchor(weak, strong):
+                return True
         return False
 
     # Both have names - compare using 'v.' if present

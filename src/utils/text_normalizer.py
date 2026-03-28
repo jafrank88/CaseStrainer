@@ -191,6 +191,13 @@ def normalize_text(text: str) -> str:
 
     # Handle S. Ct.: "141 S.\nCt." -> "141 S. Ct."
     normalized = re.sub(r"(\d+)\s+[Ss]\.?\s*[\n\r]+\s*[Cc]t\.?", r"\1 S. Ct.", normalized)
+    # Page digits split across line: "143 S. Ct. 24\n29." -> "143 S. Ct. 2429."
+    try:
+        from src.utils.extraction_cleaner import merge_s_ct_page_split_across_newline
+
+        normalized = merge_s_ct_page_split_across_newline(normalized)
+    except Exception:
+        pass
 
     # Handle L. Ed.: "200 L.\nEd." -> "200 L. Ed."
     normalized = re.sub(r"(\d+)\s+[Ll]\.?\s*[\n\r]+\s*[Ee]d\.?", r"\1 L. Ed.", normalized)
@@ -322,6 +329,9 @@ def normalize_case_name(case_name: str) -> str:
     normalized = re.sub(r'\bofthe([A-Z])', r'of the \1', normalized)  # "oftheC" -> "of the C"
     normalized = re.sub(r'([a-z])forthe\b', r'\1 for the', normalized)  # "Committeeforthe" -> "Committee for the"
     normalized = re.sub(r'([a-z])tothe\b', r'\1 to the', normalized)  # "Committeetothe" -> "Committee to the"
+
+    # Strip trailing docket number fragments (", No", ", No.", ", No. CV", ", No. CIV", ", No. CA")
+    normalized = re.sub(r",?\s+No\.?\s*(?:C[IV]{1,3}|CA)?\s*$", "", normalized, flags=re.IGNORECASE).strip()
 
     # Clean up extra spaces around punctuation
     normalized = re.sub(r"\s*,\s*", ", ", normalized)

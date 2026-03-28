@@ -33,6 +33,39 @@ logger = logging.getLogger(__name__)
 
 _shutdown = False
 
+
+def _task_has_recent_progress(conn, job_id: str) -> bool:
+    """Return True if task progress/status appears to have been updated recently enough to treat the job as active."""
+    now_ts = time.time()
+    candidates = [
+        f"verification_status:{job_id}",
+        f"task_status:{job_id}",
+        f"task_progress:{job_id}",
+        f"task_result:{job_id}",
+    ]
+    for key in candidates:
+        try:
+            if not conn.exists(key):
+                continue
+            ttl = conn.ttl(key)
+            if ttl and ttl > max(30, MONITOR_INTERVAL):
+                return True
+            raw = conn.get(key)
+            if not raw:
+                continue
+            if isinstance(raw, bytes):
+                raw = raw.decode("utf-8", errors="ignore")
+            data = json.loads(raw)
+            if not isinstance(data, dict):
+                continue
+            for field in ("updated_at", "last_updated", "timestamp"):
+                val = data.get(field)
+                if isinstance(val, (int, float)) and (now_ts - float(val)) <= max(90, MONITOR_INTERVAL * 2):
+                    return True
+        except Exception:
+            continue
+    return False
+
 def _handle_signal(signum, _frame):
     global _shutdown
     logger.info("Received signal %s - shutting down", signum)
@@ -62,6 +95,12 @@ def cleanup_stuck_jobs(conn):
                 started_at = started_at.replace(tzinfo=timezone.utc)
             elapsed = (datetime.now(timezone.utc) - started_at).total_seconds()
             if elapsed > STUCK_THRESHOLD:
+                if _task_has_recent_progress(conn, job_id):
+                    logger.info(
+                        "Job %s exceeded threshold (%.0fs) but has recent progress; leaving it active",
+                        job_id, elapsed,
+                    )
+                    continue
                 logger.warning(
                     "Job %s stuck %.0fs (threshold %ds) func=%s - cancelling",
                     job_id, elapsed, STUCK_THRESHOLD, job.func_name,

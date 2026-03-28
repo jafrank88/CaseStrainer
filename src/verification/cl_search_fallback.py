@@ -10,6 +10,15 @@ from urllib3.util.retry import Retry
 
 from .courtlistener_throttle import throttle_courtlistener
 
+try:
+    from src.utils.state_reporter_map import infer_court_from_citation
+    from src.utils.legal_abbreviations import expand_abbreviations
+    _CL_SEARCH_UTILS = True
+except Exception:
+    _CL_SEARCH_UTILS = False
+    def infer_court_from_citation(t): return None
+    def expand_abbreviations(s): return s
+
 logger = logging.getLogger(__name__)
 _FAST_CL_SESSION: Optional[requests.Session] = None
 
@@ -72,14 +81,14 @@ def _extract_us_reporter_cite(citation_text: str) -> Optional[str]:
 def _has_reporter_citation(citation_text: str) -> bool:
     """
     True when citation contains a volume-reporter-page pattern (e.g. 766 F. Supp. 3d 266,
-    965 F.3d 596, 578 U.S. 330). Used to trigger exact citation search for federal
-    reporter cites, not just U.S. / WL / docket.
+    965 F.3d 596, 578 U.S. 330, 97 Wash. 2d 148, 641 P.2d 1180). Used to trigger exact
+    citation search for federal and state reporter cites, not just U.S. / WL / docket.
     """
     if not citation_text or not citation_text.strip():
         return False
     return bool(
         re.search(
-            r"\b\d+\s+(?:U\.?\s*S\.?|F\.?\s*Supp\.?\s*(?:\d+d)?|F\.?\d+d|F\.?\d+th|S\.?\s*Ct\.?|L\.?\s*Ed\.?\s*(?:2d)?|Tenn\.?)\s+\d+\b",
+            r"\b\d+\s+(?:U\.?\s*S\.?|F\.?\s*Supp\.?\s*(?:\d+d)?|F\.?\d+d|F\.?\d+th|S\.?\s*Ct\.?|L\.?\s*Ed\.?\s*(?:2d)?|Tenn\.?|Wash\.?\s*2d|Wn\.?\s*2d|P\.?\s*2d|P\.?\s*3d)\s+\d+\b",
             citation_text,
             re.IGNORECASE,
         )
@@ -250,11 +259,15 @@ def _cl_pacer_docket_lookup(
 
 
 def _expand_case_aliases(case_name: str) -> list[str]:
-    """Generate a few deterministic aliases for common federal party abbreviations."""
+    """Generate a few deterministic aliases for common federal party abbreviations and state reporter short names."""
     base = re.sub(r"\s+", " ", str(case_name or "")).strip()
     if not base:
         return []
     aliases = {base}
+    # Feature: add abbreviation-expanded alias for better search coverage
+    expanded = expand_abbreviations(base)
+    if expanded and expanded != base:
+        aliases.add(expanded)
     if re.search(r"\bDHS\b", base, re.IGNORECASE):
         aliases.add(re.sub(r"\bDHS\b", "Department of Homeland Security", base, flags=re.IGNORECASE))
         aliases.add(re.sub(r"\bDHS\b", "Dept. of Homeland Sec.", base, flags=re.IGNORECASE))
@@ -262,6 +275,9 @@ def _expand_case_aliases(case_name: str) -> list[str]:
         aliases.add(re.sub(r"\bDep'?t\b", "Department", base, flags=re.IGNORECASE))
     if re.search(r"\bUniv\.?\b", base, re.IGNORECASE):
         aliases.add(re.sub(r"\bUniv\.?\b", "University", base, flags=re.IGNORECASE))
+    # Senear v. Daily J.-Am / Daily J. -Am -> Daily Journal American (Court Listener canonical name)
+    if re.search(r"Daily\s+J\.?\s*-?\s*Am\.?", base, re.IGNORECASE):
+        aliases.add(re.sub(r"Daily\s+J\.?\s*-?\s*Am\.?", "Daily Journal American", base, flags=re.IGNORECASE))
     return [a for a in aliases if a]
 
 
@@ -293,6 +309,9 @@ async def cl_search_fallback(session, api_key, citation, extracted_case_name=Non
 
     # Strategy -1: CourtListener PACER Dockets API (direct lookup when docket number present)
     docket_num, court_id = _extract_docket_and_court(citation_text)
+    # Feature: infer court from reporter when parenthetical didn't yield one
+    if not court_id:
+        court_id = infer_court_from_citation(citation_text)
     if docket_num:
         t_pacer = _next_timeout(6.0)
         if t_pacer > 0:
@@ -349,7 +368,7 @@ async def cl_search_fallback(session, api_key, citation, extracted_case_name=Non
                     if results0:
                         best0 = _pick_best_exact(results0, citation, extracted_case_name, prefer_docket=False)
                         if best0:
-                            return _build_result(best0, citation, "exact-citation-search")
+                            return _build_result(best0, citation, "exact-citation-search", extracted_case_name)
                 else:
                     resp0.close(); del resp0
         except Exception:
@@ -409,7 +428,7 @@ async def cl_search_fallback(session, api_key, citation, extracted_case_name=Non
                     if results_nd:
                         best_nd = _pick_best_name_date(results_nd, extracted_case_name, year_hint, citation)
                         if best_nd:
-                            return _build_result(best_nd, citation, "name-date-search")
+                            return _build_result(best_nd, citation, "name-date-search", extracted_case_name)
                 else:
                     resp_nd.close(); del resp_nd
         except Exception:
@@ -433,6 +452,8 @@ async def cl_search_fallback(session, api_key, citation, extracted_case_name=Non
     else:
         q1 = f'caseName:("{case_escaped}")'
     params: Dict[str, Any] = {"q": q1, "type": "o"}
+    if court_id:
+        params["court"] = court_id
     try:
         t1 = _next_timeout(6.0)
         if t1 <= 0:
@@ -444,7 +465,7 @@ async def cl_search_fallback(session, api_key, citation, extracted_case_name=Non
             if results:
                 best = _pick_best(results, extracted_case_name)
                 if best:
-                    return _build_result(best, citation, "opinion-search")
+                    return _build_result(best, citation, "opinion-search", extracted_case_name)
         else:
             resp.close(); del resp
 
@@ -471,7 +492,7 @@ async def cl_search_fallback(session, api_key, citation, extracted_case_name=Non
                     if results15:
                         best15 = _pick_best(results15, extracted_case_name)
                         if best15:
-                            return _build_result(best15, citation, "keyword-search")
+                            return _build_result(best15, citation, "keyword-search", extracted_case_name)
                 else:
                     resp15.close(); del resp15
             except Exception:
@@ -489,7 +510,7 @@ async def cl_search_fallback(session, api_key, citation, extracted_case_name=Non
             if results2:
                 best2 = _pick_best(results2, extracted_case_name)
                 if best2:
-                    return _build_result(best2, citation, "freetext-search")
+                    return _build_result(best2, citation, "freetext-search", extracted_case_name)
         else:
             resp2.close(); del resp2
 
@@ -522,6 +543,71 @@ async def cl_search_fallback(session, api_key, citation, extracted_case_name=Non
                     cd = str(year) if year else None
                     logger.info(f"[CL-SEARCH-FALLBACK] Found docket '{cn}' for '{citation}'")
                     return {"verified": True, "canonical_name": cn, "canonical_date": cd, "canonical_url": cu, "source": "CourtListener-Docket", "confidence": 0.75}
+
+        # Strategy 3b: RECAP docket-entries drill-down with year-range filter
+        # When Strategy 3 finds a docket by name but not a specific document, fetch
+        # docket entries filtered by the citation year to locate the actual filing.
+        if results3 and year:
+            try:
+                best3_raw = _pick_best_docket(results3, extracted_case_name)
+                docket_id_recap = best3_raw.get("docket_id") or best3_raw.get("id") if best3_raw else None
+                if docket_id_recap and _next_timeout() > 0:
+                    after = f"{year - 1}-01-01"
+                    before = f"{year + 1}-12-31"
+                    t3b = _next_timeout(5.0)
+                    s = _get_fast_cl_session()
+                    throttle_courtlistener(cost=1, context="recap-entries")
+                    re3b = s.get(
+                        f"{base}/docket-entries/",
+                        params={"docket": docket_id_recap, "date_filed__gte": after, "date_filed__lte": before},
+                        headers=headers,
+                        timeout=min(t3b, 5),
+                    )
+                    if re3b.status_code == 200:
+                        entries = re3b.json().get("results", [])
+                        re3b.close()
+                        # Pick entry closest to citation year; prefer entries with "opinion" in description
+                        best_entry = None
+                        best_entry_score = -1
+                        for entry in entries[:20]:
+                            df_e = entry.get("date_filed") or ""
+                            desc = (entry.get("description") or "").lower()
+                            score_e = 0
+                            if df_e:
+                                em = re.search(r"(\d{4})", df_e)
+                                if em and int(em.group(1)) == year:
+                                    score_e += 5
+                            if any(kw in desc for kw in ("opinion", "order", "judgment", "decision")):
+                                score_e += 3
+                            docs = entry.get("recap_documents", [])
+                            if docs:
+                                score_e += 1
+                            if score_e > best_entry_score:
+                                best_entry_score = score_e
+                                best_entry = entry
+                        if best_entry and best_entry_score >= 3:
+                            recap_docs = best_entry.get("recap_documents", [])
+                            doc_url = None
+                            if recap_docs:
+                                doc_url = recap_docs[0].get("absolute_url") or ""
+                                if doc_url and not doc_url.startswith("http"):
+                                    doc_url = "https://www.courtlistener.com" + doc_url
+                            if not doc_url:
+                                au_recap = best3_raw.get("absolute_url") or ""
+                                doc_url = f"https://www.courtlistener.com{au_recap}" if au_recap else None
+                            cn_recap = best3_raw.get("caseName") or best3_raw.get("case_name") or ""
+                            logger.info(f"[CL-RECAP-ENTRIES] Found dated entry for '{citation}' (score={best_entry_score})")
+                            return {
+                                "verified": True,
+                                "canonical_name": cn_recap,
+                                "canonical_date": str(year),
+                                "canonical_url": doc_url,
+                                "source": "CourtListener-RECAP",
+                                "confidence": 0.80,
+                                "diagnostic": "Found via RECAP docket-entries date filter",
+                            }
+            except Exception:
+                pass
 
         return {"verified": False, "error": "No matching results in any search strategy"}
     except Exception as e:
@@ -566,7 +652,7 @@ def _citation_core_key(text: str) -> str:
     return re.sub(r"\s+", " ", s.strip()).lower()
 
 
-def _build_result(best, citation, method):
+def _build_result(best, citation, method, extracted_case_name=None):
     cn = best.get("caseName") or best.get("case_name") or ""
     df = best.get("dateFiled") or best.get("date_filed") or ""
     au = best.get("absolute_url") or ""
@@ -575,10 +661,10 @@ def _build_result(best, citation, method):
         m = re.search(r"(\d{4})", df)
         if m:
             cd = m.group(1)
-    cu = f"https://www.courtlistener.com{au}" if au else None
+    cu = "https://www.courtlistener.com" + au if au else None
     candidate_citation = _candidate_citation_from_record(best)
-    logger.info(f"[CL-SEARCH-FALLBACK] Found '{cn}' for '{citation}' via {method}")
-    return {
+    logger.info("[CL-SEARCH-FALLBACK] Found '{}' for '{}' via {}".format(cn, citation, method))
+    result = {
         "verified": True,
         "canonical_name": cn,
         "canonical_date": cd,
@@ -586,7 +672,27 @@ def _build_result(best, citation, method):
         "source": "CourtListener-Search",
         "confidence": 0.85,
         "candidate_citation": candidate_citation,
+        "search_method": method,
     }
+    # Feature 5 & 6: weighted scoring + diagnostics
+    try:
+        from src.utils.verification_scoring import compute_weighted_confidence
+        year_m = re.search(r"(\d{4})", str(citation or ""))
+        sub_year = int(year_m.group(1)) if year_m else None
+        can_year_m = re.search(r"(\d{4})", str(cd or ""))
+        can_year = int(can_year_m.group(1)) if can_year_m else None
+        scoring = compute_weighted_confidence(
+            submitted_name=extracted_case_name,
+            canonical_name=cn,
+            submitted_year=sub_year,
+            canonical_year=can_year,
+        )
+        result["confidence_detail"] = scoring
+        if scoring.get("diagnostics"):
+            result["verification_note"] = "; ".join(scoring["diagnostics"])
+    except Exception:
+        pass
+    return result
 
 
 def _prefix_overlap(set_a, set_b):

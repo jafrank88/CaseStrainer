@@ -33,7 +33,7 @@ def _parse_vol_rep(citation_text: str) -> Optional[Tuple[str, int]]:
 
 
 def _extract_year(c: Dict[str, Any]) -> Optional[int]:
-    """Extract 4-digit year from citation dict."""
+    """Extract 4-digit year from citation dict (metadata or (YYYY) in citation text)."""
     for key in ("extracted_date", "canonical_date", "date"):
         val = c.get(key)
         if not val:
@@ -41,6 +41,12 @@ def _extract_year(c: Dict[str, Any]) -> Optional[int]:
         m = re.search(r"(19|20)\d{2}", str(val))
         if m:
             return int(m.group(0))
+    # Fallback: year in parentheses in citation text (e.g. "741 P.2d 559 (1987)" -> 1987)
+    ct = (c.get("citation") or c.get("text") or "")
+    if ct:
+        m = re.search(r"\((19\d{2}|20\d{2})\)", str(ct))
+        if m:
+            return int(m.group(1))
     return None
 
 

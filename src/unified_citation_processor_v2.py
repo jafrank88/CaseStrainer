@@ -180,6 +180,27 @@ CitationList = List[CitationResult]
 CitationDict = Dict[str, Any]
 VerificationResult = Dict[str, Any]
 
+_COMMA_ABBREVS = (
+    r"L\.?L\.?C\.?|L\.?P\.?|P\.?L\.?L\.?C\.?|P\.?L\.?C\.?|"
+    r"Inc\.?|Ltd\.?|Corp\.?|Co\.?|"
+    r"Ass\'?n\.?|Assoc\.?|Grp\.?|"
+    r"LLC|LP|LLP|PLLC|PLC|Inc|Ltd|Corp"
+)
+_COMMA_ABBREVS_PAT = re.compile(r"^(" + _COMMA_ABBREVS + r")\s*,?\s*\d+\s+[A-Z]", re.IGNORECASE)
+_SUFFIX_PAT = re.compile(r"^(" + _COMMA_ABBREVS + r")", re.IGNORECASE)
+_NAME_THEN_CITE_RE = re.compile(
+    r"([A-Z][A-Za-z.\'\,&\ \t\-]+[ \t\n]+v\s*\.\s*[ \t\n]+[A-Z][A-Za-z.\'\,&\ \t\-]+?)\s*,\s*(\d+)\s+[A-Z]",
+    re.IGNORECASE,
+)
+_DOCKET_CAPTION_LINE_RE = re.compile(
+    r"(?:Ins\.?\s*Co\.?|Inc\.?|Corp\.?|L\.?L\.?C\.?)\s+No\.?\s*[A-Z]?\d+[-\.]\d+",
+    re.IGNORECASE,
+)
+_CITATION_IN_LINE_RE = re.compile(
+    r"\d{4}\s+WL\s+\d+|\d+\s+(?:F\.?3d|F\.?2d|U\.S\.|P\.?3d|N\.E\.2d|S\.E\.2d|S\.W\.2d|Wn\.2d|Cal\.)\s+\d+",
+    re.IGNORECASE,
+)
+
 class UnifiedCitationProcessorV2:
     """
     Unified citation processor that consolidates the best parts of all existing implementations.
@@ -1960,9 +1981,23 @@ class UnifiedCitationProcessorV2:
                                 if _progress_cb:
                                     try:
                                         processed_global = processed_count or 0
-                                        global_message = (
-                                            f"Verifying citations... ({processed_global}/{_total} citations)"
-                                        )
+                                        if processed_global > _total:
+                                            # Fallback phase: processed_global > _total means we are
+                                            # doing per-citation extended verification for unverified
+                                            # citations. Use a message WITHOUT the "(X/Y citations)"
+                                            # pattern so file_progress_callback does NOT parse it as
+                                            # a backward-progress ratio.  The percent stays at 99 %
+                                            # (processed_global caps at _total-1) while the message
+                                            # advances, giving the user visible feedback.
+                                            fallback_done = processed_global - _total
+                                            global_message = (
+                                                f"Extended verification: {fallback_done} citations "
+                                                f"(checking additional sources)"
+                                            )
+                                        else:
+                                            global_message = (
+                                                f"Verifying citations... ({processed_global}/{_total} citations)"
+                                            )
                                         _progress_cb(processed_global, status, global_message)
                                     except Exception as e:
                                         logger.warning(f"Progress callback failed: {e}")
@@ -2573,6 +2608,35 @@ class UnifiedCitationProcessorV2:
         if toa_leading:
             normalized = normalized[toa_leading.end() :].strip()
 
+        # Strip TOC section headers from cert petitions / briefs
+        # e.g. "IV Cases-Continued: Page Cochise Consultancy..."
+        toc_prefix = re.match(
+            r"^(?:[IVXLC]+\s+)?"
+            r"(?:Cases|Statutes?|Constitut\w+|Miscellaneous|Other\s+Authorities?|Regulations?)"
+            r"(?:\s*[-\u2013\u2014]\s*Continued)?\s*:\s*(?:Page\s+)?",
+            normalized,
+            re.IGNORECASE,
+        )
+        if toc_prefix and len(normalized) - toc_prefix.end() >= 10:
+            normalized = normalized[toc_prefix.end() :].strip()
+        # Strip mid-string TOC fragments ("... 26 VIII Miscellaneous-Continued: Page ...")
+        normalized = re.sub(
+            r"\.\.\.\s*\d+\s+(?:[IVXLC]+\s+)?"
+            r"(?:Cases|Statutes?|Constitut\w+|Miscellaneous|Other\s+Authorities?|Regulations?)"
+            r"(?:\s*[-\u2013\u2014]\s*Continued)?\s*:\s*(?:Page\s+)?",
+            "... ",
+            normalized,
+            flags=re.IGNORECASE,
+        )
+
+        # Strip docket number prefix (e.g. "Dkt. No. 28). 5 Solutions, LLC, 171 Wash. 2d ...")
+        normalized = re.sub(
+            r"^(?:\(?\s*)?Dkt\.?\s*No\.?\s*\d+\s*\)\.?\s*(?:\d+\s+)?",
+            "",
+            normalized,
+            flags=re.IGNORECASE,
+        ).strip()
+
         # FIX: Repair pinpoint/page contamination in parallel citations
         # Reporter series (2d, 3d, 4th, 5th, etc.) are part of reporter name, NOT page numbers
         _series = CitationPatterns.REPORTER_SERIES
@@ -2582,7 +2646,11 @@ class UnifiedCitationProcessorV2:
             + _app_series
             + r")|S\.E\.\d*d|N\.E\.\d*d|N\.W\.\d*d|S\.W\.\d*d|Cal\.\s*(?:2d|3d|4th|5th|Rptr\.?|App\.\s*"
             + _app_series
-            + r")|L\.\s*Ed\.\s*\d*d)"
+            + r")|L\.\s*Ed\.\s*\d*d"
+            r"|N\.Y\.S\.\s*\d*d|A\.D\.\s*\d*d|N\.Y\.\s*\d*d"
+            r"|A\.\s*\d*d|So\.\s*\d*d|Or\."
+            r"|P[23]d"
+            r")"
         )
         # 0a) When the comma is missing but a space remains (e.g. "185 9 P.3d"), use the space to infer
         #     the break: insert comma so we get "185, 9 P.3d". Single-pass: match a run of space-separated
@@ -2598,6 +2666,27 @@ class UnifiedCitationProcessorV2:
         normalized = re.sub(
             r"((?:\d+\s+){" + str(0) + r"," + str(_digit_run_max - 1) + r"}\d+)" + _space_before_rep,
             _commaize_digit_run,
+            normalized,
+        )
+        # 0a2) Parallel-citation page+volume concatenation: "688 N.E.2d 1381666 N.Y.S.2d 99"
+        #      The blob "1381666" = page "1381" + volume "666".  Split heuristic: try last-3, last-2,
+        #      last-4 digits as the volume candidate (must be 1-999 and leave a 1-4 digit page).
+        def _split_pv_concat(m: re.Match) -> str:
+            concat = m.group(3)
+            rep2 = m.group(4)
+            rest = m.group(5)
+            for vlen in (3, 2, 4):
+                if len(concat) <= vlen:
+                    continue
+                page_s = concat[:-vlen]
+                vol_s = concat[-vlen:]
+                if page_s and 1 <= int(vol_s) <= 999 and 1 <= len(page_s) <= 4:
+                    return f"{m.group(1)} {m.group(2)} {page_s}, {vol_s} {rep2} {rest}"
+            return m.group(0)
+
+        normalized = re.sub(
+            r"(\d+)\s+(" + _rep + r")\s+(\d{5,7})\s+(" + _rep + r")\s+(\d+)",
+            _split_pv_concat,
             normalized,
         )
         # 0b) Restore lost comma when digits are run together (no space): e.g. "1859 P.3d" -> "185, 9 P.3d".
@@ -2647,6 +2736,18 @@ class UnifiedCitationProcessorV2:
                 return None
             if not _volume_plausible(vol, v_d):
                 return None  # no change
+            # When producing a 4-digit volume, check if shifting one digit
+            # from vol to page yields a plausible 3-digit volume instead.
+            # E.g. "266115 P.3d" splits as page="26",vol="6115" by the
+            # non-greedy regex, but page="266",vol="115" is far better.
+            # Defer to later P.3d/0d rules that handle 3+3 splits.
+            if v_d == 4 and len(combined) >= 5:
+                alt_page = page + vol[0]
+                alt_vol = vol[1:]
+                if (len(alt_vol) == 3
+                        and _volume_plausible(alt_vol, 3)
+                        and _page_plausible(alt_page, len(alt_page))):
+                    return None
             if len(combined) <= 3 and _page_plausible(combined, len(combined)):
                 return None
             if p_d == 1 and len(combined) <= 4 and _volume_plausible(combined, len(combined)):
@@ -2923,6 +3024,18 @@ class UnifiedCitationProcessorV2:
 
         normalized = re.sub(r"\s+", " ", normalized)
 
+        if purpose != "comparison":
+            try:
+                from src.utils.extraction_cleaner import (
+                    merge_s_ct_page_split_in_string,
+                    strip_absorbed_prose_after_s_ct_or_led2d,
+                )
+
+                normalized = merge_s_ct_page_split_in_string(normalized)
+                normalized = strip_absorbed_prose_after_s_ct_or_led2d(normalized)
+            except Exception:
+                pass
+
         return normalized.strip()
 
     def _detect_parallel_citations(self, citations: List[CitationResult], text: str) -> List[CitationResult]:
@@ -3027,6 +3140,13 @@ class UnifiedCitationProcessorV2:
         else:
             text_between = text[pos2 + len(citation2.citation) : pos1]
         if ";" in text_between:
+            return False
+
+        # CRITICAL: "). [A-Z]" marks a sentence boundary between citation sentences.
+        # E.g. "...46 P.3d 713, 714 (Okla. Crim. App. 2002). State ex rel. Gibson..."
+        # means the Peacock citation sentence ended and a new Gibson sentence began.
+        # These cannot be parallel citations of the same case.
+        if re.search(r'\)\.\s+[A-Z]', text_between):
             return False
 
         # CRITICAL FIX: Year compatibility - citations from different decades cannot be parallel
@@ -3453,7 +3573,8 @@ class UnifiedCitationProcessorV2:
         if not context or len(context) <= min_keep:
             return context
         # Rightmost sentence start: ". " or ".\n" followed by capital then lowercase (not "U.S." or "No.)
-        m = list(re.finditer(r"\.\s+([A-Z][a-z]\w*)", context))
+        # Exclude "v." — that's the case name delimiter, not a sentence boundary.
+        m = list(re.finditer(r"(?<!\bv)\.\s+([A-Z][a-z]\w*)", context))
         if not m:
             return context
         last = m[-1]
@@ -3545,6 +3666,12 @@ class UnifiedCitationProcessorV2:
         r'F\.?\s*(?:2d|3d|4th)\s+\d|F\.?\s*Supp\.?(?:\s*(?:2d|3d))?\s+\d|'
         # State reporters (Ill., Ill. App., A.L.R.)
         r'Ill\.?\s*(?:App\.?\s*)?(?:2d|3d)?\s+\d|A\.?\s*L\.?\s*R\.?\s*(?:2d|3d)?\s+\d|'
+        # Washington reporters (Wash., Wash. App., Wn.2d, Wn. App. 2d)
+        r'Wash\.?\s*(?:App\.?\s*)?(?:2d)?\s+\d|Wn\.?\s*(?:App\.?\s*)?(?:2d)?\s+\d|'
+        # Pacific, regional, and common state reporters
+        r'P\.?\s*(?:2d|3d)\s+\d|Cal\.?\s*(?:App\.?\s*)?(?:2d|3d|4th|5th)?\s+\d|'
+        r'N\.?\s*[EWY]\.?\s*(?:2d|3d)?\s+\d|S\.?\s*[EW]\.?\s*(?:2d|3d)?\s+\d|'
+        r'So\.?\s*(?:2d|3d)?\s+\d|A\.?\s*(?:2d|3d)?\s+\d|'
         # Old reporters (Wheat., Cranch, Wall., How., Pet., Barb., Dall., Black.)
         r'Wheat\.?\s+\d|Cranch\s+\d|Wall\.?\s+\d|How\.?\s+\d|Pet\.?\s+\d|'
         r'Barb\.?\s+\d|Dall\.?\s+\d|Black\.?\s+\d'
@@ -3655,22 +3782,12 @@ class UnifiedCitationProcessorV2:
 
             # Strategy 0.5: Line-wrap fragment - citation starts with entity suffix (often preceded by comma in case names)
             # e.g. "LLC, 562 F.3d 630" -> full name "A.V. ex rel. Vanderhye v. iParadigms, LLC". Permit going backwards past ", LLC,".
-            # Abbreviations that commonly appear after a comma in case names (order: longer first to avoid partial match).
-            _COMMA_ABBREVS = (
-                r"L\.?L\.?C\.?|L\.?P\.?|P\.?L\.?L\.?C\.?|P\.?L\.?C\.?|"  # LLC, L.P., PLLC, PLC
-                r"Inc\.?|Ltd\.?|Corp\.?|Co\.?|"  # Inc., Ltd., Corp., Co.
-                r"Ass\'?n\.?|Assoc\.?|Grp\.?|"   # Ass'n, Assoc., Grp.
-                r"LLC|LP|LLP|PLLC|PLC|Inc|Ltd|Corp"  # without trailing dot
-            )
-            _COMMA_ABBREVS_PAT = re.compile(r"^(" + _COMMA_ABBREVS + r")\s*,?\s*\d+\s+[A-Z]", re.IGNORECASE)
             fragment_match = _COMMA_ABBREVS_PAT.match(cit_text.strip())
             if fragment_match and (citation.start_index or 0) > 0:
                 start = citation.start_index or 0
                 ctx_start = max(0, start - 400)
                 context_before = self._clean_context_for_case_name(text[ctx_start:start])
-                # Suffix that starts our citation (e.g. "LLC" from "LLC, 562 F.3d")
-                _suffix_pat = re.compile(r"^(" + _COMMA_ABBREVS + r")", re.IGNORECASE)
-                frag_suffix = _suffix_pat.match(cit_text.strip())
+                frag_suffix = _SUFFIX_PAT.match(cit_text.strip())
                 suffix_token = frag_suffix.group(1) if frag_suffix else ""
                 # Find last "Name v. Name" where second party ends with ", " and our citation starts with suffix
                 last_v = list(re.finditer(r"\s+v\.\s+", context_before))
@@ -3745,11 +3862,7 @@ class UnifiedCitationProcessorV2:
             # Strategy 1.5 (Lunsford vs Mercer): Prefer the name that is IMMEDIATELY before a citation (", 166" or ", 208").
             # So "Lunsford v. Saberhagen Holdings, Inc., 166 Wn.2d 264, 278, 208 P.3d 1092 (2009)). ... Mercer, 108 Wn.2d at 721"
             # gets "Lunsford v. Saberhagen Holdings, Inc." for 166/208, not "Mercer" from later. Run before sentence truncation.
-            _name_then_cite = re.compile(
-                r"([A-Z][A-Za-z.\'\,&\ \t\-]+[ \t\n]+v\s*\.\s*[ \t\n]+[A-Z][A-Za-z.\'\,&\ \t\-]+?)\s*,\s*(\d+)\s+[A-Z]",
-                re.IGNORECASE,
-            )
-            imm_matches = list(_name_then_cite.finditer(context_before))
+            imm_matches = list(_NAME_THEN_CITE_RE.finditer(context_before))
             if imm_matches:
                 # Take the rightmost match (closest to citation) where there's no " v. " between this name and the citation start
                 for m in reversed(imm_matches):
@@ -3781,19 +3894,10 @@ class UnifiedCitationProcessorV2:
             # Filter out docket caption lines (e.g. "Ill. Union Ins. Co. No. C10-5943 RJB Milgard Mfg., Inc. v. Ill")
             # to prevent context bleed. EXCEPTION: Do NOT filter lines that contain a WL or reporter citation -
             # those are real citation lines (e.g. "Milgard Mfg., Inc. v. Ill. Union Ins. Co., No. C10-5943 RJB, 2011 WL 3298912")
-            _docket_caption_line = re.compile(
-                r"(?:Ins\.?\s*Co\.?|Inc\.?|Corp\.?|L\.?L\.?C\.?)\s+No\.?\s*[A-Z]?\d+[-\.]\d+",
-                re.IGNORECASE,
-            )
-            _citation_in_line = re.compile(
-                r"\d{4}\s+WL\s+\d+|\d+\s+(?:F\.?3d|F\.?2d|U\.S\.|P\.?3d|N\.E\.2d|S\.E\.2d|S\.W\.2d|Wn\.2d|Cal\.)\s+\d+",
-                re.IGNORECASE,
-            )
-
             def _is_citation_line(ln: str) -> bool:
-                if not _docket_caption_line.search(ln):
-                    return True  # No docket pattern - keep
-                return bool(_citation_in_line.search(ln))  # Has citation - keep (real cite, not caption)
+                if not _DOCKET_CAPTION_LINE_RE.search(ln):
+                    return True
+                return bool(_CITATION_IN_LINE_RE.search(ln))
 
             context_before = "\n".join(ln for ln in context_before.split("\n") if _is_citation_line(ln))
 
@@ -3905,15 +4009,47 @@ class UnifiedCitationProcessorV2:
                 _reject = {'See', 'Also', 'But', 'Accord', 'Compare', 'Citing',
                            'The', 'This', 'That', 'Here', 'Where', 'When', 'Because',
                            'However', 'Moreover', 'Furthermore', 'Although', 'Thus'}
-                # Reporter-only: skip single-party name so Strategy 5 can find "Plaintiff v. Defendant"
+                # Reporter-only: skip single-party name so Strategy 4.5/5 can find "Plaintiff v. Defendant"
                 if getattr(citation, "name_likely_in_left_context", False) and " v. " not in name:
-                    pass  # fall through to Strategy 5
+                    pass  # fall through to Strategy 4.5 / 5
                 elif name not in _reject and len(name) >= 3 and not self._is_docket_caption_bleed(name):
                     return name
 
+            # Strategy 4.5: For reporter-only citations, search context_before for the
+            # nearest "Plaintiff v. Defendant" ending at the right edge. Strategy 2 can
+            # over-capture prose ("The court held in Smith v. Jones") which gets rejected
+            # by _looks_like_quote_not_case_name. Here we anchor from "v." and extract
+            # just the case name portion on both sides.
+            if getattr(citation, "name_likely_in_left_context", False):
+                _v_positions = [m.start() for m in re.finditer(r'\s+v\.\s+', context_before)]
+                if _v_positions:
+                    _v_pos = _v_positions[-1]
+                    _left = context_before[:_v_pos].rstrip()
+                    _right = context_before[_v_pos:].lstrip()
+                    _right = re.sub(r'^v\.\s*', '', _right)
+                    # Extract plaintiff: walk backward from "v." to first non-name boundary
+                    _pl_match = re.search(
+                        r'([A-Z][A-Za-z.\'\-]+(?:\s+(?:of|the|and|et|al|ex|rel|v)\s+[A-Z]?[A-Za-z.\'\-]*|'
+                        r'\s+[A-Z][A-Za-z.\'\-]*)*)$',
+                        _left,
+                    )
+                    # Extract defendant: from after "v." to end of context
+                    _def_match = re.match(
+                        r'([A-Z][A-Za-z.\'\-\s,&]+?)(?:,\s*$|\s*$)',
+                        _right,
+                    )
+                    if _pl_match and _def_match:
+                        _plaintiff = _pl_match.group(1).strip()
+                        _defendant = re.sub(r'[,;:\s]+$', '', _def_match.group(1).strip())
+                        _full_name = f"{_plaintiff} v. {_defendant}"
+                        if (len(_full_name) > 8
+                                and not self._looks_like_quote_not_case_name(_full_name)
+                                and not self._is_docket_caption_bleed(_full_name)):
+                            return _full_name
+
             # Strategy 5: Fallback for reporter-only citations (e.g. "725 F.3d 651") - try larger window
             # when initial window had no " v. " match, so we catch "Smith v. Jones, 725 F.3d 651" further back.
-            if getattr(citation, "name_likely_in_left_context", False) and start and start > 800:
+            if getattr(citation, "name_likely_in_left_context", False) and start and start > 0:
                 fallback_ctx_start = max(0, start - 1200)
                 fallback_before = self._clean_context_for_case_name(text[fallback_ctx_start:start])
                 fallback_matches = list(re.finditer(
@@ -3994,6 +4130,14 @@ class UnifiedCitationProcessorV2:
                 """True when citation reporter+volume suggests pre-1950 case (reject recent-year context bleed)."""
                 if not cit:
                     return False
+                # Historical SCOTUS nominative reporters (pre-1875)
+                # Dallas (1-4), Cranch (1-9), Wheaton (1-16), Peters (1-16),
+                # Howard (1-24), Black (1-2), Wallace (1-23)
+                if re.search(
+                    r"\d+\s+(?:Cranch|Wheat|Wall|Pet|How|Black|Dall)\b\.?",
+                    cit, re.IGNORECASE,
+                ):
+                    return True
                 # S.E. first series (vol 1-200): 1887-1940; exclude S.E.2d
                 m = re.search(r"(\d+)\s+S\.?\s*E\.?\s*(?!2d)\d+", cit, re.IGNORECASE)
                 if m and int(m.group(1)) <= 200:
@@ -4072,9 +4216,17 @@ class UnifiedCitationProcessorV2:
                     before_semi = span.split(";")[0] if ";" in span else span
                     citing_pos = re.search(r"\(citing\b", before_semi, re.IGNORECASE)
                     before_citing = before_semi[: citing_pos.start()] if citing_pos else before_semi
-                    span_match = re.search(r"\((\d{4})\)", before_citing)
+                    # Match bare (YYYY) or court-abbreviation years like (S.D.N.Y. 1992), (9th Cir. 2009)
+                    span_match = re.search(r"\([^()]*?(\d{4})\)", before_citing)
                     if span_match and 1990 <= int(span_match.group(1)) <= 2030:
-                        return _ret(span_match.group(1), "citation_span_before_semi", "high")
+                        # Reject if intervening reporter between cite end and year match
+                        text_between = before_citing[
+                            before_citing.find(citation.citation or "") + len(citation.citation or "")
+                            : span_match.start()
+                        ] if (citation.citation or "") in before_citing else ""
+                        if not _has_intervening_citation_noise(text_between):
+                            if not (int(span_match.group(1)) >= 2000 and _reporter_suggests_old_case(cit_text)):
+                                return _ret(span_match.group(1), "citation_span_before_semi", "high")
                 if imm and 1990 <= int(imm.group(1)) <= 2030:
                     before_semi = context_after.split(';')[0]
                     if re.search(r'\(\d{4}\)', before_semi) and not re.search(r'\(citing\b', before_semi, re.IGNORECASE):
@@ -4105,6 +4257,9 @@ class UnifiedCitationProcessorV2:
                         # Reject year when it appears after semicolon - belongs to next citation
                         # e.g. "857 N.W.2d 569 (2015); State ex rel. ... (citing ... (1981))" -> use 2015
                         if re.search(r';\s+', context_after[:m.start()]):
+                            continue
+                        # Reject modern year (>= 2000) for historical SCOTUS reporters (pre-1875)
+                        if int(year) >= 2000 and _reporter_suggests_old_case(cit_text):
                             continue
                         candidates.append((m.start(), year))
                 if candidates:
@@ -4222,6 +4377,16 @@ class UnifiedCitationProcessorV2:
                         # Skip year from nested (citing ... (9th Cir. YYYY))
                         match_ctx = text[max(0, gm.start() - 20):gm.end() + 60]
                         if re.search(r'Cir\.\s*' + re.escape(year) + r'\b', match_ctx, re.IGNORECASE):
+                            continue
+                        # Skip court-abbrev year "(scotus YYYY)" — eyecite annotation, not actual document year
+                        paren_ctx = text[max(0, gm.end() - 20):gm.end()]
+                        if re.search(r'(?:scotus|ca\d|dcd|cand|mnd)\s*' + re.escape(year), paren_ctx, re.IGNORECASE):
+                            continue
+                        # Reject modern year (>= 2015) for historical reporters
+                        if int(year) >= 2015 and _reporter_suggests_old_case(cit_text):
+                            logger.debug(
+                                f"[DATE-STRATEGY5] Rejecting year {year} for old reporter '{cit_text[:50]}'"
+                            )
                             continue
                         logger.debug(
                             f"[DATE-STRATEGY5] Borrowed year {year} for '{cit_text[:50]}' "
@@ -4417,6 +4582,143 @@ class UnifiedCitationProcessorV2:
             logger.warning("[WL-DIAG] _extract_case_name_from_left_context return None (no match)")
         return None
 
+    def _truncate_eyecite_runon_citation(self, citation_str: str) -> str:
+        """Trim eyecite spans that incorrectly include prose and a second citation.
+
+        Eyecite sometimes emits a single span such as::
+          Bucklew, 587 U.S. ___. Has been upheld ... See, e.g., Whitaker v. Collier, 862 F.3d 490
+        which must be one citation object, not an entire sentence cluster.
+        """
+        if not citation_str or len(citation_str) < 90:
+            return citation_str
+        s = citation_str.strip()
+        original_len = len(s)
+
+        # 1) U.S. slip (_...) or page + period, then ordinary prose (new sentence)
+        _PROSE_STARTER = (
+            r"Has|Had|The|This|For|But|That|When|Although|However|Because|While|Where|Given|"
+            r"Once|If|It|Hours|Against|Plaintiffs|Defendants|Petitioners|Respondents|"
+            r"Under|After|Before|Despite|Here|There|Such|These|Those|Each|Every|No\s+fact"
+        )
+        m = re.search(
+            rf"\d+\s+U\.?\s*S\.?\s+(?:_{{2,}}|\d{{1,4}})(?:\s*,\s*(?:_{{2,}}|\d{{1,4}}))*\s*\.\s+({_PROSE_STARTER})\b",
+            s,
+            re.IGNORECASE,
+        )
+        if m:
+            clipped = s[: m.start(1)].rstrip()
+            # Short cites like "Bucklew, 587 U.S. ___." are < 25 chars but valid
+            if len(clipped) >= 12:
+                logger.info(
+                    f"[EYECITE-RUNON] Truncated U.S.+prose ({original_len}->{len(clipped)}): "
+                    f"'{s[:55]}...'"
+                )
+                return clipped
+
+        # 2) Period before mid-span signal phrases (new citation / authority line)
+        m = re.search(
+            r"\.\s+(See,\s*e\.g\.|But\s+see|See\s+also|See\s+generally|See\s+accord|Compare|Cf\.)\b",
+            s,
+            re.IGNORECASE,
+        )
+        if m and m.start() > 50:
+            clipped = s[: m.start() + 1].rstrip()
+            if len(clipped) >= 25 and len(clipped) < len(s):
+                logger.info(
+                    f"[EYECITE-RUNON] Truncated before signal phrase ({original_len}->{len(clipped)})"
+                )
+                return clipped
+
+        # 3) Semicolon-separated citation lists — keep first reporter-bearing segment
+        if ";" in s:
+            left, right = s.split(";", 1)
+            if len(left) > 35 and len(right.strip()) > 30:
+                if re.search(
+                    r"\d+\s+(?:U\.?\s*S\.?|F\.?\s*(?:2d|3d|4th)|S\.?\s*Ct\.?)\b",
+                    left,
+                    re.IGNORECASE,
+                ):
+                    clipped = left.rstrip()
+                    logger.info(
+                        f"[EYECITE-RUNON] Truncated at semicolon ({original_len}->{len(clipped)})"
+                    )
+                    return clipped
+
+        # 4) Second case caption after a federal/SCOTUS reporter (different case merged in)
+        for m in re.finditer(
+            r"(?<![A-Za-z])([A-Z][A-Za-z.'\u2019\-]{0,60}?)\s+v\.\s+([A-Z][A-Za-z.'\u2019\-]{0,60}?)"
+            r"(?:\s*,|\s+\d)",
+            s,
+        ):
+            if m.start() < 55:
+                continue
+            prefix = s[: m.start()]
+            if not re.search(
+                r"\d+\s+(?:U\.?\s*S\.?|F\.?\s*(?:2d|3d|4th))\b",
+                prefix,
+                re.IGNORECASE,
+            ):
+                continue
+            clipped = s[: m.start()].rstrip()
+            if len(clipped) >= 25 and len(clipped) < len(s):
+                logger.info(
+                    f"[EYECITE-RUNON] Truncated at second case name ({original_len}->{len(clipped)}): "
+                    f"'{clipped[:60]}...'"
+                )
+                return clipped
+            break
+
+        return citation_str
+
+    _TOC_PREFIX_RE = re.compile(
+        r"^(?:[IVXLC]+\s+)?"
+        r"(?:Cases|Statutes?|Constitut\w+|Miscellaneous|Other\s+Authorities?|Regulations?)"
+        r"(?:\s*[-–—]\s*Continued)?\s*:\s*(?:Page\s+)?"
+    )
+    _TOC_LEADING_NOISE_RE = re.compile(
+        r"^.{5,80}?\.\.\.\s*\d+\s+"
+    )
+
+    def _strip_toc_prefix(self, citation_str: str) -> str:
+        """Strip table-of-contents / section-header prefixes from citation text.
+
+        SCOTUS cert petitions (and other briefs) have TOC pages with entries
+        like "IV Cases-Continued: Page Cochise Consultancy, Inc. ...".  Eyecite
+        sometimes captures the header as part of the citation span.
+        """
+        if not citation_str:
+            return citation_str
+        m = self._TOC_PREFIX_RE.match(citation_str)
+        if m:
+            stripped = citation_str[m.end():].lstrip()
+            if len(stripped) >= 10:
+                return stripped
+        # Strip leading TOC noise: "9th Cir. 2020) ... 22 The Pizarro, 2 Wheat. 227"
+        # The "... NN" pattern is a TOC page reference followed by the next entry.
+        m = self._TOC_LEADING_NOISE_RE.match(citation_str)
+        if m:
+            rest = citation_str[m.end():].lstrip()
+            if len(rest) >= 15 and rest[0].isupper():
+                return rest
+        # Strip mid-string TOC fragments: "... 26 VIII Miscellaneous-Continued: Page Samuel ..."
+        cleaned = re.sub(
+            r"\.\.\.\s*\d+\s+(?:[IVXLC]+\s+)?"
+            r"(?:Cases|Statutes?|Constitut\w+|Miscellaneous|Other\s+Authorities?|Regulations?)"
+            r"(?:\s*[-–—]\s*Continued)?\s*:\s*(?:Page\s+)?",
+            "... ",
+            citation_str,
+        )
+        if cleaned != citation_str:
+            return cleaned.strip()
+        # Truncate at TOC page-number ellipsis boundary when followed by
+        # non-citation text (e.g. "26 Ohio App. 95... Samuel Estreicher...")
+        toc_ellipsis = re.search(r"\.\.\.\s+(?=[A-Z][a-z])", citation_str)
+        if toc_ellipsis and toc_ellipsis.start() > 8:
+            left = citation_str[:toc_ellipsis.start()].rstrip()
+            if re.search(r"\d+\s+[A-Z]", left):
+                return left
+        return citation_str
+
     def _extract_with_eyecite(self, text: str) -> List[CitationResult]:
         """Extract citations using eyecite library."""
         if not EYECITE_AVAILABLE:
@@ -4429,12 +4731,12 @@ class UnifiedCitationProcessorV2:
             for citation_obj in eyecite_citations:
                 try:
                     citation_str = self._extract_citation_text_from_eyecite(citation_obj)
-                    if not citation_str or citation_str in seen_citations:
+                    if not citation_str:
                         continue
                     # FIX 2026-02-10: Detect concatenated page+pinpoint from PDF artifacts
                     # e.g. "496 U.S. 310317" should be "496 U.S. 310" (eyecite merges "310, 317")
                     citation_str = self._fix_concatenated_page_numbers(citation_str)
-                    seen_citations.add(citation_str)
+
                     start_index = None
                     end_index = None
                     # Try span() as method first (newer eyecite), then as property
@@ -4445,6 +4747,22 @@ class UnifiedCitationProcessorV2:
                             end_index = span[1]
                     except Exception as span_err:
                         logger.debug(f"[EYECITE] span extraction fallback used: {span_err}")
+
+                    try:
+                        from src.utils.extraction_cleaner import snap_s_ct_citation_to_source_window
+
+                        citation_str = snap_s_ct_citation_to_source_window(citation_str, text, start_index)
+                    except Exception:
+                        pass
+
+                    citation_str = self._truncate_eyecite_runon_citation(citation_str)
+                    citation_str = self._strip_toc_prefix(citation_str)
+                    if not citation_str or citation_str in seen_citations:
+                        continue
+                    seen_citations.add(citation_str)
+                    if start_index is not None and end_index is not None:
+                        # Span reflects pre-truncation text; align end to trimmed citation length
+                        end_index = start_index + len(citation_str)
                     if start_index is None:
                         try:
                             start_index = text.find(citation_str)
@@ -4546,15 +4864,22 @@ class UnifiedCitationProcessorV2:
             blob = m.group(1)
             reporter_text = m.group(2)
             blob_start = m.start(1)
-            # Try splitting blob into pinpoint + volume where volume is 1-999
-            # Prefer 2+ digit pinpoints (split_pos >= 2) over 1-digit pinpoints
+            # Try splitting blob into pinpoint + volume where volume is 1-999.
+            # 3-digit pinpoints are the most common in legal citations (page
+            # numbers 100-999), so try split_pos=3 first. This correctly handles
+            # both "82961" -> "829, 61" and "266115" -> "266, 115".
+            # For 4-digit blobs, try split_pos=2 first (2-digit pin + 2-digit vol).
             best_split = None
-            for split_pos in range(2, len(blob)):
+            if len(blob) >= 5:
+                try_order = [3] + [i for i in range(2, len(blob)) if i != 3]
+            else:
+                try_order = list(range(2, len(blob)))
+            for split_pos in try_order:
                 vol_candidate = blob[split_pos:]
                 if vol_candidate[0] == '0':
                     continue
                 vol_val = int(vol_candidate)
-                if 1 <= vol_val <= 999:
+                if 10 <= vol_val <= 999:
                     best_split = split_pos
                     break
             # Fallback: 1-digit pinpoint
@@ -4817,7 +5142,7 @@ class UnifiedCitationProcessorV2:
                 txt = c.citation or ""
                 if " v. " in txt:
                     v_match = re.match(
-                        r"^(.+?\s+v\.\s+[A-Za-z][A-Za-z0-9\s\'\.\&\-,/()]+?)(?:,\s*\d|\s+\d)",
+                        r"^(.+?\s+v\.\s+[A-Za-z0-9][A-Za-z0-9\s\'\.\.\&\-,/()]+?)(?:,\s*\d|\s+\d)",
                         txt,
                     )
                     if v_match:
@@ -4841,6 +5166,7 @@ class UnifiedCitationProcessorV2:
                         old_name = c.extracted_case_name or "N/A"
                         if old_name != best_name:
                             c.extracted_case_name = best_name
+                            c._dedup_name_set = True
                             logger.info(
                                 f"[DEDUP-PROPAGATE] Override '{old_name}' -> '{best_name}' "
                                 f"on bare '{txt[:40]}' at start={si}"
@@ -5213,6 +5539,19 @@ class UnifiedCitationProcessorV2:
                 logger.warning(f"[UNIFIED_EXTRACTION] Error normalizing citation '{citation.citation}': {e}")
                 continue
 
+        # Step 4a: Strip (quoting ...)/(citing ...) parentheticals so embedded inner
+        # citations don't contaminate the outer citation's display or clustering.
+        # The inner citations are already extracted as their own CitationResult objects.
+        _QUOTING_PAREN_RE = re.compile(
+            r'\s*\(\s*(?:quoting|citing|quoted\s+in|cited\s+in|accord)\s.*$',
+            re.IGNORECASE | re.DOTALL,
+        )
+        for citation in deduplicated_citations:
+            ct = citation.citation or ""
+            m = _QUOTING_PAREN_RE.search(ct)
+            if m and m.start() > 10:
+                citation.citation = ct[:m.start()].rstrip(" ,;")
+
         # Step 4b: Set citation-type flags once (drives extraction + verification + display).
         # NOTE: When we fall back to regex in process_text() (unified failed), those citations
         # never run Step 4b; process_text() sets the same flags for them (see "CRITICAL: Regex-fallback" block).
@@ -5227,7 +5566,37 @@ class UnifiedCitationProcessorV2:
         # Always set extracted_case_name (even to "N/A") so the UI never shows blank for "from document".
         for citation in deduplicated_citations:
             try:
-                if not citation.extracted_case_name or (getattr(citation, "extracted_case_name", None) or "").strip() == "":
+                # TOA / eyecite: wrong ``(scotus YYYY)`` when a neighbor cite's year is absorbed
+                try:
+                    from src.utils.extraction_cleaner import reconcile_eyecite_scotus_suffix_year
+
+                    _win = (getattr(citation, "context", None) or "")
+                    _si = getattr(citation, "start_index", None)
+                    _ei = getattr(citation, "end_index", None)
+                    if _si is not None and _ei is not None and normalized_text:
+                        _win = (
+                            f"{_win} "
+                            f"{normalized_text[max(0, _si - 160):min(len(normalized_text), _ei + 160)]}"
+                        )
+                    citation.citation = reconcile_eyecite_scotus_suffix_year(
+                        citation.citation or "", _win
+                    )
+                except Exception:
+                    pass
+
+                _existing_ecn = (getattr(citation, "extracted_case_name", None) or "").strip()
+                _needs_extraction = not _existing_ecn
+                # Reporter-only citations with a defendant-only name (no "v.")
+                # should re-run extraction so Strategy 4.5 can recover the full
+                # "Plaintiff v. Defendant" from context.
+                if (not _needs_extraction
+                        and getattr(citation, "name_likely_in_left_context", False)
+                        and " v. " not in _existing_ecn
+                        and _existing_ecn != "N/A"
+                        and len(_existing_ecn) >= 3):
+                    _needs_extraction = True
+
+                if _needs_extraction:
                     citation.extracted_case_name = self._extract_case_name_from_context(
                         normalized_text, citation, deduplicated_citations
                     )
@@ -5252,13 +5621,41 @@ class UnifiedCitationProcessorV2:
                         citation.extracted_case_name = inline_name
                         citation._inline_name_set = True
 
-                if self._is_missing_extracted_date(getattr(citation, "extracted_date", None)):
+                existing_date = getattr(citation, "extracted_date", None)
+                existing_confidence = (getattr(citation, "metadata", None) or {}).get(
+                    "extracted_date_confidence", ""
+                )
+                need_date_extraction = (
+                    self._is_missing_extracted_date(existing_date)
+                    or existing_confidence in ("low", "")
+                )
+                if need_date_extraction:
                     extracted_year, date_source, date_confidence = self._extract_date_from_context(
                         normalized_text, citation, return_source=True
                     )
-                    if extracted_year:
+                    if extracted_year and (
+                        self._is_missing_extracted_date(existing_date)
+                        or (date_confidence in ("high", "medium") and existing_confidence in ("low", ""))
+                    ):
                         citation.extracted_date = extracted_year
                         self._set_extracted_date_provenance(citation, date_source, date_confidence)
+
+                # Cross-check with eyecite's parsed year when available.
+                # Eyecite parses court+year parentheticals like "(S.D.N.Y. 1992)" that
+                # context-based extraction may miss, picking up a wrong year from TOA neighbors.
+                eyecite_year = str((getattr(citation, "metadata", None) or {}).get("year", "") or "").strip()
+                if (
+                    eyecite_year
+                    and eyecite_year.isdigit()
+                    and 1700 <= int(eyecite_year) <= 2030
+                    and citation.extracted_date != eyecite_year
+                    and (
+                        self._is_missing_extracted_date(citation.extracted_date)
+                        or eyecite_year in (citation.citation or "")
+                    )
+                ):
+                    citation.extracted_date = eyecite_year
+                    self._set_extracted_date_provenance(citation, "eyecite_parsed_year", "high")
 
                 # WL/LEXIS override: extract year from WL/LEXIS pattern anywhere in citation text
                 cit_text = citation.citation or ""
@@ -5501,6 +5898,17 @@ class UnifiedCitationProcessorV2:
                         logger.info(f"[INLINE-NAME-TRUST] Keeping inline name '{current_name}' for '{citation_text[:50]}'")
                         continue
 
+                    # DEDUP-PROPAGATE FIX: If DEDUP-PROPAGATE set this name from a co-citation
+                    # at the same position (e.g. eyecite "Gibson v. 1997 Dodge, 2001 OK CIV APP 130"
+                    # propagating to bare "2001 OK CIV APP 130"), the propagated name is authoritative.
+                    # Near-context text is unreliable here because the citation number may be
+                    # preceded by an unrelated citation sentence in the PDF-extracted text.
+                    if getattr(c, '_dedup_name_set', False) and current_name and current_name != "N/A":
+                        if cache_key not in extraction_cache:
+                            extraction_cache[cache_key] = current_name
+                        logger.info(f"[DEDUP-NAME-TRUST] Keeping dedup-propagated name '{current_name}' for '{citation_text[:50]}'")
+                        continue
+
                     # Method 0 (FIRST): Extract case name from citation text itself
                     # This runs BEFORE the cache check because eyecite citations like
                     # "Swindle v. State, 10 Tenn. 581" may share position with a regex
@@ -5508,7 +5916,7 @@ class UnifiedCitationProcessorV2:
                     method0_name = None
                     if citation_text and " v. " in citation_text:
                         v_match = re.match(
-                            r"^(.+?\s+v\.\s+[A-Za-z][A-Za-z\s\'\.\&\-,]+?)(?:,\s*\d|\s+\d)",
+                            r"^(.+?\s+v\.\s+[A-Za-z0-9][A-Za-z0-9\s\'\.\.\&\-,]+?)(?:,\s*\d|\s+\d)",
                             citation_text,
                         )
                         if v_match:
@@ -5622,11 +6030,63 @@ class UnifiedCitationProcessorV2:
                     # trust it and skip the master extractor. The master extractor's
                     # ProximityStrategy finds the FIRST "v." in the context window,
                     # not the closest, causing wrong names in TOA and dense citation areas.
+                    _near_context_override = False  # set True when near-context beats Phase 1
                     if current_name and current_name != "N/A" and " v. " in current_name and len(current_name) > 8:
-                        extraction_cache[cache_key] = current_name
-                        if is_wl_diag:
-                            logger.warning(f"[WL-DIAG] SKIP Phase 1 trust current_name='{current_name}'")
-                        continue  # Trust Phase 1 extraction
+                        # Method 0 (embedded in citation text) always beats Phase 1 context extraction
+                        if method0_name and " v. " in method0_name and len(method0_name) > 4:
+                            c.extracted_case_name = self._clean_extracted_case_name(method0_name)
+                            extraction_cache[cache_key] = c.extracted_case_name
+                            if is_wl_diag:
+                                logger.warning(f"[WL-DIAG] METHOD0 beats Phase1 trust: '{method0_name}'")
+                            continue
+                        # NEAR-CONTEXT OVERRIDE: if within 100 chars before citation (trimmed at ').' boundary)
+                        # there's a different plaintiff name, Phase 1 likely spanned a sentence boundary.
+                        # Example: Phase 1 found 'Peacock v. State' for '2001 OK CIV APP 130' but
+                        # 'State ex rel. Gibson v. 1997 Dodge' appears right before it in text.
+                        _trust_phase1 = True
+                        if start_index and start_index > 0:
+                            _nc = text[max(0, start_index - 100):start_index]
+                            _last_b = -1
+                            for _bm in re.finditer(r'\)\.\s', _nc):
+                                _last_b = _bm.end()
+                            if _last_b > 0:
+                                _nc = _nc[_last_b:]
+                            if " v. " in _nc:
+                                _ncm = re.search(
+                                    r'([A-Z][A-Za-z0-9\s\'&.\-]+)\s+v\.\s+([A-Z0-9][A-Za-z0-9\s\'&.\-,]+?)'
+                                    r'(?=,\s*$|\s*,?\s*$)',
+                                    _nc.strip()
+                                )
+                                if _ncm:
+                                    _nc_name = _ncm.group(0).strip().rstrip(",").strip()
+                                    _stop = {"state", "united", "people", "in", "re", "ex", "rel"}
+                                    _cur_w = [re.sub(r'[^\w]', '', w) for w in current_name.split(" v. ")[0].lower().split()]
+                                    _cur_w = [w for w in _cur_w if w and w not in _stop]
+                                    _nc_w  = [re.sub(r'[^\w]', '', w) for w in _nc_name.split(" v. ")[0].lower().split()]
+                                    _nc_w  = [w for w in _nc_w if w and w not in _stop]
+                                    if _cur_w and _nc_w and _cur_w[0] != _nc_w[0]:
+                                        logger.info(
+                                            "[NEAR-CONTEXT-OVERRIDE] Phase1 '%s' overridden by near-context '%s' for '%s'",
+                                            current_name[:40], _nc_name[:40], (citation_text or "")[:40]
+                                        )
+                                        _trust_phase1 = False
+                                        _near_context_override = True
+                                        # If the near-context gave a clean v. name, use it directly
+                                        # to avoid the master extractor trimming too far downstream.
+                                        if " v. " in _nc_name and len(_nc_name) <= 80:
+                                            _cleaned_nc = self._clean_extracted_case_name(_nc_name)
+                                            if _cleaned_nc and " v. " in _cleaned_nc:
+                                                c.extracted_case_name = _cleaned_nc
+                                                extraction_cache[cache_key] = _cleaned_nc
+                                                _trust_phase1 = True  # sentinel: cause continue below
+                        if _trust_phase1:
+                            if not _near_context_override:
+                                # Normal Phase 1 trust: cache the Phase 1 name
+                                extraction_cache[cache_key] = current_name
+                                if is_wl_diag:
+                                    logger.warning(f"[WL-DIAG] SKIP Phase 1 trust current_name='{current_name}'")
+                            continue  # Trust Phase 1 extraction (or near-context direct assignment)
+                        # Fall through: let master extractor re-extract with trimmed context
 
                     final_name = method0_name
 
@@ -5637,7 +6097,9 @@ class UnifiedCitationProcessorV2:
                         # Integrated left-context extraction: when citation type says name is likely left
                         # (e.g. reporter-only F.3d, WL/Lexis). Use 600-char window to match Step 5 in
                         # _extract_citations_unified so we find names that appear a few sentences before.
-                        if getattr(c, "name_likely_in_left_context", False) and start_index and start_index > 0:
+                        # Skip when near-context override fired: the 600-char window would re-introduce
+                        # the wrong name from a preceding sentence (e.g. Peacock before Gibson).
+                        if getattr(c, "name_likely_in_left_context", False) and start_index and start_index > 0 and not _near_context_override:
                             left_name = self._extract_case_name_from_left_context(
                                 text, start_index, window=600, citation_text=citation_text
                             )
@@ -5742,11 +6204,24 @@ class UnifiedCitationProcessorV2:
                             ctx_start = max(0, start_index - 500)
                             ctx_end = min(len(text), (end_index or start_index) + 200)
                             context_text = text[ctx_start:ctx_end]
-                            # Semicolon separates cases: keep only segment after last ";" so we get the right name
-                            if ";" in context_text:
-                                after_sc = context_text[context_text.rfind(";") + 1 :].strip()
-                                if len(after_sc) >= 15:
-                                    context_text = after_sc
+                            # Find the most restrictive context boundary within the
+                            # PRE-CITATION portion of the original context window.
+                            # Semicolons separate citation series; "). " ends a citation
+                            # sentence.  Both must be searched BEFORE the citation offset
+                            # so we never trim past the citation itself.
+                            # (If we search the full window we hit "). " endings that lie
+                            # AFTER the citation, cutting away the case name we need.)
+                            _cit_offset = start_index - ctx_start  # citation's position in original context_text
+                            _pre_ctx_orig = context_text[:_cit_offset]
+                            _boundary = 0
+                            if ";" in _pre_ctx_orig:
+                                _boundary = max(_boundary, _pre_ctx_orig.rfind(";") + 1)
+                            for _cbm in re.finditer(r'\)\.\s+(?=[A-Z])', _pre_ctx_orig):
+                                _boundary = max(_boundary, _cbm.end())
+                            if _boundary > 0:
+                                _trimmed_ctx = context_text[_boundary:].strip()
+                                if len(_trimmed_ctx) >= 15:
+                                    context_text = _trimmed_ctx
                         else:
                             context_text = text[:1000]  # Fallback: first 1000 chars
                         res = extract_case_name_and_date_unified_master(
@@ -6360,7 +6835,7 @@ class UnifiedCitationProcessorV2:
         self._validate_cluster_consistency(citations)
 
         self._update_progress(
-            100, "Complete", f"Processing complete: {len(citations)} citations, {len(clusters)} clusters"
+            93, "Processing", f"Extracted {len(citations)} citations, {len(clusters)} clusters — applying final checks"
         )
         logger.info(f"[UNIFIED_PIPELINE] Pipeline complete: {len(citations)} final citations, {len(clusters)} clusters")
 
@@ -7198,11 +7673,11 @@ class UnifiedCitationProcessorV2:
         For each group of citations that are close together (by position and punctuation), ensure all group members have each other in their parallel_citations field.
         CRITICAL: Do NOT group citations separated by semicolon (e.g. "A; B; C" = different cases).
         """
-        logger.info(f"[PARALLEL-DEBUG] Starting bidirectional parallel detection for {len(citations)} citations")
+        logger.debug(f"[PARALLEL-DEBUG] Starting bidirectional parallel detection for {len(citations)} citations")
 
         # Debug citation positions
         for i, c in enumerate(citations):
-            logger.info(f"[PARALLEL-DEBUG] Citation {i}: {c.citation}, start={c.start_index}, end={c.end_index}")
+            logger.debug(f"[PARALLEL-DEBUG] Citation {i}: {c.citation}, start={c.start_index}, end={c.end_index}")
 
         sorted_citations = sorted(citations, key=lambda x: x.start_index or 0)
         n = len(sorted_citations)
@@ -7215,7 +7690,7 @@ class UnifiedCitationProcessorV2:
             while j < n:
                 curr = sorted_citations[j]
                 prev = group[-1]
-                logger.info(
+                logger.debug(
                     f"[PARALLEL-DEBUG] Checking proximity: {curr.citation} (start={curr.start_index}) vs {prev.citation} (end={prev.end_index})"
                 )
 
@@ -7229,13 +7704,21 @@ class UnifiedCitationProcessorV2:
                             getattr(prev, "context", "")[-(prev.end_index - (prev.start_index or 0)) :]
                             + getattr(curr, "context", "")[: curr.start_index - (curr.start_index or 0)]
                         )
-                    logger.info(
+                    logger.debug(
                         f"[PARALLEL-DEBUG] Text between: '{text_between}', distance: {curr.start_index - prev.end_index}"
                     )
 
                     # CRITICAL: Semicolon separates different cases (e.g. "884 A.2d 667, 671; Frederick v. City...")
                     if ";" in text_between:
-                        logger.info(f"[PARALLEL-DEBUG] REJECTED - semicolon between citations (different cases)")
+                        logger.debug(f"[PARALLEL-DEBUG] REJECTED - semicolon between citations (different cases)")
+                        break
+
+                    # CRITICAL: "). [A-Z]" marks a sentence boundary between citation sentences.
+                    # E.g. "...46 P.3d 713, 714 (Okla. Crim. App. 2002). State ex rel. Gibson..."
+                    # The close-paren + period + uppercase indicates the prior citation sentence
+                    # ended and a new one (different case) begins — same logic as semicolons.
+                    if re.search(r'\)\.\s+[A-Z]', text_between):
+                        logger.debug(f"[PARALLEL-DEBUG] REJECTED - sentence boundary ').' between citations (different cases)")
                         break
 
                     if "," in text_between or (curr.start_index - prev.end_index <= 10):
@@ -7259,7 +7742,7 @@ class UnifiedCitationProcessorV2:
                         
                         # CRITICAL: Same reporter = cannot be parallel
                         if prev_reporter and curr_reporter and prev_reporter == curr_reporter:
-                            logger.info(f"[PARALLEL-DEBUG] REJECTED - same reporter: {prev_reporter}")
+                            logger.debug(f"[PARALLEL-DEBUG] REJECTED - same reporter: {prev_reporter}")
                             should_cluster = False
                         
                         # Check extracted_case_name compatibility (shared canonical logic)
@@ -7267,22 +7750,22 @@ class UnifiedCitationProcessorV2:
                             prev_ecn = (getattr(prev, 'extracted_case_name', '') or '').strip()
                             curr_ecn = (getattr(curr, 'extracted_case_name', '') or '').strip()
                             if not names_are_same_case(prev_ecn, curr_ecn):
-                                logger.info(f"[PARALLEL-DEBUG] REJECTED - different cases: '{prev_ecn}' vs '{curr_ecn}'")
+                                logger.debug(f"[PARALLEL-DEBUG] REJECTED - different cases: '{prev_ecn}' vs '{curr_ecn}'")
                                 should_cluster = False
                         
                         if should_cluster:
-                            logger.info(f"[PARALLEL-DEBUG] Validation passed - Adding to group: {curr.citation}")
+                            logger.debug(f"[PARALLEL-DEBUG] Validation passed - Adding to group: {curr.citation}")
                             group.append(curr)
                             j += 1
                             continue
                         else:
-                            logger.info(f"[PARALLEL-DEBUG] Validation REJECTED - NOT adding to group: {curr.citation}")
+                            logger.debug(f"[PARALLEL-DEBUG] Validation REJECTED - NOT adding to group: {curr.citation}")
                             break
                 break
             if len(group) > 1:
                 groups_found += 1
                 cite_strs = [c.citation for c in group]
-                logger.info(f"[PARALLEL-DEBUG] Found parallel group {groups_found}: {cite_strs}")
+                logger.debug(f"[PARALLEL-DEBUG] Found parallel group {groups_found}: {cite_strs}")
                 for c in group:
                     # CRITICAL FIX: Use helper to filter same-reporter/different-volume
                     filtered = filter_cluster_members_by_reporter(
@@ -7290,10 +7773,10 @@ class UnifiedCitationProcessorV2:
                         [s for s in cite_strs if s != c.citation]
                     )
                     c.parallel_citations = filtered
-                    logger.info(f"[PARALLEL-DEBUG] Set {c.citation}.parallel_citations = {c.parallel_citations}")
+                    logger.debug(f"[PARALLEL-DEBUG] Set {c.citation}.parallel_citations = {c.parallel_citations}")
             i = j
 
-        logger.info(f"[PARALLEL-DEBUG] Found {groups_found} parallel groups")
+        logger.debug(f"[PARALLEL-DEBUG] Found {groups_found} parallel groups")
 
         if self.config.debug_mode:
             logger.debug("[PARALLEL-DEBUG] Group detection complete for %d citations", len(citations))

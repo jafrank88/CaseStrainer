@@ -91,26 +91,34 @@ export function hasDateMismatch(cluster) {
   return Boolean(cluster?.has_date_mismatch)
 }
 
+/**
+ * Stable key for collapsing duplicate case-card lines (e.g. 171 Wash. 2d 486 vs 171 Wn.2d 486).
+ * Aligns with backend citation_core_key Wash./Wn. normalization so UI matches deduped API output.
+ */
+export function citationMergeKeyForDisplay(displayStr) {
+  if (!displayStr || typeof displayStr !== 'string') return ''
+  const base = extractBaseReporterCitation(displayStr.trim()) || displayStr.trim()
+  if (!base) return ''
+  let s = base
+  s = s.replace(/\bWash\.\s*App\.\s*/gi, 'Wn.App. ')
+  s = s.replace(/\bWash\.\s*/gi, 'Wn.')
+  s = s.replace(/\bWn\.\s*App\.\s*/gi, 'Wn.App. ')
+  s = s.replace(/\bWn\.\s*(\d)/gi, 'Wn.$1')
+  return s.replace(/\s+/g, ' ').trim().toLowerCase()
+}
+
 export function getClusterCitations(cluster) {
   const displayCits = cluster?.display_citations
-  if (Array.isArray(displayCits) && displayCits.length > 0) {
-    const seen = new Set()
-    const deduped = []
-    for (const cit of displayCits) {
-      const key = formatCitationText(cit)
-      if (!key || seen.has(key)) continue
-      seen.add(key)
-      deduped.push(cit)
-    }
-    return deduped
-  }
-  // Render-only: if backend didn't provide display_citations, use raw citations as-is.
-  const list = cluster?.citations || cluster?.citation_objects || []
+  const list =
+    Array.isArray(displayCits) && displayCits.length > 0
+      ? displayCits
+      : cluster?.citations || cluster?.citation_objects || []
   if (!Array.isArray(list)) return []
   const seen = new Set()
   const deduped = []
   for (const cit of list) {
-    const key = formatCitationText(cit)
+    const display = formatCitationText(cit)
+    const key = citationMergeKeyForDisplay(display)
     if (!key || seen.has(key)) continue
     seen.add(key)
     deduped.push(cit)

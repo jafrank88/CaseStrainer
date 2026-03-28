@@ -161,7 +161,7 @@ def throttle_courtlistener(cost: int = 1, context: str = "lookup") -> None:
     if not _cfg_bool("COURTLISTENER_GLOBAL_THROTTLE_ENABLED", True):
         return
 
-    limit_per_min = max(1, _cfg_int("COURTLISTENER_GLOBAL_LIMIT_PER_MIN", 240))
+    limit_per_min = max(1, _cfg_int("COURTLISTENER_GLOBAL_LIMIT_PER_MIN", 5000))
     max_wait_s = max(1, _cfg_int("COURTLISTENER_GLOBAL_THROTTLE_MAX_WAIT_SECONDS", 45))
     key = str(
         os.getenv("COURTLISTENER_GLOBAL_THROTTLE_KEY")

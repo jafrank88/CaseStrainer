@@ -22,7 +22,7 @@ from .utils import (
     validate_year_match,
     is_citation_likely_valid,
 )
-from .known_citations import _lookup_known_federal, _lookup_known_slip
+from .known_citations import _lookup_known_federal, _lookup_known_slip, _lookup_known_state
 from src.config import COURTLISTENER_API_KEY
 
 
@@ -313,7 +313,21 @@ class UnifiedVerificationMaster:
                 confidence=1.0,
                 method="known_slip",
             )
-        
+        known_state = _lookup_known_state(citation)
+        if known_state:
+            logger.info(f"[KNOWN-STATE] Resolved '{citation}' -> {known_state.get('canonical_name')}")
+            cache.set(citation, known_state)
+            return VerificationResult(
+                citation=citation,
+                verified=True,
+                canonical_name=known_state.get("canonical_name"),
+                canonical_date=known_state.get("canonical_date") or known_state.get("canonical_year"),
+                canonical_url=known_state.get("canonical_url"),
+                source="known_state",
+                confidence=1.0,
+                method="known_state",
+            )
+
         # Validate citation format
         if not is_citation_likely_valid(citation):
             return VerificationResult(
@@ -529,6 +543,12 @@ class UnifiedVerificationMaster:
         verified = result.get("verified", False)
         needs_url = bool(result.get("canonical_name") and not result.get("canonical_url"))
         success_delta = 0
+        # Per-citation wall-clock cap so one citation cannot dominate (e.g. 4+ min); keeps UI responsive
+        per_citation_cap_seconds = 30.0
+        citation_deadline = time.monotonic() + min(per_citation_cap_seconds, max(1.0, timeout_per_citation * 3))
+
+        def _remaining() -> float:
+            return max(0.0, min(fallback_deadline - time.time(), citation_deadline - time.monotonic()))
 
         # Name+date-only for proprietary (WL/Lexis)
         name_date_done = False
@@ -539,7 +559,7 @@ class UnifiedVerificationMaster:
             _nd_tokens = [t for t in re.sub(r",?\s+", " ", _nd_name_clean).strip().split() if t] if _nd_name else []
             _nd_ok = _nd_name.upper() != "N/A" and (1 <= len(_nd_tokens) <= 4) and not any(re.search(r"^(19|20)\d{2}$", t) for t in _nd_tokens)
             if _nd_has_v or _nd_ok:
-                remaining_nd = max(0.0, fallback_deadline - time.time())
+                remaining_nd = _remaining()
                 if remaining_nd > 2.0:
                     try:
                         name_date_result = await self.fallback.verify_name_and_date_only(
@@ -558,7 +578,7 @@ class UnifiedVerificationMaster:
 
         # Step A: CL search API fallback
         if not name_date_done:
-            remaining_time = max(0.0, fallback_deadline - time.time())
+            remaining_time = _remaining()
         else:
             remaining_time = 0.0
         if remaining_time > 0:
@@ -616,7 +636,7 @@ class UnifiedVerificationMaster:
             if _is_proprietary and _weak_name:
                 skip_web_fallback = True
             if not skip_web_fallback:
-                remaining_time = max(0.0, fallback_deadline - time.time())
+                remaining_time = _remaining()
                 if remaining_time > 0:
                     try:
                         fallback_result = await self.fallback.verify(
@@ -744,16 +764,19 @@ class UnifiedVerificationMaster:
 
         need_fallback: List[Tuple[Dict[str, Any], Optional[str], Optional[str], bool, Optional[str]]] = []
         for result_idx, result in enumerate(batch_results):
-            # Report progress for each citation processed
+            # Report progress for each citation (1-based count for display)
             if progress_callback:
                 try:
+                    processed_so_far = result_idx + 1
                     progress_callback(
-                        result_idx, "Verifying",
-                        f"Verifying citations... ({result_idx}/{total} citations)"
+                        processed_so_far, "Verifying",
+                        f"Verifying citations... ({processed_so_far}/{total} citations)"
                     )
                 except Exception:
                     pass
             verified = result.get("verified", False)
+            # Do not run fallback when batch explicitly rejected (e.g. name mismatch) — avoid overwriting with wrong case
+            rejected_name_mismatch = (result.get("error") or "").strip() == "Name mismatch"
             # Also try fallback when CL returned a name but no URL
             needs_url = verified and result.get("canonical_name") and not result.get("canonical_url")
 
@@ -776,8 +799,25 @@ class UnifiedVerificationMaster:
                         f"[BATCH-KNOWN-FEDERAL] Resolved '{result.get('citation')}' -> "
                         f"'{result.get('canonical_name')}'"
                     )
-            
-            should_try_fallback = (not verified or needs_url) and enable_fallback
+            if not verified:
+                known_state = _lookup_known_state(str(result.get("citation", "")))
+                if known_state:
+                    result["verified"] = True
+                    result["canonical_name"] = known_state.get("canonical_name")
+                    result["canonical_date"] = known_state.get("canonical_date") or known_state.get("canonical_year")
+                    result["canonical_url"] = known_state.get("canonical_url")
+                    result["source"] = "known_state"
+                    result["confidence"] = 1.0
+                    result["method"] = "known_state"
+                    result["error"] = None
+                    verified = True
+                    needs_url = False
+                    logger.info(
+                        f"[BATCH-KNOWN-STATE] Resolved '{result.get('citation')}' -> "
+                        f"'{result.get('canonical_name')}'"
+                    )
+
+            should_try_fallback = (not verified or needs_url) and enable_fallback and not rejected_name_mismatch
             if should_try_fallback and _is_noisy_for_fallback(str(result.get("citation", ""))):
                 should_try_fallback = False
                 skipped_due_noisy_citation += 1
@@ -809,13 +849,24 @@ class UnifiedVerificationMaster:
                 need_fallback.append((result, case_name, date, is_proprietary, cl_canonical_name))
 
         fallback_attempted = len(need_fallback)
+        total_steps = total + len(need_fallback)  # So progress moves during fallback (batch + fallback)
         if need_fallback:
+            # Report that batch phase is done so UI doesn't stay at (total-1)/total
+            if progress_callback:
+                try:
+                    progress_callback(
+                        total, "Verifying",
+                        f"Verifying citations... ({total}/{total_steps} citations)"
+                    )
+                except Exception:
+                    pass
             try:
                 from src.config import VERIFICATION_FALLBACK_CONCURRENCY
                 concurrency = max(1, int(VERIFICATION_FALLBACK_CONCURRENCY))
             except Exception:
                 concurrency = 1
             if concurrency <= 1:
+                fallback_done = 0
                 for (result, case_name, date, is_proprietary, cl_canonical_name) in need_fallback:
                     if time.time() >= fallback_deadline:
                         break
@@ -823,18 +874,38 @@ class UnifiedVerificationMaster:
                         result, case_name, date, is_proprietary, cl_canonical_name,
                         fallback_deadline, timeout_per_citation,
                     )
+                    fallback_done += 1
+                    if progress_callback:
+                        try:
+                            progress_callback(
+                                total + fallback_done, "Verifying",
+                                f"Verifying citations... ({total + fallback_done}/{total_steps} citations)"
+                            )
+                        except Exception:
+                            pass
             else:
                 sem = asyncio.Semaphore(concurrency)
+                fallback_done_list: List[int] = [0]  # mutable for closure
 
                 async def run_with_sem(item):
                     result, case_name, date, is_proprietary, cl_canonical_name = item
                     async with sem:
                         if time.time() >= fallback_deadline:
                             return 0
-                        return await self._run_single_citation_fallback(
+                        delta = await self._run_single_citation_fallback(
                             result, case_name, date, is_proprietary, cl_canonical_name,
                             fallback_deadline, timeout_per_citation,
                         )
+                        fallback_done_list[0] += 1
+                        if progress_callback:
+                            try:
+                                progress_callback(
+                                    total + fallback_done_list[0], "Verifying",
+                                    f"Verifying citations... ({total + fallback_done_list[0]}/{total_steps} citations)"
+                                )
+                            except Exception:
+                                pass
+                        return delta
 
                 deltas = await asyncio.gather(*[run_with_sem(item) for item in need_fallback])
                 fallback_success_count = sum(deltas)

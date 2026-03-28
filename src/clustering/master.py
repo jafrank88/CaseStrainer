@@ -127,6 +127,15 @@ class UnifiedClusteringMaster:
         # both got ecn="Schooner Exchange v. McFaddon" from context/verification).
         all_groups = self._split_groups_by_year(all_groups)
         
+        # Step 3.9: Global citation dedup — each citation key in exactly one group.
+        # detect_parallel_groups and detect_structural_groups can produce overlapping
+        # memberships (same citation in multiple groups). After merging/splitting, if a
+        # citation key still appears in more than one group, keep it only in the group
+        # with the most citations (the "primary" cluster for that case) and remove it
+        # from smaller groups. This prevents the same citation appearing in multiple
+        # case cards in the UI.
+        all_groups = self._deduplicate_citations_across_groups(all_groups)
+        
         # Step 4: Validate and score clusters
         validated_clusters = []
         for group in all_groups:
@@ -645,6 +654,55 @@ class UnifiedClusteringMaster:
         logger.info(
             f"[CLUSTER-SPLIT-YEAR] Checked {groups_checked} multi-citation groups, split {split_count}"
         )
+        return result
+
+    def _deduplicate_citations_across_groups(
+        self, groups: List[List[Any]]
+    ) -> List[List[Any]]:
+        """Remove duplicate citation keys across groups.
+
+        After parallel + structural detection and all merging/splitting, the same
+        citation text can still appear in multiple groups (e.g. ``165 Wn.2d 67``
+        in both the Dearinger group and the Potter group).  Keep each citation
+        key in exactly one group: the group with the most citations (primary
+        cluster).  Ties broken by document-order (earlier group wins).
+        """
+        if len(groups) <= 1:
+            return groups
+
+        key_to_best: Dict[str, int] = {}
+        group_sizes = [len(g) for g in groups]
+
+        for gi, group in enumerate(groups):
+            for c in group:
+                k = self._get_citation_key(c)
+                if not k:
+                    continue
+                if k not in key_to_best:
+                    key_to_best[k] = gi
+                else:
+                    prev = key_to_best[k]
+                    if group_sizes[gi] > group_sizes[prev]:
+                        key_to_best[k] = gi
+
+        removed = 0
+        result = []
+        for gi, group in enumerate(groups):
+            filtered = []
+            for c in group:
+                k = self._get_citation_key(c)
+                if not k or key_to_best.get(k) == gi:
+                    filtered.append(c)
+                else:
+                    removed += 1
+            if filtered:
+                result.append(filtered)
+
+        if removed:
+            logger.info(
+                f"[CLUSTER-GLOBAL-DEDUP] Removed {removed} duplicate citation(s) "
+                f"across groups ({len(groups)} -> {len(result)} groups)"
+            )
         return result
 
     def _extract_document_primary_case_name(self, text: str) -> Optional[str]:

@@ -391,7 +391,14 @@ def process_citation_task_async(task_id: str, document_text: str, document_type:
         except:
             pass  # Best effort error reporting
 
-    return {"task_id": task_id, "status": "completed"}
+    return {
+        "task_id": task_id,
+        "status": "failed",
+        "error": "Async processing did not produce a final result payload",
+        "citations": [],
+        "clusters": [],
+        "success": False,
+    }
 
 
 def main():

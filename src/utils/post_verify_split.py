@@ -5,25 +5,36 @@ import re
 from src.utils.mismatch_utils import compute_cluster_mismatch_flags
 from src.utils.same_case import names_are_same_case
 from src.utils.cluster_display_utils import _is_google_search_url
+from src.clustering.detection import _clean_ecn
 
 logger = logging.getLogger(__name__)
 
 
+_HISTORICAL_SCOTUS_RE = re.compile(
+    r"\d+\s+(?:CRANCH|WHEAT|WALL|PET|HOW|BLACK|DALL)\b\.?\s+\d+", re.IGNORECASE
+)
+
+
 def _reporter_tier(citation_text):
     """
-    Return reporter tier for a citation: 'supreme' (U.S., S.Ct., L.Ed.),
-    'district' (F. Supp., F. Supp. 2d, F. Supp. 3d), 'circuit' (F.2d, F.3d, F.4th), or 'other'.
-    Used to avoid grouping Supreme Court and District Court citations as the same case.
+    Return reporter tier for a citation: 'supreme' (U.S., S.Ct., L.Ed.,
+    and historical nominative reporters), 'district' (F. Supp. etc.),
+    'circuit' (F.2d, F.3d, F.4th), or 'other'.
     """
     if not citation_text or not isinstance(citation_text, str):
         return "other"
     c = citation_text.strip().upper()
-    # Supreme Court
+    # Supreme Court — modern reporters
     if re.search(r"\d+\s+U\.?\s*S\.?\s+\d+", c) or re.search(r"\d+\s+U\.?\s*S\.?\s+_+", c):
         return "supreme"
     if re.search(r"\d+\s+S\.?\s*CT\.?\s+\d+", c) or re.search(r"\d+\s+S\.?\s*CT\.?\s+_+", c):
         return "supreme"
     if re.search(r"\d+\s+L\.?\s*ED\.?\s*(?:2D\s+)?\d+", c):
+        return "supreme"
+    # Supreme Court — historical nominative reporters (pre-1875)
+    # Dallas (Dall.), Cranch, Wheaton (Wheat.), Peters (Pet.),
+    # Howard (How.), Black, Wallace (Wall.)
+    if _HISTORICAL_SCOTUS_RE.search(c):
         return "supreme"
     # District (Federal Supplement)
     if re.search(r"\d+\s+F\.?\s*SUPP\.?\s*(?:2D\s+|3D\s+)?\d+", c):
@@ -85,13 +96,6 @@ def split_clusters_by_reporter_tier(clusters, task_id=""):
         has_supreme = len(by_tier["supreme"]) > 0
         has_district = len(by_tier["district"]) > 0
         has_circuit = len(by_tier["circuit"]) > 0
-        tier_count = sum([1 if has_supreme else 0, 1 if has_district else 0, 1 if has_circuit else 0])
-        if tier_count <= 1:
-            result.append(cl)
-            continue
-
-        # Court-tier split required. Keep WL/other with Supreme when available
-        # (e.g., "606 U.S. 831" + "2025 WL 1773631" same case/opinion family).
         other = by_tier["other"]
         wl_other = []
         non_wl_other = []
@@ -103,33 +107,39 @@ def split_clusters_by_reporter_tier(clusters, task_id=""):
                 wl_other.append(c)
             else:
                 non_wl_other.append(c)
+        # Split state/other from federal supreme when both present (e.g. Deggs 2016 + Hubbard 115 S.Ct.).
+        has_state_other = len(non_wl_other) > 0
+        tier_count = sum([1 if has_supreme else 0, 1 if has_district else 0, 1 if has_circuit else 0])
+        if tier_count <= 1 and not (has_supreme and has_state_other):
+            result.append(cl)
+            continue
 
+        # Court-tier split required. Keep WL with Supreme when available.
+        # Do NOT attach state reporters (Wn.2d, P.3d, etc.) to supreme — separate cluster.
         tier_groups = {
             "supreme": list(by_tier["supreme"]),
             "circuit": list(by_tier["circuit"]),
             "district": list(by_tier["district"]),
+            "state_other": list(non_wl_other),
         }
         if has_supreme:
             tier_groups["supreme"].extend(wl_other)
-            # Attach remaining ambiguous citations to supreme so we don't leak
-            # lower-court opinions back into Supreme clusters.
-            tier_groups["supreme"].extend(non_wl_other)
-        else:
+        if not has_supreme:
             # No Supreme in cluster: keep "other" with the largest lower-court tier.
-            # A later WL/lower-federal split pass can still separate WL when needed.
             dominant = "circuit" if len(tier_groups["circuit"]) >= len(tier_groups["district"]) else "district"
             tier_groups[dominant].extend(wl_other + non_wl_other)
 
         bid = cl.get("cluster_id", "c0")
         logger.info(
             f"[TASK:{task_id}] POST-VERIFY-SPLIT-TIER: '{bid}' mixes court tiers "
-            f"(supreme={len(by_tier['supreme'])}, circuit={len(by_tier['circuit'])}, district={len(by_tier['district'])}); splitting"
+            f"(supreme={len(by_tier['supreme'])}, circuit={len(by_tier['circuit'])}, district={len(by_tier['district'])}, state_other={len(non_wl_other)}); splitting"
         )
 
         for label, tier_cits in [
             ("supreme", tier_groups["supreme"]),
             ("circuit", tier_groups["circuit"]),
             ("district", tier_groups["district"]),
+            ("state_other", tier_groups["state_other"]),
         ]:
             if not tier_cits:
                 continue
@@ -302,6 +312,282 @@ def split_clusters_by_distinct_wl(clusters, task_id=""):
     return result
 
 
+def split_clusters_by_court_tier_and_wl(clusters, task_id=""):
+    """Single-pass replacement for split_clusters_by_reporter_tier + split_clusters_wl_from_lower_federal + split_clusters_by_distinct_wl.
+
+    For each citation we compute tier + WL status + WL-id exactly once, then apply
+    all three split decisions in one iteration over citations.
+    """
+    if not clusters:
+        return clusters
+    result = []
+    for cl in clusters:
+        if not isinstance(cl, dict):
+            result.append(cl)
+            continue
+        cits = cl.get("citations", [])
+
+        tier_map = {}  # citation index -> tier
+        is_wl = {}     # citation index -> bool
+        wl_id = {}     # citation index -> "YYYY WL NNNNN" or None
+
+        for i, c in enumerate(cits):
+            if not isinstance(c, dict):
+                tier_map[i] = "other"
+                is_wl[i] = False
+                wl_id[i] = None
+                continue
+            ct = (c.get("citation") or "").strip()
+            tier_map[i] = _reporter_tier(ct)
+            w = re.search(r"(\d{4}\s+WL\s+\d+)", ct)
+            is_wl[i] = bool(w)
+            wl_id[i] = w.group(1) if w else None
+
+        has_supreme = any(t == "supreme" for t in tier_map.values())
+        has_district = any(t == "district" for t in tier_map.values())
+        has_circuit = any(t == "circuit" for t in tier_map.values())
+        wl_indices = [i for i, w in is_wl.items() if w]
+        non_wl_other_indices = [i for i, t in tier_map.items() if t == "other" and not is_wl.get(i)]
+        has_state_other = len(non_wl_other_indices) > 0
+        tier_count = sum([has_supreme, has_district, has_circuit])
+
+        needs_tier_split = tier_count > 1 or (has_supreme and has_state_other)
+        has_lower_federal = any(tier_map[i] in ("district", "circuit") for i in range(len(cits)) if not is_wl.get(i))
+        needs_wl_fed_split = (not needs_tier_split and wl_indices and has_lower_federal and not has_supreme)
+        distinct_wl_ids = {wl_id[i] for i in wl_indices if wl_id[i]}
+        needs_wl_distinct_split = len(distinct_wl_ids) > 1
+
+        if not needs_tier_split and not needs_wl_fed_split and not needs_wl_distinct_split:
+            result.append(cl)
+            continue
+
+        bid = cl.get("cluster_id", "c0")
+
+        def _make_sub(label, indices):
+            group = [cits[i] for i in indices]
+            if not group:
+                return None
+            nc = dict(cl)
+            nc["cluster_id"] = f"{bid}_{label}"
+            nc["citations"] = group
+            ct_set = {x.get("citation", "") for x in group if isinstance(x, dict)}
+            nc["cluster_members"] = [
+                m for m in cl.get("cluster_members", [])
+                if (m.get("citation", "") if isinstance(m, dict) else str(m)) in ct_set
+            ]
+            nc["cluster_size"] = len(group)
+            if group and isinstance(group[0], dict):
+                nc["canonical_name"] = next(
+                    (x.get("canonical_name") for x in group if x.get("canonical_name")), nc.get("canonical_name")
+                )
+                nc["canonical_url"] = next(
+                    (x.get("canonical_url") for x in group if x.get("canonical_url")), nc.get("canonical_url")
+                )
+                nc["verified"] = any(x.get("verified") for x in group if isinstance(x, dict))
+            return nc
+
+        if needs_tier_split:
+            logger.info(
+                f"[TASK:{task_id}] SPLIT-TIER-WL: '{bid}' mixes court tiers "
+                f"(supreme={sum(1 for t in tier_map.values() if t=='supreme')}, "
+                f"circuit={sum(1 for t in tier_map.values() if t=='circuit')}, "
+                f"district={sum(1 for t in tier_map.values() if t=='district')}, "
+                f"state_other={len(non_wl_other_indices)}); splitting"
+            )
+            supreme_idx = [i for i, t in tier_map.items() if t == "supreme"]
+            circuit_idx = [i for i, t in tier_map.items() if t == "circuit"]
+            district_idx = [i for i, t in tier_map.items() if t == "district"]
+            if has_supreme:
+                supreme_idx.extend(wl_indices)
+            elif len(circuit_idx) >= len(district_idx):
+                circuit_idx.extend(wl_indices + non_wl_other_indices)
+            else:
+                district_idx.extend(wl_indices + non_wl_other_indices)
+            state_idx = non_wl_other_indices if has_supreme else []
+            for label, idx_list in [("tier_supreme", supreme_idx), ("tier_circuit", circuit_idx),
+                                     ("tier_district", district_idx), ("tier_state", state_idx)]:
+                nc = _make_sub(label, idx_list)
+                if nc:
+                    result.append(nc)
+
+        elif needs_wl_fed_split:
+            logger.info(
+                f"[TASK:{task_id}] SPLIT-TIER-WL: '{bid}' mixes WL with circuit/district; splitting"
+            )
+            non_wl_idx = [i for i in range(len(cits)) if not is_wl.get(i)]
+            nc = _make_sub("wlfed_non_wl", non_wl_idx)
+            if nc:
+                result.append(nc)
+            if not needs_wl_distinct_split:
+                nc = _make_sub("wlfed_wl", wl_indices)
+                if nc:
+                    result.append(nc)
+            else:
+                by_wl = {}
+                for i in wl_indices:
+                    by_wl.setdefault(wl_id[i] or f"unknown_{i}", []).append(i)
+                for wid, idx_list in by_wl.items():
+                    nc = _make_sub(f"wl_{wid.replace(' ', '_')}", idx_list)
+                    if nc:
+                        result.append(nc)
+
+        elif needs_wl_distinct_split:
+            logger.info(
+                f"[TASK:{task_id}] SPLIT-TIER-WL: '{bid}' has {len(distinct_wl_ids)} distinct WL citations; splitting"
+            )
+            non_wl_idx = [i for i in range(len(cits)) if not is_wl.get(i)]
+            by_wl = {}
+            for i in wl_indices:
+                by_wl.setdefault(wl_id[i] or f"unknown_{i}", []).append(i)
+            for wid, idx_list in by_wl.items():
+                nc = _make_sub(f"wl_{wid.replace(' ', '_')}", idx_list)
+                if nc:
+                    result.append(nc)
+            if non_wl_idx:
+                nc = _make_sub("wl_nonwl", non_wl_idx)
+                if nc:
+                    result.append(nc)
+
+    if len(result) != len(clusters):
+        logger.info(f"[TASK:{task_id}] SPLIT-TIER-WL: {len(clusters)} -> {len(result)} clusters")
+    return result
+
+
+def _year_from_citation(c):
+    """Extract 4-digit year from a citation dict: canonical_date, extracted_date, or (YYYY) in text."""
+    if not isinstance(c, dict):
+        return None
+    for key in ("canonical_date", "extracted_date", "date"):
+        v = c.get(key)
+        if v:
+            m = re.search(r"(19|20)\d{2}", str(v))
+            if m:
+                return int(m.group(0))
+    ct = (c.get("citation") or c.get("text") or "")
+    m = re.search(r"\((19\d{2}|20\d{2})\)", str(ct))
+    if m:
+        return int(m.group(1))
+    return None
+
+
+def split_clusters_by_date_conflict(clusters, task_id="", max_year_diff=2):
+    """
+    Split a cluster when it contains citations from different cases by year (e.g. Deggs 2016 vs Hubbard 1995).
+    When nested quoting merges two cases (Deggs quoting Hubbard), citations have different years; group
+    citations by year (within max_year_diff) and split so each year-bucket becomes its own cluster.
+    """
+    if not clusters:
+        return clusters
+    result = []
+    for cl in clusters:
+        if not isinstance(cl, dict):
+            result.append(cl)
+            continue
+        cits = cl.get("citations", [])
+        if len(cits) <= 1:
+            result.append(cl)
+            continue
+        # Bucket citations by year; years within max_year_diff go in same bucket
+        buckets = []  # list of (repr_year, list of citations)
+        no_year = []
+        for c in cits:
+            if not isinstance(c, dict):
+                no_year.append(c)
+                continue
+            y = _year_from_citation(c)
+            if y is None:
+                no_year.append(c)
+                continue
+            placed = False
+            for by, group in buckets:
+                if by is not None and abs(by - y) <= max_year_diff:
+                    group.append(c)
+                    placed = True
+                    break
+            if not placed:
+                buckets.append((y, [c]))
+        # No-year citations: do NOT attach federal supreme (S.Ct., U.S., L.Ed.) to first bucket
+        # when the cluster has state citations with years — e.g. Deggs 2016 quoting Hubbard 1995;
+        # the S.Ct. cite may have no year in text but is a different case (nested quote).
+        if no_year and buckets:
+            supreme_no_year = []
+            other_no_year = []
+            for c in no_year:
+                if not isinstance(c, dict):
+                    other_no_year.append(c)
+                    continue
+                ct = (c.get("citation") or "").strip()
+                if _reporter_tier(ct) == "supreme":
+                    supreme_no_year.append(c)
+                else:
+                    other_no_year.append(c)
+            if supreme_no_year and buckets:
+                # Put supreme no-year in own bucket so we split (e.g. Hubbard S.Ct. out of Deggs).
+                buckets.append((None, supreme_no_year))
+            if other_no_year:
+                buckets[0][1].extend(other_no_year)
+        elif no_year:
+            buckets.append((None, no_year))
+        # Merge buckets that are within max_year_diff (e.g. 2015 and 2016)
+        merged_buckets = []
+        for by, group in buckets:
+            if not group:
+                continue
+            years_in_group = {_year_from_citation(c) for c in group if isinstance(c, dict)}
+            years_in_group.discard(None)
+            merged = False
+            for i, (m_y, m_group) in enumerate(merged_buckets):
+                m_years = {_year_from_citation(c) for c in m_group if isinstance(c, dict)}
+                m_years.discard(None)
+                if not m_years or not years_in_group:
+                    continue
+                if any(
+                    my is not None and gy is not None and abs(my - gy) <= max_year_diff
+                    for my in m_years for gy in years_in_group
+                ):
+                    m_group.extend(group)
+                    merged = True
+                    break
+            if not merged:
+                merged_buckets.append((by, group))
+        if len(merged_buckets) <= 1:
+            result.append(cl)
+            continue
+        bid = cl.get("cluster_id", "c0")
+        logger.info(
+            f"[TASK:{task_id}] POST-VERIFY-SPLIT-DATE: '{bid}' has {len(merged_buckets)} year groups; splitting"
+        )
+        for si, (_, group) in enumerate(merged_buckets):
+            nc = dict(cl)
+            nc["cluster_id"] = f"{bid}_yr_{si}"
+            nc["citations"] = group
+            ct_set = {x.get("citation", "") for x in group if isinstance(x, dict)}
+            nc["cluster_members"] = [
+                m for m in cl.get("cluster_members", [])
+                if (m.get("citation", "") if isinstance(m, dict) else str(m)) in ct_set
+            ]
+            nc["cluster_size"] = len(group)
+            if group and isinstance(group[0], dict):
+                nc["canonical_name"] = next(
+                    (x.get("canonical_name") for x in group if x.get("canonical_name")), nc.get("canonical_name")
+                )
+                nc["canonical_url"] = next(
+                    (x.get("canonical_url") for x in group if x.get("canonical_url")), nc.get("canonical_url")
+                )
+                yr = next((_year_from_citation(x) for x in group if isinstance(x, dict)), None)
+                if yr:
+                    nc["canonical_date"] = str(yr)
+                nc["extracted_case_name"] = next(
+                    (x.get("extracted_case_name") for x in group if x.get("extracted_case_name") and x.get("extracted_case_name") != "N/A"), ""
+                )
+                nc["verified"] = any(x.get("verified") for x in group if isinstance(x, dict))
+            compute_cluster_mismatch_flags(nc)
+            result.append(nc)
+    if len(result) != len(clusters):
+        logger.info(f"[TASK:{task_id}] POST-VERIFY-SPLIT-DATE: {len(clusters)} -> {len(result)} clusters")
+    return result
+
+
 def split_clusters_by_extracted_name(clusters, task_id=""):
     """
     Split clusters when citations have clearly different extracted case names
@@ -320,26 +606,50 @@ def split_clusters_by_extracted_name(clusters, task_id=""):
         if len(cits) <= 1:
             result.append(cl)
             continue
-        # Group citations by extracted-case equivalence (same_case)
+        # Do not split when all citations share the same canonical_url (same case, e.g. Clements).
+        # Different extracted_case_name variants (e.g. "Travelers Indemnity" vs "Travelers Indem.") should stay in one cluster.
+        canon_urls = {
+            (c.get("canonical_url") or "").strip()
+            for c in cits
+            if isinstance(c, dict) and (c.get("canonical_url") or "").strip()
+        }
+        if len(canon_urls) == 1:
+            result.append(cl)
+            continue
+        # Group citations by extracted-case equivalence (same_case). Use cleaned names
+        # so "Kustura v. Dep't..., 169 Wn. 2d 81" and "Kustura v. Dep't..., 233 P.3d 853" stay together.
         groups = []
         unv = []
+        na_cits = []  # Citations with N/A or missing extracted_case_name
         for c in cits:
             if not isinstance(c, dict):
                 unv.append(c)
                 continue
             ecn = (c.get("extracted_case_name") or "").strip() or None
+            if not ecn or ecn == "N/A":
+                na_cits.append(c)
+                continue
+            ecn_clean = _clean_ecn(ecn) if ecn else None
             placed = False
             for _, group in groups:
                 ref = next((x for x in group if isinstance(x, dict)), None)
                 if not ref:
                     continue
                 ref_ecn = (ref.get("extracted_case_name") or "").strip() or None
-                if names_are_same_case(ecn, ref_ecn):
+                ref_ecn_clean = _clean_ecn(ref_ecn) if ref_ecn else None
+                if names_are_same_case(ecn_clean or ecn, ref_ecn_clean or ref_ecn):
                     group.append(c)
                     placed = True
                     break
             if not placed:
                 groups.append((ecn, [c]))
+        # Attach N/A citations to the largest group (unknown name ≠ different case)
+        if na_cits:
+            if groups:
+                largest = max(groups, key=lambda g: len(g[1]))
+                largest[1].extend(na_cits)
+            else:
+                groups.append((None, na_cits))
         if unv:
             # Attach non-dict citations to first group to avoid extra fragment cluster
             if groups:
@@ -404,10 +714,19 @@ def split_clusters_by_canonical_name(clusters, task_id=""):
             if not isinstance(c, dict):
                 unv.append(c); continue
             cn = (c.get("canonical_name") or "").strip()
-            if cn and cn != "N/A" and c.get("verified"):
-                cn_map.setdefault(cn, []).append(c)
-            else:
+            if not cn or cn == "N/A" or not c.get("verified"):
                 unv.append(c)
+                continue
+            # Group by same case (names_are_same_case) so "Kustura v. Department..."
+            # and "KUSTURA v. Dept. of Labor and Industries" stay in one cluster.
+            placed = False
+            for existing_cn, group_list in list(cn_map.items()):
+                if names_are_same_case(cn, existing_cn):
+                    group_list.append(c)
+                    placed = True
+                    break
+            if not placed:
+                cn_map[cn] = [c]
         if len(cn_map) <= 1:
             result.append(cl); continue
         bid = cl.get("cluster_id", "c0")

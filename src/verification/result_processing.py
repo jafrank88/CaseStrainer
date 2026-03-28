@@ -6,7 +6,7 @@ Extracted from unified_verification_master.py (P1 refactoring).
 """
 
 from typing import Dict, Any, Optional, List
-from src.utils.cluster_display_utils import finalize_cluster_for_response, _is_google_search_url
+from src.utils.cluster_display_utils import finalize_cluster_for_response, cluster_has_effective_verified, _is_google_search_url
 
 
 def apply_known_federal_to_citation_objects(citations: List[Any]) -> None:
@@ -131,6 +131,14 @@ def apply_last_mile_cluster_display_sync(
             if cit.get("verified") or cit.get("is_verified"):
                 cit["verified"] = has_real_url
                 cit["is_verified"] = has_real_url
+            elif has_real_url:
+                # Mirror the flat-list fix from _format_response (line 494-496):
+                # A cluster-embedded citation that carries a real case URL must be
+                # marked verified=True so cluster_has_effective_verified() returns
+                # True and finalize_cluster_display_identity does NOT clear
+                # canonical_name / canonical_date to null ("Not Found").
+                cit["verified"] = True
+                cit["is_verified"] = True
         # 3) Propagate canonical_url/canonical_name to cluster level so display_canonical_url and top-level canonical_url are set.
         # Never overwrite or set a real case URL with a Google search URL.
         best_url = cluster.get("canonical_url") or cluster.get("display_canonical_url")
@@ -166,6 +174,10 @@ def apply_last_mile_cluster_display_sync(
             clear_unverified_canonical=True,
             clear_unverified_citations=True,
         )
+        # Sync cluster-level verified flag after finalization so the frontend
+        # sections the cluster correctly (Verified vs Unverified).
+        if cluster_has_effective_verified(cluster) and not cluster.get("verified"):
+            cluster["verified"] = True
 
 
 def apply_verification_paradox_fix(citations_list: List[Dict[str, Any]]) -> int:

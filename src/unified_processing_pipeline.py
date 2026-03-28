@@ -11,6 +11,15 @@ KEY IMPROVEMENTS:
 3. Guaranteed parallel verification execution
 4. Comprehensive error handling and logging
 5. Predictable data flow at every stage
+
+INGESTION STAGES (same functionality as legacy, with improvements):
+- Document normalize: full-document normalization (UnifiedCitationProcessorV2) to fix PDF artifacts,
+  comma/space loss, and page+volume runs (e.g. "2d391334" -> "2d 391, 334" for Walston-style cites).
+- Extract: citation extraction + per-citation normalization; case name/date extraction with contamination guards.
+- Cluster: key-based + name-based grouping (parallel cites merged; Washington reporter variants normalized).
+- Verify: batch Court Listener lookup; canonical name/date/URL attached.
+- Post-verify: merge by canonical name+year; split by date conflict, reporter tier (state vs supreme, e.g. Deggs/Hubbard),
+  and extracted name so clusters are accurate for any legal document.
 """
 
 import asyncio
@@ -32,6 +41,7 @@ from src.pipeline.clustering import (
     merge_cluster_group,
     merge_clusters_by_canonical_name,
     split_clusters_by_canonical,
+    split_clusters_by_year,
     build_clusters as pipeline_build_clusters,
 )
 
@@ -163,6 +173,13 @@ class UnifiedProcessingPipeline:
             context.trace_stage("extraction")
             extraction_result = await self._extract_citations(text, context)
             citations = extraction_result.get("citations", [])
+            # PERF FIX: Preserve clusters already built by process_text() so _format_response
+            # can skip the expensive redundant re-clustering (saves ~30s and avoids timeout).
+            prebuilt_clusters = extraction_result.get("clusters", [])
+            if prebuilt_clusters:
+                logger.info(
+                    f"[PIPELINE-{context.trace_id}] Carrying {len(prebuilt_clusters)} pre-built clusters from process_text"
+                )
             if len(citations) == 0:
                 # Check for citation indicators
                 citation_indicators = ["U.S.", "F.", "F.2d", "F.3d", "S.Ct.", "L.Ed.", "Wn.", "Wn.2d", "P.", "P.2d", "Cal.", "N.Y.", "v.", "v "]
@@ -234,11 +251,31 @@ class UnifiedProcessingPipeline:
             else:
                 citations = verified_citations
 
+            # Progress: Stage 3 done, about to format
+            if self.processor and hasattr(self.processor, '_update_progress'):
+                try:
+                    self.processor._update_progress(
+                        97, "Formatting", f"Parallel verification complete — formatting {len(citations)} citations"
+                    )
+                except Exception:
+                    pass
+
             # STAGE 4: Final Formatting
             context.trace_stage("formatting")
             _lukumi_check("BEFORE_FORMAT_RESPONSE", citations)
-            result = await self._format_response(citations, context)
+            result = await self._format_response(citations, context, prebuilt_clusters=prebuilt_clusters)
             _lukumi_check("AFTER_FORMAT_RESPONSE", result.get('citations', []))
+
+            # Progress: Stage 4 done, about to return (vm.complete sets the final 100%)
+            if self.processor and hasattr(self.processor, '_update_progress'):
+                try:
+                    num_cits = len(result.get('citations', citations))
+                    num_clus = len(result.get('clusters', []))
+                    self.processor._update_progress(
+                        99, "Finalizing", f"Results ready: {num_cits} citations, {num_clus} clusters"
+                    )
+                except Exception:
+                    pass
 
             # SUCCESS - Complete processing
             context.trace_stage("completed")
@@ -267,7 +304,7 @@ class UnifiedProcessingPipeline:
         """Stage 3: Apply parallel verification - GUARANTEED EXECUTION"""
         return await run_parallel_verification(self.processor, citations, context)
 
-    async def _format_response(self, citations: List[CitationResult], context: ProcessingContext) -> Dict[str, Any]:
+    async def _format_response(self, citations: List[CitationResult], context: ProcessingContext, prebuilt_clusters: Optional[List[Dict[str, Any]]] = None) -> Dict[str, Any]:
         """Stage 4: Format final response using clustering master"""
         try:
             # CRITICAL FIX: Use the clustering master instead of building simple clusters
@@ -284,6 +321,7 @@ class UnifiedProcessingPipeline:
             logger.info(
                 f"[NAME-DIAG] _format_response: {names_at_format}/{len(citations)} citations have non-N/A extracted_case_name on CitationResult"
             )
+            _fmt_t0 = time.time()
             for cit in citations:
                 cit_dict = cit.to_dict()
                 # Ensure document-extracted fields are always present (never null/missing) for frontend display
@@ -385,7 +423,17 @@ class UnifiedProcessingPipeline:
                     # Reject quote/sentence misidentified as case name (e.g. "Time and again, the Supreme Court has said no")
                     if cleaned_name and cleaned_name != "N/A":
                         _ecn = cleaned_name.strip()
-                        if " v. " not in _ecn and (len(_ecn) > 50 or re.match(r"^(Time\s+and|The\s+|And\s+|However,|Moreover,)", _ecn, re.IGNORECASE) or " the " in _ecn):
+                        _has_case_structure = " v. " in _ecn or bool(re.search(r"\b(?:In\s+re|Ex\s+parte)\b", _ecn, re.IGNORECASE))
+                        _is_narrative = (
+                            not _has_case_structure and (
+                                len(_ecn) > 40
+                                or re.match(r"^(Time\s+and|The\s+|And\s+|But\s+|However,|Moreover,)", _ecn, re.IGNORECASE)
+                                or " the " in _ecn
+                                or bool(re.search(r"'s\s+\w+\s+to\s+\w+", _ecn))
+                                or bool(re.search(r"\b(?:must be|should be|was not|could not|did not|failed to|based on|pursuant to|failure to)\b", _ecn, re.IGNORECASE))
+                            )
+                        )
+                        if _is_narrative:
                             logger.info(
                                 f"[FORMAT-RESPONSE] QUOTE REJECTION: Replacing quote-like name with N/A: '{_ecn[:50]}...'"
                             )
@@ -453,6 +501,7 @@ class UnifiedProcessingPipeline:
                 cit_dict["processing_stages"] = context.stages_completed
                 citation_dicts.append(cit_dict)
 
+            logger.info(f"[TIMING] _format_response per-citation loop done in {time.time()-_fmt_t0:.2f}s for {len(citations)} citations")
             # Handle aff'd/affirmed/reversed citations - these use the PRECEDING case name
             # but are treated as DIFFERENT cases (appellate history of the same underlying dispute)
             # CRITICAL: Do NOT contaminate extracted data with canonical data or vice versa
@@ -521,7 +570,9 @@ class UnifiedProcessingPipeline:
 
                 # Create empty clusters list for now - will be populated by clustering master
                 # NOTE: Threshold lowered from 0.6 to 0.4 to reduce false positives
+                _amf_t0 = time.time()
                 annotate_mismatch_flags(citation_dicts, [], name_threshold=0.4, year_tolerance=0)
+                logger.info(f"[TIMING] annotate_mismatch_flags (pre-cluster) done in {time.time()-_amf_t0:.2f}s")
                 logger.info(
                     f"[PIPELINE-{context.trace_id}] Annotated mismatch flags for {len(citation_dicts)} citations"
                 )
@@ -545,21 +596,44 @@ class UnifiedProcessingPipeline:
             clusters = []
             clustering_source = "unknown"
             try:
-                pass
-
-                if cluster_citations_unified_master is None:
+                # PERF FIX: If process_text() already built clusters, reuse them instead of
+                # re-clustering from scratch.  The second clustering call was redundant and
+                # added ~30s, frequently pushing the pipeline past the asyncio timeout (300s)
+                # and returning empty results.
+                if prebuilt_clusters:
+                    # CRITICAL FIX: Normalize CitationResult objects inside prebuilt clusters to dicts.
+                    # process_text() returns clusters with CitationResult objects in their "citations" lists,
+                    # but all downstream code (.get(), filtering, merging) assumes dicts.
+                    clusters = []
+                    for _pc in prebuilt_clusters:
+                        _pc_copy = dict(_pc)
+                        if "citations" in _pc_copy and _pc_copy["citations"]:
+                            _normalized_cits = []
+                            for _c in _pc_copy["citations"]:
+                                if isinstance(_c, dict):
+                                    _normalized_cits.append(_c)
+                                elif hasattr(_c, "to_dict") and callable(getattr(_c, "to_dict")):
+                                    _normalized_cits.append(_c.to_dict())
+                                else:
+                                    _normalized_cits.append({"citation": str(getattr(_c, "citation", _c))})
+                            _pc_copy["citations"] = _normalized_cits
+                        clusters.append(_pc_copy)
+                    clustering_source = "prebuilt_from_process_text"
+                    logger.info(
+                        f"[CLUSTERING-TRACE] Reusing {len(clusters)} pre-built clusters from process_text (normalized CitationResult->dict, skipping redundant re-clustering)"
+                    )
+                elif cluster_citations_unified_master is None:
                     logger.error(f"[CLUSTERING-TRACE] cluster_citations_unified_master is None, using fallback")
                     clustering_source = "fallback_parallel_citations"
                     clusters = self._create_clusters_from_parallel_citations(citation_dicts)
                 else:
-                    logger.error(
+                    logger.info(
                         f"[CLUSTERING-TRACE] Calling cluster_citations_unified_master with {len(citation_dicts)} citations"
                     )
-                    # CRITICAL FIX: Must pass enable_verification=True to preserve verified flag
-                    # Even though citations are "already verified", the clustering master needs this flag
-                    # to preserve canonical data on verified citations (otherwise it clears them)
+                    # Pass enable_verification=False to avoid re-running verification inside clustering.
+                    # Citations are already verified; re-verification caused 60-120s hangs.
                     clusters = cluster_citations_unified_master(
-                        citation_dicts, original_text=context.input_text, enable_verification=True  # Preserve verified flag
+                        citation_dicts, original_text=context.input_text, enable_verification=False
                     )
                     if not clusters:
                         logger.error(
@@ -569,7 +643,7 @@ class UnifiedProcessingPipeline:
                         clusters = self._create_clusters_from_parallel_citations(citation_dicts)
                     else:
                         clustering_source = "unified_master"
-                        logger.error(
+                        logger.info(
                             f"[CLUSTERING-TRACE] cluster_citations_unified_master returned {len(clusters)} clusters"
                         )
             except Exception as e:
@@ -616,6 +690,8 @@ class UnifiedProcessingPipeline:
             clusters = self._merge_clusters_by_canonical_name(clusters)
             # Split any cluster that mixes different canonical cases (e.g. Davis/2008 + Meese/1987)
             clusters = self._split_clusters_by_canonical(clusters)
+            # Split clusters where citations' extracted_dates span > 30 years (cross-clustering of old reporters)
+            clusters = split_clusters_by_year(clusters)
             # Apply post-verify structural splits (court-tier/WL/canonical) consistently in sync path.
             clusters = self._apply_post_verify_cluster_splits(clusters, trace_id=context.trace_id)
             context.metadata["cluster_count"] = len(clusters)
@@ -705,6 +781,9 @@ class UnifiedProcessingPipeline:
                 if re.search(law_journal_pattern, citation_text, re.IGNORECASE):
                     return True
                 return False
+
+            pre_filter_citation_dicts = list(citation_dicts)
+            pre_filter_clusters = [dict(cluster) if isinstance(cluster, dict) else cluster for cluster in clusters]
             
             # Filter citations within each cluster
             filtered_clusters = []
@@ -713,7 +792,9 @@ class UnifiedProcessingPipeline:
                 if "citations" in cluster and cluster["citations"]:
                     filtered_citations = [
                         cit for cit in cluster["citations"]
-                        if not should_filter_citation(cit.get("citation", ""))
+                        if not should_filter_citation(
+                            cit.get("citation", "") if isinstance(cit, dict) else getattr(cit, "citation", "")
+                        )
                     ]
                     cluster["citations"] = filtered_citations
                     
@@ -738,6 +819,18 @@ class UnifiedProcessingPipeline:
                 cit for cit in citation_dicts
                 if not should_filter_citation(cit.get("citation", ""))
             ]
+
+            if pre_filter_citation_dicts and not citation_dicts:
+                logger.warning(
+                    f"[PIPELINE-{context.trace_id}] Late citation filter removed all {len(pre_filter_citation_dicts)} citations; restoring pre-filter citations"
+                )
+                citation_dicts = pre_filter_citation_dicts
+
+            if pre_filter_clusters and not clusters and citation_dicts:
+                logger.warning(
+                    f"[PIPELINE-{context.trace_id}] Late cluster filter removed all {len(pre_filter_clusters)} clusters while citations remain; restoring pre-filter clusters"
+                )
+                clusters = pre_filter_clusters
 
             # Create single-citation clusters for unclustered citations with valid ecn
             # This ensures slip opinions like "584 U. S. ___, ___" (Oil States) get their own cluster
@@ -796,7 +889,10 @@ class UnifiedProcessingPipeline:
 
             # SECOND MERGE: Orphan clusters may duplicate existing clusters when citation
             # text strings don't exactly match cluster_members.  Re-run merge to fix.
+            # post_verify_cluster_splits includes global dedup as its final step,
+            # so no separate third merge/split/dedup cycle is needed.
             clusters = self._merge_clusters_by_canonical_name(clusters)
+            clusters = split_clusters_by_year(clusters)
             clusters = self._apply_post_verify_cluster_splits(clusters, trace_id=context.trace_id)
 
             # Build citation to cluster mapping (exact + normalized keys)
@@ -1173,15 +1269,32 @@ class UnifiedProcessingPipeline:
                             cluster["cluster_case_name"] = _normalize_display_name_comma_spacing(str(cluster["cluster_case_name"]))
                         if cluster.get("cluster_key"):
                             cluster["cluster_key"] = _normalize_display_name_comma_spacing(str(cluster["cluster_key"]))
-                        if cluster.get("canonical_name"):
-                            cluster["canonical_name"] = _repair_truncated_llc(str(cluster["canonical_name"]))
             except Exception as norm_err:
                 logger.warning(f"[PIPELINE] Response normalization skipped: {norm_err}")
+
+            if pre_filter_citation_dicts and not citation_dicts:
+                logger.warning(
+                    f"[PIPELINE-{context.trace_id}] Final response would return zero citations after earlier stages had {len(pre_filter_citation_dicts)}; restoring pre-final citations"
+                )
+                citation_dicts = pre_filter_citation_dicts
+
+            if pre_filter_clusters and not clusters and citation_dicts:
+                logger.warning(
+                    f"[PIPELINE-{context.trace_id}] Final response would return zero clusters after earlier stages had {len(pre_filter_clusters)}; restoring pre-final clusters"
+                )
+                clusters = pre_filter_clusters
 
             # Build final response with UNIFIED PIPELINE metadata
             response = {
                 "citations": citation_dicts,
                 "clusters": clusters,  # Use proper clusters from clustering master
+                "statistics": {
+                    "total_citations": len(citation_dicts),
+                    "total_clusters": len(clusters),
+                    "verified_citations": sum(
+                        1 for cit in citation_dicts if isinstance(cit, dict) and cit.get("verified", False)
+                    ),
+                },
                 "metadata": {
                     # Core pipeline metadata
                     "processing_mode": context.processing_mode,
@@ -1205,6 +1318,12 @@ class UnifiedProcessingPipeline:
             return response
 
         except Exception as e:
+            logger.error(
+                f"[PIPELINE-{context.trace_id}] _format_response EXCEPTION: {e}. "
+                f"Input: {len(citations)} citations, prebuilt_clusters={'yes:'+str(len(prebuilt_clusters)) if prebuilt_clusters else 'None'}. "
+                f"citation_dicts so far: {len(citation_dicts) if 'citation_dicts' in dir() else 'not yet created'}",
+                exc_info=True,
+            )
             context.add_error(str(e), "formatting")
             raise
 
@@ -1675,7 +1794,50 @@ class UnifiedProcessingPipeline:
         except Exception as e2:
             logger.warning(f"[PIPELINE] Shared-citation merge (post-canonical) skipped: {e2}")
 
+        try:
+            from src.utils.response_enrichment import merge_clusters_by_scotus_parallel_reporters
+
+            before_par = len(final_clusters)
+            final_clusters = merge_clusters_by_scotus_parallel_reporters(final_clusters)
+            if len(final_clusters) < before_par:
+                logger.info(f"[PIPELINE] SCOTUS parallel merge: {before_par} -> {len(final_clusters)} clusters")
+        except Exception as e_par:
+            logger.warning(f"[PIPELINE] SCOTUS parallel merge skipped: {e_par}")
+
         final_clusters = self._apply_post_verify_cluster_splits(final_clusters, trace_id="cluster-build")
+
+        # Re-merge after post-verify split: historical SCOTUS reporters (Cranch, Wheat.,
+        # Wall., etc.) share core keys with their duplicate clusters.
+        if final_clusters and len(final_clusters) > 1:
+            try:
+                before_remerge = len(final_clusters)
+                final_clusters = merge_clusters_by_shared_citation(final_clusters)
+                if len(final_clusters) < before_remerge:
+                    logger.info(f"[PIPELINE] Post-split re-merge: {before_remerge} -> {len(final_clusters)} clusters")
+            except Exception as e:
+                logger.warning(f"[PIPELINE] Post-split re-merge skipped: {e}")
+
+        if final_clusters and len(final_clusters) > 1:
+            try:
+                from src.utils.response_enrichment import merge_clusters_by_scotus_parallel_reporters
+
+                before_par = len(final_clusters)
+                final_clusters = merge_clusters_by_scotus_parallel_reporters(final_clusters)
+                if len(final_clusters) < before_par:
+                    logger.info(
+                        f"[PIPELINE] Post-split SCOTUS parallel merge: {before_par} -> {len(final_clusters)} clusters"
+                    )
+            except Exception as e_par:
+                logger.warning(f"[PIPELINE] Post-split SCOTUS parallel merge skipped: {e_par}")
+
+        try:
+            from src.utils.response_enrichment import promote_parallel_siblings_in_clusters
+
+            _npp = promote_parallel_siblings_in_clusters(final_clusters, citation_dicts)
+            if _npp:
+                logger.info(f"[PIPELINE] Cluster parallel promotion: {_npp} citation(s) marked true_by_parallel")
+        except Exception as e_prom:
+            logger.warning(f"[PIPELINE] Cluster parallel promotion skipped: {e_prom}")
 
         return final_clusters
 

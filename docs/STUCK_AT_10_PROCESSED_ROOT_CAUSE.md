@@ -36,3 +36,5 @@ Two things in `_normalize_citation_comprehensive` scaled poorly on long text:
 2. **Prefer per-citation normalization** when possible: applying normalization to each extracted citation string is O(citations × citation_length) instead of O(document_length × rules).
 
 3. **When debugging "stuck" jobs:** Check worker logs for `[UNIFIED_EXTRACTION]` and `[BATCH]`. If you see "Text normalized" but never "Step 1: Enhanced regex extraction", the hang is in full-document normalization, not in verification.
+
+4. **Production (e.g. wolf.law.uw.edu):** The code that runs is on the server. You must deploy the latest fixes (git pull + rebuild/restart workers) **on the production server**. Otherwise the UI can stay at "10 processed" until the pipeline timeout (default 5 minutes, then the job fails with "Processing timed out").

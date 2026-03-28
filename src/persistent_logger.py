@@ -170,10 +170,12 @@ class PersistentLogger:
             start_time = datetime.fromisoformat(session_data.get("timestamp", datetime.utcnow().isoformat()))
             uptime = datetime.utcnow() - start_time
 
-            self.event_logger.info("=" * 80)
-            self.event_logger.info(f"[STOP] NORMAL SHUTDOWN - Session: {self.session_id}")
-            self.event_logger.info(f"Uptime: {uptime}")
-            self.event_logger.info("=" * 80)
+            import sys
+            if not getattr(sys.stdout, 'closed', False):
+                self.event_logger.info("=" * 80)
+                self.event_logger.info(f"[STOP] NORMAL SHUTDOWN - Session: {self.session_id}")
+                self.event_logger.info(f"Uptime: {uptime}")
+                self.event_logger.info("=" * 80)
 
             # Update session file
             if self.session_file.exists():

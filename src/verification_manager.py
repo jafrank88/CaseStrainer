@@ -102,6 +102,8 @@ class VerificationManager:
         status = self.get_verification_status(id_or_job) or {}
         total_citations = total if total is not None else status.get("total_citations", 0)
         citations_processed = processed
+        if total_citations:
+            citations_processed = max(0, min(citations_processed, total_citations))
         percent = 0
         if total_citations:
             percent = max(0, min(100, int((citations_processed / total_citations) * 100)))
@@ -138,6 +140,7 @@ class VerificationManager:
                     "status": "processing",
                     "progress": percent,
                     "message": message or "Verifying citations...",
+                    "current_message": message or "Verifying citations...",
                     "current_step": "verification",
                     "citations_processed": citations_processed,
                     "total_citations": total_citations,
@@ -195,32 +198,22 @@ class VerificationManager:
                 if results is not None:
                     try:
                         result_key = f"verification:result:{id_or_job}"
-                        # Quick size check before serialization (prevent huge payloads)
-                        result_size_estimate = len(str(results))
-                        if result_size_estimate > 10_000_000:  # 10MB limit
+                        # Serialize once; use JSON byte-length for the size check
+                        # (avoids the expensive str(results) conversion that was 2-3x larger than JSON)
+                        result_payload = json.dumps(results, default=str)
+                        if len(result_payload) > 10_000_000:  # 10MB JSON limit
                             logger.warning(
-                                f"[VERIFICATION-MANAGER] Result too large ({result_size_estimate} bytes), skipping Redis save to prevent hang"
+                                f"[VERIFICATION-MANAGER] Result too large ({len(result_payload)} bytes JSON), skipping Redis save to prevent hang"
                             )
                         else:
-                            # Serialize (with default=str to handle any non-serializable objects)
-                            result_payload = json.dumps(results, default=str)
-
-                            # Save to Redis with socket timeout to prevent hangs
-                            # Set socket timeout to 5 seconds to prevent blocking
-                            original_timeout = self.redis_conn.connection_pool.connection_kwargs.get(
-                                "socket_timeout", None
-                            )
                             try:
-                                # Temporarily set shorter timeout for this operation
-                                if hasattr(self.redis_conn, "connection_pool"):
-                                    # Use setex with timeout protection
-                                    self.redis_conn.setex(result_key, 3600, result_payload)
-                                    if job_id:
-                                        job_result_key = f"verification:result:{job_id}"
-                                        self.redis_conn.setex(job_result_key, 3600, result_payload)
-                                    logger.info(
-                                        f"[VERIFICATION-MANAGER] Saved result data to Redis: {result_key} ({len(result_payload)} bytes)"
-                                    )
+                                self.redis_conn.setex(result_key, 3600, result_payload)
+                                if job_id:
+                                    job_result_key = f"verification:result:{job_id}"
+                                    self.redis_conn.setex(job_result_key, 3600, result_payload)
+                                logger.info(
+                                    f"[VERIFICATION-MANAGER] Saved result data to Redis: {result_key} ({len(result_payload)} bytes)"
+                                )
                             except Exception as redis_err:
                                 logger.warning(
                                     f"[VERIFICATION-MANAGER] Redis save failed (non-critical, job will still complete): {redis_err}"
@@ -723,7 +716,12 @@ class SmartVerificationStrategy:
                 all_results.update(method_results)
 
                 if request_id in self.active_verifications:
-                    processed = len([r for r in all_results.values() if r.get("verified", False)])
+                    verified_citation_keys = {
+                        citation
+                        for citation in citations
+                        if isinstance(all_results.get(citation), dict) and all_results[citation].get("verified", False)
+                    }
+                    processed = len(verified_citation_keys)
                     progress = (processed / total_citations) * 100
                     self.active_verifications[request_id].citations_processed = processed
                     self.active_verifications[request_id].progress = min(progress, 100.0)

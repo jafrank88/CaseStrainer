@@ -12,6 +12,7 @@ def expand_abbreviations(case_name: str) -> str:
     abbreviations = {
         r"\bCommc'?\b": "Communications",
         r"\bTelecommc'?\b": "Telecommunications",
+        r"\bCorp\.": "Corporation",
         r"\bCorp'?\b": "Corporation",
         r"\bInt'l\b": "International",
         r"\bNat'l\b": "National",
@@ -71,6 +72,10 @@ def clean_extracted_case_name(case_name: str) -> str:
     name = name.replace("\u2013", "-").replace("\u2014", "-")
     name = re.sub(r"(\w)-\s+([a-z])", r"\1\2", name)
 
+    # Issue 6 fix: collapse expanded "Corporation." (from Corp.) back to "Corporation"
+    # expand_abbreviations converts Corp. -> Corporation but leaves the "." behind
+    name = re.sub(r'\bCorporation\.(?=\s|,|;|$)', 'Corporation', name)
+
     # FIX 2026-02-04: Handle cases where PDF extraction removed the hyphen entirely
     # Pattern: "Swin dle" -> "Swindle", "Gard ner" -> "Gardner", "Labo ratories" -> "Laboratories"
     # Match: Capital letter + word fragment + space + lowercase fragment (looks like split word)
@@ -105,6 +110,71 @@ def clean_extracted_case_name(case_name: str) -> str:
     # Second part: lowercase letters, 2-10 chars
     name = re.sub(r'\b([A-Z][a-z]{1,9})\s+([a-z]{2,10})\b', rejoin_split_words, name)
 
+    # Issue 1 fix: merge PDF/OCR-split abbreviations where "v." is part of the word, not a party separator.
+    # Applies only inside the DEFENDANT (after the first real "v.") to avoid clobbering
+    # legitimate "De La Cruz v. Smith" style names.
+    _first_v = re.search(r'\s+v\.\s+', name)
+    if _first_v:
+        _before_v = name[:_first_v.end()]
+        _after_v = name[_first_v.end():]
+        _split_abbrev = [
+            (r'\bDe\s+v\.\s+', 'Dev. '),    # Ritz-Carlton De v. Co -> Dev. Co
+            (r'\bSer\s+v\.\s*', 'Serv. '), # Mobile Fleet Ser v., Inc -> Serv.
+            (r'\bUni\s+v\.\s+', 'Univ. '), # La. State Uni v. Med -> Univ.
+            (r'\bDi\s+v\.\s+', 'Div. '),   # Di v. Corp -> Div. Corp
+            (r'\bIn\s+v\.\s+(?=[A-Z])', 'Inv. '),  # Private In v. Corp -> Inv. Corp
+        ]
+        for _pat, _rep in _split_abbrev:
+            _after_v = re.sub(_pat, _rep, _after_v)
+        name = _before_v + _after_v
+
+    # Issue 3 fix: strip US state section-header contamination from the start of case names.
+    # The "Basic Legal Citation" book (and similar) organises by state; the first case in each
+    # section gets the state name prepended (e.g. "Tennessee Lawson v. Hawkins Co").
+    # Safety: do NOT strip when the state name is part of a company name (e.g. "Nevada Motor Coach").
+    _COMPANY_STARTERS = {
+        'motor', 'coach', 'bus', 'power', 'gas', 'electric', 'energy', 'mutual',
+        'bank', 'capital', 'fund', 'fire', 'central', 'western', 'eastern',
+        'northern', 'southern', 'pacific', 'atlantic', 'inland', 'express',
+        'national', 'general', 'first', 'second', 'standard', 'premier',
+    }
+    _STATE_PREFIX_RE = re.compile(
+        r'^(?:Alabama|Alaska|Arizona|Arkansas|California|Colorado|Connecticut|'
+        r'Delaware|Florida|Georgia|Hawaii|Idaho|Illinois|Indiana|Iowa|Kansas|'
+        r'Kentucky|Louisiana|Maine|Maryland|Massachusetts|Michigan|Minnesota|'
+        r'Mississippi|Missouri|Montana|Nebraska|Nevada|New\s+Hampshire|'
+        r'New\s+Jersey|New\s+Mexico|New\s+York|North\s+Carolina|North\s+Dakota|'
+        r'Ohio|Oklahoma|Oregon|Pennsylvania|Rhode\s+Island|South\s+Carolina|'
+        r'South\s+Dakota|Tennessee|Texas|Utah|Vermont|Virginia|Washington|'
+        r'West\s+Virginia|Wisconsin|Wyoming|District\s+(?:Columbia|of\s+Columbia))\s+',
+        re.IGNORECASE
+    )
+    _sm = _STATE_PREFIX_RE.match(name)
+    if _sm:
+        _remainder = name[_sm.end():]
+        _next_word = _remainder.split()[0].rstrip('.,;').lower() if _remainder.split() else ''
+        if _next_word not in _COMPANY_STARTERS and ' v. ' in _remainder.lower():
+            name = _remainder
+
+    # Issue 4 fix: strip leading citation fragments that contaminate case names.
+    # Patterns like "Garrelts 23 N.W. NI Indus. v. ..." or "Farrar Oil Co. 1997 ND 31 12 Cont'..."
+    # where citation text or a prior defendant name bleeds into the next case name.
+    _FRAG_PATTERNS = [
+        # Leading citation fragment: "Word 123 Abbr. 456 RealCase v. Def"
+        r'^[A-Z][a-z]+\s+\d+\s+(?:[A-Z]\.?\s*){1,3}\d+\s+(?=[A-Z])',
+        # Leading name + neutral citation: "Word YEAR Reporter NUM RealCase v. Def"
+        r'^[A-Z][A-Za-z .]*?\s+\d{4}\s+[A-Z]{2,4}\s+\d+\s+\d+\s+(?=[A-Z][a-z])',
+        # Trailing apostrophe fragment at start: "Name' RealCase v. Def"
+        r"^[A-Z][a-z']+[']\s+(?=[A-Z])",
+    ]
+    for _fp in _FRAG_PATTERNS:
+        _fm = re.match(_fp, name)
+        if _fm:
+            _candidate = name[_fm.end():]
+            if ' v. ' in _candidate.lower():
+                name = _candidate
+                break
+
     # Remove leading punctuation and whitespace
     name = re.sub(r"^[\s\.,;:]+", "", name)
     # Remove trailing punctuation and whitespace
@@ -116,6 +186,8 @@ def clean_extracted_case_name(case_name: str) -> str:
         # Docket number prefix (e.g. "Trump No. 24-1287 Learning Resources" -> "Learning Resources")
         r"^[A-Za-z]+\s+No\.\s*\d+[-–](?:\w+[-–])?\d+\s+",
         r"^No\.\s*\d+[-–](?:\w+[-–])?\d+\s+",
+        # "Dkt. No. 28)." or "(Dkt. No. 28)." or "No. 28)." prefix followed by optional page number
+        r"^(?:\(?\s*)?(?:Dkt\.?\s*)?No\.?\s*\d+\s*\)\.?\s*(?:\d+\s+)?",
         # Prose before case name (e.g. "Generalis concurrently filing... in Trump v. Washington")
         r"^(?:Generalis|Parties?|Petitioner|Respondent)\s+concurrently\s+filing\s+a\s+petition\s+for\s+(?:a\s+)?writ\s+of\s+certiorari\s+in\s+",
         r"^(?:that\s+and\s+by\s+the\s+|that\s+and\s+|is\s+also\s+an\s+|also\s+an\s+|also\s+|that\s+|this\s+is\s+|this\s+)\.?\s*",

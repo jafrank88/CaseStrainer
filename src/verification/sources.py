@@ -19,6 +19,16 @@ from urllib.parse import quote
 from src.utils.fallback_verification_utils import URLBuilder, HTMLExtractor, NameValidator, HTTPClient
 from .courtlistener_throttle import throttle_courtlistener
 
+try:
+    from src.utils.legal_abbreviations import expand_abbreviations, normalize_for_comparison
+    from src.utils.verification_scoring import compute_weighted_confidence
+    _ENRICH_AVAILABLE = True
+except Exception:
+    _ENRICH_AVAILABLE = False
+    def expand_abbreviations(s): return s  # noqa: E704
+    def normalize_for_comparison(s): return (s or "").lower()  # noqa: E704
+    def compute_weighted_confidence(**kw): return {"score": None, "factors": {}, "diagnostics": []}  # noqa: E704
+
 logger = logging.getLogger(__name__)
 
 
@@ -181,7 +191,7 @@ class CourtListenerVerifier:
                     result = data[0] if isinstance(data, list) else data
                     if result.get("clusters"):
                         cluster = self._select_best_cluster(result["clusters"], extracted_case_name)
-                        return {
+                        result_dict = {
                             "verified": True,
                             "canonical_name": cluster.get("case_name") or cluster.get("caseName"),
                             "canonical_date": self._extract_year(cluster),
@@ -189,14 +199,22 @@ class CourtListenerVerifier:
                             "source": "CourtListener",
                             "confidence": 0.95,
                         }
+                        return self._enrich_result(result_dict, citation, extracted_case_name)
                 
+                # Feature: adjacent page fallback
+                parsed = self._parse_citation_core(text_for_api)
+                if parsed:
+                    vol, reporter, page = parsed
+                    adj = self._adjacent_page_lookup(url, headers, vol, reporter, page, extracted_case_name, timeout)
+                    if adj:
+                        return self._enrich_result(adj, citation, extracted_case_name)
                 return {"verified": False, "error": "No results"}
-            
+
             elif resp.status_code == 429:
                 return {"verified": False, "error": "Rate limited"}
             else:
                 return {"verified": False, "error": f"HTTP {resp.status_code}"}
-                
+
         except Exception as e:
             logger.warning(f"CourtListener lookup failed: {e}")
             return {"verified": False, "error": str(e)}
@@ -208,25 +226,31 @@ class CourtListenerVerifier:
         if len(clusters) == 1 or not extracted_case_name or extracted_case_name == "N/A":
             return clusters[0]
         
+        # Feature: expand abbreviations before comparison (e.g. Dep't -> Department, Nat'l -> National)
+        ecn_expanded = normalize_for_comparison(expand_abbreviations(extracted_case_name))
         ecn_lower = extracted_case_name.lower().strip()
-        ecn_parts = re.split(r"\s+v\.?\s+", ecn_lower, maxsplit=1)
+        ecn_parts = re.split(r"\s+v\.?\s+", ecn_expanded, maxsplit=1)
         ecn_first = ecn_parts[0].strip().split()[-1] if ecn_parts else ""
-        
+
         best_cluster = clusters[0]
         best_score = -1
         for cluster in clusters:
-            cn = (cluster.get("case_name") or cluster.get("caseName") or "").lower().strip()
-            if not cn:
+            cn_raw = (cluster.get("case_name") or cluster.get("caseName") or "").strip()
+            if not cn_raw:
                 continue
+            cn = normalize_for_comparison(expand_abbreviations(cn_raw))
             score = 0
-            if ecn_lower in cn or cn in ecn_lower:
+            if ecn_expanded in cn or cn in ecn_expanded:
                 score += 10
+            elif ecn_lower in cn or cn in ecn_lower:
+                score += 7
             cn_parts = re.split(r"\s+v\.?\s+", cn, maxsplit=1)
             cn_first = cn_parts[0].strip().split()[-1] if cn_parts else ""
             if ecn_first and cn_first and ecn_first == cn_first:
                 score += 5
-            ecn_words = set(re.findall(r"[a-z]+", ecn_lower)) - {"v", "the", "of", "and", "inc", "llc"}
-            cn_words = set(re.findall(r"[a-z]+", cn)) - {"v", "the", "of", "and", "inc", "llc"}
+            stop = {"v", "the", "of", "and", "inc", "llc", "incorporated", "corporation", "company"}
+            ecn_words = set(re.findall(r"[a-z]+", ecn_expanded)) - stop
+            cn_words = set(re.findall(r"[a-z]+", cn)) - stop
             if ecn_words and cn_words:
                 overlap = len(ecn_words & cn_words) / max(len(ecn_words | cn_words), 1)
                 score += overlap * 3
@@ -249,6 +273,61 @@ class CourtListenerVerifier:
             if match:
                 return match.group(1)
         return None
+
+
+    def _parse_citation_core(self, citation):
+        m = re.search(r"(\d+)\s+([A-Z][A-Za-z.\s]*?)\s+(\d+)", citation)
+        if m:
+            return m.group(1), re.sub(r"\s+", " ", m.group(2)).strip(), int(m.group(3))
+        return None
+
+    def _adjacent_page_lookup(self, url, headers, vol, reporter, page, ecn, timeout):
+        for delta in (1, -1, 2, -2):
+            adj_page = page + delta
+            if adj_page < 1:
+                continue
+            adj_text = "{} {} {}".format(vol, reporter, adj_page)
+            try:
+                throttle_courtlistener(cost=1, context="citation-lookup-adj")
+                resp = self.session.post(url, json={"text": adj_text}, headers=headers, timeout=min(timeout, 8))
+                if resp.status_code == 200:
+                    data = resp.json()
+                    if data and len(data) > 0:
+                        result = data[0] if isinstance(data, list) else data
+                        if result.get("clusters"):
+                            cluster = self._select_best_cluster(result["clusters"], ecn)
+                            logger.info("[CL-ADJ-PAGE] Hit via {} (delta={:+d})".format(adj_text, delta))
+                            return {
+                                "verified": True,
+                                "canonical_name": cluster.get("case_name") or cluster.get("caseName"),
+                                "canonical_date": self._extract_year(cluster),
+                                "canonical_url": "https://www.courtlistener.com" + cluster.get("absolute_url", ""),
+                                "source": "CourtListener",
+                                "confidence": 0.85,
+                                "diagnostic": "Matched via adjacent page (page +/- {}); submitted page may have a typo".format(abs(delta)),
+                            }
+            except Exception:
+                pass
+        return None
+
+    def _enrich_result(self, result, citation, extracted_case_name):
+        if not result.get("verified") or not _ENRICH_AVAILABLE:
+            return result
+        year_m = re.search(r"(\d{4})", citation)
+        sub_year = int(year_m.group(1)) if year_m else None
+        can_year_str = str(result.get("canonical_date") or "")
+        can_year_m = re.search(r"(\d{4})", can_year_str)
+        can_year = int(can_year_m.group(1)) if can_year_m else None
+        scoring = compute_weighted_confidence(
+            submitted_name=extracted_case_name,
+            canonical_name=result.get("canonical_name"),
+            submitted_year=sub_year,
+            canonical_year=can_year,
+        )
+        result["confidence_detail"] = scoring
+        if scoring.get("diagnostics"):
+            result["verification_note"] = "; ".join(scoring["diagnostics"])
+        return result
 
 
 class JustiaVerifier(BaseURLVerifier):
@@ -577,6 +656,108 @@ class GoogleScholarVerifier:
 
         except Exception as e:
             logger.warning(f"Google Scholar verification failed: {e}")
+            return {"verified": False, "error": str(e)}
+
+
+class CaseMineVerifier:
+    """Verifier for CaseMine (casemine.com).
+
+    CaseMine has good coverage for US case law.  Search results contain
+    case titles in ``<a class="jdlink">`` elements with ALL-CAPS names.
+    We title-case the result before returning.
+    """
+
+    def __init__(self, session=None):
+        if session is None:
+            from .utils import get_retrying_session
+            session = get_retrying_session()
+        self.session = session
+
+    async def verify(
+        self,
+        citation: str,
+        extracted_case_name: Optional[str] = None,
+        timeout: float = 10.0,
+    ) -> Dict[str, Any]:
+        """Verify using CaseMine search."""
+        try:
+            from urllib.parse import quote
+            search_url = f"https://www.casemine.com/search/us?q={quote(citation)}"
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36",
+                "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            }
+            response = self.session.get(search_url, headers=headers, timeout=min(timeout, 10))
+            if response.status_code != 200:
+                return {"verified": False, "error": f"HTTP {response.status_code}"}
+
+            content = response.text
+
+            # Check citation on page
+            if citation.lower().replace(" ", "") not in content.lower().replace(" ", ""):
+                return {"verified": False, "error": "Citation not found on page"}
+
+            # Extract case names from jdlink anchors (ALL CAPS)
+            jdlinks = re.findall(
+                r'<a[^>]+class="jdlink"[^>]*>([^<]+)</a>', content, re.IGNORECASE
+            )
+            if not jdlinks:
+                # Fallback: any anchor with /judgement/ in href
+                jdlinks = re.findall(
+                    r'<a[^>]+href="/judgement/[^"]*"[^>]*>([^<]+)</a>', content, re.IGNORECASE
+                )
+
+            if not jdlinks:
+                return {"verified": False, "error": "No case names found"}
+
+            # Title-case the ALL CAPS result
+            canonical_name = jdlinks[0].strip().title()
+            # Fix common legal abbreviations back
+            canonical_name = re.sub(r"\sV\.\s", " v. ", canonical_name)
+            canonical_name = re.sub(r"\sV\s", " v. ", canonical_name)
+            canonical_name = re.sub(r"U\.s\.", "U.S.", canonical_name)
+            canonical_name = re.sub(r"\bLlc\b", "LLC", canonical_name)
+            canonical_name = re.sub(r"\bInc\b", "Inc", canonical_name)
+
+            # Extract year from page
+            canonical_date = None
+            year_match = re.search(r"\b(1[7-9]|20)\d{2}\b", content[:5000])
+            if year_match:
+                canonical_date = year_match.group(0)
+
+            # Validate name match
+            if extracted_case_name and extracted_case_name != "N/A":
+                is_valid, overlap, warning = NameValidator.validate_match(
+                    extracted_case_name, canonical_name, min_overlap=0.25
+                )
+                if not is_valid:
+                    return {
+                        "verified": False,
+                        "canonical_name": canonical_name,
+                        "canonical_date": canonical_date,
+                        "canonical_url": search_url,
+                        "source": "CaseMine",
+                        "confidence": 0.5,
+                    }
+
+            # Extract direct case URL
+            case_url_match = re.search(
+                r'<a[^>]+class="jdlink"[^>]+href="(/judgement/[^"]+)"', content, re.IGNORECASE
+            )
+            case_url = f"https://www.casemine.com{case_url_match.group(1)}" if case_url_match else search_url
+
+            logger.info(f"[CASEMINE] Verified: {canonical_name}")
+            return {
+                "verified": True,
+                "canonical_name": canonical_name,
+                "canonical_date": canonical_date,
+                "canonical_url": case_url,
+                "source": "CaseMine",
+                "confidence": 0.75,
+            }
+
+        except Exception as e:
+            logger.warning(f"CaseMine verification failed: {e}")
             return {"verified": False, "error": str(e)}
 
 
