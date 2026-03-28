@@ -84,6 +84,24 @@ CaseStrainer uses a modern microservices architecture:
 - CourtListener API key
 - LangSearch API key (optional)
 
+## Running from a clean clone (local development)
+
+These steps assume Docker is **not** used; use them to verify the backend and Vue app from source.
+
+1. **Clone** the repository and **cd** into the project root.
+2. **Python**: create a venv and install dependencies:
+   - `python -m venv .venv`
+   - Activate it (Windows: `.venv\Scripts\Activate.ps1`; macOS/Linux: `source .venv/bin/activate`).
+   - `pip install -r requirements.txt`
+3. **Environment**: copy `.env.example` to `.env` and set at least `COURTLISTENER_API_KEY` (see Configuration below).
+4. **PYTHONPATH**: imports use the `src` package, so run commands with the repo root on the path:
+   - Windows PowerShell: `$env:PYTHONPATH = (Get-Location).Path`
+   - macOS/Linux: `export PYTHONPATH="$(pwd)"`
+5. **Backend**: from the repo root, `python src/app_final_vue.py` (or the entrypoint your deployment uses).
+6. **Frontend**: `cd casestrainer-vue-new`, `npm ci` (or `npm install`), then `npm run dev` (see that package’s scripts).
+
+**Keeping the tree clean:** comparison JSON, `tmpclaude-*` agent markers, SQLite `-wal`/`-shm` files, and similar scratch output are listed in `.gitignore`. Prefer putting one-off scripts under `scripts/adhoc/` instead of the repository root so clones stay readable.
+
 ## 🔧 Configuration
 
 ### API Keys (Secure Setup)

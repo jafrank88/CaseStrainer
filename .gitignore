@@ -295,14 +295,14 @@ src/typings/
 src/types
 # Cypress test artifacts
 cypress/
-# Prevent duplicate endpoint files
+# Prevent duplicate endpoint files (allow the primary Vue API module)
 *_updated.py
+!src/vue_api_endpoints_updated.py
 *_backup.py
 *_old.py
 *_new.py
 *_simple.py
-# Temporary Claude workspace directories
-tmpclaude-*/
+# Temporary Claude workspace directories (see also Ephemeral section below)
 .claude/
 # Temporary test and debug files
 test_*.py
@@ -330,3 +330,81 @@ src/diag*.txt
 src/ecn_debug*.txt
 src/network_response.txt
 src/unverified_citations.txt
+
+# -------------------------------------------------------------------------------
+# Ephemeral / local QA outputs (keep the repo root clean; safe to delete anytime)
+# -------------------------------------------------------------------------------
+.review-worktrees/
+# Claude Code / agent cwd marker files (empty or tiny)
+tmpclaude-*
+# SQLite WAL/shm next to a checked-in or local DB (recreated at runtime)
+*.db-shm
+*.db-wal
+# Root-level JSON dumps from ad-hoc compares and pipeline runs
+/*_actual*.json
+/*_actual_*.json
+/*_comparison.json
+/*_sample.json
+/*-pipeline.json
+/results_*.json
+/response.json
+/last_result.json
+/result_clean.json
+/task_result.json
+/citation_count_comparison.json
+/trump_*.json
+# One-off task / poll artifacts at repo root
+/task_id*.txt
+/tool_citations.txt
+/hardy_logs.txt
+/logs.txt
+/src/fallback_log.txt
+# Root ad-hoc scripts (prefer scripts/adhoc/ for anything worth keeping)
+/submit_*.py
+/submit_and_poll.py
+/poll_task.py
+/poll_tasks.py
+/poll_tasks_v2.py
+/fetch_results.py
+/search_broken.py
+/search_resub.py
+/find_method.py
+/find_mismatch.py
+/find_resub.py
+/list_fallback_funcs.py
+/inspect_dates.py
+/check_amazon.py
+/check_cases.py
+/check_cluster_members.py
+/check_ecn_json.py
+/check_fixes.py
+/check_pdf_context.py
+/cleanup_analysis.py
+/apply_refactor.py
+/refactor_cornell.py
+/refactor_justia.py
+/refactored_openjurist.py
+/remove_deprecated.py
+/old_rq_worker_dump.py
+/investigate_*.py
+/fix_*.py
+/fix_clustering_and_dates.py
+/fix_1031351_issues.py
+/pytest-wolf.ini
+# Root-level scratch markdown from one-off doc IDs (keep real docs under docs/)
+/103*_*.md
+/103*_*.txt
+/75opn*_*.json
+/BATCH_TEST_*.md
+/CSLAUNCHER_*.md
+/FORCE_RELOAD_*.md
+/MODULAR_*.md
+/REFACTORING_*.md
+/fix_canonical_dates.md
+/cslauncher commands.txt
+/restart-docker-and-stack.ps1
+/restart_backend.ps1
+/casestrainer.nginx
+/nginx/wolf-proxy.conf
+# Timestamped scratch under scripts/
+/scripts/[0-9]*_*
