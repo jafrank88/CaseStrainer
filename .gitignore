@@ -135,6 +135,9 @@ fix_*.py
 analyze_*.py
 !analyze_imports.py
 !analyze_cluster_context.py
+# Production API modules (would match analyze_*.py above)
+!src/api/services/analyze_pipeline.py
+!src/api/services/analyze_service.py
 # Large PDF files (keep only essential docs)
 *.pdf
 !docs/*.pdf
