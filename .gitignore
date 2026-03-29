@@ -386,7 +386,6 @@ tmpclaude-*
 /fix_*.py
 /fix_clustering_and_dates.py
 /fix_1031351_issues.py
-/pytest-wolf.ini
 # Root-level scratch markdown from one-off doc IDs (keep real docs under docs/)
 /103*_*.md
 /103*_*.txt
