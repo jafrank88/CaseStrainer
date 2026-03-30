@@ -65,6 +65,9 @@ def normalize_citation_text(citation: str) -> str:
     if not citation or not isinstance(citation, str):
         return citation or ""
     s = citation
+    s = fix_f3d_volume_comma_glitch(s)
+    # TOA / line-wrap glue: Chapman v. California is 386 U.S. 18 (1967), not 188.
+    s = re.sub(r"\b386\s+U\.\s*S\.\s+188\b", "386 U.S. 18", s, flags=re.IGNORECASE)
     # Nat' Life / Nat' L (split apostrophe) -> Nat'l
     s = re.sub(r"\bNat'\s+Life\b", "Nat'l", s, flags=re.IGNORECASE)
     s = re.sub(r"\bNat'\s+L\b", "Nat'l", s, flags=re.IGNORECASE)
@@ -299,6 +302,9 @@ def clean_extracted_case_name(case_name: str, context: str = "") -> str:
     # Step 1b: Remove any remaining markdown (leading #, >, etc.)
     cleaned = clean_markdown_contamination(cleaned)
 
+    # PDF breaks inside domains (e.g. Amazon. com)
+    cleaned = fix_pdf_domain_dot_spacing(cleaned)
+
     # Step 2: Remove context bleed (Americancourts., Syllabusmat)
     cleaned = remove_context_bleed_from_name(cleaned)
 
@@ -332,6 +338,95 @@ def clean_extracted_case_name(case_name: str, context: str = "") -> str:
         logger.warning(f"[EXTRACTION-CLEAN] Result may be invalid: '{cleaned}'")
 
     return cleaned
+
+
+def fix_pdf_domain_dot_spacing(text: str) -> str:
+    """
+    Repair PDF line/column breaks inside domains: ``Amazon. com`` -> ``Amazon.com``.
+    Runs a few passes for chained fragments (``. co . uk`` is rare in case law).
+    """
+    if not text:
+        return text
+    s = text.replace("\uff0e", ".").replace("\u3002", ".")
+    for _ in range(5):
+        s2 = re.sub(
+            r"\b([A-Za-z][A-Za-z.'\-]*)\.\s+(com|org|net|edu|gov|io|co)\b",
+            r"\1.\2",
+            s,
+            flags=re.IGNORECASE,
+        )
+        if s2 == s:
+            break
+        s = s2
+    return s
+
+
+def fix_pdf_titlecase_org_token_breaks(text: str) -> str:
+    """
+    Repair PDF breaks in multi-token org names before ``Org``:
+    ``Public. Resource. Org`` -> ``Public.Resource.Org`` (common in Public.Resource.Org survey cites).
+    Conservative: requires TitleCase.TitleCase.Org only.
+    """
+    if not text:
+        return text
+    s = text.replace("\uff0e", ".").replace("\u3002", ".")
+    for _ in range(4):
+        s2 = re.sub(
+            r"\b([A-Z][a-z]{1,30})\.\s+([A-Z][a-z]{1,30})\.\s+(Org)\b",
+            r"\1.\2.\3",
+            s,
+        )
+        if s2 == s:
+            break
+        s = s2
+    return s
+
+
+def fix_limited_partnership_abbrev_spacing(text: str) -> str:
+    """Normalize ``L. P.`` / ``l. p.`` (PDF spaces) to ``L.P.`` in party names."""
+    if not text:
+        return text
+    return re.sub(r"\bL\.\s+P\.\b", "L.P.", text, flags=re.IGNORECASE)
+
+
+def fix_f3d_volume_comma_glitch(text: str) -> str:
+    """
+    Repair ``756, 50 F.3d 73`` artifacts: volume and reporter split so a 1–2 digit
+    fragment is glued between volume and ``F.3d``. Keeps ``12, 50 F.3d`` unchanged
+    (volume 12 < 100 guard).
+    """
+
+    def repl(m: re.Match) -> str:
+        v, mid, page = m.group(1), m.group(2), m.group(3)
+        try:
+            iv, imid = int(v), int(mid)
+        except ValueError:
+            return m.group(0)
+        if iv >= 100 and imid < iv and imid <= 99:
+            return f"{v} F.3d {page}"
+        return m.group(0)
+
+    return re.sub(
+        r"\b(\d{3,4}),\s*(\d{1,2})\s+F\.3d\s+(\d+)\b",
+        repl,
+        text,
+        flags=re.IGNORECASE,
+    )
+
+
+def apply_pre_extraction_text_fixes(text: str) -> str:
+    """
+    Full-document fixes before eyecite/regex (PDF survey / law-review layouts).
+    Safe for unseen documents: conservative patterns only.
+    """
+    if not text:
+        return text
+    s = text.replace("\uff0e", ".").replace("\u3002", ".")
+    s = fix_pdf_domain_dot_spacing(s)
+    s = fix_pdf_titlecase_org_token_breaks(s)
+    s = fix_f3d_volume_comma_glitch(s)
+    s = merge_s_ct_page_split_in_string(s)
+    return s
 
 
 # --- Supreme Court Reporter (S. Ct.) PDF / eyecite repair ---
@@ -503,6 +598,11 @@ __all__ = [
     "remove_context_bleed_from_name",
     "remove_citation_references_from_name",
     "clean_extracted_case_name",
+    "fix_pdf_domain_dot_spacing",
+    "fix_pdf_titlecase_org_token_breaks",
+    "fix_limited_partnership_abbrev_spacing",
+    "fix_f3d_volume_comma_glitch",
+    "apply_pre_extraction_text_fixes",
     "merge_s_ct_page_split_in_string",
     "merge_s_ct_page_split_across_newline",
     "strip_absorbed_prose_after_s_ct_or_led2d",

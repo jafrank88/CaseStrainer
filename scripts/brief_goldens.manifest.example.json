@@ -1,0 +1,191 @@
+{
+  "version": 1,
+  "defaults": {
+    "enable_verification": false,
+    "enable_parallel_verification": true
+  },
+  "documents": [
+    {
+      "id": "changizi_no_cites",
+      "file": "downloaded_briefs/1357666_Changizi_v__Department_of_Heal.pdf",
+      "notes": "Short SG-style memo; no reporter cites in extractable text.",
+      "expect": {
+        "min_extracted_chars": 200,
+        "max_extracted_chars": 50000,
+        "exact_citation_count": 0,
+        "exact_cluster_count": 0
+      }
+    },
+    {
+      "id": "electric_power_supply_ferc",
+      "file": "downloaded_briefs/1351646_Electric_Power_Supply_Ass_n_v_.pdf",
+      "notes": "D.C. Circuit style brief; floor on extraction volume.",
+      "expect": {
+        "min_extracted_chars": 8000,
+        "min_citations": 30
+      }
+    },
+    {
+      "id": "delligatti_criminal_brief",
+      "file": "downloaded_briefs/1391561_Delligatti_v__United_States.pdf",
+      "notes": "Long merits brief; regression anchor for citation volume.",
+      "expect": {
+        "min_extracted_chars": 50000,
+        "min_citations": 220
+      }
+    },
+    {
+      "id": "scotus_999597_coa_appellant",
+      "file": "downloaded_briefs/supreme/999597%20COA%2099959-7%20Appellant%20Brief.pdf",
+      "notes": "Supreme docket COA appellant brief; high cite count.",
+      "expect": {
+        "min_extracted_chars": 60000,
+        "min_citations": 300
+      }
+    },
+    {
+      "id": "div1_814773_opening_skip",
+      "skip": true,
+      "file": "downloaded_briefs/div1/814773%20Appellant's%20Opening%20Brief.pdf",
+      "notes": "Placeholder PDFs under div1/2/3 often yield tiny text (HTML saved as .pdf or image-only). Replace sources or add OCR before expecting citations."
+    },
+    {
+      "id": "div1_814773_reply_skip",
+      "skip": true,
+      "file": "downloaded_briefs/div1/814773%20Reply%20Brief%20of%20Appellant.pdf",
+      "notes": "See div1_814773_opening_skip."
+    },
+    {
+      "id": "div1_814773_respondent_skip",
+      "skip": true,
+      "file": "downloaded_briefs/div1/814773%20Respondent's%20Brief.pdf",
+      "notes": "See div1_814773_opening_skip."
+    },
+    {
+      "id": "div2_559209_appellant_skip",
+      "skip": true,
+      "file": "downloaded_briefs/div2/559209%20Brief%20of%20Appellant.pdf",
+      "notes": "See div1_814773_opening_skip."
+    },
+    {
+      "id": "div2_559209_respondent_skip",
+      "skip": true,
+      "file": "downloaded_briefs/div2/559209%20Brief%20of%20Respondent.pdf",
+      "notes": "See div1_814773_opening_skip."
+    },
+    {
+      "id": "div2_559209_reply_skip",
+      "skip": true,
+      "file": "downloaded_briefs/div2/559209%20Reply%20Brief%20of%20Appellant.pdf",
+      "notes": "See div1_814773_opening_skip."
+    },
+    {
+      "id": "div3_379384_appellant_skip",
+      "skip": true,
+      "file": "downloaded_briefs/div3/379384%20Brief%20of%20Appellant.pdf",
+      "notes": "See div1_814773_opening_skip."
+    },
+    {
+      "id": "div3_379384_respondent_skip",
+      "skip": true,
+      "file": "downloaded_briefs/div3/379384%20Brief%20of%20Respondent.pdf",
+      "notes": "See div1_814773_opening_skip."
+    },
+    {
+      "id": "div3_379384_reply_skip",
+      "skip": true,
+      "file": "downloaded_briefs/div3/379384%20Reply%20Brief%20of%20Appellant.pdf",
+      "notes": "See div1_814773_opening_skip."
+    },
+    {
+      "id": "wa_coa_appellant_003",
+      "file": "wa_briefs/003_COA  Appellant Brief.pdf",
+      "notes": "WA COA appellant; highest cite count in wa_briefs run (~326).",
+      "expect": {
+        "min_extracted_chars": 85000,
+        "min_citations": 300
+      }
+    },
+    {
+      "id": "wa_petition_review_002",
+      "file": "wa_briefs/002_Petition for Review.pdf",
+      "notes": "Petition for review; heavy citations.",
+      "expect": {
+        "min_extracted_chars": 85000,
+        "min_citations": 200
+      }
+    },
+    {
+      "id": "wa_motion_discretionary_review_029",
+      "file": "wa_briefs/029_Motion for Discretionary Review of Personal Restraint Petition.pdf",
+      "notes": "Long motion; ~229 citations in pipeline dump.",
+      "expect": {
+        "min_extracted_chars": 50000,
+        "min_citations": 200
+      }
+    },
+    {
+      "id": "wa_defendant_brief_019",
+      "file": "wa_briefs/019_Defendant Brief.pdf",
+      "notes": "Merits-style defendant brief; ~207 citations.",
+      "expect": {
+        "min_extracted_chars": 70000,
+        "min_citations": 190
+      }
+    },
+    {
+      "id": "wa_coa_reply_low_volume_040",
+      "file": "wa_briefs/040_COA  Reply Brief.pdf",
+      "notes": "Short reply; few cites (~8) but non-zero.",
+      "expect": {
+        "min_extracted_chars": 12000,
+        "min_citations": 5,
+        "max_citations": 25
+      }
+    },
+    {
+      "id": "wa_pro_se_statement_008",
+      "file": "wa_briefs/008_COA  Pro Se Statement Additional Grounds 10-29-20.pdf",
+      "notes": "Pro se statement; extractable text but no eyecite hits in pipeline.",
+      "expect": {
+        "min_extracted_chars": 4000,
+        "max_extracted_chars": 7000,
+        "exact_citation_count": 0,
+        "exact_cluster_count": 0
+      }
+    },
+    {
+      "id": "wa_pro_se_statement_009",
+      "file": "wa_briefs/009_COA  Pro Se Statement Additional Grounds 8-27-20.pdf",
+      "notes": "Very short pro se filing; zero citations.",
+      "expect": {
+        "min_extracted_chars": 500,
+        "max_extracted_chars": 2000,
+        "exact_citation_count": 0,
+        "exact_cluster_count": 0
+      }
+    },
+    {
+      "id": "wa_reply_personal_restraint_030",
+      "file": "wa_briefs/030_COA  Reply to Response to Personal Restraint Petition.pdf",
+      "notes": "Very short reply; zero citations.",
+      "expect": {
+        "min_extracted_chars": 800,
+        "max_extracted_chars": 2000,
+        "exact_citation_count": 0,
+        "exact_cluster_count": 0
+      }
+    },
+    {
+      "id": "wa_personal_restraint_petition_032",
+      "file": "wa_briefs/032_COA  Personal Restraint Petition.pdf",
+      "notes": "Petition body without standard reporter cites in extractable text (~8.5k chars, 0 pipeline cites). Tight char band catches silent extraction loss.",
+      "expect": {
+        "min_extracted_chars": 7500,
+        "max_extracted_chars": 9500,
+        "exact_citation_count": 0,
+        "exact_cluster_count": 0
+      }
+    }
+  ]
+}

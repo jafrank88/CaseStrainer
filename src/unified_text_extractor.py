@@ -22,6 +22,10 @@ logger = logging.getLogger(__name__)
 # Extract timeout per format (seconds)
 EXTRACTION_TIMEOUT = 30
 
+# If PyMuPDF clipped text is shorter than this, try full-page PyMuPDF plus PyPDF2 / robust extractors
+# and keep the longest result (helps briefs where the header/footer crop removes real body text).
+PDF_LOW_YIELD_CHAR_THRESHOLD = 2500
+
 # Cache for processed content
 _content_cache = {}
 _cache_ttl = 3600  # 1 hour
@@ -74,7 +78,7 @@ class UnifiedTextExtractor:
         """Initialize PDF extraction capabilities."""
         self.has_pymupdf = self._check_import("fitz")
         self.has_pypdf2 = self._check_import("PyPDF2")
-        self.has_robust_extractor = self._check_import("robust_pdf_extractor")
+        self.has_robust_extractor = self._check_import("src.robust_pdf_extractor")
 
         if self.verbose:
             logger.info(
@@ -255,9 +259,10 @@ class UnifiedTextExtractor:
 
     def _extract_pdf_enhanced(self, file_path: str) -> Tuple[str, str]:
         """Extract text from PDF using multiple methods with fallbacks."""
-        methods_tried = []
+        methods_tried: list[str] = []
+        candidates: list[Tuple[str, str]] = []
 
-        # Method 1: PyMuPDF (fitz) - Preferred for quality and speed
+        # Method 1: PyMuPDF (fitz) — clipped body region; optional full-page pass when yield is low
         if self.has_pymupdf:
             try:
                 import fitz  # PyMuPDF
@@ -265,36 +270,47 @@ class UnifiedTextExtractor:
                 doc = fitz.open(file_path)
                 text_parts = []
 
-                # CRITICAL FIX: Extract ALL pages, not just first 5
                 for page_num in range(len(doc)):
                     page = doc[page_num]
-
-                    # Get page dimensions
                     rect = page.rect
                     width, height = rect.width, rect.height
-
-                    # Define text area (exclude headers and footers)
                     text_area = fitz.Rect(0, 65, width, height - 50)
-
-                    # Extract text from defined area
                     text = page.get_text("text", clip=text_area)
-
                     if text.strip():
                         text_parts.append(text)
 
-                doc.close()
-                pymupdf_text = "\n".join(text_parts)
+                clipped = "\n".join(text_parts)
 
-                if pymupdf_text and len(pymupdf_text.strip()) > 100:
+                if len(clipped.strip()) > 100 and len(clipped.strip()) >= PDF_LOW_YIELD_CHAR_THRESHOLD:
+                    doc.close()
                     methods_tried.append("PyMuPDF")
-                    return pymupdf_text, "pdf:pymupdf"
+                    return clipped, "pdf:pymupdf"
+
+                text_parts_full: list[str] = []
+                for page_num in range(len(doc)):
+                    page = doc[page_num]
+                    t = page.get_text("text")
+                    if t.strip():
+                        text_parts_full.append(t)
+                doc.close()
+
+                fullpage = "\n".join(text_parts_full)
+                best_mu, best_mu_tag = clipped, "pdf:pymupdf"
+                if len(fullpage.strip()) > len(clipped.strip()):
+                    best_mu, best_mu_tag = fullpage, "pdf:pymupdf_fullpage"
+
+                methods_tried.append("PyMuPDF")
+                if len(best_mu.strip()) > 100:
+                    if len(best_mu.strip()) >= PDF_LOW_YIELD_CHAR_THRESHOLD:
+                        return best_mu, best_mu_tag
+                    candidates.append((best_mu, best_mu_tag))
 
             except Exception as e:
                 if self.verbose:
                     logger.warning(f"PyMuPDF extraction failed: {e}")
                 methods_tried.append("PyMuPDF(failed)")
 
-        # Method 2: PyPDF2 - Reliable fallback
+        # Method 2: PyPDF2 — compare when PyMuPDF yield was low or failed
         if self.has_pypdf2:
             try:
                 import PyPDF2
@@ -302,8 +318,6 @@ class UnifiedTextExtractor:
                 with open(file_path, "rb") as file:
                     reader = PyPDF2.PdfReader(file)
                     text_parts = []
-
-                    # CRITICAL FIX: Extract ALL pages, not just first 5
                     for page in reader.pages:
                         text = page.extract_text()
                         if text.strip():
@@ -313,14 +327,14 @@ class UnifiedTextExtractor:
 
                 if pypdf2_text and len(pypdf2_text.strip()) > 100:
                     methods_tried.append("PyPDF2")
-                    return pypdf2_text, "pdf:pypdf2"
+                    candidates.append((pypdf2_text, "pdf:pypdf2"))
 
             except Exception as e:
                 if self.verbose:
                     logger.warning(f"PyPDF2 extraction failed: {e}")
                 methods_tried.append("PyPDF2(failed)")
 
-        # Method 3: RobustPDFExtractor - Final fallback
+        # Method 3: RobustPDFExtractor — multi-library chain
         if self.has_robust_extractor:
             try:
                 from src.robust_pdf_extractor import extract_pdf_text_robust
@@ -329,12 +343,16 @@ class UnifiedTextExtractor:
 
                 if text and len(text.strip()) > 100:
                     methods_tried.append(f"Robust({library})")
-                    return text, f"pdf:robust_{library}"
+                    candidates.append((text, f"pdf:robust_{library}"))
 
             except Exception as e:
                 if self.verbose:
                     logger.warning(f"RobustPDFExtractor failed: {e}")
                 methods_tried.append("Robust(failed)")
+
+        if candidates:
+            best_text, best_method = max(candidates, key=lambda x: len(x[0].strip()))
+            return best_text, best_method
 
         logger.error(f"[ERROR] All PDF extraction methods failed: {', '.join(methods_tried)}")
         return "", "pdf:all_methods_failed"

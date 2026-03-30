@@ -3069,7 +3069,17 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
 
                     if clusters_list:
                         try:
-                            from src.utils.response_enrichment import promote_parallel_siblings_in_clusters
+                            from src.utils.response_enrichment import (
+                                promote_parallel_siblings_in_clusters,
+                                split_clusters_cross_case_contamination,
+                            )
+
+                            before_cc = len(clusters_list)
+                            clusters_list = split_clusters_cross_case_contamination(clusters_list)
+                            if len(clusters_list) != before_cc:
+                                logger.info(
+                                    f"[TASK:{task_id}] Cross-case cluster split: {before_cc} -> {len(clusters_list)} clusters"
+                                )
 
                             _npp = promote_parallel_siblings_in_clusters(clusters_list, citations_list)
                             if _npp:
@@ -3650,7 +3660,17 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
 
             if clusters:
                 try:
-                    from src.utils.response_enrichment import promote_parallel_siblings_in_clusters
+                    from src.utils.response_enrichment import (
+                        promote_parallel_siblings_in_clusters,
+                        split_clusters_cross_case_contamination,
+                    )
+
+                    before_cc = len(clusters)
+                    clusters = split_clusters_cross_case_contamination(clusters)
+                    if len(clusters) != before_cc:
+                        logger.info(
+                            f"[TASK:{task_id}] File-path cross-case split: {before_cc} -> {len(clusters)} clusters"
+                        )
 
                     _npp = promote_parallel_siblings_in_clusters(clusters, citations)
                     if _npp:

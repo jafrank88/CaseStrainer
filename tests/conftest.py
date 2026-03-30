@@ -44,6 +44,12 @@ collect_ignore = [
     str(_TESTS_DIR / "extraction_comparison.py"),
 ]
 
+# Optional corpus: PDFs in downloaded_briefs/ (gitignored). Omit from collection unless opted in
+# so clone-and-pytest and GitHub Actions never need that folder.
+_dl_brief_env = os.environ.get("CASSTRAINER_DOWNLOADED_BRIEF_TESTS", "").strip().lower()
+if _dl_brief_env not in ("1", "true", "yes"):
+    collect_ignore.append(str(_TESTS_DIR / "test_downloaded_briefs_optional.py"))
+
 # Ensure project root is on path so "src" imports work
 ROOT = str(_TESTS_DIR.parent)
 if ROOT not in sys.path:

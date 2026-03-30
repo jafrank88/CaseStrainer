@@ -33,6 +33,10 @@ uploads/
 wa_briefs/
 wa_briefs_text/
 downloaded_briefs/
+# Local fetches from scripts/fetch_osg_supreme_court_brief_index.py
+data/justice_osg/
+# Golden manifest + pipeline dumps (scripts/brief_goldens.py)
+data/brief_goldens/
 sample_briefs/
 reports/
 word_addin/
@@ -108,6 +112,13 @@ test_*.json
 *_clusters.json
 production_*.json
 last_test_citations.json
+# Accidental native build outputs under tests/
+tests/test.exe
+tests/test.obj
+tests/test.cpp
+# Editor/backup copies with trailing dot (not normal *.backup)
+*.backup.
+
 # Test data files
 test_*.txt
 *_test.txt

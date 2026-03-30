@@ -1,0 +1,49 @@
+"""Unit tests for brief golden expectation matching (no PDF I/O)."""
+
+from __future__ import annotations
+
+from src.utils.brief_golden_expectations import verify_expectation
+
+
+def test_verify_citation_count_and_required_substrings():
+    errs = verify_expectation(
+        {
+            "min_citations": 2,
+            "citation_substrings_required": ["U.S."],
+            "citation_substrings_forbidden": ["9999"],
+        },
+        text_length=1000,
+        citations=[{"citation": "410 U.S. 113"}, {"citation": "505 U.S. 100"}],
+        clusters=[{"citations": [{"citation": "410 U.S. 113"}]}],
+    )
+    assert errs == []
+
+
+def test_verify_fails_missing_substring():
+    errs = verify_expectation(
+        {"citation_substrings_required": ["WL"]},
+        text_length=5000,
+        citations=[{"citation": "410 U.S. 113"}],
+        clusters=[],
+    )
+    assert any("WL" in e for e in errs)
+
+
+def test_verify_cluster_rule_case_name():
+    clusters = [
+        {
+            "cluster_case_name": "Foo v. Bar",
+            "citations": [{"citation": "593 U.S. 155", "extracted_case_name": "Foo v. Bar"}],
+        }
+    ]
+    errs = verify_expectation(
+        {
+            "cluster_rules": [
+                {"case_name_contains": "Foo", "any_citation_contains": ["593 U.S.", "155"]}
+            ]
+        },
+        text_length=100,
+        citations=[{"citation": "593 U.S. 155"}],
+        clusters=clusters,
+    )
+    assert errs == []

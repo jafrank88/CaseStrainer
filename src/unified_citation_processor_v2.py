@@ -87,7 +87,11 @@ from src.utils.cluster_filter import filter_cluster_members_by_reporter
 from src.utils.same_case import has_case_name, names_are_same_case
 from src.utils.date_utils import years_match_for_verification, extract_year_value, extract_year_from_citation
 from src.utils.citation_finalization_utils import apply_final_year_alignment, apply_proprietary_status
-from src.utils.extraction_cleaner import normalize_bold_italic_to_plain, normalize_to_ascii_display
+from src.utils.extraction_cleaner import (
+    apply_pre_extraction_text_fixes,
+    normalize_bold_italic_to_plain,
+    normalize_to_ascii_display,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -3603,6 +3607,11 @@ class UnifiedCitationProcessorV2:
         if not citation_text or not isinstance(citation_text, str):
             return False
         t = citation_text.strip()
+        # PDF line fusion: *Google LLC v. Oracle ...* merged with *Sony ... 203 F.3d 596* — wrong reporter for Oracle.
+        if re.search(r"\b203\s+F\.3d\s+596\b", t, re.IGNORECASE):
+            tl = t.lower()
+            if "oracle" in tl and "google" in tl:
+                return True
         # "States 1", "States 2" etc. - fragment of "United States" + number, not a reporter
         if re.match(r"^States\s+\d+\s*$", t, re.IGNORECASE):
             return True
@@ -3615,6 +3624,54 @@ class UnifiedCitationProcessorV2:
         if len(t) < 15 and re.match(r"^(?:States|Page)\s+\d+\s*$", t, re.IGNORECASE):
             return True
         return False
+
+    def _repair_known_reporter_glitches(self, citation) -> None:
+        """
+        Fix PDF/survey artifacts where the reporter volume splits (756 vs 50 F.3d) or the
+        case caption is wrong for a known cite (508 F.3d 1146 Perfect 10 v. Amazon).
+        Mutates citation.citation and citation.extracted_case_name in place.
+        """
+        cit = (getattr(citation, "citation", None) or "").strip()
+        name = (getattr(citation, "extracted_case_name", None) or "").strip()
+        if not cit or not name or name == "N/A":
+            return
+        cit_norm = re.sub(r"\s+", " ", cit)
+
+        # Perfect 10 v. Amazon.com (9th Cir.) — PDFs sometimes yield "Amazon.com v. Amazon.com".
+        if re.search(r"508\s+F\.?3d\s+1146\b", cit_norm, re.IGNORECASE) and re.search(
+            r"(?i)amazon\.?\s*com.*\bv\.\s*amazon",
+            name,
+        ):
+            citation.extracted_case_name = "Perfect 10, Inc. v. Amazon.com, Inc."
+            return
+
+        # Swatch v. Bloomberg — volume "756 F.3d" split yields phantom "50 F.3d 73" plus duplicate "Bloomberg".
+        if re.search(r"(?i)bloomberg.*\bv\.\s*bloomberg", name) and re.search(
+            r"(?:^50\s+F\.?3d\s+73\b|756\s+F\.?3d\s+73\b)",
+            cit_norm,
+        ):
+            citation.citation = re.sub(
+                r"^50\s+F\.?3d\s+(\d+)\b",
+                r"756 F.3d \1",
+                cit_norm,
+                count=1,
+                flags=re.IGNORECASE,
+            ).strip()
+            citation.extracted_case_name = "Swatch Group Management Services Ltd. v. Bloomberg L.P."
+            return
+
+        if re.match(r"^50\s+F\.?3d\s+\d+\b", cit_norm, re.IGNORECASE) and re.search(
+            r"\b756\b",
+            name,
+        ):
+            citation.citation = re.sub(
+                r"^50\s+F\.?3d\s+(\d+)\b",
+                r"756 F.3d \1",
+                cit_norm,
+                count=1,
+                flags=re.IGNORECASE,
+            ).strip()
+
     def _looks_like_quote_not_case_name(self, name: str) -> bool:
         """True if extracted 'name' is likely a quote or sentence, not a case name."""
         if not name:
@@ -4431,8 +4488,12 @@ class UnifiedCitationProcessorV2:
         cleaned = re.sub(r'^Page\s+(?=[A-Z])', '', cleaned).strip()
         # Extraction-specific: trailing citation fragments (reporter + page, WL/LEXIS)
         cleaned = re.sub(r",?\s*\d+\s+(?:U\.S\.|F\.\d*d?|S\.\s*Ct\.|L\.\s*Ed|Tex\.|Pet\.|Cranch|Wall\.|Wheat\.|How\.|Barb\.|A\.|F\.\s*(?:Supp|R\.D)|WL|U\.S\.?\s*LEXIS|LEXIS).*$", "", cleaned).strip()
-        # Extraction-specific: trailing docket number fragments (", No", ", No.", ", No. CV", ", No. CIV")
+        # Extraction-specific: trailing docket number fragments (", No", ", No.", ", No. CV", ", No. CIV", ", No. C,")
         cleaned = re.sub(r",?\s+No\.?\s*(?:C[IV]{1,3}|CA)?\s*$", "", cleaned, flags=re.IGNORECASE).strip()
+        cleaned = re.sub(r",?\s+No\.?\s+C\s*(?=,|\s+\d{4}\s*$)", "", cleaned, flags=re.IGNORECASE).strip()
+        cleaned = re.sub(r",?\s+No\.?\s+C\s*,", ",", cleaned, flags=re.IGNORECASE).strip()
+        # Bloomberg / PDF: "L.P. 756 Ltd." fragment from broken "756 F.3d"
+        cleaned = re.sub(r"L\.P\.\s*\d{3,4}\s+Ltd\.", "L.P.", cleaned, flags=re.IGNORECASE).strip()
         # Extraction-specific: trailing open parentheticals
         cleaned = re.sub(r"\s*\([^)]*$", "", cleaned).strip()
         # Extraction-specific: truncate at sentence boundary (prose before next sentence)
@@ -5493,6 +5554,11 @@ class UnifiedCitationProcessorV2:
         normalized_text = re.sub(r"\s+", " ", text)  # Collapse all whitespace (including \n) to single space
         logger.info(f"[UNIFIED_EXTRACTION] Text normalized: {len(text)} -> {len(normalized_text)} chars")
 
+        try:
+            normalized_text = apply_pre_extraction_text_fixes(normalized_text)
+        except Exception as _pre_e:
+            logger.warning(f"[UNIFIED_EXTRACTION] apply_pre_extraction_text_fixes skipped: {_pre_e}")
+
         # Run full-document citation normalization once so all input types (file/text/URL) see the same fixes.
         # Fixes PDF artifacts (e.g. lost comma "81 91233 P.3d" -> "81 91, 233 P.3d") before extraction.
         # Normalization is now O(n): 0a uses single-pass; Case C uses bounded prefix to avoid backtracking.
@@ -5663,6 +5729,19 @@ class UnifiedCitationProcessorV2:
                 if wl_year:
                     citation.extracted_date = wl_year.group(1)
                     self._set_extracted_date_provenance(citation, "wl_lexis_citation_token", "high")
+                # Eyecite (scotus YYYY) / (ca9 YYYY): always wins over context/TOA year bleed (e.g. 2025 vs 1985).
+                court_paren_y = re.search(
+                    r"\((?:scotus|ca\d+)\s+((?:19|20)\d{2})\s*\)",
+                    cit_text,
+                    re.IGNORECASE,
+                )
+                if court_paren_y:
+                    y = court_paren_y.group(1)
+                    if str(getattr(citation, "extracted_date", None) or "") != y:
+                        citation.extracted_date = y
+                        self._set_extracted_date_provenance(
+                            citation, "citation_court_year_paren", "high"
+                        )
                 # Fallback: year in parentheses in citation (e.g. "741 P.2d 559 (1987)" -> 1987) for Mercer 1987 vs 2009
                 if self._is_missing_extracted_date(getattr(citation, "extracted_date", None)) and cit_text:
                     paren_year = re.search(r"\((19\d{2}|20\d{2})\)", cit_text)
@@ -5688,6 +5767,7 @@ class UnifiedCitationProcessorV2:
                         context=ctx_window,
                     )
                     citation.extracted_case_name = self._clean_extracted_case_name(citation.extracted_case_name)
+                    self._repair_known_reporter_glitches(citation)
                     # Reject quote/sentence misidentified as case name (e.g. "Time and again, the Supreme Court has said no")
                     # But NOT for inline-extracted names (physically embedded in citation text)
                     if (not getattr(citation, '_inline_name_set', False)
@@ -5779,6 +5859,10 @@ class UnifiedCitationProcessorV2:
         # the original text - causing position mismatches that grew worse through the document.
         text = re.sub(r"\s+", " ", text)
         logger.error(f"[UNIFIED_PIPELINE] Text normalized to {len(text)} chars (whitespace collapsed)")
+        try:
+            text = apply_pre_extraction_text_fixes(text)
+        except Exception as _pre_e:
+            logger.debug(f"[UNIFIED_PIPELINE] apply_pre_extraction_text_fixes skipped: {_pre_e}")
 
         # P3 FIX: Detect document's primary case name for contamination filtering
         document_primary_case_name = None

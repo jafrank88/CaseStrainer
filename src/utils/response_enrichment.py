@@ -5,7 +5,7 @@ citation score/similarity, and cluster_sections. Keeps vue_api_endpoints_updated
 
 import logging
 import re
-from typing import List, Dict, Any, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 from src.utils.verification_display_utils import (
     has_canonical_url,
     is_effectively_verified_citation,
@@ -432,6 +432,200 @@ def merge_clusters_by_shared_real_canonical_url(clusters: List[Dict[str, Any]]) 
     return [c for i, c in enumerate(clusters) if i not in to_remove and isinstance(c, dict)]
 
 
+def _strip_toa_case_label(name: str) -> str:
+    s = (name or "").strip()
+    s = re.sub(r"^TABLE\s+OF\s+AUTHORITIES\s+", "", s, flags=re.IGNORECASE).strip()
+    s = re.sub(r"^Federal\s+Cases\s+", "", s, flags=re.IGNORECASE).strip()
+    return s
+
+
+def _four_digit_year_from_val(val: Any) -> str:
+    s = str(val or "").strip()
+    m = re.search(r"\b(19\d{2}|20\d{2})\b", s)
+    return m.group(1) if m else ""
+
+
+def _citation_year_set_from_cluster(cl: Dict[str, Any]) -> set[str]:
+    ys: set[str] = set()
+    for c in cl.get("citations") or cl.get("citation_objects") or []:
+        if isinstance(c, dict):
+            y = _four_digit_year_from_val(c.get("extracted_date"))
+            if y:
+                ys.add(y)
+    return ys
+
+
+def _shared_citation_merge_blocked_by_case_year(
+    cl_i: Dict[str, Any],
+    cl_j: Dict[str, Any],
+    ni: str,
+    nj: str,
+) -> bool:
+    """Block shared-citation merge when year sets are disjoint (different decisions).
+
+    - Different extracted case names + disjoint years: different cases (e.g. Yates 2007 vs Terry 1968).
+    - Same-looking names + disjoint years: likely duplicate labels for different decisions; do not merge.
+    """
+    from src.utils.same_case import names_are_same_case, has_case_name
+
+    ni2, nj2 = _strip_toa_case_label(ni), _strip_toa_case_label(nj)
+    yi, yj = _citation_year_set_from_cluster(cl_i), _citation_year_set_from_cluster(cl_j)
+    if not yi or not yj or not yi.isdisjoint(yj):
+        return False
+    ha, hb = has_case_name(ni2), has_case_name(nj2)
+    if ha and hb and not names_are_same_case(ni2, nj2):
+        return True
+    if ha and hb and names_are_same_case(ni2, nj2):
+        return True
+    return False
+
+
+def _rebuild_cluster_from_subset(
+    base: Dict[str, Any],
+    subset: List[Dict[str, Any]],
+    split_idx: int,
+) -> Dict[str, Any]:
+    """Build a new cluster dict from a citation subset after cross-case split."""
+    from src.utils.same_case import has_case_name
+
+    base_id = str(base.get("cluster_id") or "cluster")
+    new_id = f"{base_id}_ccsplit_{split_idx}"
+    members: List[str] = []
+    for c in subset:
+        ct = str(c.get("citation") or "").strip()
+        if ct and ct not in members:
+            members.append(ct)
+    nc = dict(base)
+    nc["citations"] = subset
+    nc["citation_objects"] = subset
+    nc["cluster_members"] = members
+    nc["cluster_size"] = len(subset)
+    nc["cluster_id"] = new_id
+    prim = next(
+        (
+            c
+            for c in subset
+            if has_case_name(
+                _strip_toa_case_label(str(c.get("extracted_case_name") or c.get("case_name") or ""))
+            )
+        ),
+        subset[0],
+    )
+    ecn = _strip_toa_case_label(str(prim.get("extracted_case_name") or prim.get("case_name") or ""))
+    nc["extracted_case_name"] = ecn
+    nc["cluster_case_name"] = _strip_toa_case_label(str(prim.get("cluster_case_name") or ecn))
+    cy = _four_digit_year_from_val(prim.get("extracted_date") or prim.get("cluster_year"))
+    nc["cluster_year"] = cy or base.get("cluster_year")
+    nc["case_name"] = nc["cluster_case_name"]
+    nc["date"] = nc.get("cluster_year")
+    nc["verified"] = any(bool(c.get("verified")) for c in subset if isinstance(c, dict))
+    for c in subset:
+        c["cluster_id"] = new_id
+    return nc
+
+
+def split_clusters_cross_case_contamination(clusters: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """
+    Split clusters that incorrectly mix two+ distinct named cases (e.g. State v. Yates + Terry v. Ohio).
+
+    Uses only named anchors for equivalence: citations with ``extracted_case_name`` / ``case_name``
+    that pass :func:`has_case_name`. Unnamed rows attach to the nearest anchor by ``start_index``.
+    """
+    from collections import defaultdict
+
+    from src.utils.same_case import has_case_name, names_are_same_case
+
+    out: List[Dict[str, Any]] = []
+    for cl in clusters:
+        if not isinstance(cl, dict):
+            out.append(cl)
+            continue
+        cites = [c for c in (cl.get("citations") or cl.get("citation_objects") or []) if isinstance(c, dict)]
+        if len(cites) < 2:
+            out.append(cl)
+            continue
+
+        def _nm(c: Dict[str, Any]) -> str:
+            return _strip_toa_case_label(str(c.get("extracted_case_name") or c.get("case_name") or ""))
+
+        named_idx = [i for i, c in enumerate(cites) if has_case_name(_nm(c))]
+        if len(named_idx) < 2:
+            out.append(cl)
+            continue
+
+        parent = {i: i for i in named_idx}
+
+        def find(x: int) -> int:
+            while parent[x] != x:
+                parent[x] = parent[parent[x]]
+                x = parent[x]
+            return x
+
+        def union(a: int, b: int) -> None:
+            ra, rb = find(a), find(b)
+            if ra != rb:
+                parent[rb] = ra
+
+        def named_pair_compatible(i: int, j: int) -> bool:
+            na, nb = _nm(cites[i]), _nm(cites[j])
+            if not names_are_same_case(na, nb):
+                return False
+            ya = _four_digit_year_from_val(cites[i].get("extracted_date"))
+            yb = _four_digit_year_from_val(cites[j].get("extracted_date"))
+            if ya and yb and ya != yb:
+                return False
+            return True
+
+        for ii, i in enumerate(named_idx):
+            for j in named_idx[ii + 1 :]:
+                if named_pair_compatible(i, j):
+                    union(i, j)
+
+        root_to_named: Dict[int, List[int]] = defaultdict(list)
+        for i in named_idx:
+            root_to_named[find(i)].append(i)
+
+        if len(root_to_named) <= 1:
+            out.append(cl)
+            continue
+
+        roots = list(root_to_named.keys())
+        root_for_index: Dict[int, int] = {}
+        for i in named_idx:
+            root_for_index[i] = find(i)
+
+        for k in range(len(cites)):
+            if k in root_for_index:
+                continue
+            pos_k = cites[k].get("start_index")
+            if pos_k is None:
+                pos_k = 0
+            best_root = min(
+                roots,
+                key=lambda r: min(
+                    abs((cites[ni].get("start_index") or 0) - pos_k) for ni in root_to_named[r]
+                ),
+            )
+            root_for_index[k] = best_root
+
+        buckets: Dict[int, List[int]] = defaultdict(list)
+        for idx in range(len(cites)):
+            buckets[root_for_index[idx]].append(idx)
+
+        logger.info(
+            "[CLUSTER-SPLIT-CC] Splitting %s: %d citations -> %d components",
+            cl.get("cluster_id"),
+            len(cites),
+            len(buckets),
+        )
+        for si, (_root, idxs) in enumerate(
+            sorted(buckets.items(), key=lambda x: min(cites[i].get("start_index") or 0 for i in x[1]))
+        ):
+            subset = [cites[i] for i in sorted(idxs, key=lambda ii: cites[ii].get("start_index") or 0)]
+            out.append(_rebuild_cluster_from_subset(cl, subset, si))
+    return out
+
+
 def merge_clusters_by_shared_citation(clusters: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
     Merge clusters that share any citation key, regardless of extracted name/year.
@@ -488,11 +682,18 @@ def merge_clusters_by_shared_citation(clusters: List[Dict[str, Any]]) -> List[Di
     for ii, i in enumerate(indices):
         for j in indices[ii + 1 :]:
             if key_sets[i] & key_sets[j]:
-                # Guard: don't merge clusters with clearly different case names
                 ni, nj = cluster_names.get(i, ""), cluster_names.get(j, "")
-                if has_case_name(ni) and has_case_name(nj) and not names_are_same_case(ni, nj):
+                ni_s, nj_s = _strip_toa_case_label(ni), _strip_toa_case_label(nj)
+                if _shared_citation_merge_blocked_by_case_year(clusters[i], clusters[j], ni, nj):
                     logger.debug(
-                        f"[SHARED-CIT-GUARD] Skipping merge: '{ni[:40]}' vs '{nj[:40]}' "
+                        "[SHARED-CIT-GUARD] Skipping merge: disjoint citation years (shared keys: %s)",
+                        key_sets[i] & key_sets[j],
+                    )
+                    continue
+                # Guard: don't merge clusters with clearly different case names
+                if has_case_name(ni_s) and has_case_name(nj_s) and not names_are_same_case(ni_s, nj_s):
+                    logger.debug(
+                        f"[SHARED-CIT-GUARD] Skipping merge: '{ni_s[:40]}' vs '{nj_s[:40]}' "
                         f"(shared keys: {key_sets[i] & key_sets[j]})"
                     )
                     continue

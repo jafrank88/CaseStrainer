@@ -56,12 +56,26 @@ def clean_extracted_case_name(case_name: str) -> str:
 
     name = case_name
 
+    # Brief TOA lines often prefix case names (e.g. "TABLE OF AUTHORITIES Federal Cases Chapman v. ...")
+    name = re.sub(r"^TABLE\s+OF\s+AUTHORITIES\s+", "", name, flags=re.IGNORECASE).strip()
+    name = re.sub(r"^Federal\s+Cases\s+", "", name, flags=re.IGNORECASE).strip()
+
     # Fix "Nat' Life" / "Nat' L" (split apostrophe) so expand_abbreviations can normalize Nat'l -> National
     name = re.sub(r"\bNat'\s+Life\b", "Nat'l Life", name, flags=re.IGNORECASE)
     name = re.sub(r"\bNat'\s+L\b", "Nat'l", name, flags=re.IGNORECASE)
 
     # Fix PDF/OCR accent corruption: "Garc A-Ayala" (í lost) -> "Garcia-Ayala" (ASCII for v. regex)
     name = re.sub(r"\bGarc\s+A\s*-\s*([A-Z][a-z]+)\b", r"Garcia-\1", name, flags=re.IGNORECASE)
+
+    # "A.V." split across PDF tokenization: "A v. Ex Rel. Vanderhye" -> "A.V. ex rel. Vanderhye"
+    name = re.sub(
+        r"^A\s+v\.\s+Ex\s+Rel\.\s+",
+        "A.V. ex rel. ",
+        name,
+        flags=re.IGNORECASE,
+    )
+    # Common publisher initialism mangled by lowercasing
+    name = re.sub(r"\bA&m\b", "A&M", name, flags=re.IGNORECASE)
 
     # Fix PDF line-break hyphenation (e.g., "Co- hens" -> "Cohens", "Vir- ginia" -> "Virginia")
     # Pattern: word fragment + hyphen/dash + whitespace(s) + lowercase continuation
@@ -234,7 +248,11 @@ def clean_extracted_case_name(case_name: str) -> str:
     ]
     for pattern in recent_year_patterns:
         name = re.sub(pattern, "", name, flags=re.IGNORECASE)
-    
+
+    # Truncated docket tail (PDF): ", No. C" with no case number before year/decision date
+    name = re.sub(r",\s*No\.?\s+C\s*$", "", name, flags=re.IGNORECASE).strip()
+    name = re.sub(r",\s*No\.?\s+C\s+(?=\d{4}\s*$)", ", ", name, flags=re.IGNORECASE).strip()
+
     # FINAL SAFEGUARD: If name still contains "2020" or similar, remove it aggressively
     # This handles edge cases where patterns didn't catch it (e.g., "Davis v. Federal Election Comm'n, 2020")
     if re.search(r"20[2-9]\d", name):

@@ -1831,7 +1831,17 @@ class UnifiedProcessingPipeline:
                 logger.warning(f"[PIPELINE] Post-split SCOTUS parallel merge skipped: {e_par}")
 
         try:
-            from src.utils.response_enrichment import promote_parallel_siblings_in_clusters
+            from src.utils.response_enrichment import (
+                promote_parallel_siblings_in_clusters,
+                split_clusters_cross_case_contamination,
+            )
+
+            before_cc = len(final_clusters)
+            final_clusters = split_clusters_cross_case_contamination(final_clusters)
+            if len(final_clusters) != before_cc:
+                logger.info(
+                    f"[PIPELINE] Cross-case cluster split: {before_cc} -> {len(final_clusters)} clusters"
+                )
 
             _npp = promote_parallel_siblings_in_clusters(final_clusters, citation_dicts)
             if _npp:

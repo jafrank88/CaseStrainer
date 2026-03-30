@@ -58,11 +58,11 @@ jobs:
         export PYTHONPATH="${PYTHONPATH}:${GITHUB_WORKSPACE}"
         echo "PYTHONPATH=${PYTHONPATH}" >> $GITHUB_ENV
 
-    - name: Run wolf regression tests (tests/)
+    - name: Regression gate (ci_regression.py)
       run: |
         export PYTHONPATH="${PYTHONPATH}:${GITHUB_WORKSPACE}"
         export CASSTRAINER_USE_TEST_REDIS=1
-        python -m pytest -c pytest-wolf.ini
+        python scripts/ci_regression.py
 
     - name: Run backend tests (src coverage)
       run: |

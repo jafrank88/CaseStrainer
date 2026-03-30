@@ -1065,3 +1065,74 @@ def test_submitted_display_name_upgrades_defendant_only():
     sdn = cluster.get("submitted_display_name", "")
     assert "Singh" in sdn, f"Expected 'Singh' in submitted_display_name, got: {sdn}"
     assert " v. " in sdn, f"Expected ' v. ' in submitted_display_name, got: {sdn}"
+
+
+def test_fix_pdf_domain_dot_spacing_unseen_layout():
+    from src.utils.extraction_cleaner import fix_pdf_domain_dot_spacing
+
+    assert "Amazon.com" in fix_pdf_domain_dot_spacing("Amazon. com Inc. v. Foo")
+    assert "Example.com" in fix_pdf_domain_dot_spacing("See Example. com for details")
+
+
+def test_fix_f3d_volume_comma_glitch_survey_pdf():
+    from src.utils.extraction_cleaner import fix_f3d_volume_comma_glitch
+
+    raw = "Ltd. v. Bloomberg L.P., 756, 50 F.3d 73 (ca2 2014)"
+    fixed = fix_f3d_volume_comma_glitch(raw)
+    assert "756 F.3d 73" in fixed
+    assert "756, 50 F.3d" not in fixed
+
+
+def test_noise_citation_fused_oracle_google_connectix_reporter():
+    from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2
+
+    p = UnifiedCitationProcessorV2()
+    assert p._is_noise_citation("Google LLC v. Oracle Am., 203 F.3d 596 (2021)")
+    assert not p._is_noise_citation("Sony Computer Entertainment, Inc. v. Connectix Corp., 203 F.3d 596 (2000)")
+
+
+def test_fix_pdf_titlecase_org_token_breaks():
+    from src.utils.extraction_cleaner import fix_pdf_titlecase_org_token_breaks
+
+    s = fix_pdf_titlecase_org_token_breaks(
+        "American Society for Testing and Materials v. Public. Resource. Org, Inc."
+    )
+    assert "Public.Resource.Org" in s.replace(" ", "")
+    assert "Public. Resource." not in s
+
+
+def test_repair_phantom_50_f3d_when_756_in_case_name():
+    from types import SimpleNamespace
+
+    from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2
+
+    p = UnifiedCitationProcessorV2()
+    c = SimpleNamespace(
+        citation="50 F.3d 73",
+        extracted_case_name="Bloomberg L. P. v. Bloomberg L. P., 756, 2014",
+    )
+    p._repair_known_reporter_glitches(c)
+    assert "756 F.3d 73" in c.citation
+    assert "Swatch" in c.extracted_case_name
+
+
+def test_repair_perfect_10_amazon_508_glitch():
+    from types import SimpleNamespace
+
+    from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2
+
+    p = UnifiedCitationProcessorV2()
+    c = SimpleNamespace(
+        citation="508 F.3d 1146",
+        extracted_case_name="Amazon. com Inc. Inc. v. Amazon. com, Inc, 2007",
+    )
+    p._repair_known_reporter_glitches(c)
+    assert "Perfect 10" in c.extracted_case_name
+
+
+def test_case_name_cleaner_bartz_no_c_and_av_ex_rel():
+    from src.utils.case_name_cleaner import clean_extracted_case_name
+
+    assert "No. C" not in clean_extracted_case_name("Bartz v. Anthropic Pbc, No. C, 2025")
+    assert "A.V. ex rel." in clean_extracted_case_name("A v. Ex Rel. Vanderhye v. Iparadigms, LLC, 2009")
+    assert "A&M" in clean_extracted_case_name("A&m Records, Inc. v. Napster, Inc, 2001")
