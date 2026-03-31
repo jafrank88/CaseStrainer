@@ -12,6 +12,7 @@ from pathlib import Path
 # Shell or .env may set REDIS_URL to casestrainer-redis-prod (Docker network only). Tests use the
 # same code paths as wolf; Redis must resolve on the machine running pytest. Set
 # CASSTRAINER_USE_TEST_REDIS=0 to skip forcing these values.
+# If nothing listens on 127.0.0.1:6379, progress falls back to in-memory (see SSEProgressManager ping).
 def _apply_test_redis_env() -> None:
     v = os.environ.get("CASSTRAINER_USE_TEST_REDIS", "1").strip().lower()
     if v in ("0", "false", "no", "off"):
@@ -49,6 +50,14 @@ collect_ignore = [
 _dl_brief_env = os.environ.get("CASSTRAINER_DOWNLOADED_BRIEF_TESTS", "").strip().lower()
 if _dl_brief_env not in ("1", "true", "yes"):
     collect_ignore.append(str(_TESTS_DIR / "test_downloaded_briefs_optional.py"))
+
+_naag_env = os.environ.get("CASSTRAINER_NAAG_AMICUS_TESTS", "").strip().lower()
+if _naag_env not in ("1", "true", "yes"):
+    collect_ignore.append(str(_TESTS_DIR / "test_naag_amicus_optional.py"))
+
+_naag_verify_env = os.environ.get("CASSTRAINER_NAAG_VERIFY_TESTS", "").strip().lower()
+if _naag_verify_env not in ("1", "true", "yes"):
+    collect_ignore.append(str(_TESTS_DIR / "test_naag_verification_optional.py"))
 
 # Ensure project root is on path so "src" imports work
 ROOT = str(_TESTS_DIR.parent)

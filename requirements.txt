@@ -131,6 +131,7 @@ python-dotenv==1.1.0
 python-Levenshtein==0.27.1
 python-magic==0.4.27
 pytz==2025.2
+pytesseract==0.3.13
 PyYAML==6.0.2
 RapidFuzz==3.13.0
 redis==6.2.0

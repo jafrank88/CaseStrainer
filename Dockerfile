@@ -22,6 +22,7 @@ RUN apt-get update && apt-get install -y \
     curl \
     git \
     libmagic1 \
+    tesseract-ocr \
     && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user

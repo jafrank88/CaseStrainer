@@ -144,6 +144,11 @@ class CitationService:
 
                 text, method = extract_text_from_file_unified(file_path, verbose=False)
                 text = text or ""
+                if method == "pdf:needs_ocr":
+                    logger.error(
+                        f"[CitationService] PDF text layer unreadable; OCR required for: {file_path}"
+                    )
+                    return None
 
                 # CRITICAL FIX: Apply text normalization to fix broken citations
                 # This fixes line breaks in citations like "200\nU. S. 321" -> "200 U. S. 321"

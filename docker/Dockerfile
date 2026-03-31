@@ -14,6 +14,7 @@ RUN apt-get update && apt-get install -y \
     gcc \
     curl \
     git \
+    tesseract-ocr \
     && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user first

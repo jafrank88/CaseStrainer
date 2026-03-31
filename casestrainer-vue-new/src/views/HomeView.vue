@@ -549,6 +549,28 @@ const normalizeProgressMessage = (rawStep, jobData) => {
   const text = (rawStep || '').toString().trim();
   if (!text) return 'Processing...';
 
+  const isPdfRun =
+    (globalProgressStore?.progressState?.uploadType === 'file') &&
+    (globalProgressStore?.progressState?.uploadData?.name || '')
+      .toString()
+      .toLowerCase()
+      .endsWith('.pdf');
+
+  const withOcrHint = (base) => {
+    if (!isPdfRun) return base;
+    if (!base) return base;
+    if (/\bocr\b/i.test(base)) return base;
+    return `${base} (scanned/broken-text PDFs may require OCR and can take a few minutes)`;
+  };
+
+  // Make "queued" and early extraction phases more self-explanatory for PDFs.
+  if (/queued for background processing/i.test(text) || /^task queued/i.test(text)) {
+    return withOcrHint(text);
+  }
+  if (/extracting/i.test(text) && /pdf|text/i.test(text)) {
+    return withOcrHint(text);
+  }
+
   const m = text.match(/\b(\d+)\s+completed\b/i);
   if (!m) return text;
 
@@ -1118,20 +1140,31 @@ const pollAsyncJob = async (jobId) => {
         // Only trigger stuck detection if we have meaningful progress data
         // Don't trigger if currentStep is still "Initializing..." (might be normal for large docs)
         if (currentStep !== 'Initializing...' && currentStep !== 'Unknown' && isProgressStuck) {
-          // Increase threshold to 3 minutes for large documents
-          if (timeStuck > 180000) { // 3 minutes instead of 2
+          const isPdfUpload =
+            (globalProgress.progressState.uploadType === 'file') &&
+            (globalProgress.progressState.uploadData?.name || '')
+              .toString()
+              .toLowerCase()
+              .endsWith('.pdf');
+          const isOcrLikelyStep = /ocr|extracting|pdf|text extraction/i.test(currentStep || '');
+          // OCR/extraction can legitimately take longer without intermediate progress.
+          const stuckThresholdMs = (isPdfUpload && isOcrLikelyStep) ? 8 * 60 * 1000 : 3 * 60 * 1000;
+          if (timeStuck > stuckThresholdMs) {
             console.error(`Job appears stuck at "${currentStep}" for ${Math.round(timeStuck/1000)}s`);
             console.error('Job may be waiting in queue or encountered an issue');
             
             // More helpful error message
             if (currentProgress === 0 && citationsProcessed === 0) {
-              globalProgress.setError(`Processing appears to be queued. The job may be waiting behind other tasks. Please wait a moment or try again later.`);
+              const ocrHint = isPdfUpload ? ' If this is a scanned/broken-text PDF, OCR can take a few minutes.' : '';
+              globalProgress.setError(`Processing appears to be queued. The job may be waiting behind other tasks.${ocrHint} Please wait a moment or try again later.`);
             } else if (citationsProcessed > 0 && citationsProcessed < totalCitations) {
               // Show progress-based message when citations are being processed
               const progressPct = totalCitations > 0 ? Math.round((citationsProcessed / totalCitations) * 100) : currentProgress;
-              globalProgress.setError(`Processing appears stuck at "${currentStep}" (${progressPct}% complete, ${citationsProcessed}/${totalCitations} citations). The job may be processing a large document or encountering delays. Please wait or try again later.`);
+              const ocrHint = (isPdfUpload && isOcrLikelyStep) ? ' OCR/extraction can take several minutes for scanned PDFs.' : '';
+              globalProgress.setError(`Processing appears stuck at "${currentStep}" (${progressPct}% complete, ${citationsProcessed}/${totalCitations} citations).${ocrHint} The job may be processing a large document or encountering delays. Please wait or try again later.`);
             } else {
-              globalProgress.setError(`Processing appears stuck at "${currentStep}" (${Math.round(currentProgress)}% complete). The job may be queued or processing a large document. Please wait or try again later.`);
+              const ocrHint = (isPdfUpload && isOcrLikelyStep) ? ' OCR/extraction can take several minutes for scanned PDFs.' : '';
+              globalProgress.setError(`Processing appears stuck at "${currentStep}" (${Math.round(currentProgress)}% complete).${ocrHint} The job may be queued or processing a large document. Please wait or try again later.`);
             }
             throw new Error(`Job stuck at ${currentStep}`);
           }
@@ -1859,7 +1892,13 @@ const analyzeContent = async () => {
       if (!globalProgress.progressState.isActive || !globalProgress.progressState.startTime) {
         globalProgress.progressState.isActive = true;
         globalProgress.progressState.startTime = Date.now();
-        globalProgress.progressState.estimatedTotalTime = 300; // 5 minutes for async tasks
+      const isPdf =
+        (globalProgress.progressState.uploadType === 'file') &&
+        (globalProgress.progressState.uploadData?.name || '')
+          .toString()
+          .toLowerCase()
+          .endsWith('.pdf');
+      globalProgress.progressState.estimatedTotalTime = isPdf ? 600 : 300; // PDFs can OCR: allow longer ETA
       }
       
       globalProgress.progressState.taskId = response.task_id;
@@ -1909,7 +1948,12 @@ const analyzeContent = async () => {
       asyncTaskProgress.value = {
         taskId: response.task_id,
         status: 'queued',
-        message: response.message || 'Task queued and waiting to be processed'
+      message:
+        response.message ||
+        ((globalProgress.progressState.uploadType === 'file' &&
+          (globalProgress.progressState.uploadData?.name || '').toString().toLowerCase().endsWith('.pdf'))
+          ? 'Task queued. Scanned/broken-text PDFs may require OCR and can take a few minutes.'
+          : 'Task queued and waiting to be processed')
       };
       
       // Mark that we're in async processing mode to prevent early spinner reset

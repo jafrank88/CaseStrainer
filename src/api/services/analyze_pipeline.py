@@ -1200,23 +1200,33 @@ def _handle_file_upload(service, request_id):
             logger.info(f"[File Upload {request_id}] File size: {file_size} bytes")
             logger.info(f"[File Upload {request_id}] Input data: {input_data}")
 
-            # Extract text from file and determine processing mode
-            text = citation_service.extract_text_from_input(input_data)
-            if text is None:
-                logger.error(f"[File Upload {request_id}] Failed to extract text from file")
-                return {
-                    "error": "Failed to extract text from file",
-                    "details": "The file could not be processed. Please ensure it contains readable text.",
-                    "citations": [],
-                    "clusters": [],
-                    "request_id": request_id,
-                    "success": False,
-                    "metadata": {},
-                }
+            # IMPORTANT: When force_mode=async, do NOT synchronously extract text here.
+            # OCR-based PDF extraction can take tens of seconds and would block the initial /analyze response,
+            # defeating the purpose of async mode. The worker will perform extraction/verification.
+            text = ""
+            if str(force_mode or "").strip().lower() != "async":
+                text = citation_service.extract_text_from_input(input_data)
+                if text is None:
+                    logger.error(f"[File Upload {request_id}] Failed to extract text from file")
+                    return {
+                        "error": "Failed to extract text from file",
+                        "details": (
+                            "The file could not be processed. If this is a PDF, it may require OCR (scanned PDF or "
+                            "broken text encoding). Enable OCR or upload a text-searchable PDF."
+                        ),
+                        "citations": [],
+                        "clusters": [],
+                        "request_id": request_id,
+                        "success": False,
+                        "metadata": {},
+                    }
 
             # Use the service to determine processing mode based on extracted text size
             should_process_immediately = False  # Force async for all files to test progress updates
-            logger.info(f"[File Upload {request_id}] Extracted {len(text)} chars of text")
+            if text:
+                logger.info(f"[File Upload {request_id}] Extracted {len(text)} chars of text")
+            else:
+                logger.info(f"[File Upload {request_id}] Skipping synchronous extraction (force_mode=async)")
             logger.info(
                 f"[File Upload {request_id}] should_process_immediately returned: {should_process_immediately} (True=sync, False=async)"
             )
@@ -1247,7 +1257,12 @@ def _handle_file_upload(service, request_id):
 
                     sse_mgr = get_progress_manager()
                     sse_mgr.active_tasks[request_id] = SSETracker(request_id, total_steps=100)
-                    sse_mgr.update_progress(request_id, 10, "queued", "Queued for background processing")
+                    queued_msg = "Queued for background processing"
+                    if str(filename or "").lower().endswith(".pdf"):
+                        queued_msg = (
+                            "Queued for background processing (scanned/broken-text PDFs may require OCR and can take a few minutes)"
+                        )
+                    sse_mgr.update_progress(request_id, 10, "queued", queued_msg)
 
                     def _file_async_hb_and_watch():
                         try:
@@ -1308,10 +1323,16 @@ def _handle_file_upload(service, request_id):
                 except Exception as _e:
                     logger.warning(f"[File Upload {request_id}] Could not register verification immediately: {_e}")
 
+                response_msg = "File processing started"
+                if str(filename or "").lower().endswith(".pdf"):
+                    response_msg = (
+                        "File processing started. If this PDF is scanned or has broken text encoding, OCR may be needed and can take a few minutes."
+                    )
+
                 return {
                     "task_id": request_id,
                     "status": "processing",
-                    "message": "File processing started",
+                    "message": response_msg,
                     "request_id": request_id,
                     "success": True,
                     "citations": [],

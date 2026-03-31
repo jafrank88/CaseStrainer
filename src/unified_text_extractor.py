@@ -79,11 +79,113 @@ class UnifiedTextExtractor:
         self.has_pymupdf = self._check_import("fitz")
         self.has_pypdf2 = self._check_import("PyPDF2")
         self.has_robust_extractor = self._check_import("src.robust_pdf_extractor")
+        # OCR is optional; we render pages with PyMuPDF and OCR with pytesseract when enabled.
+        self.has_pytesseract = self._check_import("pytesseract")
 
         if self.verbose:
             logger.info(
-                f"PDF extraction capabilities: PyMuPDF={self.has_pymupdf}, PyPDF2={self.has_pypdf2}, Robust={self.has_robust_extractor}"
+                f"PDF extraction capabilities: PyMuPDF={self.has_pymupdf}, PyPDF2={self.has_pypdf2}, "
+                f"Robust={self.has_robust_extractor}, OCR(pytesseract)={self.has_pytesseract}"
             )
+
+    def _ocr_enabled(self) -> bool:
+        """Enable OCR via env flag to avoid surprising performance costs in production."""
+        v = os.environ.get("CASESTRAINER_ENABLE_OCR", "0").strip().lower()
+        return v in ("1", "true", "yes", "on")
+
+    def _pdf_text_looks_unusable(self, text: str) -> bool:
+        """
+        Detect "text-but-unreadable" PDFs (broken ToUnicode / CID garbage).
+        These often render fine visually, but extraction yields control chars / glyph IDs.
+        """
+        if not text:
+            return True
+        s = str(text)
+        # Heuristics: very low alphabetic+space density, or high control/non-printable ratio.
+        total = max(1, len(s))
+        alpha = sum(ch.isalpha() for ch in s)
+        spaces = s.count(" ")
+        printable = sum(ch.isprintable() for ch in s)
+        alpha_space_ratio = (alpha + spaces) / total
+        nonprint_ratio = 1.0 - (printable / total)
+        # PDFs with broken encoding often yield mostly uppercase/digits/punct with almost no lowercase words.
+        lower = sum(ch.islower() for ch in s)
+        lower_ratio = lower / total
+        # pdfminer-style CID artifacts
+        if "(cid:" in s:
+            return True
+        # If almost no lowercase and no common word-like tokens, treat as unusable.
+        if lower_ratio < 0.02:
+            common_hits = 0
+            sl = s.lower()
+            for tok in (" the ", " and ", " of ", " in ", " court ", " petitioner ", " respondent "):
+                if tok in sl:
+                    common_hits += 1
+            if common_hits == 0:
+                return True
+        return alpha_space_ratio < 0.55 or nonprint_ratio > 0.10
+
+    def _extract_pdf_with_ocr(self, file_path: str) -> Tuple[str, str]:
+        """OCR a PDF by rendering pages via PyMuPDF and running Tesseract."""
+        if not (self.has_pymupdf and self.has_pytesseract):
+            return "", "pdf:ocr_unavailable"
+        if not self._ocr_enabled():
+            return "", "pdf:ocr_disabled"
+
+        try:
+            import fitz  # type: ignore
+            import pytesseract  # type: ignore
+            import pytesseract.pytesseract as pt  # type: ignore
+            from PIL import Image  # type: ignore
+        except Exception as e:
+            if self.verbose:
+                logger.warning(f"OCR imports unavailable: {e}")
+            return "", "pdf:ocr_import_error"
+
+        # Ensure pytesseract can locate tesseract.exe on Windows even if PATH wasn't updated.
+        # Prefer explicit env override; otherwise probe common install locations.
+        try:
+            if not getattr(pt, "tesseract_cmd", ""):
+                pt.tesseract_cmd = "tesseract"
+            # If "tesseract" isn't on PATH, set absolute path when present.
+            import shutil
+            if not shutil.which("tesseract"):
+                candidates = [
+                    os.environ.get("TESSERACT_CMD", "").strip(),
+                    r"C:\Program Files\Tesseract-OCR\tesseract.exe",
+                    r"C:\Program Files (x86)\Tesseract-OCR\tesseract.exe",
+                ]
+                for c in candidates:
+                    if c and os.path.exists(c):
+                        pt.tesseract_cmd = c
+                        break
+        except Exception:
+            pass
+
+        max_pages = int(os.environ.get("CASESTRAINER_OCR_MAX_PAGES", "30") or "30")
+        scale = float(os.environ.get("CASESTRAINER_OCR_SCALE", "2.0") or "2.0")
+
+        try:
+            doc = fitz.open(file_path)
+            out_parts: list[str] = []
+            pages = min(len(doc), max_pages)
+            if self.verbose:
+                logger.info(f"[OCR] Running Tesseract on {pages}/{len(doc)} pages (scale={scale})")
+            mat = fitz.Matrix(scale, scale)
+            for i in range(pages):
+                page = doc.load_page(i)
+                pix = page.get_pixmap(matrix=mat, colorspace=fitz.csRGB, alpha=False)
+                img = Image.frombytes("RGB", (pix.width, pix.height), pix.samples)
+                txt = pytesseract.image_to_string(img)
+                if txt and txt.strip():
+                    out_parts.append(txt)
+            doc.close()
+            text = "\n".join(out_parts)
+            return text, "pdf:ocr_pymupdf_tesseract"
+        except Exception as e:
+            if self.verbose:
+                logger.warning(f"[OCR] OCR failed: {e}")
+            return "", "pdf:ocr_error"
 
     def _get_cache_key(self, file_path: str) -> str:
         """Generate cache key for file."""
@@ -250,6 +352,9 @@ class UnifiedTextExtractor:
                 return text, method
             else:
                 logger.warning(f"[WARNING] Insufficient text extracted from {ext}: {len(text) if text else 0} chars")
+                # Preserve actionable PDF diagnostics (e.g. "pdf:needs_ocr") instead of collapsing to "insufficient_text".
+                if ext == "pdf" and method == "pdf:needs_ocr":
+                    return "", method
                 return "", f"{ext}:insufficient_text"
 
         except Exception as e:
@@ -265,7 +370,7 @@ class UnifiedTextExtractor:
         # Method 1: PyMuPDF (fitz) — clipped body region; optional full-page pass when yield is low
         if self.has_pymupdf:
             try:
-                import fitz  # PyMuPDF
+                import fitz  # type: ignore[import-not-found]  # PyMuPDF
 
                 doc = fitz.open(file_path)
                 text_parts = []
@@ -284,6 +389,11 @@ class UnifiedTextExtractor:
                 if len(clipped.strip()) > 100 and len(clipped.strip()) >= PDF_LOW_YIELD_CHAR_THRESHOLD:
                     doc.close()
                     methods_tried.append("PyMuPDF")
+                    if self._pdf_text_looks_unusable(clipped):
+                        ocr_text, ocr_method = self._extract_pdf_with_ocr(file_path)
+                        if ocr_text and len(ocr_text.strip()) > 100 and not self._pdf_text_looks_unusable(ocr_text):
+                            return ocr_text, ocr_method
+                        return "", "pdf:needs_ocr"
                     return clipped, "pdf:pymupdf"
 
                 text_parts_full: list[str] = []
@@ -302,6 +412,11 @@ class UnifiedTextExtractor:
                 methods_tried.append("PyMuPDF")
                 if len(best_mu.strip()) > 100:
                     if len(best_mu.strip()) >= PDF_LOW_YIELD_CHAR_THRESHOLD:
+                        if self._pdf_text_looks_unusable(best_mu):
+                            ocr_text, ocr_method = self._extract_pdf_with_ocr(file_path)
+                            if ocr_text and len(ocr_text.strip()) > 100 and not self._pdf_text_looks_unusable(ocr_text):
+                                return ocr_text, ocr_method
+                            return "", "pdf:needs_ocr"
                         return best_mu, best_mu_tag
                     candidates.append((best_mu, best_mu_tag))
 
@@ -352,9 +467,24 @@ class UnifiedTextExtractor:
 
         if candidates:
             best_text, best_method = max(candidates, key=lambda x: len(x[0].strip()))
+            # If the "best" extracted text is garbled/unusable, try OCR (optional) before giving up.
+            if self._pdf_text_looks_unusable(best_text):
+                ocr_text, ocr_method = self._extract_pdf_with_ocr(file_path)
+                if ocr_text and len(ocr_text.strip()) > 100 and not self._pdf_text_looks_unusable(ocr_text):
+                    return ocr_text, ocr_method
+                # If OCR isn't available/enabled or didn't improve the result, fail fast with a clear method tag.
+                return "", "pdf:needs_ocr"
             return best_text, best_method
 
+        # No candidates at all: optionally try OCR as a last resort.
+        ocr_text, ocr_method = self._extract_pdf_with_ocr(file_path)
+        if ocr_text and len(ocr_text.strip()) > 100 and not self._pdf_text_looks_unusable(ocr_text):
+            return ocr_text, ocr_method
+
         logger.error(f"[ERROR] All PDF extraction methods failed: {', '.join(methods_tried)}")
+        # If the PDF likely needs OCR but OCR isn't available/enabled, return a more specific method tag.
+        if ocr_method in ("pdf:ocr_disabled", "pdf:ocr_unavailable", "pdf:ocr_import_error"):
+            return "", "pdf:needs_ocr"
         return "", "pdf:all_methods_failed"
 
     def _extract_pdf(self, file_path: str) -> Tuple[str, str]:
@@ -418,7 +548,7 @@ class UnifiedTextExtractor:
 
         # Method 2: Try textract (if available)
         try:
-            import textract
+            import textract  # type: ignore[import-not-found]
 
             text = textract.process(file_path, encoding="utf-8").decode("utf-8")
             if text:

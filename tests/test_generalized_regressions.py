@@ -65,6 +65,41 @@ def test_known_federal_lookup_603_us_369():
     assert row.get("canonical_year") == "2024"
 
 
+def test_known_federal_lookup_857_f_supp_154_fdic_oflahaven():
+    """CourtListener opinion 2008316; API often misses first-series F. Supp."""
+    from src.verification.known_citations import _lookup_known_federal
+
+    row = _lookup_known_federal("857 F. Supp. 154")
+    assert row is not None
+    assert "2008316" in (row.get("canonical_url") or "")
+    assert "O'Flahaven" in (row.get("canonical_name") or "")
+    assert row.get("canonical_year") == "1994"
+
+
+def test_known_wl_teikoku_6465235_and_parallel_reporter():
+    from src.verification.known_citations import _lookup_known_federal
+
+    w = _lookup_known_federal("2014 WL 6465235")
+    assert w is not None
+    assert w.get("force_override") is True
+    assert "7311104" in (w.get("canonical_url") or "")
+    r = _lookup_known_federal("74 F. Supp. 3d 1052")
+    assert r is not None
+    assert "7311104" in (r.get("canonical_url") or "")
+
+
+def test_known_wl_effexor_cipro_lipitor_pins():
+    from src.verification.known_citations import _lookup_known_federal
+
+    e = _lookup_known_federal("2014 WL 4988410 (D.N.J.)")
+    assert e is not None and e.get("force_override") is True
+    assert "Effexor" in (e.get("canonical_name") or "")
+    c = _lookup_known_federal("2015 WL 2125291")
+    assert c is not None and "Cipro" in (c.get("canonical_name") or "")
+    lip = _lookup_known_federal("2013 WL 4780496")
+    assert lip is not None and "17279455" in (lip.get("canonical_url") or "")
+
+
 def test_deduplicate_cluster_citations_merges_wash_wn_preserves_first_spelling():
     """Wash. 2d vs Wn.2d are one cite; keep the first list entry's reporter form (document order)."""
     if deduplicate_cluster_citations is None:
@@ -88,6 +123,27 @@ def test_deduplicate_cluster_citations_prefer_verified_when_wash_wn_merge():
     out = deduplicate_cluster_citations(cits)
     assert len(out) == 1
     assert out[0].get("verified") is True
+
+
+def test_same_line_toa_binds_correct_case_name_and_year_prevents_neighbor_bleed():
+    """
+    Table-of-Authorities lines often contain multiple citations; we must bind the nearest
+    `Name v. Name` and `(YYYY)` on the same line to avoid grabbing a neighbor case name.
+    """
+    p = UnifiedCitationProcessorV2()
+    text = (
+        "Nat'l Pork Producers Council v. Ross, 143 S. Ct. 1142 (2023)... 16 "
+        "Parker v. Brown, 317 U.S. 341 (1943)... 9\n"
+        "Major League Baseball v. Crist, 331 F.3d 1177 (11th Cir. 2008)\n"
+    )
+    cite = "143 S. Ct. 1142"
+    si = text.find(cite)
+    assert si >= 0
+    ei = si + len(cite)
+    name, year = p._extract_name_year_from_same_line_for_citation(text, cite, si, ei)
+    # Cleaner may expand "Nat'l" -> "National"
+    assert name in {"Nat'l Pork Producers Council v. Ross", "National Pork Producers Council v. Ross"}
+    assert year == "2023"
 
 
 def test_cluster_dedupe_uses_stable_citation_set_key():
@@ -565,6 +621,163 @@ def test_buchanan_same_name_different_eras_not_clustered():
     cites_per = [{c["citation"] for c in cl["citations"]} for cl in clusters]
     assert {"67 S.E.2d 289"} in cites_per
     assert {"431 S.E.2d 289"} in cites_per
+
+
+def test_us_volume_anchor_prefers_catalano_for_446_not_broadcast_music():
+    """Dense cite line: bind 446 U.S. to the party pair immediately before that volume."""
+    from src.models import CitationResult
+
+    p = UnifiedCitationProcessorV2.__new__(UnifiedCitationProcessorV2)
+    text = (
+        "See, e.g., Catalano, Inc. v. Target Sales, Inc., 446 U.S. 643, 644 (1980) (competitors); "
+        "Broadcast Music, Inc. v. Columbia Broadcasting System, Inc., 441 U.S. 1, 24-25 (1979)."
+    )
+    pos = text.find("446 U.S.")
+    c = CitationResult(citation="446 U.S. 643", start_index=pos)
+    name = p._extract_case_name_from_context(text, c)
+    assert "Catalano" in name
+    assert "Broadcast" not in name
+
+
+def test_us_volume_anchor_prefers_broadcast_for_441():
+    from src.models import CitationResult
+
+    p = UnifiedCitationProcessorV2.__new__(UnifiedCitationProcessorV2)
+    text = (
+        "See, e.g., Catalano, Inc. v. Target Sales, Inc., 446 U.S. 643, 644 (1980) (competitors); "
+        "Broadcast Music, Inc. v. Columbia Broadcasting System, Inc., 441 U.S. 1, 24-25 (1979)."
+    )
+    pos = text.find("441 U.S.")
+    c = CitationResult(citation="441 U.S. 1", start_index=pos)
+    name = p._extract_case_name_from_context(text, c)
+    assert "Broadcast" in name or "Columbia" in name
+    assert "Catalano" not in name
+
+
+def test_parse_vol_rep_l_ed_2d_uses_distinct_reporter_key():
+    from src.utils.cluster_filter import _parse_vol_rep
+
+    assert _parse_vol_rep("59 L. Ed. 2d 443") == ("l.ed.2d", 59)
+    assert _parse_vol_rep("123 L. Ed. 456") == ("l.ed.", 123)
+
+
+def test_scotus_reporter_anchor_parallel_u_s_s_ct_l_ed():
+    """Same case in U.S. + S. Ct. + L. Ed. 2d: each cite should resolve to one lead-in name."""
+    from src.models import CitationResult
+
+    p = UnifiedCitationProcessorV2.__new__(UnifiedCitationProcessorV2)
+    text = "Smith v. Jones, 440 U.S. 371, 99 S. Ct. 1551, 59 L. Ed. 2d 443 (1979)."
+    for needle, cite in (
+        ("440 U.S.", "440 U.S. 371"),
+        ("99 S. Ct.", "99 S. Ct. 1551"),
+        ("59 L. Ed.", "59 L. Ed. 2d 443"),
+    ):
+        pos = text.find(needle)
+        c = CitationResult(citation=cite, start_index=pos)
+        name = p._extract_case_name_from_context(text, c)
+        assert "Smith" in name and "Jones" in name
+
+
+def test_s_ct_different_volumes_not_clustered_with_shared_canonical_noise():
+    from src.unified_clustering_master_optimized import cluster_citations_minimal
+
+    canon = "Acme v. Beta"
+    citations = [
+        {
+            "extracted_case_name": canon,
+            "citation": "99 S. Ct. 100",
+            "verified": True,
+            "canonical_name": canon,
+            "canonical_url": "https://www.courtlistener.com/opinion/1/a/",
+        },
+        {
+            "extracted_case_name": canon,
+            "citation": "100 S. Ct. 200",
+            "verified": True,
+            "canonical_name": canon,
+            "canonical_url": "https://www.courtlistener.com/opinion/2/b/",
+        },
+    ]
+    assert len(cluster_citations_minimal(citations)) == 2
+
+
+def test_l_ed_2d_different_volumes_not_clustered_with_shared_canonical_noise():
+    from src.unified_clustering_master_optimized import cluster_citations_minimal
+
+    canon = "Acme v. Beta"
+    citations = [
+        {
+            "extracted_case_name": canon,
+            "citation": "59 L. Ed. 2d 100",
+            "verified": True,
+            "canonical_name": canon,
+            "canonical_url": "https://www.courtlistener.com/opinion/1/a/",
+        },
+        {
+            "extracted_case_name": canon,
+            "citation": "60 L. Ed. 2d 200",
+            "verified": True,
+            "canonical_name": canon,
+            "canonical_url": "https://www.courtlistener.com/opinion/2/b/",
+        },
+    ]
+    assert len(cluster_citations_minimal(citations)) == 2
+
+
+def test_f3d_different_volumes_not_clustered_with_shared_canonical_noise():
+    """Same as U.S. volume rule: F.3d volumes differ => never merge on _same_canonical_case."""
+    from src.unified_clustering_master_optimized import cluster_citations_minimal
+
+    canon = "Acme Corp. v. Widget Co."
+    citations = [
+        {
+            "extracted_case_name": canon,
+            "citation": "199 F.3d 100",
+            "verified": True,
+            "canonical_name": canon,
+            "canonical_url": "https://www.courtlistener.com/opinion/1/a/",
+        },
+        {
+            "extracted_case_name": canon,
+            "citation": "200 F.3d 200",
+            "verified": True,
+            "canonical_name": canon,
+            "canonical_url": "https://www.courtlistener.com/opinion/2/b/",
+        },
+    ]
+    clusters = cluster_citations_minimal(citations)
+    assert len(clusters) == 2
+
+
+def test_us_reports_different_volumes_not_clustered_broadcast_music_and_catalano():
+    """441 U.S. 1 and 446 U.S. 643 are different merits opinions; do not merge on shared extracted name."""
+    from src.unified_clustering_master_optimized import cluster_citations_minimal
+
+    wrong_shared_canonical = "Broadcast Music, Inc. v. Columbia Broadcasting System, Inc."
+    citations = [
+        {
+            "extracted_case_name": wrong_shared_canonical,
+            "citation": "441 U.S. 1",
+            "extracted_date": "1979",
+            "verified": True,
+            "canonical_name": wrong_shared_canonical,
+            "canonical_url": "https://www.courtlistener.com/opinion/111222/broadcast/",
+        },
+        {
+            "extracted_case_name": wrong_shared_canonical,
+            "citation": "446 U.S. 643",
+            "extracted_date": "1980",
+            "verified": True,
+            # Bad metadata: same canonical as 441 U.S.; still must not cluster with different U.S. volume.
+            "canonical_name": wrong_shared_canonical,
+            "canonical_url": "https://www.courtlistener.com/opinion/333444/catalano/",
+        },
+    ]
+    clusters = cluster_citations_minimal(citations)
+    assert len(clusters) == 2
+    cites_per = [{c["citation"] for c in cl["citations"]} for cl in clusters]
+    assert {"441 U.S. 1"} in cites_per
+    assert {"446 U.S. 643"} in cites_per
 
 
 def test_state_v_kier_and_state_v_stalker_not_clustered():
@@ -1136,3 +1349,198 @@ def test_case_name_cleaner_bartz_no_c_and_av_ex_rel():
     assert "No. C" not in clean_extracted_case_name("Bartz v. Anthropic Pbc, No. C, 2025")
     assert "A.V. ex rel." in clean_extracted_case_name("A v. Ex Rel. Vanderhye v. Iparadigms, LLC, 2009")
     assert "A&M" in clean_extracted_case_name("A&m Records, Inc. v. Napster, Inc, 2001")
+
+
+def test_case_name_cleaner_toys_r_us_ftc_pdf_garble():
+    """NAAG-style TOA: Toys R Us v. FTC mis-glue as F.T.C. Us, Inc. v. F.T.C. (221 F.3d 928)."""
+    out = clean_extracted_case_name("F. T. C. Us, Inc. v. F. T. C, 2000")
+    assert "Toys" in out
+    assert "Federal Trade Commission" in out or "F.T.C." in out or "Trade" in out
+
+
+def test_case_name_cleaner_effexor_xr_capitalization():
+    assert "Effexor XR" in clean_extracted_case_name("Effexor Xr Antitrust Litigation, 2014")
+
+
+def test_calculate_case_name_overlap_mdl_nexium_short_vs_in_re():
+    from src.verification.utils import calculate_case_name_overlap
+
+    assert calculate_case_name_overlap("Nexium Antitrust Litig", "In re Nexium") >= 0.35
+
+
+def test_cluster_matches_rejects_short_token_substring_noise():
+    from src.verification.utils import cluster_matches_extracted_case_name
+
+    cipro_cluster = {"case_name": "Neal v. Corrections Dep't"}
+    assert cluster_matches_extracted_case_name(cipro_cluster, "Cipro I & II") is False
+
+
+def test_cluster_matches_accepts_fdic_spaced_initials_vs_courtlistener_full_name():
+    """CL returns one cluster; without abbreviation expansion we treated cite hit as wrong party."""
+    from src.verification.utils import cluster_matches_extracted_case_name
+
+    cl_cluster = {"case_name": "Federal Deposit Insurance Corp. v. O'Flahaven"}
+    assert cluster_matches_extracted_case_name(cl_cluster, "F. D. I. C. v. O'Flahaven") is True
+    assert cluster_matches_extracted_case_name(cl_cluster, "F.D.I.C. v. O'Flahaven") is True
+
+
+def test_year_alignment_accepts_one_year_skew_vs_canonical_on_reporter_cite():
+    p = UnifiedCitationProcessorV2.__new__(UnifiedCitationProcessorV2)
+    ev = p._evaluate_year_alignment(
+        "968 F. Supp. 2d 367",
+        "2014",
+        "2013",
+        "CourtListener",
+        in_toa_section=False,
+    )
+    assert ev.get("accept") is True
+    assert ev.get("hard_mismatch") is False
+
+
+def test_cluster_merges_same_scotus_cite_verified_and_unverified_rows():
+    from src.unified_clustering_master_optimized import cluster_citations_minimal
+
+    unv = {
+        "citation": "133 S. Ct. 2223",
+        "extracted_case_name": "F. T. C. v. Actavis, Inc, 2015",
+        "verified": False,
+    }
+    ver = {
+        "citation": "133 S. Ct. 2223",
+        "extracted_case_name": "F. T. C. v. Actavis, Inc, 2013",
+        "verified": True,
+        "canonical_url": "https://www.courtlistener.com/opinion/9240878/",
+        "canonical_name": "Federal Trade Commission v. Actavis, Inc.",
+    }
+    assert len(cluster_citations_minimal([unv, ver])) == 1
+    assert len(cluster_citations_minimal([ver, unv])) == 1
+
+
+def test_decision_year_from_citation_paren_prefers_actavis_style():
+    p = UnifiedCitationProcessorV2.__new__(UnifiedCitationProcessorV2)
+    assert p._decision_year_from_citation_paren("133 S. Ct. 2223 (2013)") == "2013"
+    assert p._decision_year_from_citation_paren("F.T.C. v. Actavis, 133 S. Ct. 2223, 2227 (2013)") == "2013"
+
+
+def test_year_alignment_hard_mismatch_when_extracted_year_wrong_and_no_paren_in_cite():
+    """No loose SCOTUS drift: wrong extracted year still fails if cite string has no year."""
+    p = UnifiedCitationProcessorV2.__new__(UnifiedCitationProcessorV2)
+    ev = p._evaluate_year_alignment(
+        "133 S. Ct. 2223",
+        "2015",
+        "2013",
+        "CourtListener",
+        in_toa_section=False,
+    )
+    assert ev.get("accept") is False
+    assert ev.get("hard_mismatch") is True
+
+
+def test_year_alignment_accepts_known_federal_despite_extracted_year_pollution():
+    """332 F.3d 896 / Cardizem: pin must not be dropped when extracted_date is TOA-noise."""
+    p = UnifiedCitationProcessorV2.__new__(UnifiedCitationProcessorV2)
+    ev = p._evaluate_year_alignment(
+        "332 F.3d 896",
+        "1992",
+        "2003-07-31",
+        "known_federal",
+        in_toa_section=False,
+    )
+    assert ev.get("accept") is True
+    assert ev.get("hard_mismatch") is False
+    assert ev.get("compare_source") == "known_pin"
+
+
+def test_year_alignment_trusts_cl_for_circuit_when_no_year_in_cite_and_large_gap():
+    """TOA-style wrong year vs CourtListener canonical; cite string has no (YYYY)."""
+    p = UnifiedCitationProcessorV2.__new__(UnifiedCitationProcessorV2)
+    ev = p._evaluate_year_alignment(
+        "332 F.3d 896",
+        "1992",
+        "2003-07-31",
+        "CourtListener",
+        in_toa_section=False,
+    )
+    assert ev.get("accept") is True
+    assert ev.get("soft_mismatch") is True
+    assert ev.get("compare_source") == "cl_trust_no_cite_year_circuit"
+
+
+def test_apply_toa_span_metadata_marks_citations_in_bounds():
+    from unittest.mock import patch
+
+    from src.models import CitationResult
+    from src.toa_parser import ImprovedToAParser
+
+    p = UnifiedCitationProcessorV2.__new__(UnifiedCitationProcessorV2)
+    c_in = CitationResult(citation="332 F.3d 896", start_index=50)
+    c_out = CitationResult(citation="123 F.3d 1", start_index=5000)
+    with patch.object(ImprovedToAParser, "detect_toa_section", return_value=(40, 400)):
+        p._apply_toa_span_metadata([c_in, c_out], "dummy text")
+    assert c_in.metadata.get("in_toa_section") is True
+    assert c_out.metadata.get("in_toa_section") is not True
+
+
+def test_expand_abbreviations_ftc_spaced():
+    from src.utils.legal_abbreviations import expand_abbreviations
+
+    s = expand_abbreviations("Acme Corp. v. F. T. C., 2000")
+    assert "Federal Trade Commission" in s
+
+
+def test_phase55_cluster_year_singleton_prefers_canonical_over_wrong_extracted():
+    """Terazosin-style: single F. Supp. cite verified with 2005 canonical must not keep context 2003."""
+    p = UnifiedCitationProcessorV2.__new__(UnifiedCitationProcessorV2)
+    cluster: dict = {}
+    cites = [
+        {
+            "citation": "352 F. Supp. 2d 1279",
+            "verified": True,
+            "extracted_date": "2003",
+            "canonical_date": "2005-03-15",
+        }
+    ]
+    assert p._compute_cluster_decision_year_phase55(cluster, cites, "c1") == "2005"
+
+
+def test_phase55_parallel_verified_prefers_canonical_year_over_extracted():
+    """Parallel rows: wrong extracted_date on one member must not outvote canonical years."""
+    p = UnifiedCitationProcessorV2.__new__(UnifiedCitationProcessorV2)
+    cluster: dict = {}
+    cites = [
+        {
+            "citation": "352 F. Supp. 2d 1279",
+            "verified": True,
+            "extracted_date": "2003",
+            "canonical_date": "2005-01-01",
+        },
+        {
+            "citation": "2005 WL 12345",
+            "verified": True,
+            "extracted_date": "2005",
+            "canonical_date": "2005-06-01",
+        },
+    ]
+    assert p._compute_cluster_decision_year_phase55(cluster, cites, "c2") == "2005"
+
+
+def test_extract_date_global_recovery_prefers_closest_occurrence():
+    """If the same cite appears twice with different years, borrow year from closest occurrence."""
+    from src.models import CitationResult
+
+    p = UnifiedCitationProcessorV2.__new__(UnifiedCitationProcessorV2)
+    cite = "352 F. Supp. 2d 1279"
+    doc = (
+        "Table of Authorities\n"
+        "Terazosin Hydrochloride Antitrust Litig., 352 F. Supp. 2d 1279 (2003)\n"
+        "\n"
+        "Body text...\n"
+        "More body...\n"
+        f"Some discussion of the case, {cite} (2005), and its holding.\n"
+    )
+    start = doc.rfind(cite)
+    end = start + len(cite)
+    c = CitationResult(citation=cite, start_index=start, end_index=end)
+    year, src, conf = p._extract_date_from_context(doc, c, return_source=True)
+    assert year == "2005"
+    assert src in ("citation_parenthetical", "citation_immediate_parenthetical", "citation_span_before_semi", "citation_global_recovery")

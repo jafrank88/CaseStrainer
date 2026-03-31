@@ -843,6 +843,227 @@ class UnifiedCitationProcessorV2:
             year = y.group(0) if y else None
         return name, year
 
+    def _extract_name_year_from_same_line_for_citation(
+        self,
+        text: str,
+        citation_text: str,
+        start_index: Optional[int],
+        end_index: Optional[int],
+        *,
+        max_line_scan: int = 600,
+        max_year_scan: int = 80,
+    ) -> Tuple[Optional[str], Optional[str]]:
+        """
+        Best-effort extraction of `Name v. Name` and `(YYYY)` from the *same line* as the citation.
+
+        This is primarily to prevent Table-of-Authorities "neighbor bleed" where multiple cites
+        appear on one line and a proximity search grabs the wrong case name or year.
+        """
+        if not text or not citation_text or start_index is None or start_index < 0:
+            return None, None
+
+        si = int(start_index)
+        ei = int(end_index) if (end_index is not None and end_index >= si) else (si + len(citation_text))
+
+        # Defensive: start_index/end_index sometimes refer to a normalized variant of text.
+        # If the citation string isn't exactly at [si:ei], try to locate it nearby using whitespace-flexible matching.
+        try:
+            snippet = text[si: min(len(text), si + len(citation_text))]
+        except Exception:
+            snippet = ""
+        if snippet != citation_text:
+            window = text[max(0, si - 800) : min(len(text), si + 800)]
+            tokens = re.sub(r"\s+", " ", citation_text).strip().split(" ")
+            cite_pat = r"\s+".join(re.escape(tok) for tok in tokens if tok)
+            if cite_pat:
+                mloc = re.search(cite_pat, window)
+                if mloc:
+                    si = max(0, si - 800) + mloc.start()
+                    ei = max(0, si - 800) + mloc.end()
+
+        # Find line boundaries around the citation position (bounded scan).
+        pre = text[max(0, si - max_line_scan) : si]
+        post = text[ei : min(len(text), ei + max_line_scan)]
+        line_start = si - (pre.rfind("\n") + 1 if "\n" in pre else len(pre))
+        post_nl = post.find("\n")
+        line_end = ei + (post_nl if post_nl >= 0 else len(post))
+
+        line = text[line_start:line_end]
+        if not line or len(line) < 10:
+            return None, None
+
+        rel_si = max(0, si - line_start)
+        rel_ei = max(rel_si, min(len(line), ei - line_start))
+
+        left = line[:rel_si]
+        right = line[rel_ei : rel_ei + max_year_scan]
+
+        # Extract year from trailing parenthetical like "(2023)" immediately after cite.
+        year = None
+        py = re.search(r"\((\d{4})\)", right)
+        if py and 1700 <= int(py.group(1)) <= 2030:
+            year = py.group(1)
+
+        # Extract the nearest "X v. Y" from the left side of the line (use the *last* match).
+        # Allow abbreviations and punctuation; keep it bounded to reduce over-capture.
+        v_pat = re.compile(
+            r"(?P<name>[A-Z][A-Za-z0-9'&\.\-(),\s]{3,220}?\bv\.\s*[A-Z][A-Za-z0-9'&\.\-(),\s]{1,220}?)\s*,?\s*$"
+        )
+        m = None
+        # Consider only a suffix of left side to bias toward the nearest name.
+        left_tail = left[-320:] if len(left) > 320 else left
+        for cand in v_pat.finditer(left_tail):
+            m = cand
+        if not m:
+            return None, year
+
+        name = self._clean_extracted_case_name((m.group("name") or "").strip().rstrip(","))
+        if self._is_missing_extracted_name(name) or " v. " not in name:
+            return None, year
+
+        return name, year
+
+    def _extract_name_year_by_exact_cite_anchor(
+        self,
+        text: str,
+        citation_text: str,
+        start_index: Optional[int],
+    ) -> Tuple[Optional[str], Optional[str]]:
+        """
+        High-precision recovery for TOA-style entries:
+            Name v. Name, <citation_text> (YYYY)
+
+        Searches the full text using a whitespace-flexible citation pattern and requires
+        a parenthetical year immediately after the citation. This is used to correct
+        cases where we extracted *a* name/year, but it belongs to a neighboring TOA entry.
+        """
+        if not text or not citation_text:
+            return None, None
+
+        def _fuzzy_cite_pat(cit: str) -> str:
+            """
+            OCR-tolerant reporter matching for common cites.
+            Examples:
+              - "490 U.S. 93" matches "490 US. 93", "490 U. S. 93", "490 U.S 93"
+              - "143 S. Ct. 1142" matches "143 S Ct 1142", "143 S.Ct. 1142"
+            """
+            s = re.sub(r"\s+", " ", (cit or "").strip())
+            m = re.match(r"^(?P<vol>\d{1,4})\s+U\.?\s*S\.?\s+(?P<page>\d{1,6})$", s, re.IGNORECASE)
+            if m:
+                return rf"\b{m.group('vol')}\s+U\.?\s*S\.?\s+{m.group('page')}\b"
+            m = re.match(r"^(?P<vol>\d{1,4})\s+S\.?\s*Ct\.?\s+(?P<page>\d{1,6})$", s, re.IGNORECASE)
+            if m:
+                return rf"\b{m.group('vol')}\s+S\.?\s*Ct\.?\s+{m.group('page')}\b"
+            m = re.match(r"^(?P<vol>\d{1,4})\s+F\.?\s*3d\s+(?P<page>\d{1,6})$", s, re.IGNORECASE)
+            if m:
+                return rf"\b{m.group('vol')}\s+F\.?\s*3d\s+{m.group('page')}\b"
+            m = re.match(r"^(?P<vol>\d{1,4})\s+F\.?\s*2d\s+(?P<page>\d{1,6})$", s, re.IGNORECASE)
+            if m:
+                return rf"\b{m.group('vol')}\s+F\.?\s*2d\s+{m.group('page')}\b"
+            m = re.match(r"^(?P<vol>\d{1,4})\s+F\.?\s*Supp\.?\s*(?P<series>\d{0,2})\s*(?P<page>\d{1,6})$", s, re.IGNORECASE)
+            if m:
+                ser = m.group("series") or ""
+                ser_pat = rf"\s*{re.escape(ser)}" if ser else ""
+                return rf"\b{m.group('vol')}\s+F\.?\s*Supp\.?{ser_pat}\s+{m.group('page')}\b"
+
+            # Fallback: token-wise whitespace flexible (less tolerant to punctuation, but better than exact).
+            tokens = re.sub(r"\s+", " ", s).split(" ")
+            tokens = [t for t in tokens if t]
+            if not tokens:
+                return ""
+            esc = [re.escape(t).replace(r"\.", r"\.?") for t in tokens]
+            return r"\b" + r"\s+".join(esc) + r"\b"
+
+        cite_pat = _fuzzy_cite_pat(citation_text)
+        if not cite_pat:
+            return None, None
+
+        anchored = re.compile(
+            r"(?P<name>[A-Z][A-Za-z0-9'&\.\-,\s]{3,200}?\bv\.\s*[A-Z][A-Za-z0-9'&\.\-,\s]{1,200}?)\s*,?\s*"
+            + cite_pat
+            + r"\s*\((?P<year>\d{4})\)",
+        )
+        matches = list(anchored.finditer(text))
+        if not matches:
+            return None, None
+
+        # If multiple matches exist (common in TOA where multiple cases share reporters),
+        # choose the one with the *smallest gap* between end-of-cite and the year paren.
+        # This favors "..., CITE (YYYY)" over spillovers like "..., 331 U.S. 218 Smiley v. Kansas, 196 U.S. 447 (1905)".
+        def _quality(mm: re.Match) -> Tuple[int, int]:
+            # Lower is better.
+            span_txt = mm.group(0) or ""
+            # crude: find last occurrence of page number in the matched cite, then distance to "("
+            gap = 9999
+            try:
+                paren_pos = span_txt.rfind("(")
+                if paren_pos >= 0:
+                    # distance from last digit before paren to paren
+                    m_dig = re.search(r"(\d)\D*\($", span_txt[: paren_pos + 1])
+                    if m_dig:
+                        gap = paren_pos - m_dig.start(1)
+            except Exception:
+                pass
+            return (gap, len(span_txt))
+
+        best = min(matches, key=_quality)
+
+        # Prefer the closest anchored occurrence to start_index when provided and reasonable.
+        m = best
+        if start_index is not None and start_index >= 0:
+            closest = min(matches, key=lambda mm: abs(mm.start() - start_index))
+            # If the closest match isn't dramatically worse in quality, use it.
+            if _quality(closest) <= (_quality(best)[0] + 3, _quality(best)[1] + 50):
+                m = closest
+
+        name = self._clean_extracted_case_name((m.group("name") or "").strip().rstrip(","))
+        if self._is_missing_extracted_name(name) or " v. " not in name:
+            return None, None
+        y = m.group("year")
+        if not y or not y.isdigit() or not (1700 <= int(y) <= 2030):
+            return name, None
+        return name, y
+
+    def _apply_exact_cite_anchor_repairs(self, citations: List["CitationResult"], text: str) -> int:
+        """
+        Repair extracted_case_name/extracted_date by anchoring on exact TOA-style patterns:
+            Name v. Name, <citation> (YYYY)
+
+        Unlike enrichment, this may overwrite existing (but wrong) extracted metadata.
+        """
+        if not citations or not text:
+            return 0
+        fixed = 0
+        for c in citations:
+            try:
+                cit = (getattr(c, "citation", None) or "").strip()
+                if not cit:
+                    continue
+                # Skip year-based vendor citations (year is part of the cite).
+                if re.search(r"\b(?:19|20)\d{2}\s+(?:WL|(?:U\.S\.?\s*)?LEXIS|LEXIS)\s+\d+\b", cit, re.IGNORECASE):
+                    continue
+                # Indices in OCR'd / normalized text can drift; prefer global anchored match over "closest index".
+                name, year = self._extract_name_year_by_exact_cite_anchor(text, cit, None)
+                if not name or not year:
+                    continue
+                cur_name = (getattr(c, "extracted_case_name", None) or "").strip()
+                cur_year = str(getattr(c, "extracted_date", None) or "").strip()
+                changed = False
+                if name and name != cur_name:
+                    c.extracted_case_name = self._clean_extracted_case_name(name)
+                    changed = True
+                if year and year != cur_year:
+                    c.extracted_date = year
+                    self._set_extracted_date_provenance(c, "exact_cite_anchor", "high")
+                    changed = True
+                if changed:
+                    fixed += 1
+            except Exception:
+                continue
+        if fixed:
+            logger.info(f"[TOA-ANCHOR] Repaired name/year on {fixed} citations via exact cite anchor")
+        return fixed
+
     def _enrich_missing_extracted_metadata(
         self, citations: List["CitationResult"], text: str
     ) -> int:
@@ -5930,6 +6151,27 @@ class UnifiedCitationProcessorV2:
                     if reporter == "at":
                         continue
 
+                    # OCR sanity: drop implausible volumes for well-known federal reporters
+                    # (e.g., "4837 U.S. 117" where "4" bled into the volume).
+                    try:
+                        vol_i = int(volume) if str(volume).isdigit() else None
+                    except Exception:
+                        vol_i = None
+                    if vol_i is not None:
+                        # Future-proofing: no known reporters should have 4+ digit *volume* numbers.
+                        # Exempt year-based formats where a 4-digit number is expected (WL/LEXIS).
+                        is_year_based_vendor = bool(
+                            re.search(r"\b(?:19|20)\d{2}\s+(?:WL|(?:U\.S\.?\s*)?LEXIS|LEXIS)\s+\d+\b", citation_str, re.IGNORECASE)
+                        )
+                        if not is_year_based_vendor and vol_i >= 1000:
+                            continue
+                        if reporter in {"us", "u s"} and vol_i > 700:
+                            continue
+                        if reporter in {"sct", "s ct"} and vol_i > 250:
+                            continue
+                        if reporter in {"led2d", "l ed 2d", "led"} and vol_i > 999:
+                            continue
+
                     if volume and int(volume) < 10 and "P." in citation_str:
                         if not self._validate_volume_number(text, match.start(), volume):
                             continue
@@ -6819,6 +7061,43 @@ class UnifiedCitationProcessorV2:
                             " U.S. " in citation_text or " S. Ct. " in citation_text or " L. Ed. " in citation_text
                         )
 
+                        # TOA / same-line guard: bind name/year from the citation's own line when available.
+                        # This prevents neighbor bleed on lines like:
+                        # "Nat'l Pork Producers Council v. Ross, 143 S. Ct. 1142 (2023)... Parker v. Brown, 317 U.S. 341..."
+                        try:
+                            # First, try an anchored "Name, Cite (YYYY)" recovery across full text.
+                            # This corrects cases where we already have a (wrong) extracted name/year.
+                            # Indices can drift under OCR normalization; prefer any anchored match.
+                            an_name, an_year = self._extract_name_year_by_exact_cite_anchor(
+                                text,
+                                citation_text,
+                                None,
+                            )
+                            if an_name and " v. " in an_name:
+                                final_name = an_name
+                            if an_year:
+                                c.extracted_date = an_year
+                                self._set_extracted_date_provenance(c, "exact_cite_anchor", "high")
+
+                            sl_name, sl_year = self._extract_name_year_from_same_line_for_citation(
+                                text,
+                                citation_text,
+                                start_index if start_index != -1 else None,
+                                end_index,
+                            )
+                            if sl_name and " v. " in sl_name:
+                                # Only override if missing or likely contaminated (same-line is highest-fidelity).
+                                if (not final_name) or final_name == "N/A" or (final_name and sl_name != final_name):
+                                    final_name = sl_name
+                            if sl_year:
+                                cur_ed = getattr(c, "extracted_date", None)
+                                # Same-line paren year is high-confidence; prefer it over other sources.
+                                if self._is_missing_extracted_date(cur_ed) or str(cur_ed).strip() != str(sl_year).strip():
+                                    c.extracted_date = sl_year
+                                    self._set_extracted_date_provenance(c, "same_line_paren", "high")
+                        except Exception:
+                            pass
+
                         # CRITICAL FIX: Pass a context window, NOT the full document text.
                         # The master extractor's ProximityStrategy searches the entire text
                         # for "v." patterns, so passing a 140K document causes it to find
@@ -7102,6 +7381,12 @@ class UnifiedCitationProcessorV2:
             self._enrich_missing_extracted_metadata(citations, text)
         except Exception as enrich_err:
             logger.warning(f"[UNIFIED_PIPELINE] Metadata enrichment skipped due to error: {enrich_err}")
+
+        logger.info("[UNIFIED_PIPELINE] Phase 3.6: TOA exact cite-anchor repairs (fix neighbor bleed)")
+        try:
+            self._apply_exact_cite_anchor_repairs(citations, text)
+        except Exception as toa_rep_err:
+            logger.warning(f"[UNIFIED_PIPELINE] TOA cite-anchor repair skipped: {toa_rep_err}")
 
         logger.info("[UNIFIED_PIPELINE] Phase 3.55: Known-citation pin repairs (bleed vs reporter pin)")
         try:

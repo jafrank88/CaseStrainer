@@ -600,6 +600,38 @@ class UnifiedProcessingPipeline:
                 citation_dicts = [c for c in citation_dicts if not _is_cite_as_header_placeholder(c)]
                 logger.info(f"[CITE-AS-FILTER] Removed {len(cite_as_placeholders)} placeholder citations from Cite as headers")
 
+            # TOA anchor repair (OCR-tolerant): if the document contains "Name v. Name, CITE (YYYY)",
+            # prefer that binding to prevent TOA neighbor bleed.
+            try:
+                from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2
+
+                _ucp = UnifiedCitationProcessorV2()
+                _rep_fixed = 0
+                for _cd in citation_dicts:
+                    _cit = str((_cd or {}).get("citation") or "").strip()
+                    if not _cit:
+                        continue
+                    # Skip year-based vendor citations (year is embedded in cite).
+                    if re.search(r"\b(?:19|20)\d{2}\s+(?:WL|(?:U\.S\.?\s*)?LEXIS|LEXIS)\s+\d+\b", _cit, re.IGNORECASE):
+                        continue
+                    nm, yr = _ucp._extract_name_year_by_exact_cite_anchor(context.input_text or "", _cit, None)
+                    if not (nm and yr):
+                        continue
+                    if (_cd.get("extracted_case_name") or "").strip() != nm:
+                        _cd["extracted_case_name"] = nm
+                        _rep_fixed += 1
+                    if str(_cd.get("extracted_date") or "").strip() != yr:
+                        _cd["extracted_date"] = yr
+                        md = _cd.get("metadata") or {}
+                        md["extracted_date_source"] = "exact_cite_anchor"
+                        md["extracted_date_confidence"] = "high"
+                        _cd["metadata"] = md
+                        _rep_fixed += 1
+                if _rep_fixed:
+                    logger.info(f"[TOA-ANCHOR] Applied exact cite-anchor repairs: {_rep_fixed} field updates")
+            except Exception as _toa_fix_err:
+                logger.warning(f"[TOA-ANCHOR] Skipped TOA repairs due to error: {_toa_fix_err}")
+
             # Use clustering master to get proper clusters with all required fields
             # CRITICAL FIX: Ensure clusters are always returned, even if clustering fails
             clusters = []
