@@ -3620,13 +3620,14 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
             except Exception as mismatch_err:
                 logger.warning(f"[TASK:{task_id}] Mismatch re-annotation failed: {mismatch_err}")
 
-            # Post-verify cluster splits (same as text path)
+            # Post-verify cluster splits (same as cluster enrichment path ~843 / ~3034).
+            # Must call the module-level apply_post_verify_cluster_splits (cluster_postprocess_pipeline);
+            # do not re-import the same name inside run_citation_task — Python would treat it as local
+            # and UnboundLocalError earlier calls at ~843 and ~3034. post_verify_split has no symbol
+            # with this name; the pipeline lives in cluster_postprocess_pipeline.
             try:
-                from src.utils.post_verify_split import apply_post_verify_cluster_splits
                 clusters = apply_post_verify_cluster_splits(
                     clusters,
-                    citations,
-                    task_id=task_id,
                     run_id=f"{task_id}:file_final",
                 )
             except Exception as _split_err:

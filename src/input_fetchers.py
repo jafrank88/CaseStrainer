@@ -76,7 +76,32 @@ def preprocess_extracted_text(text: str) -> str:
     # Pattern 3: Remove standalone footnote superscripts/numbers between text
     # Be conservative - only remove if it looks like a footnote (small number between words)
     # This catches: "argument that\n\n18\n\nMarston" -> "argument that Marston"
-    text = re.sub(r"(\w)\s+\d{1,3}\s+(?=[A-Z][a-z])", r"\1 ", text)
+    #
+    # IMPORTANT: Require a newline in the gap between the letter and the digits. If the gap is
+    # only horizontal whitespace (e.g. "F.3d 460 Unverified" after later line collapse), treating
+    # the reporter page number as a footnote strips the page and breaks extraction (UI paste of
+    # CaseStrainer output is a real case).
+    def _strip_orphan_footnote_num(m: re.Match) -> str:
+        letter, gap, digits = m.group(1), m.group(2), m.group(3)
+        if "\n" not in gap:
+            return m.group(0)
+        try:
+            n = int(digits)
+        except ValueError:
+            return m.group(0)
+        # Reporter pages are often 3 digits; vertical layout can break "F.3d" and page across lines.
+        if n >= 100:
+            return m.group(0)
+        idx = m.start(1)
+        if letter in "dD" and idx > 0 and text[idx - 1].isdigit():
+            return m.group(0)
+        return letter + " "
+
+    text = re.sub(
+        r"([A-Za-z])(\s+)(\d{1,3})(\s+)(?=[A-Z][a-z])",
+        _strip_orphan_footnote_num,
+        text,
+    )
 
     # Pattern 3b: Remove orphan numbers after "v." in case names
     # This catches: "Inc. v. 15 Marston" -> "Inc. v. Marston"

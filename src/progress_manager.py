@@ -145,6 +145,9 @@ class SSEProgressManager:
                 else:
                     # Direct connection fallback
                     self.redis_client = redis.Redis(host="localhost", port=6379, db=0)
+                # Fail fast if Redis is unreachable (avoids ERROR on every progress write during tests/local dev).
+                if self.redis_client is not None:
+                    self.redis_client.ping()
             except Exception as e:
                 logger.warning(f"Redis not available, using in-memory progress tracking: {e}")
                 self.redis_client = None

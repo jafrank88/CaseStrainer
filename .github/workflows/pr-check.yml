@@ -94,10 +94,10 @@ jobs:
         cd casestrainer-vue-new
         npm run build
 
-    - name: Run frontend tests (if available)
+    - name: Run frontend unit tests (Vitest)
       run: |
         cd casestrainer-vue-new
-        npm run test:unit || echo "No unit tests configured"
+        npm run test:unit
 
   # Docker Build Check
   test-docker:

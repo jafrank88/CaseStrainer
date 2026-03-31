@@ -178,3 +178,44 @@ def names_are_same_case(name_a: Optional[str], name_b: Optional[str]) -> bool:
 
     # Both have names but at least one lacks 'v.' - fuzzy word overlap
     return _fuzzy_word_overlap(ecn_a, ecn_b) >= 0.5
+
+
+def extracted_matches_canonical_for_contamination_log(
+    extracted: Optional[str], canonical: Optional[str],
+) -> bool:
+    """
+    True when extracted vs canonical differ only in style/length (short cite form vs CL official),
+    so a [CONTAMINATION-BLOCK] warning would be a false positive.
+
+    Does not replace names_are_same_case for clustering; this is for diagnostics only.
+    """
+    a = (extracted or "").strip()
+    b = (canonical or "").strip()
+    if not a or not b or a.upper() == "N/A" or b.upper() == "N/A":
+        return False
+    if names_are_same_case(a, b):
+        return True
+    a_exp = _expand_abbrevs(a) if _expand_abbrevs else a
+    b_exp = _expand_abbrevs(b) if _expand_abbrevs else b
+    a_low = a_exp.lower()
+    b_low = b_exp.lower()
+    if a_low in b_low or b_low in a_low:
+        return True
+
+    def _toks(s: str) -> set[str]:
+        return {
+            w
+            for w in re.sub(r"[^\w\s]", " ", s.lower()).split()
+            if w not in _LEGAL_STOP_WORDS and len(w) > 1
+        }
+
+    ta, tb = _toks(a_exp), _toks(b_exp)
+    if not ta or not tb:
+        return False
+    if not ta <= tb:
+        return False
+    if len(ta) == 1:
+        lone = next(iter(ta))
+        if len(lone) < 5:
+            return False
+    return True

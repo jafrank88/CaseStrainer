@@ -159,6 +159,11 @@ CITATION_EXTRACTION_TIMEOUT: int = int(get_config_value("CITATION_EXTRACTION_TIM
 # CourtListener: loaded from env (or config.json). Used for citation-lookup and search APIs.
 COURTLISTENER_API_KEY: str = get_config_value("COURTLISTENER_API_KEY", "")
 COURTLISTENER_API_URL: str = get_config_value("COURTLISTENER_API_URL", "https://www.courtlistener.com/api/rest/v4/").rstrip("/")
+if IS_PRODUCTION and get_bool_config_value("ENABLE_VERIFICATION", True):
+    if not (COURTLISTENER_API_KEY or "").strip():
+        raise SystemExit(
+            "Production with verification enabled requires COURTLISTENER_API_KEY (or set ENABLE_VERIFICATION=false)."
+        )
 CASELAW_API_KEY: str = get_config_value("CASELAW_API_KEY", "")
 WESTLAW_API_KEY: str = get_config_value("WESTLAW_API_KEY", "")
 
@@ -209,6 +214,17 @@ _REDIS_URL_RAW = get_config_value("REDIS_URL")
 if IS_PRODUCTION and (not _REDIS_URL_RAW or not _REDIS_URL_RAW.strip()):
     raise SystemExit("Production requires REDIS_URL to be set (e.g. redis://:password@host:6379/0).")
 REDIS_URL: str = ((_REDIS_URL_RAW or "").strip() or "redis://localhost:6379/0")
+
+# Warn on documented default Redis password in production; optional hard fail for strict deploys.
+_KNOWN_WEAK_REDIS_MARKERS = ("***REDACTED_REDIS_PASSWORD***",)
+if IS_PRODUCTION and REDIS_URL and any(m in REDIS_URL for m in _KNOWN_WEAK_REDIS_MARKERS):
+    _weak_redis_msg = (
+        "Production REDIS_URL uses the repository example password; set a unique REDIS_PASSWORD when practical. "
+        "Set CASSTRAINER_FAIL_ON_WEAK_REDIS_PASSWORD=1 to refuse startup until rotated."
+    )
+    if get_bool_config_value("CASSTRAINER_FAIL_ON_WEAK_REDIS_PASSWORD", False):
+        raise SystemExit(_weak_redis_msg)
+    logging.getLogger(__name__).warning(_weak_redis_msg)
 
 USE_ENHANCED_EXTRACTION: bool = get_bool_config_value("USE_ENHANCED_EXTRACTION", True)
 EXTRACTION_CONFIDENCE_THRESHOLD: float = float(get_config_value("EXTRACTION_CONFIDENCE_THRESHOLD", "0.7"))

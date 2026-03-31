@@ -237,8 +237,11 @@ class UnifiedCitationProcessorV2:
             self.enhanced_web_searcher = ComprehensiveWebSearchEngine(enable_experimental_engines=True)
             logger.info("Initialized ComprehensiveWebSearchEngine for legal database lookups")
         except ImportError as e:
-            logger.warning(f"ComprehensiveWebSearchEngine not available: {e}")
             self.enhanced_web_searcher = None
+            logger.debug(
+                "ComprehensiveWebSearchEngine not installed; optional enhanced web search disabled: %s",
+                e,
+            )
         except Exception as e:
             logger.warning(f"Failed to initialize ComprehensiveWebSearchEngine: {e}")
             self.enhanced_web_searcher = None
@@ -831,8 +834,13 @@ class UnifiedCitationProcessorV2:
             return None, None
 
         post = document_text[m.end() : m.end() + 120]
-        y = re.search(r"\b(17|18|19|20)\d{2}\b", post)
-        year = y.group(0) if y else None
+        # Prefer decision year in parentheses (TOA / body) before any bare year (avoids brief date bleed)
+        paren_y = re.search(r"\((\d{4})\)", post)
+        if paren_y and 1700 <= int(paren_y.group(1)) <= 2030:
+            year = paren_y.group(1)
+        else:
+            y = re.search(r"\b(17|18|19|20)\d{2}\b", post)
+            year = y.group(0) if y else None
         return name, year
 
     def _enrich_missing_extracted_metadata(
@@ -926,6 +934,200 @@ class UnifiedCitationProcessorV2:
         if fixed > 0:
             logger.info(f"[EXTRACT-ENRICH] Recovered metadata on {fixed} citations")
         return fixed
+
+    def _canonical_year_from_known_row(self, kn: Dict[str, Any]) -> Optional[str]:
+        """4-digit year from a known-citation row (canonical_year or canonical_date)."""
+        if not kn:
+            return None
+        y = kn.get("canonical_year")
+        if y is not None and str(y).strip().isdigit() and 1700 <= int(str(y).strip()) <= 2030:
+            return str(y).strip()
+        cd = kn.get("canonical_date")
+        if cd:
+            ym = re.search(r"\b((?:19|20)\d{2})\b", str(cd))
+            if ym:
+                return ym.group(1)
+        return None
+
+    def _harmonize_trailing_year_in_extracted_case_name(self, citation: Any, year_s: str) -> None:
+        """If extracted_case_name ends with ', YYYY' and YYYY != year_s, align to year_s."""
+        ecn = (getattr(citation, "extracted_case_name", None) or "").strip()
+        if not ecn or ecn.upper() == "N/A":
+            return
+        mtrail = re.search(r",\s*((?:19|20)\d{2})\s*$", ecn)
+        if mtrail and mtrail.group(1) != year_s:
+            citation.extracted_case_name = self._clean_extracted_case_name(
+                ecn[: mtrail.start()] + f", {year_s}"
+            )
+
+    def _compute_cluster_decision_year_phase55(
+        self,
+        cluster: Dict[str, Any],
+        cluster_citations: list,
+        cluster_id: Any,
+    ) -> Optional[str]:
+        """Decision year for cluster display: canonical / cite paren / extracted (singleton or parallel)."""
+        from collections import Counter
+
+        cluster_extracted_date: Optional[str] = None
+        if len(cluster_citations) > 1:
+            extracted_dates = []
+            canonical_dates = []
+            for cit_dict in cluster_citations:
+                if isinstance(cit_dict, dict):
+                    if cit_dict.get("extracted_date"):
+                        extracted_dates.append(cit_dict.get("extracted_date"))
+                    if cit_dict.get("canonical_date"):
+                        canonical_dates.append(
+                            (cit_dict.get("citation", "Unknown"), cit_dict.get("canonical_date"))
+                        )
+
+            has_date_mismatch = len(set([d for _, d in canonical_dates])) > 1
+            if has_date_mismatch:
+                logger.warning(
+                    f"[WARNING] [DATE-MISMATCH] Cluster {cluster_id}: Parallel citations have DIFFERENT canonical dates!"
+                )
+                for cit, date in canonical_dates:
+                    logger.warning(f"   - {cit}: canonical_date={date}")
+                logger.warning(
+                    f"   -> This may indicate a typo or verification to wrong case. User should review."
+                )
+                cluster["date_mismatch_warning"] = True
+                cluster["date_mismatch_details"] = [
+                    {"citation": cit, "canonical_date": date} for cit, date in canonical_dates
+                ]
+
+            v_years: List[str] = []
+            for cit_dict in cluster_citations:
+                if not isinstance(cit_dict, dict) or not cit_dict.get("verified"):
+                    continue
+                cd = cit_dict.get("canonical_date")
+                if cd:
+                    ym = re.search(r"(19|20)\d{2}", str(cd))
+                    if ym:
+                        v_years.append(ym.group(0))
+                        continue
+                ed = cit_dict.get("extracted_date")
+                if ed and str(ed).strip().isdigit() and 1700 <= int(str(ed).strip()) <= 2030:
+                    v_years.append(str(ed).strip())
+            if v_years:
+                cluster_extracted_date = Counter(v_years).most_common(1)[0][0]
+            if not cluster_extracted_date:
+                for cit_dict in cluster_citations:
+                    if not isinstance(cit_dict, dict):
+                        continue
+                    py = self._decision_year_from_citation_paren(str(cit_dict.get("citation") or ""))
+                    if py:
+                        cluster_extracted_date = py
+                        break
+
+            if not cluster_extracted_date and extracted_dates:
+                filtered_dates: List[Any] = []
+                for date in extracted_dates:
+                    date_str = str(date)
+                    should_filter = False
+                    for cit_dict in cluster_citations:
+                        if isinstance(cit_dict, dict):
+                            citation_text = cit_dict.get("citation", "")
+                            if " U.S. " in citation_text:
+                                volume_match = re.search(r"(\d+)\s+U\.\s*S\.", citation_text)
+                                if volume_match:
+                                    volume = int(volume_match.group(1))
+                                    year_int = int(date_str) if date_str.isdigit() else None
+                                    if year_int and 400 <= volume <= 600 and year_int >= 2015:
+                                        should_filter = True
+                                        logger.warning(
+                                            f"[CLUSTER-DATE] Filtered date {date_str} for {citation_text} "
+                                            f"(U.S. volume {volume}) - year 2015+ likely from header"
+                                        )
+                                        break
+                            elif " F.3d " in citation_text:
+                                volume_match = re.search(r"(\d+)\s+F\.\s*3d", citation_text)
+                                if volume_match:
+                                    volume = int(volume_match.group(1))
+                                    year_int = int(date_str) if date_str.isdigit() else None
+                                    if year_int and 800 <= volume <= 900 and year_int >= 2020:
+                                        should_filter = True
+                                        logger.warning(
+                                            f"[CLUSTER-DATE] Filtered date {date_str} for {citation_text} "
+                                            f"(F.3d volume {volume}) - year 2020+ likely from header"
+                                        )
+                                        break
+                    if not should_filter:
+                        filtered_dates.append(date)
+
+                if filtered_dates:
+                    date_counts = Counter(filtered_dates)
+                    cluster_extracted_date = date_counts.most_common(1)[0][0]
+                    logger.info(
+                        f"[CLUSTER-DATE] Cluster {cluster_id}: Using filtered date {cluster_extracted_date} "
+                        f"(filtered {len(extracted_dates) - len(filtered_dates)} header dates)"
+                    )
+                else:
+                    cluster_extracted_date = extracted_dates[0] if extracted_dates else None
+                    logger.warning(
+                        f"[CLUSTER-DATE] Cluster {cluster_id}: All dates filtered, using fallback: {cluster_extracted_date}"
+                    )
+
+        elif len(cluster_citations) == 1:
+            c0 = cluster_citations[0]
+            if isinstance(c0, dict):
+                cd0 = c0.get("canonical_date")
+                if cd0:
+                    ym0 = re.search(r"(19|20)\d{2}", str(cd0))
+                    if ym0:
+                        cluster_extracted_date = ym0.group(0)
+                if not cluster_extracted_date:
+                    py0 = self._decision_year_from_citation_paren(str(c0.get("citation") or ""))
+                    if py0:
+                        cluster_extracted_date = py0
+                if not cluster_extracted_date:
+                    ed0 = c0.get("extracted_date")
+                    if ed0 and str(ed0).strip().isdigit() and 1700 <= int(str(ed0).strip()) <= 2030:
+                        cluster_extracted_date = str(ed0).strip()
+
+        return cluster_extracted_date
+
+    def _apply_known_pin_extracted_repairs(self, citations: List[Any]) -> None:
+        """
+        When citation text matches KNOWN_FEDERAL / KNOWN_WL but extracted_case_name came from
+        neighbor bleed (e.g. UFCW name on 943 F. Supp. 172 = Delta Dental), repair extracted
+        metadata.
+
+        Pin year is always applied when present (fixes Cardizem/Aggrenox after the enhancement
+        loop rewrites names with wrong TOA tails). Name replacement stays conservative (overlap
+        < 0.30) so we do not stomp valid short captions that still match the same case.
+        """
+        from src.verification.known_citations import _lookup_known_federal
+        from src.verification.utils import calculate_case_name_overlap
+
+        for citation in citations:
+            cit = getattr(citation, "citation", None) or ""
+            if not (cit or "").strip():
+                continue
+            kn = _lookup_known_federal(cit)
+            if not kn:
+                continue
+            canon = (kn.get("canonical_name") or "").strip()
+            if not canon:
+                continue
+            yn = self._canonical_year_from_known_row(kn)
+            ext = (getattr(citation, "extracted_case_name", None) or "").strip()
+
+            if not ext or ext.upper() == "N/A":
+                citation.extracted_case_name = self._clean_extracted_case_name(canon)
+            elif not names_are_same_case(ext, canon):
+                ov = calculate_case_name_overlap(ext, canon)
+                if ov < 0.30:
+                    citation.extracted_case_name = self._clean_extracted_case_name(canon)
+                    logger.info(
+                        f"[KNOWN-PIN-REPAIR] Replaced extracted name with pin canonical for cite '{cit[:80]}'"
+                    )
+
+            if yn:
+                citation.extracted_date = yn
+                self._set_extracted_date_provenance(citation, "known_citation_pin", "high")
+                self._harmonize_trailing_year_in_extracted_case_name(citation, yn)
 
     def _get_unverified_citations(self, citations: List["CitationResult"]) -> List["CitationResult"]:
         """Utility to filter unverified citations."""
@@ -1368,6 +1570,20 @@ class UnifiedCitationProcessorV2:
               "compare_source": str           # see _derive_compare_year()
             }
         """
+        src_l = str(verification_source or "").strip().lower()
+        # Curated pins (known_federal / known_wl / known_state) are authoritative: do not
+        # strip verification because TOA/cluster years disagree with the pin (e.g. Cardizem
+        # 332 F.3d 896 with a stray 1992 near the cite in the document).
+        if src_l in ("known_federal", "known_wl", "known_state"):
+            return {
+                "accept": True,
+                "hard_mismatch": False,
+                "soft_mismatch": False,
+                "year_diff": 0,
+                "compare_year": extract_year_value(canonical_date),
+                "compare_source": "known_pin",
+            }
+
         ext_year = extract_year_value(extracted_date)
         compare_year, compare_source = self._derive_compare_year(
             citation_text, canonical_date, extracted_date, verification_source, in_toa_section
@@ -1393,6 +1609,32 @@ class UnifiedCitationProcessorV2:
         # If helper accepted with diff=0 but we parsed distinct years, trust direct parse.
         if match and year_diff > 0:
             match = False
+        # TOA year vs CourtListener filing/decision year often differs by 1 on district reports (F. Supp.*);
+        # do not hard-fail those. Keep strict behavior for F.3d / F.2d (see test_year_diff_one_is_hard_mismatch).
+        # WL/LEXIS excluded: year is explicit in citation text.
+        _wl_lexis_year_in_cite = bool(
+            re.search(
+                r"\b(?:19|20)\d{2}\s+(?:WL|(?:U\.S\.?\s*)?LEXIS)\s+\d+",
+                str(citation_text or ""),
+                re.IGNORECASE,
+            )
+        )
+        _f_supp_family = bool(
+            re.search(
+                r"\bF\.\s*Supp\.?\s*(?:2d|3d)?\b",
+                str(citation_text or ""),
+                re.IGNORECASE,
+            )
+        )
+        if (
+            not match
+            and not extracted_clearly_wrong
+            and year_diff == 1
+            and compare_source == "canonical_date"
+            and not _wl_lexis_year_in_cite
+            and _f_supp_family
+        ):
+            match = True
         if extracted_clearly_wrong or match:
             return {
                 "accept": True,
@@ -1412,6 +1654,37 @@ class UnifiedCitationProcessorV2:
                 "year_diff": year_diff,
                 "compare_year": compare_year,
                 "compare_source": compare_source,
+            }
+
+        # CourtListener + circuit reporter with no decision year in the cite string: extracted_date
+        # often bleeds from TOA / neighbor lines (e.g. 1992 vs 2003). Prefer canonical cluster year
+        # when the gap is large. Keep |diff|==1 strict (test_year_diff_one_is_hard_mismatch_no_tolerance).
+        _ct = str(citation_text or "")
+        _circuit_rep = bool(
+            re.search(r"\b\d+\s+F\.\s*(?:3d|2d|4th)\s+\d+", _ct, re.IGNORECASE)
+        )
+        _scotus_rep = bool(
+            re.search(r"\b\d+\s+U\.\s*S\.\s+\d+", _ct, re.IGNORECASE)
+            or re.search(r"\b\d+\s+S\.\s*Ct\.\s+\d+", _ct, re.IGNORECASE)
+        )
+        _wl_in_ct = bool(re.search(r"\b(?:19|20)\d{2}\s+WL\s+\d+", _ct, re.IGNORECASE))
+        if (
+            not match
+            and not _scotus_rep
+            and _circuit_rep
+            and not _wl_in_ct
+            and extract_year_from_citation(_ct) is None
+            and ("courtlistener" in src_l or src_l == "batch_verify")
+            and year_diff >= 3
+            and compare_source == "canonical_date"
+        ):
+            return {
+                "accept": True,
+                "hard_mismatch": False,
+                "soft_mismatch": True,
+                "year_diff": year_diff,
+                "compare_year": compare_year,
+                "compare_source": "cl_trust_no_cite_year_circuit",
             }
 
         return {
@@ -1811,6 +2084,40 @@ class UnifiedCitationProcessorV2:
 
         return validation_result
 
+    def _apply_toa_span_metadata(self, citations: List[Any], text: Optional[str]) -> None:
+        """Set metadata['in_toa_section'] when start_index lies inside detected Table of Authorities."""
+        if not text or not citations:
+            return
+        try:
+            from src.toa_parser import ToAParser
+
+            bounds = ToAParser().detect_toa_section(text)
+        except Exception as e:
+            logger.debug("[TOA-SPAN] Skipping TOA span tagging: %s", e)
+            return
+        if not bounds:
+            return
+        toa_start, toa_end = int(bounds[0]), int(bounds[1])
+        tagged = 0
+        for c in citations:
+            s = getattr(c, "start_index", None)
+            if s is None:
+                continue
+            if toa_start <= int(s) < toa_end:
+                md = getattr(c, "metadata", None)
+                if not isinstance(md, dict):
+                    md = {}
+                md["in_toa_section"] = True
+                c.metadata = md
+                tagged += 1
+        if tagged:
+            logger.info(
+                "[TOA-SPAN] Marked %s citation(s) in_toa_section=True (bounds %s–%s)",
+                tagged,
+                toa_start,
+                toa_end,
+            )
+
     def _verify_with_courtlistener(self, citations) -> dict:
         """Verify citations using src.verification (UnifiedVerificationMaster batch)."""
         try:
@@ -1833,7 +2140,8 @@ class UnifiedCitationProcessorV2:
                         extracted_case_names=case_names if case_names else None,
                         extracted_dates=case_dates if case_dates else None,
                         progress_callback=None,
-                        enable_fallback=False,
+                        # Match main pipeline: allow CL search + web sources when lookup misses
+                        enable_fallback=True,
                     )
                 )
             finally:
@@ -1869,6 +2177,8 @@ class UnifiedCitationProcessorV2:
 
         if not citations:
             return citations
+
+        self._apply_toa_span_metadata(citations, text)
 
         # Use the new unified verification master with BATCH processing
         try:
@@ -1972,7 +2282,8 @@ class UnifiedCitationProcessorV2:
                     if _env_fb_budget.isdigit():
                         _fb_time_budget = max(0, int(_env_fb_budget))
                     else:
-                        _fb_time_budget = 120
+                        # Wall-clock for all extended fallbacks in one job; 120s often exhausted on long TOAs
+                        _fb_time_budget = 180
 
                     def _run_verification_in_new_loop(
                         _verifier, _citations, _names, _dates, _proprietary_flags, _total, _max_fb_count, _fb_budget_count, _progress_cb
@@ -3163,7 +3474,7 @@ class UnifiedCitationProcessorV2:
             if m1 and m2:
                 y1, y2 = int(m1.group(0)), int(m2.group(0))
                 if abs(y1 - y2) > 2:
-                    logger.warning(
+                    logger.debug(
                         f"[PARALLEL-REJECTED] Year mismatch: {y1} vs {y2} | "
                         f"{citation1.citation} vs {citation2.citation} - Different cases"
                     )
@@ -3182,7 +3493,7 @@ class UnifiedCitationProcessorV2:
             vol2, rep2 = parsed2.get("volume"), parsed2.get("reporter")
             # If SAME reporter but DIFFERENT volumes, they CANNOT be parallel
             if rep1 and rep2 and rep1 == rep2 and vol1 and vol2 and vol1 != vol2:
-                logger.warning(
+                logger.debug(
                     f"[PARALLEL-REJECTED] Same reporter '{rep1}' but different volumes: {vol1} vs {vol2} | "
                     f"{citation1.citation} vs {citation2.citation} - These are DIFFERENT cases"
                 )
@@ -3831,6 +4142,89 @@ class UnifiedCitationProcessorV2:
 
         return prefix
 
+    def _strip_trailing_parallel_scotus_cite_tails(self, chunk: str) -> str:
+        """Remove ', 440 U.S. 371' / ', 99 S. Ct. …' etc. so parallel lead-ins still yield one case name."""
+        c = (chunk or "").strip()
+        patterns = (
+            r",\s*\d{1,4}\s+U\.\s*S\.\s+\d+.*$",
+            r",\s*\d{1,4}\s+S\.\s*Ct\.\s+\d+.*$",
+            r",\s*\d{1,4}\s+L\.\s*Ed\.\s*2d\s+\d+.*$",
+            r",\s*\d{1,4}\s+L\.\s*Ed\.\s+\d+.*$",
+        )
+        for _ in range(8):
+            prev = c
+            for pat in patterns:
+                c = re.sub(pat, "", c, flags=re.IGNORECASE).strip()
+            if c == prev:
+                break
+        return c
+
+    def _extract_case_name_by_scotus_reporter_anchor(self, text: str, citation) -> Optional[str]:
+        """
+        Bind Party v. Party to this cite by matching `, {vol} <reporter>` in the SCOTUS-family
+        window before start_index (includes a short span after start so ', 99 S. Ct.' is found when
+        the citation token starts at the volume). Strips trailing U.S./S.Ct./L.Ed. parallel lead-ins
+        so 'Smith, 440 U.S. 371, 99 S. Ct. 1551' still resolves to Smith for the S.Ct. cite.
+        """
+        cit = (getattr(citation, "citation", None) or "").strip()
+        if not cit or not text:
+            return None
+        start = getattr(citation, "start_index", None)
+        if start is None or start <= 0:
+            return None
+        win_end = min(len(text), start + max(90, len(cit) + 20))
+        raw = text[max(0, start - 700) : win_end]
+        left = re.sub(r"[\n\r]+", " ", raw)
+        left = re.sub(r"\s+", " ", left).strip()
+
+        configs = [
+            (re.compile(r"\b(\d{1,4})\s+U\.\s*S\.\s+\d+", re.I), (", {v} U.S.", ",{v} U.S.", ", {v} u.s.", ",{v} u.s.")),
+            (re.compile(r"\b(\d{1,4})\s+S\.\s*Ct\.\s+\d+", re.I), (", {v} S. Ct.", ",{v} S. Ct.", ", {v} s. ct.", ",{v} s. ct.")),
+            (re.compile(r"\b(\d{1,4})\s+L\.\s*Ed\.\s*2d\s+\d+", re.I), (", {v} L. Ed. 2d", ",{v} L. Ed. 2d", ", {v} l. ed. 2d")),
+            (
+                re.compile(r"\b(\d{1,4})\s+L\.\s*Ed\.\s+(?!2d)\d+", re.I),
+                (", {v} L. Ed.", ",{v} L. Ed.", ", {v} l. ed."),
+            ),
+        ]
+        for cre, anchors in configs:
+            vm = cre.search(cit)
+            if not vm:
+                continue
+            vol = vm.group(1)
+            idx = -1
+            for tmpl in anchors:
+                a = tmpl.format(v=vol)
+                j = left.rfind(a)
+                if j != -1 and j > idx:
+                    idx = j
+            if idx < 0:
+                continue
+            name_chunk = left[:idx].strip()
+            if ";" in name_chunk:
+                name_chunk = name_chunk[name_chunk.rfind(";") + 1 :].strip()
+            name_chunk = re.sub(
+                r"^(?:[\s,;]+)?(?:see|cf\.)\s*,?\s*(?:e\.g\.,?\s+|eg\.,?\s+)?",
+                "",
+                name_chunk,
+                flags=re.IGNORECASE,
+            ).strip()
+            name_chunk = self._strip_trailing_parallel_scotus_cite_tails(name_chunk)
+            if not name_chunk or " v. " not in name_chunk:
+                continue
+            m = re.search(
+                r"([A-Z][A-Za-z0-9',.&\-\s]+?\s+v\.\s+[A-Za-z0-9',.&\-\s]+)\s*$",
+                name_chunk,
+            )
+            if not m:
+                continue
+            name = re.sub(r"\s+", " ", m.group(1).strip())
+            if len(name) < 10:
+                continue
+            if self._is_docket_caption_bleed(name) or self._looks_like_quote_not_case_name(name):
+                continue
+            return name
+        return None
+
     def _extract_case_name_from_context(self, text: str, citation, all_citations=None) -> str:
         """Extract case name from citation string itself or surrounding text context."""
         try:
@@ -3900,6 +4294,10 @@ class UnifiedCitationProcessorV2:
                     name = re.sub(r'[,;:\s]+$', '', name)
                     if len(name) > 5 and ' v. ' in name and not self._is_docket_caption_bleed(name) and not self._looks_like_quote_not_case_name(name):
                         return name
+
+            anchored = self._extract_case_name_by_scotus_reporter_anchor(text, citation)
+            if anchored:
+                return anchored
 
             # Strategy 2: Look in the text BEFORE the citation start_index.
             # Use a wider window (550 chars) so case names a few sentences before
@@ -4130,6 +4528,31 @@ class UnifiedCitationProcessorV2:
             )
         return "N/A"
 
+    def _decision_year_from_citation_paren(self, cit_text: Optional[str]) -> Optional[str]:
+        """
+        Last parenthetical in the main citation (before quoting/citing) that contains a 4-digit
+        decision year. Overrides context-based dates that pick up brief filing years (e.g. 2015).
+        """
+        if not cit_text or not str(cit_text).strip():
+            return None
+        main = str(cit_text).strip()
+        for sep in ("(quoting ", "(citing ", "(quoted in ", "(cited in "):
+            idx = main.find(sep)
+            if idx != -1:
+                main = main[:idx].strip()
+                break
+        if re.search(r"\((?:scotus|ca\d+)\s+(?:19|20)\d{2}\s*\)", main, re.IGNORECASE):
+            return None
+        best: Optional[str] = None
+        for m in re.finditer(r"\(([^)]*)\)", main):
+            inner = m.group(1) or ""
+            ym = re.search(r"\b((?:17|18|19|20)\d{2})\b", inner)
+            if ym:
+                y = int(ym.group(1))
+                if 1700 <= y <= 2030:
+                    best = ym.group(1)
+        return best
+
     def _extract_date_from_context(self, text: str, citation, return_source: bool = False):
         """Extract date/year from citation string itself or surrounding text context.
 
@@ -4288,9 +4711,10 @@ class UnifiedCitationProcessorV2:
                     before_semi = context_after.split(';')[0]
                     if re.search(r'\(\d{4}\)', before_semi) and not re.search(r'\(citing\b', before_semi, re.IGNORECASE):
                         return _ret(imm.group(1), "citation_immediate_parenthetical", "high")
-                # Find ALL parenthetical years, skip page header years like "Cite as: 594 U. S. ____ (2021)"
+                # Find ALL parenthetical years ending in ####) — Bluebook decision years, not bare "2015" in prose.
                 # CRITICAL: Prefer the year CLOSEST to the citation (min start pos) to avoid borrowing
                 # from a subsequent citation (e.g. Chalkley 143 S.E. 631 (1928) ... Mack (2016) -> use 1928)
+                # Tie-break: bare (YYYY) before longer "(D.N.H. 2013)" when both are equidistant-ish.
                 candidates = []
                 for m in re.finditer(r'\((?:[A-Za-z0-9.\s]*?)(\d{4})\)', context_after):
                     year = m.group(1)
@@ -4318,11 +4742,18 @@ class UnifiedCitationProcessorV2:
                         # Reject modern year (>= 2000) for historical SCOTUS reporters (pre-1875)
                         if int(year) >= 2000 and _reporter_suggests_old_case(cit_text):
                             continue
-                        candidates.append((m.start(), year))
+                        candidates.append((m.start(), year, m.group(0)))
                 if candidates:
-                    # Use the parenthetical CLOSEST to the citation (prefer document over citation-text bleed)
-                    closest = min(candidates, key=lambda x: x[0])
-                    return _ret(closest[1], "citation_parenthetical", "high")
+
+                    def _paren_year_rank(tup: Tuple[int, str, str]) -> Tuple[int, int, int]:
+                        pos, _y, g0 = tup
+                        compact = re.sub(r"\s+", "", g0)
+                        # 0 = simple decision date (2013); 1 = court line (D.N.H. 2013)
+                        simple = 0 if re.fullmatch(r"\(\d{4}\)", compact) else 1
+                        return (pos, simple, len(g0))
+
+                    best = min(candidates, key=_paren_year_rank)
+                    return _ret(best[1], "citation_parenthetical", "high")
                 # If all parenthetical years were in page headers, try bare year after page header
                 # PDF page breaks can split "(CA8 2016)" into "(CA8 ...header... 2016)"
                 # Look for a bare 4-digit year that follows a page header
@@ -4421,35 +4852,44 @@ class UnifiedCitationProcessorV2:
                     rf'{re.escape(vol)}\s+{reporter_pattern}\s+{re.escape(page)}'
                     rf'[^(]{{0,60}}\((?:[A-Za-z0-9.\s]*?)(\d{{4}})\)',
                 )
+                # Collect candidates and pick the closest match to this citation span.
+                # Returning the first match in document order can “borrow” a wrong year from a distant TOA/header.
+                candidates: List[Tuple[int, int, str]] = []
                 for gm in global_pattern.finditer(text):
                     year = gm.group(1)
-                    if 1700 <= int(year) <= 2030:
-                        # Skip if this match is at the same position (we already checked it)
-                        if gm.start() == (start or 0):
-                            continue
-                        # Verify it's not a page header year
-                        preceding_ctx = text[max(0, gm.start() - 30):gm.start()]
-                        if re.search(r'Cite\s+as:', preceding_ctx, re.IGNORECASE):
-                            continue
-                        # Skip year from nested (citing ... (9th Cir. YYYY))
-                        match_ctx = text[max(0, gm.start() - 20):gm.end() + 60]
-                        if re.search(r'Cir\.\s*' + re.escape(year) + r'\b', match_ctx, re.IGNORECASE):
-                            continue
-                        # Skip court-abbrev year "(scotus YYYY)" — eyecite annotation, not actual document year
-                        paren_ctx = text[max(0, gm.end() - 20):gm.end()]
-                        if re.search(r'(?:scotus|ca\d|dcd|cand|mnd)\s*' + re.escape(year), paren_ctx, re.IGNORECASE):
-                            continue
-                        # Reject modern year (>= 2015) for historical reporters
-                        if int(year) >= 2015 and _reporter_suggests_old_case(cit_text):
-                            logger.debug(
-                                f"[DATE-STRATEGY5] Rejecting year {year} for old reporter '{cit_text[:50]}'"
-                            )
-                            continue
+                    if not (year and year.isdigit() and 1700 <= int(year) <= 2030):
+                        continue
+                    # Skip if this match is at the same position (we already checked it)
+                    if gm.start() == (start or 0):
+                        continue
+                    # Verify it's not a page header year
+                    preceding_ctx = text[max(0, gm.start() - 30):gm.start()]
+                    if re.search(r'Cite\s+as:', preceding_ctx, re.IGNORECASE):
+                        continue
+                    # Skip year from nested (citing ... (9th Cir. YYYY))
+                    match_ctx = text[max(0, gm.start() - 20):gm.end() + 60]
+                    if re.search(r'Cir\.\s*' + re.escape(year) + r'\b', match_ctx, re.IGNORECASE):
+                        continue
+                    # Skip court-abbrev year "(scotus YYYY)" — eyecite annotation, not actual document year
+                    paren_ctx = text[max(0, gm.end() - 20):gm.end()]
+                    if re.search(r'(?:scotus|ca\d|dcd|cand|mnd)\s*' + re.escape(year), paren_ctx, re.IGNORECASE):
+                        continue
+                    # Reject modern year (>= 2015) for historical reporters
+                    if int(year) >= 2015 and _reporter_suggests_old_case(cit_text):
                         logger.debug(
-                            f"[DATE-STRATEGY5] Borrowed year {year} for '{cit_text[:50]}' "
-                            f"from another occurrence at pos {gm.start()}"
+                            f"[DATE-STRATEGY5] Rejecting year {year} for old reporter '{cit_text[:50]}'"
                         )
-                        return _ret(year, "citation_global_recovery", "low")
+                        continue
+                    dist = abs(gm.start() - (start or 0))
+                    candidates.append((dist, gm.start(), year))
+
+                if candidates:
+                    dist, pos, year = min(candidates, key=lambda t: (t[0], t[1]))
+                    logger.debug(
+                        f"[DATE-STRATEGY5] Borrowed year {year} for '{cit_text[:50]}' "
+                        f"from closest occurrence at pos {pos} (dist={dist})"
+                    )
+                    return _ret(year, "citation_global_recovery", "low")
 
         except Exception as date_err:
             logger.debug(
@@ -5039,22 +5479,35 @@ class UnifiedCitationProcessorV2:
                         )
                         break
             else:
-                for split_pos in range(min(4, len(page_blob) - 1), 1, -1):
-                    page = page_blob[:split_pos]
-                    pinpoint = page_blob[split_pos:]
-                    page_val = int(page)
-                    if page_val < 1 or page_val > 9999:
-                        continue
-                    if not pinpoint or pinpoint[0] == '0':
-                        continue
-                    pin_val = int(pinpoint)
-                    if pin_val < page_val or pin_val > page_val * 10:
-                        continue
-                    fixed = f"{prefix}{page}{suffix}"
-                    logger.info(
-                        f"[EYECITE-FIX] Primary pinpoint: '{citation_str[:60]}' -> '{fixed[:60]}'"
-                    )
-                    break
+                # 133 S. Ct. 2223, 2227 (2013): page_blob is "2223" (one first page) and the
+                # comma-pin is already in `suffix` (", 2227"). The loop below would wrongly split
+                # 2223 -> 22+23 because 23 <= 22*10 (same bug pattern as Actavis footnote cites).
+                sfx = suffix.lstrip()
+                if (
+                    is_us_reporter
+                    and len(page_blob) == 4
+                    and page_blob.isdigit()
+                    and 1000 <= int(page_blob) <= 9999
+                    and re.match(r"^,\s*\d{3,4}\b", sfx)
+                ):
+                    pass
+                else:
+                    for split_pos in range(min(4, len(page_blob) - 1), 1, -1):
+                        page = page_blob[:split_pos]
+                        pinpoint = page_blob[split_pos:]
+                        page_val = int(page)
+                        if page_val < 1 or page_val > 9999:
+                            continue
+                        if not pinpoint or pinpoint[0] == '0':
+                            continue
+                        pin_val = int(pinpoint)
+                        if pin_val < page_val or pin_val > page_val * 10:
+                            continue
+                        fixed = f"{prefix}{page}{suffix}"
+                        logger.info(
+                            f"[EYECITE-FIX] Primary pinpoint: '{citation_str[:60]}' -> '{fixed[:60]}'"
+                        )
+                        break
 
         if fixed != citation_str:
             logger.info(f"[EYECITE-FIX] Final: '{citation_str[:80]}' -> '{fixed[:80]}'")
@@ -5214,8 +5667,21 @@ class UnifiedCitationProcessorV2:
                         r',\s*\d+\s+(?:Wn\.|Wash\.|P\.\d|F\.\d|U\.S\.)',
                         txt
                     )
+                    _wl = re.search(r",\s*\d{4}\s+WL\s+\d+", txt, re.IGNORECASE)
                     if _rb:
                         best_name = txt[:_rb.start()].strip().rstrip(",")
+                        break
+                    if _wl:
+                        best_name = txt[:_wl.start()].strip().rstrip(",")
+                        break
+                # Eyecite often drops leading "In re" on TOA lines; "… Litigation No. …, YYYY WL …" still names the case.
+                elif re.search(r"\bNo\.\s*[\w\-]+", txt, re.I) and re.search(
+                    r",\s*\d{4}\s+WL\s+\d+", txt, re.I
+                ):
+                    # TOA lines use ", No. 11-cv-..." or "… Litigation No. 11-cv-..."
+                    m_no = re.search(r"(?:,\s*|\s+)No\.\s*", txt, re.I)
+                    if m_no:
+                        best_name = txt[: m_no.start()].strip().rstrip(",")
                         break
             if best_name and len(best_name) > 4:
                 for c in group:
@@ -5232,6 +5698,39 @@ class UnifiedCitationProcessorV2:
                                 f"[DEDUP-PROPAGATE] Override '{old_name}' -> '{best_name}' "
                                 f"on bare '{txt[:40]}' at start={si}"
                             )
+        # Phase 0.55: Name from citation text for "…, No. docket, YYYY WL …" / "… No. docket, YYYY WL …"
+        # when eyecite drops "In re" and there is no " v. ". Same-start dedup only runs when len(group)>1;
+        # singleton TOA lines would otherwise keep a wrong context name (e.g. Dentsply on Effexor WL).
+        _no_wl_signal = re.compile(
+            r"(?i)^(see|see also|e\.g\.|cf\.|accord|but see|contra|compare)\s"
+        )
+
+        def _apply_no_wl_line_name(cit: CitationResult) -> None:
+            txt = cit.citation or ""
+            if " v. " in txt or re.search(r"\bIn\s+re\b", txt, re.I):
+                return
+            if not re.search(r",\s*\d{4}\s+WL\s+\d+", txt, re.I):
+                return
+            if not re.search(r"\bNo\.\s*[\w\-]+", txt, re.I):
+                return
+            m_no = re.search(r"(?:,\s*|\s+)No\.\s*", txt, re.I)
+            if not m_no:
+                return
+            prefix = txt[: m_no.start()].strip().rstrip(",")
+            if len(prefix) <= 4 or _no_wl_signal.match(prefix):
+                return
+            cit.extracted_case_name = prefix
+            cit._dedup_name_set = True
+            logger.info(
+                f"[DEDUP-NO-WL-LINE] Set extracted_case_name from cite text: {prefix[:60]!r}…"
+            )
+
+        for _grp in start_groups.values():
+            for _cit in _grp:
+                _apply_no_wl_line_name(_cit)
+        for _cit in no_position:
+            _apply_no_wl_line_name(_cit)
+
         sorted_citations = [c for group in sorted(start_groups.values(), key=lambda g: g[0].start_index or 0) for c in group] + no_position
         sorted_citations.sort(key=lambda x: (x.start_index or 0, -(x.end_index or 0)))
 
@@ -5270,6 +5769,31 @@ class UnifiedCitationProcessorV2:
                     seen[key] = citation
 
         final = list(seen.values())
+
+        # Phase 2.5: Drop bare "YYYY WL nnnn" when a longer citation embeds the same Westlaw ID
+        # (avoids duplicate rows + wrong left-context names from TOA adjacency, e.g. Effexor WL + Aggrenox bleed).
+        _wl_only = re.compile(r"^\s*((?:19|20)\d{2})\s+WL\s+(\d{1,12})\s*$", re.IGNORECASE)
+        _wl_embed = re.compile(r"\b((?:19|20)\d{2})\s+WL\s+(\d{1,12})\b", re.IGNORECASE)
+        to_drop = set()
+        for i, c in enumerate(final):
+            mo = _wl_only.match((c.citation or "").strip())
+            if not mo:
+                continue
+            fp = f"{mo.group(1)} WL {mo.group(2)}"
+            for j, other in enumerate(final):
+                if i == j:
+                    continue
+                ot = (other.citation or "").strip()
+                if len(ot) <= len((c.citation or "").strip()):
+                    continue
+                if re.search(re.escape(mo.group(1)) + r"\s+WL\s+" + re.escape(mo.group(2)), ot, re.I):
+                    to_drop.add(id(c))
+                    break
+        if to_drop:
+            before_sub = len(final)
+            final = [c for c in final if id(c) not in to_drop]
+            logger.info(f"[DEDUP-WL-SUBSUME] Removed {before_sub - len(final)} bare WL cite(s) embedded in longer citation")
+
         logger.info(f"[DEDUP] Finished: {len(citations)} -> {len(final)} citations ({len(citations) - len(final)} removed)")
 
         # Filter court-year-only parentheticals
@@ -5742,8 +6266,14 @@ class UnifiedCitationProcessorV2:
                         self._set_extracted_date_provenance(
                             citation, "citation_court_year_paren", "high"
                         )
-                # Fallback: year in parentheses in citation (e.g. "741 P.2d 559 (1987)" -> 1987) for Mercer 1987 vs 2009
-                if self._is_missing_extracted_date(getattr(citation, "extracted_date", None)) and cit_text:
+                # Decision year in cite string wins over context / TOA / signature bleed (Actavis (2013) vs 2015)
+                paren_decision = self._decision_year_from_citation_paren(cit_text)
+                if paren_decision:
+                    citation.extracted_date = paren_decision
+                    self._set_extracted_date_provenance(
+                        citation, "citation_paren_decision_year", "high"
+                    )
+                elif self._is_missing_extracted_date(getattr(citation, "extracted_date", None)) and cit_text:
                     paren_year = re.search(r"\((19\d{2}|20\d{2})\)", cit_text)
                     if paren_year:
                         citation.extracted_date = paren_year.group(1)
@@ -5767,6 +6297,15 @@ class UnifiedCitationProcessorV2:
                         context=ctx_window,
                     )
                     citation.extracted_case_name = self._clean_extracted_case_name(citation.extracted_case_name)
+                    wl_y_harm = re.search(
+                        r"(\d{4})\s+(?:WL|U\.S\.?\s*LEXIS|LEXIS)\s+\d+",
+                        citation.citation or "",
+                        re.IGNORECASE,
+                    )
+                    if wl_y_harm:
+                        self._harmonize_trailing_year_in_extracted_case_name(
+                            citation, wl_y_harm.group(1)
+                        )
                     self._repair_known_reporter_glitches(citation)
                     # Reject quote/sentence misidentified as case name (e.g. "Time and again, the Supreme Court has said no")
                     # But NOT for inline-extracted names (physically embedded in citation text)
@@ -6564,6 +7103,12 @@ class UnifiedCitationProcessorV2:
         except Exception as enrich_err:
             logger.warning(f"[UNIFIED_PIPELINE] Metadata enrichment skipped due to error: {enrich_err}")
 
+        logger.info("[UNIFIED_PIPELINE] Phase 3.55: Known-citation pin repairs (bleed vs reporter pin)")
+        try:
+            self._apply_known_pin_extracted_repairs(citations)
+        except Exception as pin_rep_err:
+            logger.warning(f"[UNIFIED_PIPELINE] Known-pin repair skipped: {pin_rep_err}")
+
         logger.info("[UNIFIED_PIPELINE] Phase 4: Skipping duplicate canonical propagation (already done)")
         self._update_progress(60, "Propagating Data", "Parallel verification already completed earlier")
         # self.propagate_canonical_to_cluster(citations)  # Already done earlier in Phase 1
@@ -6573,6 +7118,12 @@ class UnifiedCitationProcessorV2:
         self._update_progress(65, "Filtering", "Removing false positive citations")
         citations = self._filter_false_positive_citations(citations, text)
         logger.info(f"[UNIFIED_PIPELINE] After false positive filtering: {len(citations)} citations")
+
+        logger.info("[UNIFIED_PIPELINE] Phase 4.52: Re-apply known-citation pins after false-positive filter")
+        try:
+            self._apply_known_pin_extracted_repairs(citations)
+        except Exception as pin_rep_err:
+            logger.warning(f"[UNIFIED_PIPELINE] Post-filter known-pin repair skipped: {pin_rep_err}")
 
         # FIX #54: Diagnostic logging to find why verification doesn't run
         logger.error(f"   enable_verification: {self.config.enable_verification}")
@@ -6691,23 +7242,44 @@ class UnifiedCitationProcessorV2:
         else:
             logger.info("[UNIFIED_PIPELINE] Phase 4.75: Skipping pre-clustering verification (disabled)")
 
-        logger.info("[UNIFIED_PIPELINE] Phase 5: Creating citation clusters with MASTER clustering system")
+        logger.info("[UNIFIED_PIPELINE] Phase 5: Creating citation clusters")
         self._update_progress(70, "Clustering", "Creating citation clusters")
-        from src.unified_clustering_master import cluster_citations_unified_master
 
         # CRITICAL FIX: Do NOT re-run verification inside clustering. Verification already ran
         # in Phase 4.75 above. Re-running it here caused the pipeline to appear "stuck at
         # Creating citation clusters..." because _apply_verification_to_clusters calls the
         # batch API (60-120s timeouts). Clustering itself is fast; duplicate verification was the hang.
-        clusters = cluster_citations_unified_master(
-            citations,
-            original_text=text,
-            enable_verification=False,  # Already verified in Phase 4.75; skip to keep clustering fast
-            progress_callback=self._update_progress
-        )
-        logger.info(
-            f"[UNIFIED_PIPELINE] Created {len(clusters)} clusters using MASTER clustering (verification already done in Phase 4.75)"
-        )
+        #
+        # Use optimized clustering (same as unified_processing_pipeline): merges rows that share
+        # the same federal reporter primary key (e.g. two "133 S. Ct. 2223" mentions) so the UI
+        # does not show duplicate case cards (verified + unverified) for one cite.
+        try:
+            clusters = cluster_citations_unified(
+                citations,
+                original_text=text,
+                enable_verification=False,
+            )
+            logger.info(
+                f"[UNIFIED_PIPELINE] Created {len(clusters)} clusters via optimized clustering "
+                f"(reporter-PK merge; verification already done in Phase 4.75)"
+            )
+        except Exception as opt_exc:
+            logger.warning(
+                "[UNIFIED_PIPELINE] Optimized clustering failed (%s); using modular master",
+                opt_exc,
+            )
+            from src.unified_clustering_master import cluster_citations_unified_master
+
+            clusters = cluster_citations_unified_master(
+                citations,
+                original_text=text,
+                enable_verification=False,
+                progress_callback=self._update_progress,
+            )
+            logger.info(
+                f"[UNIFIED_PIPELINE] Created {len(clusters)} clusters via modular MASTER clustering "
+                f"(verification already done in Phase 4.75)"
+            )
         
         # Update progress to show clustering is complete
         self._update_progress(90, "Finalizing", "Finalizing results...")
@@ -6733,94 +7305,10 @@ class UnifiedCitationProcessorV2:
             if not cluster_members:
                 cluster_members = cluster.get("cluster_members", [])
 
-            # USER FIX 2024-10-21 v4: Compute best extracted_date for the cluster
-            # Parallel citations MUST have the same extracted date
-            cluster_extracted_date = None
-            if len(cluster_citations) > 1:  # Only for parallel citations
-                # Collect all extracted dates and canonical dates from cluster citations
-                extracted_dates = []
-                canonical_dates = []
-                for cit_dict in cluster_citations:
-                    if isinstance(cit_dict, dict):
-                        if cit_dict.get("extracted_date"):
-                            extracted_dates.append(cit_dict.get("extracted_date"))
-                        if cit_dict.get("canonical_date"):
-                            canonical_dates.append(
-                                (cit_dict.get("citation", "Unknown"), cit_dict.get("canonical_date"))
-                            )
-
-                # Check for canonical date discrepancies (indicates potential typo or wrong verification)
-                has_date_mismatch = len(set([d for _, d in canonical_dates])) > 1
-                if has_date_mismatch:
-                    logger.warning(
-                        f"[WARNING] [DATE-MISMATCH] Cluster {cluster_id}: Parallel citations have DIFFERENT canonical dates!"
-                    )
-                    for cit, date in canonical_dates:
-                        logger.warning(f"   - {cit}: canonical_date={date}")
-                    logger.warning(f"   -> This may indicate a typo or verification to wrong case. User should review.")
-
-                    # Add warning to cluster metadata so it appears in the UI
-                    cluster["date_mismatch_warning"] = True
-                    cluster["date_mismatch_details"] = [
-                        {"citation": cit, "canonical_date": date} for cit, date in canonical_dates
-                    ]
-
-                # Use the most common extracted date, but filter out dates from headers
-                if extracted_dates:
-                    from collections import Counter
-
-                    # CRITICAL FIX: Filter out dates that are likely from headers before counting
-                    filtered_dates = []
-                    for date in extracted_dates:
-                        date_str = str(date)
-                        # Skip dates that are 2015+ for U.S. volumes 400-600 (1970s-2000s cases)
-                        # Skip dates that are 2020+ for F.3d volumes 800-900 (2010s cases)
-                        should_filter = False
-                        for cit_dict in cluster_citations:
-                            if isinstance(cit_dict, dict):
-                                citation_text = cit_dict.get("citation", "")
-                                if " U.S. " in citation_text:
-                                    volume_match = re.search(r"(\d+)\s+U\.\s*S\.", citation_text)
-                                    if volume_match:
-                                        volume = int(volume_match.group(1))
-                                        year_int = int(date_str) if date_str.isdigit() else None
-                                        if year_int and 400 <= volume <= 600 and year_int >= 2015:
-                                            should_filter = True
-                                            logger.warning(
-                                                f"[CLUSTER-DATE] Filtered date {date_str} for {citation_text} "
-                                                f"(U.S. volume {volume}) - year 2015+ likely from header"
-                                            )
-                                            break
-                                elif " F.3d " in citation_text:
-                                    volume_match = re.search(r"(\d+)\s+F\.\s*3d", citation_text)
-                                    if volume_match:
-                                        volume = int(volume_match.group(1))
-                                        year_int = int(date_str) if date_str.isdigit() else None
-                                        if year_int and 800 <= volume <= 900 and year_int >= 2020:
-                                            should_filter = True
-                                            logger.warning(
-                                                f"[CLUSTER-DATE] Filtered date {date_str} for {citation_text} "
-                                                f"(F.3d volume {volume}) - year 2020+ likely from header"
-                                            )
-                                            break
-                        if not should_filter:
-                            filtered_dates.append(date)
-                    
-                    if filtered_dates:
-                        date_counts = Counter(filtered_dates)
-                        cluster_extracted_date = date_counts.most_common(1)[0][0]
-                        logger.info(
-                            f"[CLUSTER-DATE] Cluster {cluster_id}: Using filtered date {cluster_extracted_date} "
-                            f"(filtered {len(extracted_dates) - len(filtered_dates)} header dates)"
-                        )
-                    else:
-                        # If all dates were filtered, use the first non-filtered date from original list
-                        # This shouldn't happen, but fallback just in case
-                        cluster_extracted_date = extracted_dates[0] if extracted_dates else None
-                        logger.warning(
-                            f"[CLUSTER-DATE] Cluster {cluster_id}: All dates filtered, using fallback: {cluster_extracted_date}"
-                        )
-                    # Performance optimization: Disable verbose debug logging
+            # USER FIX 2024-10-21 v4: Compute best extracted_date for the cluster (singleton + parallel)
+            cluster_extracted_date = self._compute_cluster_decision_year_phase55(
+                cluster, cluster_citations, cluster_id
+            )
 
             # DEBUG: Log cluster canonical data (disabled for performance)
             # for cit_dict in cluster_citations[:2]:  # Log first 2
@@ -6858,16 +7346,19 @@ class UnifiedCitationProcessorV2:
                 # CRITICAL: Set cluster_members so frontend can display them
                 citation.cluster_members = [m for m in cluster_members if m != citation_text]
 
-                # CRITICAL FIX: NEVER overwrite extracted_date with cluster-level data!
-                # Memory rule: extracted_date must NEVER be overwritten or contaminated.
-                # The extracted_date comes from the user's document and must remain unchanged.
-                # Only use cluster_extracted_date if the citation has NO extracted_date at all.
-                # Even then, we should preserve the original extracted_date if it exists.
-                if cluster_extracted_date and size > 1:
-                    existing_extracted_date = getattr(citation, "extracted_date", None)
-                    if not existing_extracted_date or existing_extracted_date == "N/A":
-                        # Only fill in if truly missing - but this should rarely happen
-                        citation.extracted_date = cluster_extracted_date
+                # Parallel cites share one decision year; singleton clusters also get a derived year
+                # (canonical / cite paren) so wrong context extraction does not stick (e.g. Terazosin 2003 vs 2005).
+                if cluster_extracted_date:
+                    year_s = str(cluster_extracted_date).strip()
+                    citation.extracted_date = year_s
+                    ecn = getattr(citation, "extracted_case_name", None) or ""
+                    if ecn and str(ecn).strip() and str(ecn).strip().upper() != "N/A":
+                        m_trail = re.search(
+                            r",\s*((?:19|20)\d{2})\s*$", str(ecn).strip()
+                        )
+                        if m_trail and m_trail.group(1) != year_s:
+                            fixed = str(ecn).strip()[: m_trail.start()] + f", {year_s}"
+                            citation.extracted_case_name = self._clean_extracted_case_name(fixed)
 
                 # USER FIX 2024-10-21: PRESERVE VERIFICATION DATA from clustering
                 # The clustering function verifies citations and sets verified/canonical data,
@@ -7008,6 +7499,13 @@ class UnifiedCitationProcessorV2:
             logger.info(f"[PROPRIETARY] Marked {proprietary_count} WL/Lexis citations as unverified due to proprietary format")
         if proprietary_cleared_count > 0:
             logger.info(f"[PROPRIETARY] Cleared {proprietary_cleared_count} stale proprietary flags/messages on verified citations")
+
+        # Last pass: TOA/year/cluster steps must not leave stale extracted tails vs KNOWN_* pins
+        logger.info("[UNIFIED_PIPELINE] Phase 7.5: Final known-citation pin repair before response")
+        try:
+            self._apply_known_pin_extracted_repairs(citations)
+        except Exception as pin_final_err:
+            logger.warning(f"[UNIFIED_PIPELINE] Final known-pin repair skipped: {pin_final_err}")
 
         result = {"citations": citations, "clusters": formatted_clusters}
 

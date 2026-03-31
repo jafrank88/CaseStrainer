@@ -65,7 +65,8 @@ param(
 $EnableNotifications = $false  # Notifications disabled - using external WHM monitoring
 
 Write-Host "`n========================================" -ForegroundColor Cyan
-Write-Host "CaseStrainer Quick Restart (./cslaunch)" -ForegroundColor Cyan  
+Write-Host "CaseStrainer Quick Restart (./cslaunch)" -ForegroundColor Cyan
+Write-Host "Production deploy/reload: prefer .\cslauncher.ps1 (REDIS_PASSWORD from .env)" -ForegroundColor DarkGray
 Write-Host "========================================`n" -ForegroundColor Cyan
 
 # Setup crash logging
@@ -94,6 +95,22 @@ $script:WorkerServices = @(
 )
 $script:WorkerContainers = $script:WorkerServices | ForEach-Object { "casestrainer-$($_)-prod" }
 $script:WorkerCount = $script:WorkerServices.Count
+
+function Get-CaseStrainerRedisPassword {
+    <# Same source as docker-compose: $env:REDIS_PASSWORD, then repo-root .env. Never log the value. #>
+    $fromEnv = $env:REDIS_PASSWORD
+    if ($fromEnv -and $fromEnv.Trim()) { return $fromEnv.Trim() }
+    $envFile = Join-Path $PSScriptRoot ".env"
+    if (Test-Path -LiteralPath $envFile) {
+        foreach ($line in Get-Content -LiteralPath $envFile) {
+            if ($line -match '^\s*REDIS_PASSWORD\s*=\s*(.+)\s*$') {
+                $val = $Matches[1].Trim().Trim('"').Trim("'")
+                if ($val) { return $val }
+            }
+        }
+    }
+    return $null
+}
 
 # Notification tracking (prevent spam)
 $script:LastNotificationTime = @{}  # Track last notification time per issue type
@@ -3113,8 +3130,13 @@ if ($containers.Count -gt 0 -and -not $Build -and -not $Force) {
             
             # Clear caches after frontend rebuild
             Write-Host "`n[CACHE CLEAR] Clearing Redis cache..." -ForegroundColor Yellow
-            docker exec casestrainer-redis-prod redis-cli -a ***REDACTED_REDIS_PASSWORD*** FLUSHALL 2>&1 | Out-Null
-            Write-Host "  [OK] Redis cache cleared" -ForegroundColor Green
+            $redisPwQuick = Get-CaseStrainerRedisPassword
+            if ($redisPwQuick) {
+                docker exec -e "REDISCLI_AUTH=$redisPwQuick" casestrainer-redis-prod redis-cli FLUSHALL 2>&1 | Out-Null
+                Write-Host "  [OK] Redis cache cleared" -ForegroundColor Green
+            } else {
+                Write-Host "  [WARN] REDIS_PASSWORD not set — skipped Redis FLUSHALL" -ForegroundColor Yellow
+            }
             
             Write-Host "`n[RQ WORKERS] Restarting workers..." -ForegroundColor Yellow
             docker-compose -f docker-compose.prod.yml restart $script:WorkerServices 2>&1 | Out-Null
@@ -3242,11 +3264,16 @@ if ($containers.Count -gt 0 -and -not $Build -and -not $Force) {
                     Write-Host "  [*] Clearing Redis caches (databases 0, 1, 2, 3)..." -ForegroundColor Gray
                     
                     # Clear ALL Redis databases with FLUSHALL (much faster!)
-                    docker exec casestrainer-redis-prod redis-cli -a ***REDACTED_REDIS_PASSWORD*** FLUSHALL 2>&1 | Out-Null
-                    if ($LASTEXITCODE -eq 0) {
-                        Write-Host "  [OK] Redis caches cleared (all databases)" -ForegroundColor Green
+                    $redisPwFull = Get-CaseStrainerRedisPassword
+                    if ($redisPwFull) {
+                        docker exec -e "REDISCLI_AUTH=$redisPwFull" casestrainer-redis-prod redis-cli FLUSHALL 2>&1 | Out-Null
+                        if ($LASTEXITCODE -eq 0) {
+                            Write-Host "  [OK] Redis caches cleared (all databases)" -ForegroundColor Green
+                        } else {
+                            Write-Host "  [WARN] Redis clear failed" -ForegroundColor Yellow
+                        }
                     } else {
-                        Write-Host "  [WARN] Redis clear failed" -ForegroundColor Yellow
+                        Write-Host "  [WARN] REDIS_PASSWORD not set — skipped Redis FLUSHALL" -ForegroundColor Yellow
                     }
                     
                     # Clear file-based caches
@@ -3340,9 +3367,14 @@ if ($containers.Count -gt 0 -and -not $Build -and -not $Force) {
                         }
                         
                         # Compact AOF
-                        $compactResult = docker exec casestrainer-redis-prod redis-cli -a ***REDACTED_REDIS_PASSWORD*** BGREWRITEAOF 2>&1 | Select-Object -Last 1
-                        if ($compactResult -like '*Background*') {
-                            Write-Host '  Started AOF compaction (will complete in background)' -ForegroundColor Green
+                        $redisPwAof = Get-CaseStrainerRedisPassword
+                        if ($redisPwAof) {
+                            $compactResult = docker exec -e "REDISCLI_AUTH=$redisPwAof" casestrainer-redis-prod redis-cli BGREWRITEAOF 2>&1 | Select-Object -Last 1
+                            if ($compactResult -like '*Background*') {
+                                Write-Host '  Started AOF compaction (will complete in background)' -ForegroundColor Green
+                            }
+                        } else {
+                            Write-Host '  [WARN] REDIS_PASSWORD not set — skipped BGREWRITEAOF' -ForegroundColor Yellow
                         }
                         
                         # Show result

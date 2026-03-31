@@ -24,6 +24,17 @@ Used by ``scripts/brief_goldens.py verify``. Manifest schema (``version`` 1):
       contains **all** of these substrings (AND within one citation string).
     - ``case_name_contains`` (str): that cluster's ``cluster_case_name`` or any member
       ``extracted_case_name`` must contain this substring (case-insensitive).
+  - ``citation_field_rules`` (list[object]): each rule must be satisfied by **at least one**
+    flat citation whose display string contains ``citation_contains`` (substring match).
+
+    - ``citation_contains`` (str, required): matched against each row's reporter/citation text.
+    - ``verified`` (bool, optional): if present, must match that citation's verified flag.
+    - ``canonical_name_contains`` (str, optional): case-insensitive substring of
+      ``canonical_name`` / ``extracted_case_name`` combined.
+    - ``canonical_year`` (str, optional): exact match after normalizing year from
+      ``canonical_year`` or leading ``YYYY`` of ``canonical_date``.
+    - ``canonical_url_contains`` (str, optional): substring of ``canonical_url`` and ``url``
+      combined (case-sensitive; use lowercase URLs in rules if needed).
 """
 
 from __future__ import annotations
@@ -45,6 +56,82 @@ def _cluster_members(cluster: dict[str, Any]) -> list[dict[str, Any]]:
         if isinstance(x, dict):
             out.append(x)
     return out
+
+
+def _flat_citation_dicts(citations: list[Any]) -> list[dict[str, Any]]:
+    out: list[dict[str, Any]] = []
+    for c in citations:
+        if isinstance(c, dict):
+            out.append(c)
+    return out
+
+
+def _citation_verified_truthy(c: dict[str, Any]) -> bool:
+    v = c.get("verified")
+    if v is True or v == "true" or v == 1:
+        return True
+    if v is False or v == "false" or v == 0:
+        return False
+    return bool(v)
+
+
+def _canonical_name_blob(c: dict[str, Any]) -> str:
+    parts = (c.get("canonical_name"), c.get("extracted_case_name"))
+    return " ".join(str(p or "") for p in parts)
+
+
+def _citation_year_normalized(c: dict[str, Any]) -> str:
+    cy = c.get("canonical_year")
+    if cy is not None and str(cy).strip():
+        return str(cy).strip()
+    cd = str(c.get("canonical_date") or "").strip()
+    m = re.match(r"^(\d{4})", cd)
+    return m.group(1) if m else ""
+
+
+def _citation_url_blob(c: dict[str, Any]) -> str:
+    return f"{c.get('canonical_url') or ''} {c.get('url') or ''}"
+
+
+def _citation_satisfies_field_rule(c: dict[str, Any], rule: dict[str, Any]) -> bool:
+    needle = str(rule.get("citation_contains") or "")
+    if not needle or needle not in _citation_display(c):
+        return False
+
+    if "verified" in rule and rule["verified"] is not None:
+        want = bool(rule["verified"])
+        if _citation_verified_truthy(c) != want:
+            return False
+
+    cnc = rule.get("canonical_name_contains")
+    if cnc is not None and str(cnc).strip():
+        if str(cnc).lower() not in _canonical_name_blob(c).lower():
+            return False
+
+    if "canonical_year" in rule and rule["canonical_year"] is not None:
+        want_y = str(rule["canonical_year"]).strip()
+        if want_y and _citation_year_normalized(c) != want_y:
+            return False
+
+    cuc = rule.get("canonical_url_contains")
+    if cuc is not None and str(cuc).strip():
+        if str(cuc) not in _citation_url_blob(c):
+            return False
+
+    return True
+
+
+def _citation_field_rules_satisfied(
+    rules: list[dict[str, Any]], citations: list[Any]
+) -> tuple[bool, str]:
+    flats = _flat_citation_dicts(citations)
+    for ri, rule in enumerate(rules):
+        cc = str(rule.get("citation_contains") or "").strip()
+        if not cc:
+            return False, f"citation_field_rules[{ri}] missing citation_contains"
+        if not any(_citation_satisfies_field_rule(c, rule) for c in flats):
+            return False, f"citation_field_rules[{ri}] no citation matched {rule!r}"
+    return True, ""
 
 
 def verify_expectation(
@@ -103,6 +190,12 @@ def verify_expectation(
     for ri, rule in enumerate(expect.get("cluster_rules") or []):
         if not _cluster_rule_satisfied(rule, clusters):
             errs.append(f"cluster_rules[{ri}] not satisfied: {rule!r}")
+
+    cfr = expect.get("citation_field_rules") or []
+    if cfr:
+        ok, msg = _citation_field_rules_satisfied(cfr, citations)
+        if not ok:
+            errs.append(msg)
 
     return errs
 

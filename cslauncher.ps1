@@ -1,5 +1,5 @@
 # cslauncher.ps1
-# CaseStrainer development launcher - fast and reliable code reload
+# CaseStrainer production/dev launcher — fast Docker reload (preferred for wolf / production)
 #
 # Usage:
 #   .\cslauncher.ps1                  # Normal reload (enables auto-restart service)
@@ -8,6 +8,9 @@
 #   .\cslauncher.ps1 -InstallService  # One-time setup: install auto-restart service (needs admin)
 #   .\cslauncher.ps1 -Build           # Rebuild backend container
 #   .\cslauncher.ps1 -CleanDocker     # Force Docker cleanup
+#   .\cslauncher.ps1 -WaitForServices -CleanupStuckJobs   # After health OK: wait-for-services.py + cleanup-stuck-jobs.py
+#
+# Production: use this script. Set REDIS_PASSWORD in .env (same as docker-compose) — never commit secrets.
 #
 # Features:
 # - Worker-first restart order (critical for code reload!)
@@ -60,7 +63,13 @@ param(
     [switch]$InstallService,  # Install the auto-restart service (requires admin, one-time setup)
 
     [Parameter()]
-    [switch]$RunFullDocumentTest  # After reload, run scripts/test_full_document_flow.py to verify pipeline
+    [switch]$RunFullDocumentTest,  # After reload, run scripts/test_full_document_flow.py to verify pipeline
+
+    [Parameter()]
+    [switch]$WaitForServices,  # After backend health OK: run scripts/wait-for-services.py in backend container
+
+    [Parameter()]
+    [switch]$CleanupStuckJobs  # After backend health OK: run scripts/cleanup-stuck-jobs.py in backend container
 )
 
 # Note: -Verbose is automatically provided by [CmdletBinding()]
@@ -77,6 +86,7 @@ $script:WorkerServices = @(
     "rqworker6"
 )
 $script:WorkerContainers = $script:WorkerServices | ForEach-Object { "casestrainer-$($_)-prod" }
+$script:WorkerCount = $script:WorkerServices.Count
 
 # Setup logging
 $logsDir = Join-Path $PSScriptRoot "logs"
@@ -86,6 +96,26 @@ $dockerHealthcheckLogPath = Join-Path $logsDir "docker_healthchecks.log"
 
 if (-not (Test-Path $logsDir)) {
     New-Item -ItemType Directory -Path $logsDir -Force | Out-Null
+}
+
+function Get-CaseStrainerRedisPassword {
+    <#
+    .SYNOPSIS
+    Redis password for redis-cli / RQ cleanup. Uses $env:REDIS_PASSWORD, then repo-root .env (REDIS_PASSWORD=...).
+    Does not log the value.
+    #>
+    $fromEnv = $env:REDIS_PASSWORD
+    if ($fromEnv -and $fromEnv.Trim()) { return $fromEnv.Trim() }
+    $envFile = Join-Path $PSScriptRoot ".env"
+    if (Test-Path -LiteralPath $envFile) {
+        foreach ($line in Get-Content -LiteralPath $envFile) {
+            if ($line -match '^\s*REDIS_PASSWORD\s*=\s*(.+)\s*$') {
+                $val = $Matches[1].Trim().Trim('"').Trim("'")
+                if ($val) { return $val }
+            }
+        }
+    }
+    return $null
 }
 
 # ============================================================================
@@ -1109,28 +1139,34 @@ Write-ReloadLog "   Python bytecode cleared" "SUCCESS"
 Write-Host ""
 Write-ReloadLog "CACHE: Clearing ALL caches (Redis + file-based)..." "INFO"
 
-# Clear Redis cache (suppress password warning by redirecting stderr to null first)
+# Clear Redis cache (REDISCLI_AUTH avoids -a on command line; password from .env / $env:REDIS_PASSWORD)
 Write-Host "   Clearing Redis cache..." -ForegroundColor Gray
-docker exec casestrainer-redis-prod redis-cli -a ***REDACTED_REDIS_PASSWORD*** FLUSHDB 2>$null | Out-Null
-if ($LASTEXITCODE -eq 0) {
-    Write-Host "   Redis cache cleared" -ForegroundColor Green
-    Write-ReloadLog "   Redis FLUSHDB succeeded" "SUCCESS"
-
-    if ($VerbosePreference -eq 'Continue') {
-        $keyCount = docker exec casestrainer-redis-prod redis-cli -a ***REDACTED_REDIS_PASSWORD*** DBSIZE 2>$null
-        if ($keyCount -match '^\d+$') {
-            Write-Host "      Current keys: $keyCount" -ForegroundColor DarkGreen
-            Write-ReloadLog "      Redis keys after flush: $keyCount" "INFO"
-        }
-    }
+$redisPw = Get-CaseStrainerRedisPassword
+if (-not $redisPw) {
+    Write-ReloadLog "   Redis FLUSHDB skipped: REDIS_PASSWORD not set (add to .env for production)" "WARN"
+    Write-Host "   WARNING: REDIS_PASSWORD not set — skipped Redis FLUSHDB" -ForegroundColor Yellow
 } else {
-    Write-ReloadLog "   ERROR: Redis FLUSHDB failed (exit code: $LASTEXITCODE)" "ERROR"
-    Write-Host "   WARNING: Could not clear Redis cache" -ForegroundColor Yellow
+    docker exec -e "REDISCLI_AUTH=$redisPw" casestrainer-redis-prod redis-cli FLUSHDB 2>$null | Out-Null
+    if ($LASTEXITCODE -eq 0) {
+        Write-Host "   Redis cache cleared" -ForegroundColor Green
+        Write-ReloadLog "   Redis FLUSHDB succeeded" "SUCCESS"
+
+        if ($VerbosePreference -eq 'Continue') {
+            $keyCount = docker exec -e "REDISCLI_AUTH=$redisPw" casestrainer-redis-prod redis-cli DBSIZE 2>$null
+            if ($keyCount -match '^\d+$') {
+                Write-Host "      Current keys: $keyCount" -ForegroundColor DarkGreen
+                Write-ReloadLog "      Redis keys after flush: $keyCount" "INFO"
+            }
+        }
+    } else {
+        Write-ReloadLog "   ERROR: Redis FLUSHDB failed (exit code: $LASTEXITCODE)" "ERROR"
+        Write-Host "   WARNING: Could not clear Redis cache" -ForegroundColor Yellow
+    }
 }
 
 # Clear file-based citation cache
 Write-Host "   Clearing citation cache files..." -ForegroundColor Gray
-$citationCacheResult = docker exec casestrainer-backend-prod sh -c "rm -rf /app/citation_cache/*.json 2>/dev/null && echo 'cleared' || echo 'none'" 2>$null
+$citationCacheResult = docker exec casestrainer-backend-prod sh -c 'rm -rf /app/citation_cache/*.json 2>/dev/null; echo cleared' 2>$null
 if ($citationCacheResult -match "cleared") {
     Write-Host "   Citation cache files cleared" -ForegroundColor Green
     Write-ReloadLog "   Citation cache cleared" "SUCCESS"
@@ -1141,7 +1177,7 @@ if ($citationCacheResult -match "cleared") {
 
 # Clear verification cache JSON file
 Write-Host "   Clearing verification cache..." -ForegroundColor Gray
-$verificationCacheResult = docker exec casestrainer-backend-prod sh -c "rm -f /app/data/verification_cache.json 2>/dev/null && echo 'cleared' || echo 'none'" 2>$null
+$verificationCacheResult = docker exec casestrainer-backend-prod sh -c 'rm -f /app/data/verification_cache.json 2>/dev/null; echo cleared' 2>$null
 if ($verificationCacheResult -match "cleared") {
     Write-Host "   Verification cache cleared" -ForegroundColor Green
     Write-ReloadLog "   Verification cache cleared" "SUCCESS"
@@ -1211,7 +1247,12 @@ if ($Build) {
     # but logic within them has.
     # ALSO CRITICAL: Remove old images to ensure volume mounts don't use stale baked-in code
     Write-Host "   Removing old images to ensure fresh code deployment..." -ForegroundColor Yellow
-    docker rmi casestrainer-backend casestrainer-rqworker 2>$null
+    docker rmi casestrainer-backend 2>$null
+    docker rmi casestrainer-rqworker 2>$null
+    # Compose tags each service separately (e.g. casestrainer-rqworker1), not casestrainer-rqworker
+    foreach ($svc in $script:WorkerServices) {
+        docker rmi "casestrainer-$svc" 2>$null
+    }
     Write-Host "   Building with --no-cache to ensure latest code..." -ForegroundColor Yellow
     docker-compose -f docker-compose.prod.yml build --no-cache backend $script:WorkerServices
     if ($LASTEXITCODE -ne 0) {
@@ -1228,11 +1269,13 @@ Write-ReloadLog "RQ CLEANUP: Cleaning up stale workers and orphaned jobs..." "IN
 
 Write-Host "   Cleaning up stale RQ workers and jobs..." -ForegroundColor Gray
 $rqCleanupScript = @'
+import os
 from redis import Redis
 import sys
 
 try:
-    r = Redis.from_url('redis://:***REDACTED_REDIS_PASSWORD***@casestrainer-redis-prod:6379/0')
+    pw = os.environ.get("REDIS_PASSWORD") or ""
+    r = Redis.from_url(f"redis://:{pw}@casestrainer-redis-prod:6379/0")
 
     # Delete all stale worker registrations
     worker_keys = r.keys('rq:worker:*')
@@ -1257,11 +1300,22 @@ except Exception as e:
 '@
 
 # Run cleanup via backend container (has Redis access)
-$rqCleanupResult = docker exec casestrainer-backend-prod python -c $rqCleanupScript 2>&1
-if ($rqCleanupResult) {
-    $rqCleanupResult | ForEach-Object { Write-Host "   $_" -ForegroundColor Gray }
+$rqPw = Get-CaseStrainerRedisPassword
+if (-not $rqPw) {
+    Write-Host "   WARNING: REDIS_PASSWORD not set — skipped RQ Redis cleanup" -ForegroundColor Yellow
+    Write-ReloadLog "   RQ cleanup skipped: no REDIS_PASSWORD" "WARN"
+} else {
+    # Multi-line script: do not use python -c (PowerShell/newlines break -c; empty -c -> "Argument expected for the -c option")
+    $rqCleanupResult = $rqCleanupScript | docker exec -i -e "REDIS_PASSWORD=$rqPw" casestrainer-backend-prod python - 2>&1
+    if ($rqCleanupResult) {
+        $rqCleanupResult | ForEach-Object { Write-Host "   $_" -ForegroundColor Gray }
+    }
+    if ($LASTEXITCODE -eq 0) {
+        Write-ReloadLog "   RQ cleanup complete" "SUCCESS"
+    } else {
+        Write-ReloadLog "   RQ cleanup finished with exit code $LASTEXITCODE (non-fatal)" "WARN"
+    }
 }
-Write-ReloadLog "   RQ cleanup complete" "SUCCESS"
 
 # Step 7: Recreate containers with new images (CRITICAL: use 'up -d' not 'restart'!)
 # 'restart' only restarts existing containers - it does NOT use newly built images!
@@ -1346,6 +1400,7 @@ try {
 }
 
 # Step 8: Health check (unless skipped)
+$script:BackendHealthyAfterReload = $false
 if (-not $SkipHealthCheck) {
     Write-Host ""
     Write-ReloadLog "HEALTH: Waiting for backend..." "INFO"
@@ -1361,6 +1416,7 @@ if (-not $SkipHealthCheck) {
             $response = Invoke-WebRequest -Uri "http://localhost:5000/casestrainer/api/health" -TimeoutSec 3 -UseBasicParsing -ErrorAction SilentlyContinue
             if ($response.StatusCode -eq 200) {
                 $healthy = $true
+                $script:BackendHealthyAfterReload = $true
                 Write-Host "   Backend is healthy" -ForegroundColor Green
                 Write-HealthcheckLog -ContainerName "casestrainer-backend-prod" -Status "200" -Details "API health check successful"
 
@@ -1388,6 +1444,46 @@ if (-not $SkipHealthCheck) {
     }
 }
 
+# Step 8b: Optional readiness / stuck-job cleanup (production-friendly; same scripts as legacy cslaunch.ps1)
+if ($script:BackendHealthyAfterReload -and ($WaitForServices -or $CleanupStuckJobs)) {
+    Write-Host ""
+    Write-ReloadLog "POST-HEALTH: Optional service wait / stuck-job cleanup..." "INFO"
+    if ($WaitForServices) {
+        $waitScript = Join-Path $PSScriptRoot "scripts\wait-for-services.py"
+        if (Test-Path -LiteralPath $waitScript) {
+            Write-Host "   Running wait-for-services.py..." -ForegroundColor Gray
+            docker cp $waitScript casestrainer-backend-prod:/app/wait-for-services.py 2>$null
+            $wfOut = docker exec casestrainer-backend-prod python /app/wait-for-services.py 2>&1
+            $wfOut | ForEach-Object { Write-Host "      $_" -ForegroundColor DarkGray }
+            if ($LASTEXITCODE -eq 0) {
+                Write-ReloadLog "   wait-for-services.py completed OK" "SUCCESS"
+            } else {
+                Write-ReloadLog "   wait-for-services.py exit $LASTEXITCODE" "WARN"
+            }
+        } else {
+            Write-Host "   WARNING: scripts/wait-for-services.py not found" -ForegroundColor Yellow
+            Write-ReloadLog "   wait-for-services.py missing" "WARN"
+        }
+    }
+    if ($CleanupStuckJobs) {
+        $cleanupScript = Join-Path $PSScriptRoot "scripts\cleanup-stuck-jobs.py"
+        if (Test-Path -LiteralPath $cleanupScript) {
+            Write-Host "   Running cleanup-stuck-jobs.py..." -ForegroundColor Gray
+            docker cp $cleanupScript casestrainer-backend-prod:/app/cleanup-stuck-jobs.py 2>$null
+            $cjOut = docker exec casestrainer-backend-prod python /app/cleanup-stuck-jobs.py 2>&1
+            $cjOut | ForEach-Object { Write-Host "      $_" -ForegroundColor DarkGray }
+            if ($LASTEXITCODE -eq 0) {
+                Write-ReloadLog "   cleanup-stuck-jobs.py completed OK" "SUCCESS"
+            } else {
+                Write-ReloadLog "   cleanup-stuck-jobs.py exit $LASTEXITCODE" "WARN"
+            }
+        } else {
+            Write-Host "   WARNING: scripts/cleanup-stuck-jobs.py not found" -ForegroundColor Yellow
+            Write-ReloadLog "   cleanup-stuck-jobs.py missing" "WARN"
+        }
+    }
+}
+
 # Step 9: Verify code changes
 Write-Host ""
 Write-ReloadLog "VERIFY: Checking code changes..." "INFO"
@@ -1410,7 +1506,33 @@ $localVerification = @{
     "Verification pipeline (worker)" = @{ Pattern = 'verify_citations_batch'; Path = 'src\verification\master.py' }
     "Clustering master (backend)" = @{ Pattern = 'cluster_citations_unified_master'; Path = 'src\unified_processing_pipeline.py' }
     "Batch verification: form-encoded CourtListener (worker)" = @{ Pattern = 'data=form_data'; Path = 'src\verification\batch.py' }
-    "Regex: broken double-backslash pattern (should be MISSING)" = @{ Pattern = 're.sub\(r"\\\\s+"'; Path = 'src\citation_patterns.py' }
+    "Regex: broken double-backslash pattern (should be MISSING)" = @{ Pattern = '\\\\s\+'; Path = 'src\citation_patterns.py' }
+}
+
+# Every RQ worker must see the same mounted /app/src; confirm all six containers (not only worker1)
+Write-Host ""
+Write-Host "   Verifying pipeline marker across all $script:WorkerCount RQ workers (same src mount)..." -ForegroundColor Gray
+$pipelineMarker = "Phase 7.5: Final known-citation pin repair"
+$workersMarkerOk = $true
+$workerContainerNames = @($script:WorkerContainers)
+foreach ($wc in $workerContainerNames) {
+    $running = docker inspect -f '{{.State.Running}}' $wc 2>$null
+    if ($running -ne "true") {
+        Write-Host "   [SKIP] $wc not running" -ForegroundColor Yellow
+        $workersMarkerOk = $false
+        continue
+    }
+    $grepArgs = @('-cF', $pipelineMarker, '/app/src/unified_citation_processor_v2.py')
+    $mc = & docker exec $wc grep @grepArgs 2>$null
+    if ($mc -match '^\s*(\d+)\s*$' -and [int]$Matches[1] -gt 0) {
+        Write-Host "   [OK] $wc has pin-repair Phase 7.5" -ForegroundColor Green
+    } else {
+        Write-Host "   [MISSING] $wc - marker not found in unified_citation_processor_v2.py (old code or mount?)" -ForegroundColor Red
+        $workersMarkerOk = $false
+    }
+}
+if (-not $workersMarkerOk) {
+    Write-ReloadLog "VERIFICATION: One or more workers missing pipeline marker - check git pull and ./src bind mount" "ERROR"
 }
 
 $allVerified = $true
@@ -1445,11 +1567,19 @@ foreach ($check in $verifications.GetEnumerator()) {
             }
         }
         
-        if ($count -gt 0) {
+        # Checks named "should be MISSING" pass when count is 0 (broken pattern absent); others pass when count > 0.
+        $invertPass = ($check.Key -match 'should be MISSING')
+        $pass = if ($invertPass) { $count -eq 0 } else { $count -gt 0 }
+        if ($pass) {
             Write-Host "   [OK] $($check.Key)" -ForegroundColor Green
         } else {
-            Write-Host "   [MISSING] $($check.Key)" -ForegroundColor Red
-            Write-ReloadLog "   MISSING FIX: $($check.Key)" "ERROR"
+            if ($invertPass) {
+                Write-Host "   [BAD] $($check.Key) - found $count match(es); remove broken pattern from source" -ForegroundColor Red
+                Write-ReloadLog "   VERIFICATION FAIL: $($check.Key) (expected 0 matches, got $count)" "ERROR"
+            } else {
+                Write-Host "   [MISSING] $($check.Key)" -ForegroundColor Red
+                Write-ReloadLog "   MISSING FIX: $($check.Key)" "ERROR"
+            }
             $allVerified = $false
         }
     } catch {
@@ -1464,6 +1594,10 @@ foreach ($check in $verifications.GetEnumerator()) {
     }
 }
 
+if (-not $workersMarkerOk) {
+    $allVerified = $false
+}
+
 if ($allVerified) {
     Write-ReloadLog "   All code changes verified!" "SUCCESS"
 } else {
@@ -1471,7 +1605,7 @@ if ($allVerified) {
     Write-Host ""
     Write-Host "   Volume mount may not be working. Try:" -ForegroundColor Yellow
     Write-Host "      docker-compose -f docker-compose.prod.yml down" -ForegroundColor Gray
-    Write-Host "      docker rmi casestrainer-backend casestrainer-rqworker" -ForegroundColor Gray
+    Write-Host "      docker rmi casestrainer-backend; docker rmi casestrainer-rqworker1 (.. rqworker6)" -ForegroundColor Gray
     Write-Host "      docker-compose -f docker-compose.prod.yml up -d --build" -ForegroundColor Gray
 }
 
@@ -1492,12 +1626,13 @@ Write-Host "   Healthcheck log: $dockerHealthcheckLogPath" -ForegroundColor Cyan
 Write-Host ""
 
 Write-Host "Next steps:" -ForegroundColor Yellow
-Write-Host "   1. After verification/batch pipeline code changes, run cslauncher so all $script:WorkerCount workers get the new code" -ForegroundColor Gray
-Write-Host "   2. Clear browser cache (Ctrl+Shift+Delete or Incognito)" -ForegroundColor Gray
-Write-Host "   3. Test with fresh document/PDF" -ForegroundColor Gray
-Write-Host "   4. Check logs:" -ForegroundColor Gray
+Write-Host "   1. Optional stricter checks: .\cslauncher.ps1 ... -WaitForServices -CleanupStuckJobs" -ForegroundColor Gray
+Write-Host "   2. After verification/batch pipeline code changes, run cslauncher so all $script:WorkerCount workers get the new code" -ForegroundColor Gray
+Write-Host "   3. Clear browser cache (Ctrl+Shift+Delete or Incognito)" -ForegroundColor Gray
+Write-Host "   4. Test with fresh document/PDF" -ForegroundColor Gray
+Write-Host "   5. Check logs:" -ForegroundColor Gray
 Write-Host "      docker logs -f casestrainer-backend-prod | Select-String 'DATE|VERIFY'" -ForegroundColor DarkGray
-Write-Host "   5. If Docker crashes, check diagnostics:" -ForegroundColor Gray
+Write-Host "   6. If Docker crashes, check diagnostics:" -ForegroundColor Gray
 Write-Host "      Get-Content $dockerDiagnosticsLogPath -Tail 100" -ForegroundColor DarkGray
 Write-Host ""
 
@@ -1528,7 +1663,7 @@ if ($RunFullDocumentTest) {
     }
 }
 
-if ($Verbose) {
+if ($VerbosePreference -eq 'Continue') {
     Write-Host "Container Status:" -ForegroundColor Cyan
     docker-compose -f docker-compose.prod.yml ps
     Write-Host ""

@@ -12,6 +12,8 @@ Examples
   python scripts/ci_regression.py -v
   python scripts/ci_regression.py --with-local-pdf
   python scripts/ci_regression.py --with-downloaded-briefs
+  python scripts/ci_regression.py --with-naag-amicus
+  python scripts/ci_regression.py --with-naag-verify
   python scripts/ci_regression.py --wolf
   python scripts/ci_regression.py -- --maxfail=1 -k domain
 
@@ -66,6 +68,18 @@ def main(argv: list[str] | None = None) -> int:
         "after the regression gate (requires PDFs under downloaded_briefs/ or CASSTRAINER_DOWNLOADED_BRIEFS_DIR).",
     )
     parser.add_argument(
+        "--with-naag-amicus",
+        action="store_true",
+        help="Set CASSTRAINER_NAAG_AMICUS_TESTS=1 and run tests/test_naag_amicus_optional.py after the gate "
+        "(requires scripts/download_naag_amicus_briefs.py corpus under downloaded_briefs/naag_amicus/).",
+    )
+    parser.add_argument(
+        "--with-naag-verify",
+        action="store_true",
+        help="Set CASSTRAINER_NAAG_VERIFY_TESTS=1 and run tests/test_naag_verification_optional.py after the gate "
+        "(requires COURTLISTENER_API_KEY, network, NAAG PDFs; slow).",
+    )
+    parser.add_argument(
         "--ini",
         default=DEFAULT_INI,
         metavar="FILE",
@@ -85,6 +99,10 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.with_downloaded_briefs:
         os.environ["CASSTRAINER_DOWNLOADED_BRIEF_TESTS"] = "1"
+    if args.with_naag_amicus:
+        os.environ["CASSTRAINER_NAAG_AMICUS_TESTS"] = "1"
+    if args.with_naag_verify:
+        os.environ["CASSTRAINER_NAAG_VERIFY_TESTS"] = "1"
 
     ini_name = WOLF_INI if args.wolf else args.ini
     ini_path = REPO_ROOT / ini_name
@@ -127,6 +145,38 @@ def main(argv: list[str] | None = None) -> int:
         brief_rc = subprocess.run(brief_cmd).returncode
         if brief_rc != 0:
             return brief_rc
+
+    if args.with_naag_amicus:
+        naag_cmd = [
+            sys.executable,
+            "-m",
+            "pytest",
+            "tests/test_naag_amicus_optional.py",
+            "-q",
+            "--tb=short",
+            "--no-cov",
+            "-o",
+            "addopts=",
+        ]
+        naag_rc = subprocess.run(naag_cmd).returncode
+        if naag_rc != 0:
+            return naag_rc
+
+    if args.with_naag_verify:
+        nv_cmd = [
+            sys.executable,
+            "-m",
+            "pytest",
+            "tests/test_naag_verification_optional.py",
+            "-q",
+            "--tb=short",
+            "--no-cov",
+            "-o",
+            "addopts=",
+        ]
+        nv_rc = subprocess.run(nv_cmd).returncode
+        if nv_rc != 0:
+            return nv_rc
 
     return 0
 

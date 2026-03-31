@@ -95,6 +95,42 @@ def _has_reporter_citation(citation_text: str) -> bool:
     )
 
 
+# Administrative / agency reporters: CourtListener free-text search often returns unrelated
+# federal district/circuit opinions that merely mention the cite. Skip search fallback for these.
+_ADMIN_REPORTER_SKIP_RES = (
+    re.compile(
+        r"\b\d+\s+F\.?\s*C\.?\s*C\.?\s*(?:\d+d)?\s+\d+\b",
+        re.IGNORECASE,
+    ),
+    re.compile(
+        r"\b\d+\s+F\.?\s*T\.?\s*C\.?\s*(?:\d+d)?\s+\d+\b",
+        re.IGNORECASE,
+    ),
+    re.compile(
+        r"\b\d+\s+I\.?\s*C\.?\s*C\.?\s*(?:\d+d)?\s+\d+\b",
+        re.IGNORECASE,
+    ),
+    re.compile(
+        r"\b\d+\s+N\.?\s*L\.?\s*R\.?\s*B\.?\s*(?:\d+d)?\s+\d+\b",
+        re.IGNORECASE,
+    ),
+    re.compile(
+        r"\b\d+\s+S\.?\s*E\.?\s*C\.?\s*(?:\d+d)?\s+\d+\b",
+        re.IGNORECASE,
+    ),
+    # Federal Register volume (distinct from F.3d / F.2d: requires R before page)
+    re.compile(r"\b\d+\s+F\.?\s*R\.?\s+\d+\b", re.IGNORECASE),
+)
+
+
+def should_skip_cl_text_search_for_citation(citation_text: str) -> bool:
+    """True when citation looks like an admin/agency reporter cite; CL text search is unsafe."""
+    t = str(citation_text or "").strip()
+    if not t:
+        return False
+    return any(rx.search(t) for rx in _ADMIN_REPORTER_SKIP_RES)
+
+
 def _clean_citation_query(citation_text: str) -> str:
     """
     Normalize noisy citation strings into a cleaner query string for CL search.
@@ -281,6 +317,33 @@ def _expand_case_aliases(case_name: str) -> list[str]:
     return [a for a in aliases if a]
 
 
+def _normalize_case_name_for_cl_search(raw: Optional[str]) -> Optional[str]:
+    """
+    Normalize extracted case names for CourtListener search queries only (not for scoring).
+    Strips trailing ", YYYY", expands legal abbreviations (e.g. Cnty. -> County), and
+    replaces spaced ampersands with "and" so fielded caseName / keyword queries match index text.
+    """
+    if raw is None:
+        return None
+    s = str(raw).strip()
+    if not s or s.upper() == "N/A":
+        return None
+    # Common extraction artifact: "Party v. Party, 2020" — caseName in CL rarely includes the year
+    s = re.sub(r",?\s+(19|20)\d{2}\s*$", "", s).strip()
+    if not s:
+        return None
+    if _CL_SEARCH_UTILS:
+        try:
+            s = expand_abbreviations(s)
+        except Exception:
+            pass
+    # expand_abbreviations may match "Cnty" without the following period, leaving "County. of"
+    s = re.sub(r"\bCounty\.\s+", "County ", s, flags=re.IGNORECASE)
+    s = re.sub(r"\s+&\s+", " and ", s)
+    s = re.sub(r"\s+", " ", s).strip()
+    return s or None
+
+
 async def cl_search_fallback(session, api_key, citation, extracted_case_name=None, extracted_date=None, timeout=10.0):
     """Search CourtListener by case name when citation-lookup returns 0 clusters. API key from config (env)."""
     api_key, base = _cl_search_api_key_and_base(api_key)
@@ -288,6 +351,20 @@ async def cl_search_fallback(session, api_key, citation, extracted_case_name=Non
         return {"verified": False, "error": "No CourtListener API key for search"}
     headers = {"Authorization": f"Token {api_key}"}
     deadline = time.monotonic() + max(0.5, float(timeout or 0.0))
+
+    citation_text = str(citation or "")
+    if should_skip_cl_text_search_for_citation(citation_text):
+        logger.info(
+            "[CL-SEARCH-SKIP] Skipping CL search for administrative/agency reporter cite: %s",
+            citation_text[:120],
+        )
+        return {
+            "verified": False,
+            "error": "administrative_reporter_skip",
+            "method": "cl_search_skipped",
+        }
+
+    q_case_name = _normalize_case_name_for_cl_search(extracted_case_name)
 
     def _next_timeout(cap: float = 8.0) -> float:
         remaining = deadline - time.monotonic()
@@ -299,7 +376,6 @@ async def cl_search_fallback(session, api_key, citation, extracted_case_name=Non
         m = re.search(r"(19|20)\d{2}", str(value))
         return int(m.group(0)) if m else None
 
-    citation_text = str(citation or "")
     us_reporter_cite = _extract_us_reporter_cite(citation_text)
     clean_citation = _clean_citation_query(citation_text)
     is_wl_or_lexis = bool(re.search(r"\b(?:19|20)\d{2}\s+(?:WL|[A-Za-z\.\s]*LEXIS)\s+\d+\b", citation_text, re.IGNORECASE))
@@ -338,8 +414,13 @@ async def cl_search_fallback(session, api_key, citation, extracted_case_name=Non
             exact_queries.append(clean_citation)
         if citation_text:
             exact_queries.append(citation_text)
-        if extracted_case_name and extracted_case_name != "N/A":
-            for alias in _expand_case_aliases(str(extracted_case_name)):
+        name_for_exact = q_case_name or (
+            str(extracted_case_name).strip()
+            if extracted_case_name and str(extracted_case_name).strip().upper() != "N/A"
+            else ""
+        )
+        if name_for_exact:
+            for alias in _expand_case_aliases(name_for_exact):
                 if us_reporter_cite:
                     exact_queries.append(f"{us_reporter_cite} {alias}")
                 elif clean_citation:
@@ -412,9 +493,9 @@ async def cl_search_fallback(session, api_key, citation, extracted_case_name=Non
     # CourtListener Search API expects fielded queries in the q parameter:
     # caseName:"..." AND dateFiled:[YYYY-MM-DD TO YYYY-MM-DD]
     year_hint = _year_from_hint(extracted_date)
-    if extracted_case_name and extracted_case_name != "N/A" and year_hint and not _is_case_name_too_weak(extracted_case_name):
+    if q_case_name and year_hint and not _is_case_name_too_weak(extracted_case_name):
         try:
-            case_escaped = str(extracted_case_name).replace('"', '\\"').strip()
+            case_escaped = q_case_name.replace('"', '\\"').strip()
             filed_after = f"{year_hint - 2}-01-01"
             filed_before = f"{year_hint + 2}-12-31"
             q_nd = f'caseName:("{case_escaped}") AND dateFiled:[{filed_after} TO {filed_before}]'
@@ -436,7 +517,7 @@ async def cl_search_fallback(session, api_key, citation, extracted_case_name=Non
 
     # Strategy 1: Opinion search with case_name + date filter
     # Use fielded q: caseName:"..." AND dateFiled:[... TO ...]
-    if not extracted_case_name or extracted_case_name == "N/A":
+    if not q_case_name:
         return {"verified": False, "error": "No matching results for exact citation search"}
     if _is_case_name_too_weak(extracted_case_name):
         return {"verified": False, "error": "Case name too weak for reliable name-based search"}
@@ -446,7 +527,7 @@ async def cl_search_fallback(session, api_key, citation, extracted_case_name=Non
         ym = re.search(r"(19|20)\d{2}", str(extracted_date))
         if ym:
             year = int(ym.group(0))
-    case_escaped = str(extracted_case_name).replace('"', '\\"').strip()
+    case_escaped = q_case_name.replace('"', '\\"').strip()
     if year is not None:
         q1 = f'caseName:("{case_escaped}") AND dateFiled:[{year - 1}-01-01 TO {year + 1}-12-31]'
     else:
@@ -473,7 +554,7 @@ async def cl_search_fallback(session, api_key, citation, extracted_case_name=Non
         # Handles abbreviation mismatches (e.g. "DHS" vs "Dep't of Homeland Sec.")
         # by searching content words from the case name with date bounds
         stop = {"v", "the", "of", "and", "in", "for", "on", "at", "to", "a", "an", "re"}
-        kw = [w for w in re.findall(r"[A-Za-z]+", extracted_case_name) if w.lower() not in stop and len(w) > 1]
+        kw = [w for w in re.findall(r"[A-Za-z]+", q_case_name) if w.lower() not in stop and len(w) > 1]
         if kw:
             kw_q = " ".join(kw)
             if year is not None:
@@ -499,7 +580,7 @@ async def cl_search_fallback(session, api_key, citation, extracted_case_name=Non
                 pass
 
         # Strategy 2: Free-text search with case name + citation
-        params2: Dict[str, Any] = {"q": f"{extracted_case_name} {citation}", "type": "o"}
+        params2: Dict[str, Any] = {"q": f"{q_case_name} {citation}", "type": "o"}
         t2 = _next_timeout(5.0)
         if t2 <= 0:
             return {"verified": False, "error": "CL search timeout budget exhausted"}
@@ -516,13 +597,13 @@ async def cl_search_fallback(session, api_key, citation, extracted_case_name=Non
 
         # Strategy 3: Docket search (finds cases not yet in opinion DB)
         # Use quoted first-party + second-party for targeted search
-        parts = re.split(r"\s+v\.?\s+", extracted_case_name, maxsplit=1)
+        parts = re.split(r"\s+v\.?\s+", q_case_name, maxsplit=1)
         if len(parts) == 2:
             first_party = parts[0].strip().split()[0]  # First word of first party
             second_party = parts[1].strip().split()[0]  # First word of second party
             docket_q = f'"{first_party}" "{second_party}"'
         else:
-            docket_q = extracted_case_name
+            docket_q = q_case_name
         params3: Dict[str, Any] = {"q": docket_q, "type": "r"}
         t3 = _next_timeout(5.0)
         if t3 <= 0:

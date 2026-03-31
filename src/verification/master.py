@@ -284,20 +284,26 @@ class UnifiedVerificationMaster:
                 method="cache",
             )
 
-        # Known federal citation (exact match) or known slip (volume+year + name match)
+        # Known federal / WL pin (exact match) or known slip (volume+year + name match)
         known_federal = _lookup_known_federal(citation)
         if known_federal:
-            logger.info(f"[KNOWN-FEDERAL] Resolved '{citation}'")
-            cache.set(citation, known_federal)
+            src = known_federal.get("verification_source", "known_federal")
+            logger.info(f"[KNOWN-FEDERAL] Resolved '{citation}' ({src})")
+            _cache_payload = {
+                k: v
+                for k, v in known_federal.items()
+                if k not in ("force_override", "verification_source")
+            }
+            cache.set(citation, {**_cache_payload, "source": src})
             return VerificationResult(
                 citation=citation,
                 verified=True,
                 canonical_name=known_federal.get("canonical_name"),
                 canonical_date=known_federal.get("canonical_date") or known_federal.get("canonical_year"),
                 canonical_url=known_federal.get("canonical_url"),
-                source="known_federal",
+                source=src,
                 confidence=1.0,
-                method="known_federal",
+                method=src,
             )
         known_slip = _lookup_known_slip(citation, extracted_case_name, extracted_date)
         if known_slip:
@@ -543,9 +549,13 @@ class UnifiedVerificationMaster:
         verified = result.get("verified", False)
         needs_url = bool(result.get("canonical_name") and not result.get("canonical_url"))
         success_delta = 0
-        # Per-citation wall-clock cap so one citation cannot dominate (e.g. 4+ min); keeps UI responsive
-        per_citation_cap_seconds = 30.0
-        citation_deadline = time.monotonic() + min(per_citation_cap_seconds, max(1.0, timeout_per_citation * 3))
+        # Per-citation wall-clock cap: must fit CL search + multi-source web fallbacks (Scholar alone
+        # may need throttle + 2 HTTP hops). Previously 30s with an 8s web cap made backups ineffective.
+        per_citation_cap_seconds = 55.0
+        citation_deadline = time.monotonic() + min(
+            per_citation_cap_seconds,
+            max(35.0, float(timeout_per_citation) * 3.5),
+        )
 
         def _remaining() -> float:
             return max(0.0, min(fallback_deadline - time.time(), citation_deadline - time.monotonic()))
@@ -583,9 +593,14 @@ class UnifiedVerificationMaster:
             remaining_time = 0.0
         if remaining_time > 0:
             try:
+                _cl_budget = min(
+                    max(12.0, float(timeout_per_citation)),
+                    remaining_time,
+                    20.0,
+                )
                 search_result = await cl_search_fallback(
                     self.session, self.api_key, result["citation"],
-                    case_name, date, min(timeout_per_citation, remaining_time, 8.0),
+                    case_name, date, _cl_budget,
                 )
                 if search_result.get("verified"):
                     gate_result = self._evaluate_two_point_gate(result["citation"], case_name, date, search_result)
@@ -639,9 +654,15 @@ class UnifiedVerificationMaster:
                 remaining_time = _remaining()
                 if remaining_time > 0:
                     try:
+                        # Web fallbacks need more wall time than batch timeout_per_citation (often 10s):
+                        # min(..., 8s) / N sources could not cover Google Scholar's delays.
+                        _web_budget = min(
+                            max(26.0, float(timeout_per_citation)),
+                            remaining_time,
+                            40.0,
+                        )
                         fallback_result = await self.fallback.verify(
-                            result["citation"], case_name, date,
-                            min(timeout_per_citation, remaining_time, 8.0),
+                            result["citation"], case_name, date, _web_budget,
                         )
                         if fallback_result.get("verified"):
                             if self._passes_two_point_gate(result["citation"], case_name, date, fallback_result):
@@ -780,25 +801,27 @@ class UnifiedVerificationMaster:
             # Also try fallback when CL returned a name but no URL
             needs_url = verified and result.get("canonical_name") and not result.get("canonical_url")
 
-            # Deterministic rescue: known federal citation table (works even when CL lookup/search misses).
-            # This is intentionally applied in batch mode too, not only single-citation verification.
-            if not verified:
-                known_federal = _lookup_known_federal(str(result.get("citation", "")))
-                if known_federal:
-                    result["verified"] = True
-                    result["canonical_name"] = known_federal.get("canonical_name")
-                    result["canonical_date"] = known_federal.get("canonical_date") or known_federal.get("canonical_year")
-                    result["canonical_url"] = known_federal.get("canonical_url")
-                    result["source"] = "known_federal"
-                    result["confidence"] = 1.0
-                    result["method"] = "known_federal"
-                    result["error"] = None
-                    verified = True
-                    needs_url = False
-                    logger.info(
-                        f"[BATCH-KNOWN-FEDERAL] Resolved '{result.get('citation')}' -> "
-                        f"'{result.get('canonical_name')}'"
-                    )
+            # Deterministic rescue: known federal / WL pin (works when CL misses or returns wrong cluster).
+            # WL rows set force_override so we replace a false-positive verified batch hit (e.g. Cipro WL -> Neal).
+            known_federal = _lookup_known_federal(str(result.get("citation", "")))
+            if known_federal and (not verified or bool(known_federal.get("force_override"))):
+                src = known_federal.get("verification_source", "known_federal")
+                result["verified"] = True
+                result["canonical_name"] = known_federal.get("canonical_name")
+                result["canonical_date"] = known_federal.get("canonical_date") or known_federal.get(
+                    "canonical_year"
+                )
+                result["canonical_url"] = known_federal.get("canonical_url")
+                result["source"] = src
+                result["confidence"] = 1.0
+                result["method"] = src
+                result["error"] = None
+                verified = True
+                needs_url = False
+                logger.info(
+                    f"[BATCH-KNOWN-FEDERAL] Resolved '{result.get('citation')}' -> "
+                    f"'{result.get('canonical_name')}' ({src})"
+                )
             if not verified:
                 known_state = _lookup_known_state(str(result.get("citation", "")))
                 if known_state:

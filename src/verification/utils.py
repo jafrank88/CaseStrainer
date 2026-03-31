@@ -9,11 +9,18 @@ import os
 import re
 import logging
 import requests
-from typing import Dict, Optional
+from typing import Any, Dict, Optional
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
 logger = logging.getLogger(__name__)
+
+try:
+    from src.utils.legal_abbreviations import expand_abbreviations as _expand_legal_abbreviations
+except Exception:  # pragma: no cover
+
+    def _expand_legal_abbreviations(name: str) -> str:
+        return name or ""
 
 
 def get_retrying_session(total: int = 3, backoff: float = 0.5, statuses=None) -> requests.Session:
@@ -104,6 +111,19 @@ def is_citation_likely_valid(citation: str) -> bool:
     return True
 
 
+def _normalize_mdl_overlap_name(name: str) -> str:
+    """Align MDL short captions with full 'In re … Antitrust Litigation' names for overlap."""
+    if not name:
+        return ""
+    n = name.lower().strip()
+    n = re.sub(r"^in\s+re\s+", "", n)
+    n = re.sub(r"\s+antitrust\s+litig\.?$", "", n)
+    n = re.sub(r"\s+antitrust\s+litigation\.?$", "", n)
+    n = re.sub(r"\s+direct\s+purchaser\s+antitrust\s+litig\.?$", "", n)
+    n = re.sub(r"\s+direct\s+purchaser\s+antitrust\s+litigation\.?$", "", n)
+    return re.sub(r"\s+", " ", n).strip()
+
+
 def calculate_case_name_overlap(extracted_name: str, canonical_name: str) -> float:
     """
     Calculate overlap between two case names with improved logic.
@@ -118,9 +138,13 @@ def calculate_case_name_overlap(extracted_name: str, canonical_name: str) -> flo
     if not extracted_name or not canonical_name:
         return 0.0
 
-    # Normalize both names
-    extracted_norm = re.sub(r'[^\w\s]', '', extracted_name.lower().strip())
-    canonical_norm = re.sub(r'[^\w\s]', '', canonical_name.lower().strip())
+    # Normalize both names (MDL / In re bridging, then strip punctuation for token comparison)
+    extracted_norm = re.sub(
+        r"[^\w\s]", "", _normalize_mdl_overlap_name(extracted_name)
+    )
+    canonical_norm = re.sub(
+        r"[^\w\s]", "", _normalize_mdl_overlap_name(canonical_name)
+    )
 
     # Check for exact match
     if extracted_norm == canonical_norm:
@@ -265,3 +289,89 @@ def normalize_citation(citation: str) -> str:
     # Lowercase
     normalized = normalized.lower()
     return normalized
+
+
+# Shared by batch citation-lookup and CourtListenerVerifier: reject wrong cluster when only
+# generic tokens overlap (e.g. "United Food ..." vs "United States Ex Rel. ..." share "united").
+_WEAK_FIRST_PARTY_TOKENS = frozenset(
+    {
+        "united",
+        "state",
+        "states",
+        "u",
+        "s",
+        "us",
+        "people",
+        "ex",
+        "rel",
+        "in",
+        "re",
+        "the",
+    }
+)
+_WEAK_SECOND_PARTY_TOKENS = frozenset(
+    {
+        "inc",
+        "llc",
+        "ltd",
+        "corp",
+        "co",
+        "plc",
+        "limited",
+        "company",
+        "the",
+        "of",
+        "and",
+    }
+)
+
+
+def cluster_matches_extracted_case_name(cluster: Dict[str, Any], extracted_case_name: str) -> bool:
+    """
+    Return False when the cluster's case name is clearly a different case than the document's.
+    Used when CourtListener returns exactly one cluster for a WL / reporter cite that may still
+    be the wrong opinion.
+    """
+    if not extracted_case_name or len(extracted_case_name.strip()) < 4:
+        return True
+    cn = (cluster.get("case_name") or cluster.get("caseName") or "").strip()
+    if not cn:
+        return True
+    # Match multi-cluster CL selection: spaced initials (F. D. I. C.) must expand or tokens
+    # {f,d,i,c} never overlap "federal"/"deposit"/"insurance" and we reject the only cluster.
+    ecn_expanded = _expand_legal_abbreviations(extracted_case_name.strip())
+    cn_expanded = _expand_legal_abbreviations(cn)
+    ecn_lower = ecn_expanded.lower().strip()
+    cn_lower = cn_expanded.lower().strip()
+    ecn_parts = re.split(r"\s+v\.?\s+", ecn_lower, maxsplit=1)
+    cn_parts = re.split(r"\s+v\.?\s+", cn_lower, maxsplit=1)
+    ecn_first = (ecn_parts[0].strip() if ecn_parts else "").split()
+    cn_first = (cn_parts[0].strip() if cn_parts else "").split()
+    if not ecn_first or not cn_first:
+        return True
+    stop = {"inc", "co", "ltd", "llc", "corp", "comm'n", "commission", "commissioner"}
+    ecn_tokens = set(w.strip(".,'") for w in ecn_first if w.strip(".,'") and w.strip(".,'") not in stop)
+    cn_tokens = set(w.strip(".,'") for w in cn_first if w.strip(".,'") and w.strip(".,'") not in stop)
+    if not ecn_tokens or not cn_tokens:
+        return True
+    overlap_plaintiff = ecn_tokens & cn_tokens
+    strong_plaintiff = overlap_plaintiff - _WEAK_FIRST_PARTY_TOKENS
+    if overlap_plaintiff and not strong_plaintiff and len(ecn_parts) > 1 and len(cn_parts) > 1:
+        ecn_def = (ecn_parts[1].strip() if len(ecn_parts) > 1 else "").split()
+        cn_def = (cn_parts[1].strip() if len(cn_parts) > 1 else "").split()
+        ecn_d = set(w.strip(".,'") for w in ecn_def if w.strip(".,'") and w.strip(".,'") not in stop)
+        cn_d = set(w.strip(".,'") for w in cn_def if w.strip(".,'") and w.strip(".,'") not in stop)
+        strong_def = (ecn_d & cn_d) - _WEAK_SECOND_PARTY_TOKENS
+        if not strong_def:
+            return False
+    if ecn_tokens.isdisjoint(cn_tokens):
+        ecn_str = " ".join(sorted(ecn_tokens))
+        cn_str = " ".join(sorted(cn_tokens))
+        # Require length >= 3 on both tokens for a in b — avoids "i" in "cipro" style noise
+        if not (ecn_str in cn_str or cn_str in ecn_str or any(
+            len(a) >= 3 and len(b) >= 3 and (a in b or b in a)
+            for a in ecn_tokens
+            for b in cn_tokens
+        )):
+            return False
+    return True

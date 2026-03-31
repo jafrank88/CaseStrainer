@@ -392,6 +392,8 @@ services:
       - SECRET_KEY=${SECRET_KEY}
       - PYTHONPATH=/app
       - JOB_STUCK_THRESHOLD_SEC=600
+      # Monitor only uses Redis/RQ; skip CourtListener check in src.config import
+      - ENABLE_VERIFICATION=false
     volumes:
       - ./src:/app/src
       - ./data:/app/data

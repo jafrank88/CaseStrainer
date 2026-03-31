@@ -22,12 +22,19 @@ Golden expectations workflow for saved brief PDFs (e.g. under downloaded_briefs/
 
      python scripts/brief_goldens.py verify --manifest data/brief_goldens/manifest.json
 
+   NAAG amicus subset (CourtListener on; ``citation_field_rules`` for canonical URL/name)::
+
+     python scripts/brief_goldens.py verify --manifest tests/fixtures/naag_verify_manifest.json
+
 4) Tabulate a whole run as CSV::
 
      python scripts/report_brief_golden_dumps.py --runs-dir data/brief_goldens/runs/YOUR_RUN \\
        --out data/brief_goldens/runs/summary.csv
 
-See ``src/utils/brief_golden_expectations.py`` for the full manifest schema.
+See ``src/utils/brief_golden_expectations.py`` for the full manifest schema
+(including ``citation_field_rules`` for ``verified`` / canonical name / year / URL checks).
+
+Shared sample rows for goldens and frontend tests live in ``tests/fixtures/citation_display_shape.json``.
 """
 
 from __future__ import annotations

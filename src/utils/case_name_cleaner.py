@@ -67,6 +67,18 @@ def clean_extracted_case_name(case_name: str) -> str:
     # Fix PDF/OCR accent corruption: "Garc A-Ayala" (í lost) -> "Garcia-Ayala" (ASCII for v. regex)
     name = re.sub(r"\bGarc\s+A\s*-\s*([A-Z][a-z]+)\b", r"Garcia-\1", name, flags=re.IGNORECASE)
 
+    # PDF column / TOA glue: "Toys R Us, Inc. v. FTC" misread as "F. T. C. Us, Inc. v. F. T. C."
+    # (221 F.3d 928 (7th Cir. 2000); Toys "R" Us, Inc. v. Federal Trade Commission)
+    name = re.sub(
+        r"F\.\s*T\.\s*C\.\s+Us,?\s*Inc\.?\s+v\.\s+F\.\s*T\.\s*C\.?",
+        'Toys "R" Us, Inc. v. Federal Trade Commission',
+        name,
+        flags=re.IGNORECASE,
+    )
+
+    # Product / case style: PDF title-casing leaves "Xr" lowercase (e.g. Effexor XR antitrust MDL)
+    name = re.sub(r"\bEffexor\s+Xr\b", "Effexor XR", name, flags=re.IGNORECASE)
+
     # "A.V." split across PDF tokenization: "A v. Ex Rel. Vanderhye" -> "A.V. ex rel. Vanderhye"
     name = re.sub(
         r"^A\s+v\.\s+Ex\s+Rel\.\s+",
@@ -211,7 +223,8 @@ def clean_extracted_case_name(case_name: str) -> str:
         r"^The\s+court\s+[^.]*\.\s*",
         # Single legal phrases (from text_normalizer) e.g. "court. Lopez" -> "Lopez"
         r"^(?:court|court\.|this\s+court|we\s+review|also\s+an?\s+issue|statutory\s+interpretation|questions?\s+of\s+law|de\s+novo|in\s+light\s+of|the\s+record\s+certified|federal\s+court)[\s\.]*",
-        r"^(?:and|or|but|that|this|is|also|we\b|may|ask|resolution|of|question|necessary|to|resolve|case|before)[\s\.]*",
+        # \b after alternatives: avoid stripping leading "To" from "Toys …", "Or" from "Oregon …", etc.
+        r"^(?:and|or|but|that|this|is|also|we|may|ask|resolution|of|question|necessary|to|resolve|case|before)\b[\s\.]*",
         r"^(?:see|citing|quoting|accord|id\.|ibid\.|brief\s+at|opening\s+br\.|reply\s+br\.)[\s\.]*",
         # Long de novo / issue-of-law phrases
         r"^[^A-Z]*an?\s+issue\s+of\s+law\s+we\s+review\s+de\s+novo[\s\.]*",
@@ -265,7 +278,11 @@ def clean_extracted_case_name(case_name: str) -> str:
         name = re.sub(r",\s*$", "", name)
 
     # If the core "X v. Y" is present, trim around it to avoid extra prose
-    v_match = re.search(r"([A-Z][A-Za-z0-9&\.\',\s-]+?)\s+v\.\s+([A-Z][A-Za-z0-9&\.\',\s-]+)", name)
+    # Include " so PDF-glue fixes like Toys "R" Us, Inc. v. … are not truncated to "Inc. v. …".
+    v_match = re.search(
+        r'([A-Z][A-Za-z0-9&\.\',\s\-"]+?)\s+v\.\s+([A-Z][A-Za-z0-9&\.\',\s\-"]+)',
+        name,
+    )
     if v_match:
         name = f"{v_match.group(1).strip()} v. {v_match.group(2).strip()}"
 

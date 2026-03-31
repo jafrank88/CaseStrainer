@@ -5,18 +5,60 @@ Parallel citations (same case, multiple reporters) should appear in one cluster.
 If the doc cites A & B and later B & C, transitive merge puts A, B, C in one cluster.
 """
 # Bump when clustering logic changes so API/workers can report which version ran
-CLUSTERING_VERSION = "2026-03-v4"
+CLUSTERING_VERSION = "2026-03-v6"
 
 import re
 import logging
 import time
-from typing import Dict, Any, List, Set, Tuple
+from typing import Dict, Any, List, Set, Tuple, Optional
 
 from src.utils.same_case import names_are_same_case
 from src.utils.cluster_filter import citation_conflicts_with_group, _extract_year
 from src.clustering.detection import _clean_ecn, _same_case_check
 
 logger = logging.getLogger(__name__)
+
+
+def _federal_reporter_primary_key(cit: str) -> str:
+    """Same volume + reporter family + first page => one cluster key (pins drop , 2227 etc.)."""
+    if not (cit or "").strip():
+        return ""
+    s = re.sub(r"\s+", " ", str(cit).strip())
+    m = re.search(
+        r"\b(\d+)\s+"
+        r"(U\.?\s*S\.?|S\.?\s*Ct\.?|L\.?\s*Ed\.?\s*(?:2d)?|"
+        r"F\.?\s*Supp\.?\s*(?:2d|3d)?|F\.?\s*3d|F\.?\s*2d|F\.?\s*4th)\s+"
+        r"(\d+)\b",
+        s,
+        re.IGNORECASE,
+    )
+    if not m:
+        return ""
+    rep = re.sub(r"\s+", "", m.group(2).lower())
+    return f"{m.group(1)}:{rep}:{m.group(3)}"
+
+
+def _paren_decision_year_from_cit(cit: str) -> Optional[str]:
+    """Align with UnifiedCitationProcessorV2._decision_year_from_citation_paren (no import cycle)."""
+    if not (cit or "").strip():
+        return None
+    main = str(cit).strip()
+    for sep in ("(quoting ", "(citing ", "(quoted in ", "(cited in "):
+        ix = main.find(sep)
+        if ix != -1:
+            main = main[:ix].strip()
+            break
+    if re.search(r"\((?:scotus|ca\d+)\s+(?:19|20)\d{2}\s*\)", main, re.IGNORECASE):
+        return None
+    best: Optional[str] = None
+    for m in re.finditer(r"\(([^)]*)\)", main):
+        inner = m.group(1) or ""
+        ym = re.search(r"\b((?:17|18|19|20)\d{2})\b", inner)
+        if ym:
+            y = int(ym.group(1))
+            if 1700 <= y <= 2030:
+                best = ym.group(1)
+    return best
 
 
 def _get_citation_key(c: Dict[str, Any]) -> str:
@@ -358,14 +400,24 @@ def cluster_citations_minimal(citations: List[Dict[str, Any]]) -> List[Dict[str,
     no_name_groups: Dict[str, List[Dict[str, Any]]] = {}  # O(1) lookup for bare citations
     # Same canonical_url => same opinion => one cluster (best way to keep parallel citations together)
     url_to_group_index: Dict[str, int] = {}
+    cite_pk_to_group: Dict[str, int] = {}
 
     for citation in citations:
+        citation_text = str(citation.get("citation") or "").strip()
+        rep_pk = _federal_reporter_primary_key(citation_text)
+        if rep_pk and rep_pk in cite_pk_to_group:
+            groups[cite_pk_to_group[rep_pk]][1].append(citation)
+            continue
+
         # 1) Group by canonical_url when present (verified parallel citations share the same opinion URL)
         canonical_url = citation.get("canonical_url") or ""
         url_key = _normalize_canonical_url(canonical_url)
         if url_key:
             if url_key in url_to_group_index:
-                groups[url_to_group_index[url_key]][1].append(citation)
+                gi = url_to_group_index[url_key]
+                groups[gi][1].append(citation)
+                if rep_pk:
+                    cite_pk_to_group[rep_pk] = gi
                 continue
             rep_key = (
                 citation.get("canonical_name")
@@ -374,7 +426,10 @@ def cluster_citations_minimal(citations: List[Dict[str, Any]]) -> List[Dict[str,
                 or url_key
             )
             groups.append((rep_key, [citation]))
-            url_to_group_index[url_key] = len(groups) - 1
+            idx = len(groups) - 1
+            url_to_group_index[url_key] = idx
+            if rep_pk:
+                cite_pk_to_group[rep_pk] = idx
             continue
 
         # 2) No canonical_url: use name-based grouping (extracted, case_name, or canonical for reporter-only)
@@ -383,7 +438,6 @@ def cluster_citations_minimal(citations: List[Dict[str, Any]]) -> List[Dict[str,
             or citation.get("case_name")
             or citation.get("canonical_name")
         )
-        citation_text = citation.get("citation", "")
 
         # FIX 2026-02-10: Cross-check that the citation text doesn't contain
         # a DIFFERENT case name than the metadata.  Use citation text name when they conflict.
@@ -414,18 +468,37 @@ def cluster_citations_minimal(citations: List[Dict[str, Any]]) -> List[Dict[str,
                 rep_name_clean = _clean_ecn(rep_name) if rep_name else rep_name
                 if names_are_same_case(case_name_clean, rep_name_clean) and not citation_conflicts_with_group(citation, group_cits):
                     group_cits.append(citation)
+                    if rep_pk:
+                        cite_pk_to_group[rep_pk] = i
                     matched = True
                     break
             if not matched:
                 groups.append((case_name, [citation]))
+                idx = len(groups) - 1
+                if rep_pk:
+                    cite_pk_to_group[rep_pk] = idx
         else:
             # No case name: O(1) dict lookup instead of O(g) scan
             key = citation_text
             no_name_groups.setdefault(key, []).append(citation)
 
-    # Merge no-name groups into main list
+    # Merge no-name groups into main list (join existing reporter-primary group if any member matches)
     for key, cits in no_name_groups.items():
-        groups.append((key, cits))
+        merge_idx: Optional[int] = None
+        for c in cits:
+            pk2 = _federal_reporter_primary_key(str(c.get("citation") or "").strip())
+            if pk2 and pk2 in cite_pk_to_group:
+                merge_idx = cite_pk_to_group[pk2]
+                break
+        if merge_idx is not None:
+            groups[merge_idx][1].extend(cits)
+        else:
+            groups.append((key, cits))
+            idx = len(groups) - 1
+            for c in cits:
+                pk2 = _federal_reporter_primary_key(str(c.get("citation") or "").strip())
+                if pk2:
+                    cite_pk_to_group[pk2] = idx
 
     # Transitive merge: groups that share a citation (e.g. A&B and B&C) become one cluster
     groups_list = [g for _, g in groups]
@@ -499,9 +572,17 @@ def cluster_citations_minimal(citations: List[Dict[str, Any]]) -> List[Dict[str,
             if len(years) >= 2 and max(years) - min(years) > 5:
                 best_year = str(max(years))
             else:
-                # Prefer year from bare reporter (shortest citation) - from immediate doc context
-                candidates_sorted = sorted(candidates, key=lambda t: t[3])
-                best_year = candidates_sorted[0][0]
+                paren_years = [
+                    _paren_decision_year_from_cit((c.get("citation") or ""))
+                    for c in group_citations
+                ]
+                paren_years = [y for y in paren_years if y]
+                if paren_years and len(set(paren_years)) == 1:
+                    best_year = paren_years[0]
+                else:
+                    # Prefer year from bare reporter (shortest citation) - from immediate doc context
+                    candidates_sorted = sorted(candidates, key=lambda t: t[3])
+                    best_year = candidates_sorted[0][0]
 
         # Prefer name from citation text over metadata (avoids Hearst/prior-citation bleed)
         # CRITICAL: Prefer canonical_name with "State ex rel." when present (avoids Hearst bleed)

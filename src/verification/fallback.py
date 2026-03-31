@@ -107,12 +107,13 @@ class FallbackVerifier:
         """
         # Determine which sources to try based on citation type
         sources = self._select_sources(citation, extracted_case_name)
-        
-        # Calculate time per source
-        time_per_source = timeout / len(sources) if sources else 0
-        if time_per_source <= 0:
-            time_per_source = 0.5
-        
+        if not sources:
+            return {"verified": False, "error": "No fallback sources selected"}
+
+        # Wall-clock budget: do not split timeout evenly (e.g. 8s/6 sources cannot cover
+        # Google Scholar's throttle + two HTTP hops). Give each attempt the *remaining* slice.
+        deadline = time.monotonic() + max(1.5, float(timeout or 0))
+
         # Try each source
         attempted_any_source = False
         for source_name in sources:
@@ -122,12 +123,23 @@ class FallbackVerifier:
                 verifier = self.verifiers.get(source_name)
                 if not verifier:
                     continue
+                time_left = deadline - time.monotonic()
+                if time_left < 1.25:
+                    logger.debug(
+                        "[FALLBACK] Stopping before %s: only %.1fs left in budget",
+                        source_name,
+                        time_left,
+                    )
+                    break
+                # At least ~3s for a single HTTP verifier; cap a single source so one slow site
+                # does not consume the entire budget when others could still help.
+                per = min(22.0, max(3.0, time_left))
                 attempted_any_source = True
-                
+
                 result = await verifier.verify(
-                    citation, 
-                    extracted_case_name, 
-                    time_per_source
+                    citation,
+                    extracted_case_name,
+                    per,
                 )
                 
                 if result.get("verified"):

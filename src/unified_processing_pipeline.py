@@ -61,6 +61,7 @@ from src.utils.case_name_utils import (
     clean_case_name_contamination,
     is_document_case_contamination_post_process,
 )
+from src.utils.same_case import extracted_matches_canonical_for_contamination_log
 
 # Import placeholder resolver
 from src.utils.placeholder_resolver import resolve_placeholder_citations, is_placeholder_citation
@@ -185,11 +186,19 @@ class UnifiedProcessingPipeline:
                 citation_indicators = ["U.S.", "F.", "F.2d", "F.3d", "S.Ct.", "L.Ed.", "Wn.", "Wn.2d", "P.", "P.2d", "Cal.", "N.Y.", "v.", "v "]
                 found_indicators = [ind for ind in citation_indicators if ind in text]
 
-            # DIAGNOSTIC: Track Lukumi through pipeline stages
+            # DIAGNOSTIC: Track a fixed cite through pipeline stages (off unless CASERAINER_LUKUMI_TRACE=1)
+            _lukumi_trace_on = (os.getenv("CASERAINER_LUKUMI_TRACE", "") or "").strip().lower() in (
+                "1", "true", "yes", "on",
+            )
+
             def _lukumi_check(label, cit_list):
+                if not _lukumi_trace_on:
+                    return
                 for c in cit_list:
-                    ct = getattr(c, 'citation', '') if hasattr(c, 'citation') else (c.get('citation','') if isinstance(c, dict) else '')
-                    if '508 U.S. 520' in ct or '508 U. S. 520' in ct:
+                    ct = getattr(c, "citation", "") if hasattr(c, "citation") else (
+                        c.get("citation", "") if isinstance(c, dict) else ""
+                    )
+                    if "508 U.S. 520" in ct or "508 U. S. 520" in ct:
                         logger.error(f"[LUKUMI-TRACE] {label}: FOUND - {ct[:60]}")
                         return
                 logger.error(f"[LUKUMI-TRACE] {label}: NOT FOUND in {len(cit_list)} citations")
@@ -975,12 +984,18 @@ class UnifiedProcessingPipeline:
                         
                         extracted_clean = cit_dict["extracted_case_name"].strip().lower()
                         canonical_clean = cit_dict["canonical_name"].strip().lower()
-                        
+
                         # Check if names are completely different (possible wrong verification)
-                        if (extracted_clean not in canonical_clean and 
-                            canonical_clean not in extracted_clean and
-                            len(extracted_clean) > 10 and len(canonical_clean) > 10):
-                            
+                        if (
+                            len(extracted_clean) > 10
+                            and len(canonical_clean) > 10
+                            and extracted_clean not in canonical_clean
+                            and canonical_clean not in extracted_clean
+                            and not extracted_matches_canonical_for_contamination_log(
+                                cit_dict["extracted_case_name"],
+                                cit_dict["canonical_name"],
+                            )
+                        ):
                             logger.warning(
                                 f"[CONTAMINATION-BLOCK] Blocked name contamination: "
                                 f"extracted='{cit_dict['extracted_case_name']}' vs "

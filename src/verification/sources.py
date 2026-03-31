@@ -13,11 +13,12 @@ import os
 import random
 import time
 import requests
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict, Any, List, Set
 from urllib.parse import quote
 
 from src.utils.fallback_verification_utils import URLBuilder, HTMLExtractor, NameValidator, HTTPClient
 from .courtlistener_throttle import throttle_courtlistener
+from .utils import cluster_matches_extracted_case_name
 
 try:
     from src.utils.legal_abbreviations import expand_abbreviations, normalize_for_comparison
@@ -191,15 +192,16 @@ class CourtListenerVerifier:
                     result = data[0] if isinstance(data, list) else data
                     if result.get("clusters"):
                         cluster = self._select_best_cluster(result["clusters"], extracted_case_name)
-                        result_dict = {
-                            "verified": True,
-                            "canonical_name": cluster.get("case_name") or cluster.get("caseName"),
-                            "canonical_date": self._extract_year(cluster),
-                            "canonical_url": f"https://www.courtlistener.com{cluster.get('absolute_url', '')}",
-                            "source": "CourtListener",
-                            "confidence": 0.95,
-                        }
-                        return self._enrich_result(result_dict, citation, extracted_case_name)
+                        if cluster:
+                            result_dict = {
+                                "verified": True,
+                                "canonical_name": cluster.get("case_name") or cluster.get("caseName"),
+                                "canonical_date": self._extract_year(cluster),
+                                "canonical_url": f"https://www.courtlistener.com{cluster.get('absolute_url', '')}",
+                                "source": "CourtListener",
+                                "confidence": 0.95,
+                            }
+                            return self._enrich_result(result_dict, citation, extracted_case_name)
                 
                 # Feature: adjacent page fallback
                 parsed = self._parse_citation_core(text_for_api)
@@ -223,7 +225,14 @@ class CourtListenerVerifier:
         """Select the cluster whose case_name best matches extracted_case_name."""
         if not clusters:
             return {}
-        if len(clusters) == 1 or not extracted_case_name or extracted_case_name == "N/A":
+        if len(clusters) == 1:
+            single = clusters[0]
+            if not extracted_case_name or extracted_case_name == "N/A":
+                return single
+            if cluster_matches_extracted_case_name(single, extracted_case_name.strip()):
+                return single
+            return {}
+        if not extracted_case_name or extracted_case_name == "N/A":
             return clusters[0]
         
         # Feature: expand abbreviations before comparison (e.g. Dep't -> Department, Nat'l -> National)
@@ -276,7 +285,7 @@ class CourtListenerVerifier:
 
 
     def _parse_citation_core(self, citation):
-        m = re.search(r"(\d+)\s+([A-Z][A-Za-z.\s]*?)\s+(\d+)", citation)
+        m = re.search(r"\b(\d+)\s+([A-Za-z][A-Za-z.\s]*?)\s+(\d+)\b", citation, re.IGNORECASE)
         if m:
             return m.group(1), re.sub(r"\s+", " ", m.group(2)).strip(), int(m.group(3))
         return None
@@ -472,12 +481,18 @@ class GoogleScholarVerifier:
             "Referer": "https://scholar.google.com/",
         }
 
-    async def _throttle(self):
-        """Enforce a random delay between Scholar requests to avoid rate-limiting."""
+    async def _throttle(self, request_budget: float = 30.0):
+        """Enforce a random delay between Scholar requests to avoid rate-limiting.
+        When ``request_budget`` is tight (batch fallback), use a shorter delay so a hit can complete.
+        """
         now = time.time()
         elapsed = now - GoogleScholarVerifier._last_request_time
-        # Base delay 2-4 seconds with random jitter
-        min_delay = 2.0 + random.uniform(0, 2.0)
+        if request_budget < 12.0:
+            min_delay = 0.1 + random.uniform(0, 0.35)
+        elif request_budget < 22.0:
+            min_delay = 0.5 + random.uniform(0, 0.8)
+        else:
+            min_delay = 2.0 + random.uniform(0, 2.0)
         if elapsed < min_delay:
             wait = min_delay - elapsed
             logger.debug(f"[SCHOLAR] Throttling: waiting {wait:.1f}s")
@@ -505,6 +520,13 @@ class GoogleScholarVerifier:
         E.g. 'Trichell v. Midland Credit Mgmt., Inc., 964 F.3d 990, 999, n. 2 (2020) (sitting by designation)'
         becomes '964 F.3d 990'.
         """
+        # Pacific / regional reporters: digit inside series (P.3d) breaks the generic pattern below
+        m = re.search(r"\b(\d+)\s+P\.\s*3d\s+(\d+)\b", citation, re.IGNORECASE)
+        if m:
+            return f"{m.group(1)} P.3d {m.group(2)}"
+        m = re.search(r"\b(\d+)\s+P\.\s*2d\s+(\d+)\b", citation, re.IGNORECASE)
+        if m:
+            return f"{m.group(1)} P.2d {m.group(2)}"
         # Try to extract just the volume-reporter-page core
         m = re.search(r'(\d+)\s+([A-Za-z][A-Za-z.\s]*\d*[a-z]{0,2}\.?)\s+(\d+)', citation)
         if m:
@@ -512,6 +534,48 @@ class GoogleScholarVerifier:
         # Fallback: strip parentheticals
         cleaned = re.sub(r'\([^)]*\)', '', citation).strip()
         return cleaned
+
+    @staticmethod
+    def _citation_nospace_variants_for_page(citation: str, search_citation: str) -> List[str]:
+        """Substrings to try when checking if a cite appears on HTML (spacing/punctuation stripped)."""
+        found: Set[str] = set()
+        ordered: List[str] = []
+        for c in (str(citation or "").strip(), str(search_citation or "").strip()):
+            if not c:
+                continue
+            v = re.sub(r"\s+", "", c.lower())
+            if v and v not in found:
+                found.add(v)
+                ordered.append(v)
+        # Colorado Court of Appeals neutral "2020 COA 59" often appears as "2020 Colo. App. 59" on pages
+        coa = re.search(
+            r"\b((?:19|20)\d{2})\s+COA\s+(\d+)\b",
+            str(citation or ""),
+            re.IGNORECASE,
+        )
+        if coa:
+            y, n = coa.group(1), coa.group(2)
+            for extra in (f"{y}coloapp{n}", f"{y}colapp{n}", f"{y}coloradoapp{n}"):
+                if extra not in found:
+                    found.add(extra)
+                    ordered.append(extra)
+        return ordered
+
+    @staticmethod
+    def _normalize_case_name_for_scholar_match(name: Optional[str]) -> Optional[str]:
+        """Align extracted names with Scholar titles: strip trailing year, expand Cnty., & -> and."""
+        if not name or str(name).strip().upper() == "N/A":
+            return name
+        s = str(name).strip()
+        s = re.sub(r",?\s+(19|20)\d{2}\s*$", "", s).strip()
+        if _ENRICH_AVAILABLE:
+            try:
+                s = expand_abbreviations(s)
+            except Exception:
+                pass
+        s = re.sub(r"\bCounty\.\s+", "County ", s, flags=re.IGNORECASE)
+        s = re.sub(r"\s+&\s+", " and ", s)
+        return re.sub(r"\s+", " ", s).strip() or str(name).strip()
 
     async def verify(
         self,
@@ -568,8 +632,8 @@ class GoogleScholarVerifier:
             for rel_link, search_title in unique_results[:2]:
                 case_url = f"https://scholar.google.com{rel_link}"
                 try:
-                    # Throttle before visiting case page
-                    await self._throttle()
+                    # Throttle before visiting case page (usually less budget left)
+                    await self._throttle(max(2.0, float(timeout) * 0.45))
 
                     page = self._scholar_get(case_url, timeout)
                     if page.status_code != 200:
@@ -604,16 +668,10 @@ class GoogleScholarVerifier:
                         # Fallback to search result title
                         canonical_name = search_title
 
-                    # Check if citation appears on the page (try full text, then base citation)
+                    # Check if citation appears on the page (full cite, cleaned cite, COA aliases)
                     page_lower = page_content.lower().replace(" ", "")
-                    citation_on_page = (
-                        citation.lower().replace(" ", "") in page_lower
-                    )
-                    if not citation_on_page:
-                        # Try with just the base citation (volume-reporter-page)
-                        citation_on_page = (
-                            search_citation.lower().replace(" ", "") in page_lower
-                        )
+                    cite_variants = self._citation_nospace_variants_for_page(citation, search_citation)
+                    citation_on_page = any(v in page_lower for v in cite_variants)
                     if not citation_on_page:
                         continue
 
@@ -627,8 +685,13 @@ class GoogleScholarVerifier:
 
                     # Validate name match if we have an extracted name
                     if extracted_case_name and extracted_case_name != "N/A":
+                        name_for_match = self._normalize_case_name_for_scholar_match(
+                            extracted_case_name
+                        )
                         is_valid, overlap, warning = NameValidator.validate_match(
-                            extracted_case_name, canonical_name, min_overlap=0.25
+                            name_for_match or extracted_case_name,
+                            canonical_name,
+                            min_overlap=0.25,
                         )
                         if not is_valid:
                             logger.debug(

@@ -6,7 +6,7 @@ Extracted from unified_verification_master.py (P1 refactoring).
 """
 
 import re
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, cast
 
 
 def _normalize_citation_for_known_lookup(citation: str) -> str:
@@ -22,7 +22,63 @@ def _normalize_citation_for_known_lookup(citation: str) -> str:
     s = re.sub(r"f\.\s*3d\b", "f.3d", s, flags=re.IGNORECASE)
     s = re.sub(r"f\.\s*2d\b", "f.2d", s, flags=re.IGNORECASE)
     s = re.sub(r"f\.\s*4th\b", "f.4th", s, flags=re.IGNORECASE)
+    # F. Supp.: normalize 2d/3d before first series so "968 F. Supp. 2d 367" is not parsed as supp + "2"
+    s = re.sub(r"f\.\s*supp\.?\s*2d\b", "f. supp. 2d", s, flags=re.IGNORECASE)
+    s = re.sub(r"f\.\s*supp\.?\s*3d\b", "f. supp. 3d", s, flags=re.IGNORECASE)
+    s = re.sub(r"f\.\s*supp\.?\s+", "f. supp. ", s, flags=re.IGNORECASE)
     return s.strip()
+
+
+def _wl_citation_key(citation: str) -> Optional[str]:
+    """Return normalized 'YYYY wl NNNNNNN' if citation contains a Westlaw id, else None."""
+    if not citation:
+        return None
+    s = re.sub(r"\s+", " ", citation.strip().lower())
+    m = re.search(r"\b((?:19|20)\d{2})\s+wl\s+(\d+)\b", s, re.IGNORECASE)
+    if not m:
+        return None
+    return f"{m.group(1)} wl {m.group(2)}"
+
+
+# Westlaw / WL cites CourtListener often does not cluster; batch CL can also return the wrong MDL sibling.
+# force_override is added by _lookup_known_federal so batch mode can replace a bad verified hit.
+KNOWN_WL_CITATIONS = {
+    # 74 F. Supp. 3d 1052 (N.D. Cal. 2014); CL opinion https://www.courtlistener.com/opinion/2171586/
+    "2014 wl 6465235": {
+        "canonical_name": "United Food & Commercial Workers Local 1776 v. Teikoku Pharma USA, Inc.",
+        "canonical_date": "2014-11-17",
+        "canonical_year": "2014",
+        "canonical_url": "https://www.courtlistener.com/opinion/7311104/united-food-commercial-workers-local-1776-v-teikoku-pharma-usa-inc/",
+    },
+    # In re Effexor XR Antitrust Litig., No. 11-cv-5479 (D.N.J. Oct. 6, 2014) — RECAP PDF on CL storage
+    "2014 wl 4988410": {
+        "canonical_name": "In re Effexor XR Antitrust Litigation",
+        "canonical_date": "2014-10-06",
+        "canonical_year": "2014",
+        "canonical_url": "https://storage.courtlistener.com/recap/gov.uscourts.njd.264958.19.0.pdf",
+    },
+    # Cal. Supreme May 7, 2015, S198616 — fixes CL returning unrelated federal WL clusters (e.g. Neal v. …)
+    "2015 wl 2125291": {
+        "canonical_name": "In re Cipro Cases I & II",
+        "canonical_date": "2015-05-07",
+        "canonical_year": "2015",
+        "canonical_url": "https://law.justia.com/cases/california/supreme-court/2015/s198616.html",
+    },
+    # In re Aggrenox Antitrust Litig. (D.R.I.); TOA often carries wrong year vs WL token
+    "2015 wl 1311352": {
+        "canonical_name": "In re Aggrenox Antitrust Litigation",
+        "canonical_date": "2015",
+        "canonical_year": "2015",
+        "canonical_url": "https://www.courtlistener.com/docket/4535884/in-re-aggrenox-antitrust-litigation/",
+    },
+    # MDL 2332 — no single slip; docket hub on CourtListener
+    "2013 wl 4780496": {
+        "canonical_name": "In re Lipitor Antitrust Litigation",
+        "canonical_date": "2013",
+        "canonical_year": "2013",
+        "canonical_url": "https://www.courtlistener.com/docket/17279455/in-re-lipitor-antitrust-litigation/",
+    },
+}
 
 
 KNOWN_FEDERAL_CITATIONS = {
@@ -130,6 +186,70 @@ KNOWN_FEDERAL_CITATIONS = {
         "canonical_year": "2020",
         "canonical_url": "https://law.justia.com/cases/federal/appellate-courts/ca11/18-14144/18-14144-2020-07-06.html",
     },
+    # CourtListener cluster miss / TOA OCR ("O'Flahaven"); opinion: https://www.courtlistener.com/opinion/2008316/federal-deposit-ins-v-oflahaven/
+    "857 f. supp. 154": {
+        "canonical_name": "Federal Deposit Insurance Corp. v. O'Flahaven",
+        "canonical_date": "1994-03-31",
+        "canonical_year": "1994",
+        "canonical_url": "https://www.courtlistener.com/opinion/2008316/federal-deposit-ins-v-oflahaven/",
+    },
+    # NAAG briefs: reporter line can pick up adjacent case name (e.g. UFCW) — cite is Delta Dental
+    "943 f. supp. 172": {
+        "canonical_name": "United States v. Delta Dental of Rhode Island",
+        "canonical_date": "1996-06-28",
+        "canonical_year": "1996",
+        "canonical_url": "https://www.courtlistener.com/opinion/2250934/united-states-v-delta-dental-of-rhode-island/",
+    },
+    # In re Cardizem CD (6th Cir. 2003); TOA/context often injects unrelated year (e.g. 1992)
+    "332 f.3d 896": {
+        "canonical_name": "In re Cardizem CD Antitrust Litigation",
+        "canonical_date": "2003-07-31",
+        "canonical_year": "2003",
+        "canonical_url": "https://www.courtlistener.com/opinion/782340/in-re-cardizem-cd-antitrust-litigation-louisiana-wholesale-drug-co-v/",
+        "force_override": True,
+    },
+    # 423 U.S. 150 — merits decision 1976; batch search sometimes returns wrong modern year
+    "423 u.s. 150": {
+        "canonical_name": "American Foreign Steamship Corp. v. Matise",
+        "canonical_date": "1976-01-21",
+        "canonical_year": "1976",
+        "canonical_url": "https://supreme.justia.com/cases/federal/us/423/150/",
+    },
+    # Parallel reporter for 2014 WL 6465235 (Teikoku / Lidoderm MDL order)
+    "74 f. supp. 3d 1052": {
+        "canonical_name": "United Food & Commercial Workers Local 1776 v. Teikoku Pharma USA, Inc.",
+        "canonical_date": "2014-11-17",
+        "canonical_year": "2014",
+        "canonical_url": "https://www.courtlistener.com/opinion/7311104/united-food-commercial-workers-local-1776-v-teikoku-pharma-usa-inc/",
+    },
+    # NAAG antitrust briefs: duplicate rows / wrong TOA year; CL opinion is 2013 merits decision
+    "133 s. ct. 2223": {
+        "canonical_name": "Federal Trade Commission v. Actavis, Inc.",
+        "canonical_date": "2013-06-17",
+        "canonical_year": "2013",
+        "canonical_url": "https://www.courtlistener.com/opinion/9240878/federal-trade-commission-v-actavis-inc/",
+    },
+    # Cert. denial order; same underlying court of appeals case as 604 F.3d 98 (2010)
+    "131 s. ct. 1606": {
+        "canonical_name": "Louisiana Wholesale Drug Co. v. Bayer AG",
+        "canonical_date": "2011-03-07",
+        "canonical_year": "2011",
+        "canonical_url": "https://www.courtlistener.com/opinion/7343436/louisiana-wholesale-drug-co-v-bayer-ag/",
+    },
+    # Loestrin MDL D.R.I.; fixes Effexor/TOA neighbor bleed on extracted_case_name
+    "45 f. supp. 3d 180": {
+        "canonical_name": "In re Loestrin 24 FE Antitrust Litigation",
+        "canonical_date": "2014-09-04",
+        "canonical_year": "2014",
+        "canonical_url": "https://www.courtlistener.com/opinion/8343787/in-re-loestrin-24-fe-antitrust-litigation/",
+    },
+    # Nexium MDL D. Mass.; align caption with common TOA "Nexium Antitrust Litig."
+    "968 f. supp. 2d 367": {
+        "canonical_name": "In re Nexium Antitrust Litigation",
+        "canonical_date": "2013-09-11",
+        "canonical_year": "2013",
+        "canonical_url": "https://www.courtlistener.com/opinion/8727943/in-re-nexium/",
+    },
 }
 
 # State citations that citation-lookup often misses. Key = normalized "vol reporter page" (lowercase).
@@ -235,7 +355,15 @@ KNOWN_SLIP_CITATIONS = {
 def _lookup_known_federal(cit_str: str) -> Optional[Dict[str, Any]]:
     """Return KNOWN_FEDERAL_CITATIONS entry for citation string, or None. Shared by dict and object applicators."""
     import re as _re
-    norm = _normalize_citation_for_known_lookup(cit_str or "")
+    raw = cit_str or ""
+    wl_key = _wl_citation_key(raw)
+    if wl_key and wl_key in KNOWN_WL_CITATIONS:
+        row = cast(Dict[str, Any], dict(KNOWN_WL_CITATIONS[wl_key]))
+        row["force_override"] = True
+        row["verification_source"] = "known_wl"
+        return row
+
+    norm = _normalize_citation_for_known_lookup(raw)
     if not norm:
         return None
     lookup = norm
@@ -246,6 +374,9 @@ def _lookup_known_federal(cit_str: str) -> Optional[Dict[str, Any]]:
             or _re.match(r"^(\d+\s+f\.3d\s*\d+)", norm)
             or _re.match(r"^(\d+\s+f\.2d\s*\d+)", norm)
             or _re.match(r"^(\d+\s+f\.4th\s*\d+)", norm)
+            or _re.match(r"^(\d+\s+f\.\s*supp\.\s*2d\s+\d+)", norm)
+            or _re.match(r"^(\d+\s+f\.\s*supp\.\s*3d\s+\d+)", norm)
+            or _re.match(r"^(\d+\s+f\.\s*supp\.\s+\d+)(?!d\b)", norm)
         )
         if base_m:
             lookup = base_m.group(1).strip().lower()
@@ -261,6 +392,9 @@ def _lookup_known_federal(cit_str: str) -> Optional[Dict[str, Any]]:
         r"(\d+\s+f\.3d\s*\d+)",
         r"(\d+\s+f\.2d\s*\d+)",
         r"(\d+\s+f\.4th\s*\d+)",
+        r"(\d+\s+f\.\s*supp\.\s*2d\s+\d+)",
+        r"(\d+\s+f\.\s*supp\.\s*3d\s+\d+)",
+        r"(\d+\s+f\.\s*supp\.\s+\d+)(?!d\b)",
     ]
     for pat in embedded_patterns:
         m = _re.search(pat, norm)

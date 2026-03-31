@@ -23,6 +23,7 @@ import time
 
 from .sources import CourtListenerVerifier
 from .courtlistener_throttle import throttle_courtlistener
+from .utils import cluster_matches_extracted_case_name
 
 logger = logging.getLogger(__name__)
 
@@ -623,36 +624,7 @@ class BatchVerifier:
         E.g. document "Utils. Transp. Comm'n Seattle, Inc. v. Utils. & Transp. Comm'n" should not
         match CourtListener "Arco Products Co. v. Utilities & Transportation Commission" (same cite, wrong case).
         """
-        if not extracted_case_name or len(extracted_case_name.strip()) < 4:
-            return True
-        cn = (cluster.get("case_name") or cluster.get("caseName") or "").strip()
-        if not cn:
-            return True
-        ecn_lower = extracted_case_name.lower().strip()
-        cn_lower = cn.lower()
-        # First party must have some overlap (e.g. "utils" / "utilities", "arco" vs "utils" = no)
-        ecn_parts = re.split(r"\s+v\.?\s+", ecn_lower, maxsplit=1)
-        cn_parts = re.split(r"\s+v\.?\s+", cn_lower, maxsplit=1)
-        ecn_first = (ecn_parts[0].strip() if ecn_parts else "").split()
-        cn_first = (cn_parts[0].strip() if cn_parts else "").split()
-        if not ecn_first or not cn_first:
-            return True
-        # Normalize: drop common suffixes for comparison
-        stop = {"inc", "co", "ltd", "llc", "corp", "comm'n", "commission", "commissioner"}
-        ecn_tokens = set(w.strip(".,'") for w in ecn_first if w.strip(".,'") and w.strip(".,'") not in stop)
-        cn_tokens = set(w.strip(".,'") for w in cn_first if w.strip(".,'") and w.strip(".,'") not in stop)
-        if not ecn_tokens or not cn_tokens:
-            return True
-        # Reject if no token overlap (e.g. "arco","products" vs "utils","transp","seattle")
-        if ecn_tokens.isdisjoint(cn_tokens):
-            # Allow if one side is abbreviation of the other (e.g. "utils" vs "utilities")
-            ecn_str = " ".join(sorted(ecn_tokens))
-            cn_str = " ".join(sorted(cn_tokens))
-            if not (ecn_str in cn_str or cn_str in ecn_str or any(
-                a in b or b in a for a in ecn_tokens for b in cn_tokens
-            )):
-                return False
-        return True
+        return cluster_matches_extracted_case_name(cluster, extracted_case_name)
 
     def _select_best_cluster(
         self,

@@ -578,14 +578,27 @@ def snap_s_ct_citation_to_source_window(
         return strip_absorbed_prose_after_s_ct_or_led2d(cur)
     best = min(candidates, key=lambda m: abs(win_s + m.start() - start_idx))
     good = best.group(1)
-    vm_c = re.match(r"^(\d{2,3})\s+S\.\s*Ct\.\s+(\d{2,4})\b", cur, re.IGNORECASE)
     vm_g = re.match(r"^(\d{2,3})\s+S\.\s*Ct\.\s+(\d{3,4})\b", good, re.IGNORECASE)
-    if vm_c and vm_g and vm_c.group(1) == vm_g.group(1):
-        pc, pg = vm_c.group(2), vm_g.group(2)
+    if not vm_g:
+        return strip_absorbed_prose_after_s_ct_or_led2d(cur)
+    vol_g, pg = vm_g.group(1), vm_g.group(2)
+
+    # Eyecite span may be "133 S. Ct. ..." at start, or "Name, 133 S. Ct. 22" with truncated page.
+    vm_c = re.match(r"^(\d{2,3})\s+S\.\s*Ct\.\s+(\d{2,4})\b", cur, re.IGNORECASE)
+    if vm_c and vm_c.group(1) == vol_g:
+        pc = vm_c.group(2)
         if pc == pg:
             return strip_absorbed_prose_after_s_ct_or_led2d(cur)
         if pg.startswith(pc) and len(pg) > len(pc):
             return strip_absorbed_prose_after_s_ct_or_led2d(good)
+
+    emb = re.search(r"\b(\d{2,3})\s+S\.\s*Ct\.\s+(\d{2,4})\b", cur, re.IGNORECASE)
+    if emb:
+        vol_e, pc = emb.group(1), emb.group(2)
+        if vol_e == vol_g and pg.startswith(pc) and len(pg) > len(pc):
+            fixed = cur[: emb.start(2)] + pg + cur[emb.end(2) :]
+            return strip_absorbed_prose_after_s_ct_or_led2d(fixed)
+
     return strip_absorbed_prose_after_s_ct_or_led2d(cur)
 
 

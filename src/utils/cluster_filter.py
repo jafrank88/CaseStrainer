@@ -19,8 +19,17 @@ def _parse_vol_rep(citation_text: str) -> Optional[Tuple[str, int]]:
     """Parse volume and reporter from citation. Returns (normalized_reporter, volume) or None."""
     if not citation_text or not isinstance(citation_text, str):
         return None
+    s = citation_text.strip()
+    # L. Ed. 2d must be parsed before generic "L. Ed." (otherwise page is misread as "2").
+    m_led2 = re.match(r"(\d+)\s+L\.\s*Ed\.\s*2d\s+(\d+|____|___)", s, re.IGNORECASE)
+    if m_led2 and m_led2.group(1).isdigit():
+        return ("l.ed.2d", int(m_led2.group(1)))
+    # First-series L. Ed. (not 2d)
+    m_led1 = re.match(r"(\d+)\s+L\.\s*Ed\.\s+(?!2d)(\d+|____|___)", s, re.IGNORECASE)
+    if m_led1 and m_led1.group(1).isdigit():
+        return ("l.ed.", int(m_led1.group(1)))
     # Reporter can include digits (e.g. S.E.2d, P.3d, F.Supp.2d)
-    m = re.match(r"(\d+)\s+([A-Za-z0-9\.\s]+?)\s+(\d+|____|___)", citation_text.strip())
+    m = re.match(r"(\d+)\s+([A-Za-z0-9\.\s]+?)\s+(\d+|____|___)", s)
     if not m:
         return None
     vol_str, rep, _ = m.group(1), m.group(2).strip(), m.group(3)
@@ -111,11 +120,30 @@ def citation_conflicts_with_group(citation: Dict[str, Any], group_citations: Lis
             continue
         # Same reporter, different volume = different case (e.g. 209 P. 1102 vs 214 P. 146).
         # Exception 1: same canonical_url (same verified opinion) = true parallel.
-        # Exception 2: same canonical case by name (e.g. CFE I 86 N.Y.2d + CFE II 100 N.Y.2d).
+        # Exception 2: same canonical case by name (e.g. CFE I 86 N.Y.2d + CFE II 100 N.Y.2d)
+        # — applies to state/regional lines, not U.S. Reports: 441 U.S. and 446 U.S. are always
+        # different merits volumes (e.g. Broadcast Music vs Catalano in one sentence).
         cit_url = (citation.get("canonical_url") or "").strip()
         mem_url = (member.get("canonical_url") or "").strip()
         if cit_url and mem_url and cit_url == mem_url:
             continue
+        # Federal reporters where different volumes are always different published opinions;
+        # do not apply state-court multi-opinion (_same_canonical_case) merge exceptions.
+        _federal_vol_strict = rep_new == rep_m and rep_new in (
+            "u.s.",
+            "s.ct.",
+            "l.ed.",
+            "l.ed.2d",
+            "f.3d",
+            "f.2d",
+            "f.4th",
+        )
+        if _federal_vol_strict:
+            logger.info(
+                f"[CLUSTER-FILTER] Federal reporter volume mismatch: '{cit_text}' vs '{m_text}' "
+                f"(reporter '{rep_new}', volumes {vol_new} vs {vol_m}) — separate cases"
+            )
+            return True
         if _same_canonical_case(citation, [member]):
             continue
         logger.info(

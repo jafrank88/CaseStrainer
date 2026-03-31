@@ -4,6 +4,12 @@ Adapted from rlfordon/citation-verifier (name_matcher.py).
 import re
 
 LEGAL_ABBREVIATIONS = {
+    # Spaced initialism from extraction / TOA (matches CourtListener "Federal Deposit Ins." style names)
+    # No trailing \b: period after C is non-word, so ". v." has no boundary after the final dot.
+    r"\bF\.\s*D\.\s*I\.\s*C\.": "Federal Deposit Insurance Corporation",
+    r"\bF\.D\.I\.C\.": "Federal Deposit Insurance Corporation",
+    r"\bF\.\s*T\.\s*C\.": "Federal Trade Commission",
+    r"\bF\.T\.C\.": "Federal Trade Commission",
     r"\bInc\.?\b": "Incorporated",
     r"\bCorp\.?\b": "Corporation",
     r"\bLtd\.?\b": "Limited",
@@ -35,6 +41,8 @@ LEGAL_ABBREVIATIONS = {
     r"\bAdmin\.?\b": "Administrator",
     r"\bDist\.?\b": "District",
     r"\bDiv\.?\b": "Division",
+    r"\bR\.?R\.?\b": "Railroad",
+    r"\bRR\b": "Railroad",
     r"\bEnt\.?\b": "Entertainment",
     r"\bComput\.?\b": "Computer",
     r"\bRecs\.?\b": "Records",

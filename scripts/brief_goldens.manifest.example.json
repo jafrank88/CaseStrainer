@@ -186,6 +186,23 @@
         "exact_citation_count": 0,
         "exact_cluster_count": 0
       }
+    },
+    {
+      "id": "example_citation_field_rules_skipped",
+      "skip": true,
+      "file": "downloaded_briefs/README.pdf",
+      "notes": "Schema example only. Use citation_field_rules with enable_verification true on a real brief; see tests/fixtures/citation_display_shape.json.",
+      "expect": {
+        "citation_field_rules": [
+          {
+            "citation_contains": "606 U.S. 831",
+            "verified": true,
+            "canonical_name_contains": "Loper Bright",
+            "canonical_year": "2024",
+            "canonical_url_contains": "courtlistener.com"
+          }
+        ]
+      }
     }
   ]
 }
