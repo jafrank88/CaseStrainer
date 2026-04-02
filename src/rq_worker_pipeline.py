@@ -1131,66 +1131,26 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
                                                     f"[TASK:{task_id}] [OK] Canonical name '{canonical_name}' found in document"
                                                 )
 
-                        # USER FIX: Fix fragment extractions in clusters (e.g., "Inc v. Montgomery")
-                        # FIX 2026-02-01: Do NOT use canonical for submitted_display_name - that's contamination!
-                        # submitted_display_name should ALWAYS show what was extracted, even if it's a fragment
-                        # The canonical name appears in verifying_display_name (first line), not submitted
-                        if clusters_list:
-                            import re
-
-                            fragment_pattern = re.compile(
-                                r"^(Inc\.?|Corp\.?|LLC|L\.L\.C\.|Ltd\.?|Co\.?|Ass\'?n|Assoc\.?|Org\.?)\s+v\.?\s+",
-                                re.IGNORECASE,
-                            )
-                            for cluster in clusters_list:
-                                if not isinstance(cluster, dict):
-                                    continue
-                                ext_name = cluster.get("extracted_case_name", "")
-                                if ext_name and fragment_pattern.match(str(ext_name)):
-                                    # Only trust canonical upgrades when cluster is effectively verified.
-                                    _eff_verified = bool(
-                                        cluster.get("verified", False)
-                                        and str(cluster.get("canonical_url") or cluster.get("display_canonical_url") or "").strip()
-                                    )
-                                    # FIX 2026-02-10: If canonical_name contains the fragment,
-                                    # use canonical - it's the same case, just more complete
-                                    # e.g. "Inc. v. Robins" -> "Spokeo, Inc. v. Robins"
-                                    canonical = (cluster.get("canonical_name") or "").strip()
-                                    if _eff_verified and canonical and canonical != "N/A" and ext_name.lower() in canonical.lower():
-                                        cluster["submitted_display_name"] = canonical
-                                        cluster["extracted_case_name"] = canonical
-                                        logger.info(f"[TASK:{task_id}] Fragment '{ext_name}' upgraded to canonical '{canonical}'")
-                                    else:
-                                        cluster["submitted_display_name"] = ext_name
-                                        logger.info(f"[TASK:{task_id}] Fragment '{ext_name}' kept as extracted (no matching canonical)")
-
-                        # FIX 2026-02-09: When extraction fails, use canonical_name as fallback for submitted_display_name
-                        # The user wants to see the case name, not "N/A", when we know it from verification
+                        # Preserve what was extracted from the document as `submitted_display_name`.
+                        # Even if it's a fragment (e.g. "Ass'n v. FTC"), the canonical name belongs in
+                        # `verifying_display_name` to avoid making the document-side label look "contaminated".
                         if clusters_list:
                             for cluster in clusters_list:
                                 if not isinstance(cluster, dict):
                                     continue
-                                ext_name = cluster.get("extracted_case_name", "")
+                                ext_name = (cluster.get("extracted_case_name") or "").strip()
+                                if ext_name:
+                                    cluster["submitted_display_name"] = ext_name
+
+                        # If we cannot extract a name from the document, keep submitted_display_name as N/A.
+                        # Canonical name remains available via verifying_display_name.
+                        if clusters_list:
+                            for cluster in clusters_list:
+                                if not isinstance(cluster, dict):
+                                    continue
+                                ext_name = (cluster.get("extracted_case_name") or "").strip()
                                 if not ext_name or ext_name == "N/A":
-                                    _eff_verified = bool(
-                                        cluster.get("verified", False)
-                                        and str(cluster.get("canonical_url") or cluster.get("display_canonical_url") or "").strip()
-                                    )
-                                    canonical_fallback = (cluster.get("canonical_name") or "").strip()
-                                    if not canonical_fallback or canonical_fallback == "N/A":
-                                        for cit in cluster.get("citations", cluster.get("citation_objects", [])):
-                                            if isinstance(cit, dict):
-                                                cn = (cit.get("canonical_name") or "").strip()
-                                                if cn and cn != "N/A":
-                                                    canonical_fallback = cn
-                                                    break
-                                    if _eff_verified and canonical_fallback and canonical_fallback != "N/A":
-                                        cluster["submitted_display_name"] = canonical_fallback
-                                        cluster["extracted_case_name"] = canonical_fallback
-                                        logger.info(f"[TASK:{task_id}] Extraction failed - using canonical '{canonical_fallback}' as submitted_display_name")
-                                    else:
-                                        cluster["submitted_display_name"] = "N/A"
-                                        logger.info(f"[TASK:{task_id}] Extraction failed - no canonical available, keeping N/A")
+                                    cluster["submitted_display_name"] = "N/A"
 
                         # Upstream hardening: merge duplicates only on stable identity signals.
                         # Avoid name-similarity merges that can collapse different same-name cases

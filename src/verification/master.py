@@ -185,13 +185,28 @@ class UnifiedVerificationMaster:
         year_match = False
         year_tolerance = 1
         if extracted_date and candidate.get("canonical_date"):
-            year_match, _ = validate_year_match(str(extracted_date), str(candidate.get("canonical_date")), tolerance=year_tolerance)
+            year_match, _ = validate_year_match(
+                str(extracted_date),
+                str(candidate.get("canonical_date")),
+                tolerance=year_tolerance,
+            )
+        elif not extracted_date:
+            # If we don't have a trustworthy extracted year (document-first policy may leave it blank),
+            # do not block verification on year mismatch.
+            year_match = True
         elif not candidate.get("canonical_date"):
             year_match = True
 
         # Citation core match: accept
         if citation_match:
             return "accept"
+
+        # CourtListener loosening: if citation is plausibly the same but our extracted name is noisy,
+        # do not hard-reject; surface as possible match so UI can link to canonical URL.
+        if use_loose_gate and candidate.get("canonical_url"):
+            # If we have no strong extracted name, treat as possible match rather than reject.
+            if not has_strong_name:
+                return "possible_match"
 
         # First-party surname shortcut: accept when year matches
         if has_strong_name and year_match:
@@ -560,6 +575,33 @@ class UnifiedVerificationMaster:
         def _remaining() -> float:
             return max(0.0, min(fallback_deadline - time.time(), citation_deadline - time.monotonic()))
 
+        # Step 0: direct CourtListener single-citation lookup retry.
+        # Generalized rescue for cases where batch citation-lookup fails to parse/match a citation
+        # inside long batch text (but single lookup works).
+        try:
+            if not verified and _remaining() > 0:
+                from src.utils.response_enrichment import extract_display_base_citation
+
+                base_cit = extract_display_base_citation(str(result.get("citation") or "")) or str(result.get("citation") or "")
+                if base_cit and base_cit != str(result.get("citation") or ""):
+                    single = await self.courtlistener.verify(
+                        base_cit,
+                        timeout=min(_remaining(), 10.0),
+                        extracted_case_name=case_name,
+                    )
+                    if single and single.get("verified"):
+                        gate_result = self._evaluate_two_point_gate(base_cit, case_name, date, single)
+                        if gate_result == "accept":
+                            # Preserve original citation label but apply canonical fields.
+                            result.update(single)
+                            result["citation"] = str(result.get("citation") or "")
+                            verified = True
+                            needs_url = bool(not result.get("canonical_url"))
+                            if not needs_url:
+                                return 1
+        except Exception:
+            pass
+
         # Name+date-only for proprietary (WL/Lexis)
         name_date_done = False
         if is_proprietary and not verified and case_name and date and re.search(r"(19|20)\d{2}", str(date or "")):
@@ -796,7 +838,9 @@ class UnifiedVerificationMaster:
                 except Exception:
                     pass
             verified = result.get("verified", False)
-            # Do not run fallback when batch explicitly rejected (e.g. name mismatch) — avoid overwriting with wrong case
+            # Default: avoid fallback when batch explicitly rejected (name mismatch) to prevent overwriting
+            # with a different case. Exception: when we have a strong extracted document name (has "v."),
+            # allow fallback so we can re-try with a higher-precision single-citation lookup + gate.
             rejected_name_mismatch = (result.get("error") or "").strip() == "Name mismatch"
             # Also try fallback when CL returned a name but no URL
             needs_url = verified and result.get("canonical_name") and not result.get("canonical_url")
@@ -840,6 +884,16 @@ class UnifiedVerificationMaster:
                         f"'{result.get('canonical_name')}'"
                     )
 
+            idx = result_idx if result_idx < len(citations) else None
+            case_name = extracted_case_names[idx] if (extracted_case_names and idx is not None and idx < len(extracted_case_names)) else None
+            date = extracted_dates[idx] if (extracted_dates and idx is not None and idx < len(extracted_dates)) else None
+
+            if rejected_name_mismatch:
+                _ecn = (case_name or "").strip().lower()
+                has_strong_name = bool(_ecn and _ecn != "n/a" and (" v. " in _ecn or " v " in _ecn))
+                if has_strong_name:
+                    rejected_name_mismatch = False
+
             should_try_fallback = (not verified or needs_url) and enable_fallback and not rejected_name_mismatch
             if should_try_fallback and _is_noisy_for_fallback(str(result.get("citation", ""))):
                 should_try_fallback = False
@@ -859,9 +913,6 @@ class UnifiedVerificationMaster:
                 and time.time() < fallback_deadline
             ):
                 unverified_count += 1
-                idx = result_idx if result_idx < len(citations) else None
-                case_name = extracted_case_names[idx] if (extracted_case_names and idx is not None and idx < len(extracted_case_names)) else None
-                date = extracted_dates[idx] if (extracted_dates and idx is not None and idx < len(extracted_dates)) else None
                 _cit_txt_early = str(result.get("citation", "") or "")
                 is_proprietary = (
                     proprietary_flags[idx]

@@ -275,6 +275,30 @@ class UnifiedProcessingPipeline:
             result = await self._format_response(citations, context, prebuilt_clusters=prebuilt_clusters)
             _lukumi_check("AFTER_FORMAT_RESPONSE", result.get('citations', []))
 
+            # Final response sync: ensure per-citation cluster fields match the final cluster objects.
+            # This prevents stale cross-cluster names/years from earlier intermediate copies.
+            try:
+                clusters_out = result.get("clusters") or []
+                cl_by_id = {
+                    (cl.get("cluster_id") if isinstance(cl, dict) else None): cl
+                    for cl in clusters_out
+                    if isinstance(cl, dict) and cl.get("cluster_id")
+                }
+                for c in result.get("citations") or []:
+                    if not isinstance(c, dict):
+                        continue
+                    cid = c.get("cluster_id")
+                    cl = cl_by_id.get(cid) if cid else None
+                    if cl:
+                        if cl.get("cluster_case_name"):
+                            c["cluster_case_name"] = cl.get("cluster_case_name")
+                        if cl.get("cluster_year") is not None:
+                            c["cluster_year"] = cl.get("cluster_year")
+                        if cl.get("cluster_size") is not None:
+                            c["cluster_size"] = cl.get("cluster_size")
+            except Exception:
+                pass
+
             # Progress: Stage 4 done, about to return (vm.complete sets the final 100%)
             if self.processor and hasattr(self.processor, '_update_progress'):
                 try:
@@ -330,6 +354,10 @@ class UnifiedProcessingPipeline:
             logger.info(
                 f"[NAME-DIAG] _format_response: {names_at_format}/{len(citations)} citations have non-N/A extracted_case_name on CitationResult"
             )
+            try:
+                from src.utils.verification_display_utils import is_non_case_legal_reference
+            except Exception:
+                is_non_case_legal_reference = None  # type: ignore[assignment]
             _fmt_t0 = time.time()
             for cit in citations:
                 cit_dict = cit.to_dict()
@@ -508,9 +536,23 @@ class UnifiedProcessingPipeline:
                 # Add processing metadata
                 cit_dict["processing_trace_id"] = context.trace_id
                 cit_dict["processing_stages"] = context.stages_completed
+                if callable(is_non_case_legal_reference) and is_non_case_legal_reference(str(cit_dict.get("citation") or "")):
+                    cit_dict["citation_type"] = "non_case_reference"
+                    cit_dict["verification_status"] = "non_case_reference"
                 citation_dicts.append(cit_dict)
 
             logger.info(f"[TIMING] _format_response per-citation loop done in {time.time()-_fmt_t0:.2f}s for {len(citations)} citations")
+            # Optional reduction pass: remove non-case legal references from case-citation output.
+            # These references (statutes/rules/codes) are not verifiable cases and should not
+            # inflate case-level unverified counts.
+            _pre_non_case_count = len(citation_dicts)
+            citation_dicts = [
+                c for c in citation_dicts
+                if not (isinstance(c, dict) and str(c.get("citation_type") or "") == "non_case_reference")
+            ]
+            _removed_non_case = _pre_non_case_count - len(citation_dicts)
+            if _removed_non_case > 0:
+                logger.info(f"[PIPELINE-{context.trace_id}] Removed {_removed_non_case} non-case legal references from citation output")
             # Handle aff'd/affirmed/reversed citations - these use the PRECEDING case name
             # but are treated as DIFFERENT cases (appellate history of the same underlying dispute)
             # CRITICAL: Do NOT contaminate extracted data with canonical data or vice versa
@@ -955,7 +997,9 @@ class UnifiedProcessingPipeline:
 
             # Update citations with cluster information
             for cit_dict in citation_dicts:
-                cluster_index = citation_to_cluster.get(cit_dict["citation"]) or citation_to_cluster.get(_norm_ct(cit_dict["citation"]))
+                cluster_index = citation_to_cluster.get(cit_dict["citation"])
+                if cluster_index is None:
+                    cluster_index = citation_to_cluster.get(_norm_ct(cit_dict["citation"]))
                 if cluster_index is not None:
                     # Add cluster information from clustering master
                     cluster = clusters[cluster_index]
@@ -1151,6 +1195,17 @@ class UnifiedProcessingPipeline:
                     cluster["extracted_name"] = replacement_name or "N/A"
                     logger.warning(f"[CLUSTER-FINAL-CLEANUP] Replaced extracted_name with: '{cluster['extracted_name']}'")
 
+            # After mutating cluster_case_name during cleanup, re-sync citation_dicts so the
+            # per-citation fields match the final cluster objects (prevents stale cross-cluster names).
+            try:
+                cluster_name_by_id = {cl.get("cluster_id"): cl.get("cluster_case_name") for cl in clusters if cl.get("cluster_id")}
+                for cit_dict in citation_dicts:
+                    cid = cit_dict.get("cluster_id")
+                    if cid and cid in cluster_name_by_id:
+                        cit_dict["cluster_case_name"] = cluster_name_by_id.get(cid)
+            except Exception:
+                pass
+
             # USER FIX 2026-01-12: Add display fields to clusters for frontend compatibility
             # The frontend expects submitted_display_name and verifying_display_name fields
             from src.utils.cluster_display_utils import _repair_truncated_llc
@@ -1216,18 +1271,8 @@ class UnifiedProcessingPipeline:
                         extracted_name = "N/A"
                     elif _is_statute_name(extracted_name):
                         extracted_name = (cluster.get("canonical_name") or "").strip() or "N/A"
-                # FIX: When extraction failed (empty/N/A) but canonical_name exists, use canonical
-                if not extracted_name or extracted_name == "N/A":
-                    canonical_fallback = (cluster.get("canonical_name") or "").strip()
-                    if not canonical_fallback or canonical_fallback == "N/A":
-                        for cit in cluster.get("citations", []):
-                            if isinstance(cit, dict):
-                                cn = (cit.get("canonical_name") or "").strip()
-                                if cn and cn != "N/A":
-                                    canonical_fallback = cn
-                                    break
-                    if canonical_fallback and canonical_fallback != "N/A":
-                        extracted_name = canonical_fallback
+                # If we cannot extract a name from the document, keep it as N/A.
+                # The canonical name belongs in verifying_display_name, not the submitted/document field.
                 cluster["submitted_display_name"] = extracted_name
                 cluster["extracted_case_name"] = cluster.get("extracted_case_name") or extracted_name
                 
@@ -1264,7 +1309,7 @@ class UnifiedProcessingPipeline:
                     except Exception:
                         pass
                 cluster["verifying_display_date"] = verifying_date_val
-                cluster["submitted_display_date"] = cluster.get("extracted_date", "")
+                cluster["submitted_display_date"] = cluster.get("extracted_date", "") or "N/A"
                 # If the two dates we display have the same year, do not show "Different date"
                 final_sub_yr = _extract_yr(cluster.get("extracted_date", "") or submitted_date_str)
                 final_ver_yr = _extract_yr(verifying_date_val)
@@ -1330,6 +1375,45 @@ class UnifiedProcessingPipeline:
                     f"[PIPELINE-{context.trace_id}] Final response would return zero clusters after earlier stages had {len(pre_filter_clusters)}; restoring pre-final clusters"
                 )
                 clusters = pre_filter_clusters
+
+            # Final safety scrub: ensure non-case legal references are removed from both
+            # top-level citations and nested cluster citation lists (including prebuilt clusters).
+            def _is_non_case_dict(c: Dict[str, Any]) -> bool:
+                if not isinstance(c, dict):
+                    return False
+                if str(c.get("citation_type") or "") == "non_case_reference":
+                    return True
+                if callable(is_non_case_legal_reference):
+                    return is_non_case_legal_reference(str(c.get("citation") or c.get("text") or ""))
+                return False
+
+            _before_final_cites = len(citation_dicts)
+            citation_dicts = [c for c in citation_dicts if not _is_non_case_dict(c)]
+            _removed_final_cites = _before_final_cites - len(citation_dicts)
+
+            _before_final_clusters = len(clusters)
+            _kept_clusters: List[Dict[str, Any]] = []
+            for _cl in clusters:
+                if not isinstance(_cl, dict):
+                    continue
+                _cl_cites = _cl.get("citations")
+                if isinstance(_cl_cites, list):
+                    _cl["citations"] = [c for c in _cl_cites if isinstance(c, dict) and not _is_non_case_dict(c)]
+                    _cl["cluster_size"] = len(_cl["citations"])
+                    _cl["size"] = len(_cl["citations"])
+                _cl_objs = _cl.get("citation_objects")
+                if isinstance(_cl_objs, list):
+                    _cl["citation_objects"] = [c for c in _cl_objs if isinstance(c, dict) and not _is_non_case_dict(c)]
+                _has_citations = bool((_cl.get("citations") or _cl.get("citation_objects") or []))
+                if _has_citations:
+                    _kept_clusters.append(_cl)
+            clusters = _kept_clusters
+            _removed_final_clusters = _before_final_clusters - len(clusters)
+            if _removed_final_cites or _removed_final_clusters:
+                logger.info(
+                    f"[PIPELINE-{context.trace_id}] Final non-case scrub removed "
+                    f"{_removed_final_cites} citations and {_removed_final_clusters} clusters"
+                )
 
             # Build final response with UNIFIED PIPELINE metadata
             response = {
@@ -1715,13 +1799,9 @@ class UnifiedProcessingPipeline:
                     clean_submitted_name = best_canonical_name or "N/A"
                 elif _is_statute_name(clean_submitted_name):
                     clean_submitted_name = best_canonical_name or "N/A"
-            if _is_generic_fallback_name(clean_submitted_name) and best_canonical_name:
-                # Extraction failed (generic name), but verification succeeded - use canonical for display
-                logger.info(
-                    f"[DISPLAY-FIX] Extracted name '{clean_submitted_name}' is generic fallback, "
-                    f"using canonical_name '{best_canonical_name}' for submitted_display_name"
-                )
-                clean_submitted_name = best_canonical_name
+            # If extraction produced a generic fallback label (e.g. "Unknown Case"), keep it as the
+            # submitted/document-side label. The canonical name is still available separately via
+            # verifying_display_name, which avoids "contaminating" what looks like the extraction.
             # Strip TOA header prefixes
             if clean_submitted_name:
                 clean_submitted_name = re.sub(

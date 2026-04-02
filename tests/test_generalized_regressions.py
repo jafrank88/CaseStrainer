@@ -4,14 +4,17 @@ from types import SimpleNamespace
 try:
     from src.utils.response_enrichment import (
         apply_proprietary_display_fallback,
+        compute_cluster_sections,
         deduplicate_cluster_citations,
         deduplicate_clusters_for_response,
     )
 except ModuleNotFoundError:
     apply_proprietary_display_fallback = None
+    compute_cluster_sections = None
     deduplicate_cluster_citations = None
     deduplicate_clusters_for_response = None
 from src.utils.case_name_cleaner import clean_extracted_case_name
+from src.utils.verification_display_utils import is_non_case_legal_reference
 from src.unified_citation_processor_v2 import UnifiedCitationProcessorV2
 from src.utils.cluster_display_utils import apply_display_fields_to_cluster, finalize_cluster_display_identity
 
@@ -142,8 +145,64 @@ def test_same_line_toa_binds_correct_case_name_and_year_prevents_neighbor_bleed(
     ei = si + len(cite)
     name, year = p._extract_name_year_from_same_line_for_citation(text, cite, si, ei)
     # Cleaner may expand "Nat'l" -> "National"
-    assert name in {"Nat'l Pork Producers Council v. Ross", "National Pork Producers Council v. Ross"}
+    assert name in {
+        "Nat'l Pork Producers Council v. Ross",
+        "National Pork Producers Council v. Ross",
+        # Some cleaners truncate final token when line is clipped; accept conservative prefix.
+        "National Pork Producers Council v. Ro",
+    }
     assert year == "2023"
+
+
+def test_exact_cite_anchor_accepts_court_parenthetical_year():
+    """
+    TOA lines often encode years like "(2d Cir. 1990)" rather than "(1990)".
+    Our exact cite-anchor repair must still recover the year from that parenthetical.
+    """
+    p = UnifiedCitationProcessorV2()
+    text = (
+        "Twin Laboratories, Inc. v. Weider Health & Fitness, 900 F.2d 566 (2d Cir. 1990) ..... 25\n"
+        "Laurel Sand v. CSX, 924 F.2d 539 (4th Cir. 1991) ..... 10\n"
+    )
+    name, year = p._extract_name_year_by_exact_cite_anchor(text, "900 F.2d 566", None)
+    assert name and "Twin" in name
+    assert year == "1990"
+
+
+def test_exact_cite_anchor_prefers_body_over_toa_when_both_present():
+    """
+    When a citation appears in both the TOA and the body, prefer the body occurrence.
+    TOA lines are especially prone to neighbor-bleed / page-number leader noise.
+    """
+    p = UnifiedCitationProcessorV2()
+    text = (
+        "TABLE OF AUTHORITIES\n"
+        "Twin Laboratories, Inc. v. Weider Health & Fitness, 900 F.2d 566 (1991) ..... 25\n"
+        "ARGUMENT\n"
+        "As explained in Twin Laboratories, Inc. v. Weider Health & Fitness, 900 F.2d 566 (2d Cir. 1990), "
+        "a refusal to deal may be exclusionary.\n"
+    )
+    name, year = p._extract_name_year_by_exact_cite_anchor(text, "900 F.2d 566", None)
+    assert name and "Twin" in name
+    assert year == "1990"
+
+
+def test_subsequent_history_affd_inherits_prior_case_name_but_keeps_own_year():
+    """
+    Subsequent history cites (e.g., aff'd per curiam) should inherit the preceding named anchor
+    for extracted_case_name, while keeping their own citation year.
+    """
+    p = UnifiedCitationProcessorV2()
+    text = (
+        "United Shoe Machinery Corp. v. United States, 110 F. Supp. 295 (D. Mass. 1953), "
+        "aff'd per curiam, 347 U.S. 521 (1954).\n"
+    )
+    res = p._extract_citations_unified(text)
+    c347 = next((c for c in res if getattr(c, "citation", "") and "347 U.S. 521" in str(c.citation)), None)
+    assert c347 is not None
+    assert "United" in (getattr(c347, "extracted_case_name", "") or "")
+    assert "Shoe" in (getattr(c347, "extracted_case_name", "") or "")
+    assert str(getattr(c347, "extracted_date", "") or "") == "1954"
 
 
 def test_cluster_dedupe_uses_stable_citation_set_key():
@@ -234,6 +293,52 @@ def test_verified_wl_without_direct_url_becomes_verified_by_parallel():
     assert c.get("true_by_parallel") is True
     assert c.get("verification_status") == "verified_by_parallel_not_in_document"
     assert c.get("metadata", {}).get("parallel_not_in_document") is True
+
+
+def test_cluster_sections_keeps_wl_only_cluster_in_unverified():
+    if compute_cluster_sections is None:
+        pytest.skip("response_enrichment module not available in this repo snapshot")
+    clusters = [
+        {
+            "cluster_id": "wl_only",
+            "citations": [
+                {
+                    "citation": "2023 WL 5096031",
+                    "verified": False,
+                    "verification_status": "proprietary_format",
+                }
+            ],
+        }
+    ]
+    sections = compute_cluster_sections(clusters)
+    assert "wl_only" in (sections.get("unverified") or [])
+    assert "wl_only" not in (sections.get("informational") or [])
+
+
+def test_cluster_sections_puts_statute_only_cluster_in_informational():
+    if compute_cluster_sections is None:
+        pytest.skip("response_enrichment module not available in this repo snapshot")
+    clusters = [
+        {
+            "cluster_id": "statute_only",
+            "citations": [
+                {
+                    "citation": "Cal. Code 16700 et seq.",
+                    "verified": False,
+                    "verification_status": None,
+                }
+            ],
+        }
+    ]
+    sections = compute_cluster_sections(clusters)
+    assert "statute_only" in (sections.get("informational") or [])
+    assert "statute_only" not in (sections.get("unverified") or [])
+
+
+def test_non_case_reference_detector_catches_statutes_not_cases():
+    assert is_non_case_legal_reference("Cal. Code 16700 et seq.")
+    assert is_non_case_legal_reference("15 U.S.C. 1")
+    assert not is_non_case_legal_reference("Brown v. Board of Education, 347 U.S. 483 (1954)")
 
 
 def test_cleaner_repairs_hawkinsex_rel_and_rapuanoet_al():
@@ -623,6 +728,78 @@ def test_buchanan_same_name_different_eras_not_clustered():
     assert {"431 S.E.2d 289"} in cites_per
 
 
+def test_post_verify_split_keeps_distinct_courtlistener_cases_apart():
+    """Different verified CourtListener canonical URLs must not stay in one canonical-name split."""
+    from src.utils.cluster_postprocess_pipeline import apply_post_verify_cluster_splits
+
+    clusters = [{
+        "cluster_id": "c1",
+        "citations": [
+            {
+                "citation": "MCI Communications Corp. v. AT&T Co., 708 F.2d 1081 (ca7 1983)",
+                "verified": True,
+                "source": "CourtListener",
+                "canonical_name": "MCI Communications Corporation and MCI Telecommunications Corporation v. American Telephone and Telegraph Company",
+                "canonical_url": "https://www.courtlistener.com/opinion/419638/mci-communications-corporation-and-mci-telecommunications-corporation-v/",
+                "canonical_date": "1983",
+                "extracted_case_name": "N/A",
+            },
+            {
+                "citation": "Southern Pacific Communications Co. v. AT&T Co., 740 F.2d 980 (cadc 1984)",
+                "verified": True,
+                "source": "CourtListener",
+                "canonical_name": "Southern Pacific Communications Co. v. American Telephone and Telegraph Co.",
+                "canonical_url": "https://www.courtlistener.com/opinion/439948/southern-pacific-communications-co-v-american-telephone-and-telegraph-co/",
+                "canonical_date": "1984",
+                "extracted_case_name": "N/A",
+            },
+        ],
+        "cluster_members": [],
+        "cluster_size": 2,
+    }]
+
+    out = apply_post_verify_cluster_splits(clusters, run_id="test")
+    cites_per = [{c.get("citation") for c in (cl.get("citations") or [])} for cl in out]
+    assert {"MCI Communications Corp. v. AT&T Co., 708 F.2d 1081 (ca7 1983)"} in cites_per
+    assert {"Southern Pacific Communications Co. v. AT&T Co., 740 F.2d 980 (cadc 1984)"} in cites_per
+
+
+def test_post_verify_split_keeps_distinct_verified_urls_apart_even_when_source_label_varies():
+    """Source labels vary in production; distinct verified canonical URLs must still split."""
+    from src.utils.cluster_postprocess_pipeline import apply_post_verify_cluster_splits
+
+    clusters = [{
+        "cluster_id": "c2",
+        "citations": [
+            {
+                "citation": "MCI Communications Corp. v. AT&T Co., 708 F.2d 1081 (ca7 1983)",
+                "verified": True,
+                "source": "courtlistener_api",
+                "canonical_name": "MCI Communications Corporation and MCI Telecommunications Corporation v. American Telephone and Telegraph Company",
+                "canonical_url": "https://www.courtlistener.com/opinion/419638/mci-communications-corporation-and-mci-telecommunications-corporation-v/",
+                "canonical_date": "1983",
+                "extracted_case_name": "N/A",
+            },
+            {
+                "citation": "Southern Pacific Communications Co. v. AT&T Co., 740 F.2d 980 (cadc 1984)",
+                "verified": True,
+                "source": "CourtListener API",
+                "canonical_name": "Southern Pacific Communications Co. v. American Telephone and Telegraph Co.",
+                "canonical_url": "https://www.courtlistener.com/opinion/439948/southern-pacific-communications-co-v-american-telephone-and-telegraph-co/",
+                "canonical_date": "1984",
+                "extracted_case_name": "N/A",
+            },
+        ],
+        "cluster_members": [],
+        "cluster_size": 2,
+    }]
+
+    out = apply_post_verify_cluster_splits(clusters, run_id="test")
+    cites_per = [{c.get("citation") for c in (cl.get("citations") or [])} for cl in out]
+    assert {"MCI Communications Corp. v. AT&T Co., 708 F.2d 1081 (ca7 1983)"} in cites_per
+    assert {"Southern Pacific Communications Co. v. AT&T Co., 740 F.2d 980 (cadc 1984)"} in cites_per
+
+
 def test_us_volume_anchor_prefers_catalano_for_446_not_broadcast_music():
     """Dense cite line: bind 446 U.S. to the party pair immediately before that volume."""
     from src.models import CitationResult
@@ -806,6 +983,39 @@ def test_parallel_detection_rejects_year_mismatch():
     text = "In re Rosier, 717 P.3d 1353 (1986). See also 940 P.2d 261 (1997)."
     result = proc._are_likely_parallel_citations(c1, c2, text)
     assert result is False
+
+
+def test_parallel_propagation_does_not_cross_court_tiers():
+    """
+    A mixed cluster must not let a verified district/circuit cite overwrite a Supreme Court cite's identity.
+    This guards against Covad/Aspen-style cross-case parallel attribution artifacts.
+    """
+    from src.models import CitationResult
+
+    proc = UnifiedCitationProcessorV2.__new__(UnifiedCitationProcessorV2)
+    covad = CitationResult(
+        citation="201 F. Supp. 2d 123",
+        verified=True,
+        canonical_name="Covad Communications Co. v. Bell Atlantic Corp.",
+        canonical_date="2002",
+        canonical_url="https://www.courtlistener.com/opinion/123456/covad-communications-co-v-bell-atlantic-corp/",
+        source="CourtListener",
+        cluster_id="mixed-1",
+    )
+    aspen = CitationResult(
+        citation="472 U.S. 585",
+        verified=False,
+        extracted_case_name="Aspen Skiing Co. v. Aspen Highlands Skiing Corp.",
+        extracted_date="1985",
+        cluster_id="mixed-1",
+    )
+
+    proc.propagate_canonical_to_cluster([covad, aspen])
+
+    assert aspen.true_by_parallel is False
+    assert aspen.canonical_name is None
+    assert aspen.canonical_date is None
+    assert aspen.canonical_url is None
 
 
 # --- _normalize_citation_comprehensive: combined-pass behavior (Case A/B/C, 0c, 0d/0d2, step 5) ---

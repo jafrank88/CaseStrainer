@@ -454,19 +454,29 @@ def split_clusters_by_court_tier_and_wl(clusters, task_id=""):
 
 
 def _year_from_citation(c):
-    """Extract 4-digit year from a citation dict: canonical_date, extracted_date, or (YYYY) in text."""
+    """Extract citation-local year from a citation dict (document-first)."""
     if not isinstance(c, dict):
         return None
-    for key in ("canonical_date", "extracted_date", "date"):
+    md = {}
+    md_raw = c.get("metadata")
+    if isinstance(md_raw, dict):
+        md = md_raw
+    md_year = str(md.get("year") or "").strip()
+    md_src = str(md.get("extracted_date_source") or "").strip()
+    if md_year.isdigit() and 1700 <= int(md_year) <= 2030 and md_src.startswith("citation_"):
+        return int(md_year)
+    ct = (c.get("citation") or c.get("text") or "")
+    m = re.search(r"\(([^)]*?)\)\s*$", str(ct))
+    if m:
+        y = re.search(r"(19|20)\d{2}", m.group(1))
+        if y:
+            return int(y.group(0))
+    for key in ("extracted_date", "extracted_year", "date", "canonical_date"):
         v = c.get(key)
         if v:
             m = re.search(r"(19|20)\d{2}", str(v))
             if m:
                 return int(m.group(0))
-    ct = (c.get("citation") or c.get("text") or "")
-    m = re.search(r"\((19\d{2}|20\d{2})\)", str(ct))
-    if m:
-        return int(m.group(1))
     return None
 
 
@@ -720,7 +730,22 @@ def split_clusters_by_canonical_name(clusters, task_id=""):
             # Group by same case (names_are_same_case) so "Kustura v. Department..."
             # and "KUSTURA v. Dept. of Labor and Industries" stay in one cluster.
             placed = False
+            c_url = (c.get("canonical_url") or "").strip()
             for existing_cn, group_list in list(cn_map.items()):
+                # Hard split guard: if both cites are verified rows with different
+                # non-google canonical URLs, they are different cases.
+                # This prevents false merges like MCI 708 F.2d 1081 + S. Pac. 740 F.2d 980.
+                ref = next((x for x in group_list if isinstance(x, dict)), None)
+                if ref is not None:
+                    ref_url = (ref.get("canonical_url") or "").strip()
+                    if (
+                        c_url and ref_url and c_url != ref_url
+                        and not _is_google_search_url(c_url)
+                        and not _is_google_search_url(ref_url)
+                        and bool(c.get("verified"))
+                        and bool(ref.get("verified"))
+                    ):
+                        continue
                 if names_are_same_case(cn, existing_cn):
                     group_list.append(c)
                     placed = True
@@ -782,6 +807,14 @@ def split_clusters_by_canonical_name(clusters, task_id=""):
             cd = next((x.get("canonical_date") for x in cl_list if x.get("canonical_date")), None)
             if cd:
                 nc["canonical_date"] = cd
+            # Derive split cluster year from citation-local evidence in this split.
+            ys = [y for y in (_year_from_citation(x) for x in cl_list if isinstance(x, dict)) if y]
+            if ys:
+                counts = {}
+                for y in ys:
+                    counts[y] = counts.get(y, 0) + 1
+                nc["cluster_year"] = str(sorted(counts.items(), key=lambda kv: (-kv[1], kv[0]))[0][0])
+            elif cd:
                 nc["cluster_year"] = str(cd)
             cu = next((x.get("canonical_url") for x in cl_list if x.get("canonical_url")), None)
             if cu and not _is_google_search_url(cu):

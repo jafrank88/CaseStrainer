@@ -669,6 +669,18 @@ class UnifiedCitationProcessorV2:
         if not s:
             return s
 
+        # Generalized: for verification, prefer the base reporter citation (vol/reporter/page)
+        # so variants like "347 U.S. 521 (scotus 1954)" or "673 F. Supp. 525 (dcd 1987)"
+        # hit citation-lookup reliably. Keep the full string for extraction/clustering/display.
+        try:
+            from src.utils.response_enrichment import extract_display_base_citation
+
+            base = (extract_display_base_citation(s) or "").strip()
+            if base:
+                return base
+        except Exception:
+            pass
+
         # If already compact, keep as-is.
         if len(s) <= 180:
             return s
@@ -898,20 +910,30 @@ class UnifiedCitationProcessorV2:
         left = line[:rel_si]
         right = line[rel_ei : rel_ei + max_year_scan]
 
-        # Extract year from trailing parenthetical like "(2023)" immediately after cite.
+        # Extract year from trailing parenthetical immediately after cite.
+        # Accept both "(2023)" and court parentheticals like "(2d Cir. 1990)".
         year = None
-        py = re.search(r"\((\d{4})\)", right)
-        if py and 1700 <= int(py.group(1)) <= 2030:
-            year = py.group(1)
+        py = re.search(r"\(([^)]{0,80}?\b(?P<year>\d{4})\b)\)", right)
+        if py:
+            try:
+                yv = int(py.group("year"))
+                if 1700 <= yv <= 2030:
+                    year = py.group("year")
+            except Exception:
+                pass
 
         # Extract the nearest "X v. Y" from the left side of the line (use the *last* match).
         # Allow abbreviations and punctuation; keep it bounded to reduce over-capture.
         v_pat = re.compile(
-            r"(?P<name>[A-Z][A-Za-z0-9'&\.\-(),\s]{3,220}?\bv\.\s*[A-Z][A-Za-z0-9'&\.\-(),\s]{1,220}?)\s*,?\s*$"
+            r"(?P<name>[A-Z][A-Za-z0-9'&\.\-(),\s]{3,220}?\bv\.\s*[A-Z][A-Za-z0-9'&\.\-(),\s]{1,220}?)"
         )
-        m = None
+
         # Consider only a suffix of left side to bias toward the nearest name.
         left_tail = left[-320:] if len(left) > 320 else left
+
+        # Prefer the match whose end is closest to the citation (i.e., the last match in the tail).
+        # This avoids a single huge regex match spanning multiple TOA entries.
+        m = None
         for cand in v_pat.finditer(left_tail):
             m = cand
         if not m:
@@ -978,14 +1000,46 @@ class UnifiedCitationProcessorV2:
         if not cite_pat:
             return None, None
 
+        # Accept "(YYYY)" and "(<court...> YYYY)".
         anchored = re.compile(
             r"(?P<name>[A-Z][A-Za-z0-9'&\.\-,\s]{3,200}?\bv\.\s*[A-Z][A-Za-z0-9'&\.\-,\s]{1,200}?)\s*,?\s*"
             + cite_pat
-            + r"\s*\((?P<year>\d{4})\)",
+            + r"\s*\((?:[^)]{0,80}?\b)?(?P<year>\d{4})\b[^)]{0,80}?\)",
         )
         matches = list(anchored.finditer(text))
         if not matches:
             return None, None
+
+        def _estimate_toa_spans(doc: str) -> List[Tuple[int, int]]:
+            """
+            Best-effort detection of Table of Authorities spans so we can prefer body matches.
+            Many briefs include every TOA citation again in the body; TOA lines are more prone
+            to neighbor-bleed and page-number leader noise.
+            """
+            if not doc:
+                return []
+            # Start markers (headings)
+            start_pat = re.compile(
+                r"(?im)^\s*(?:table\s+of\s+(?:cited\s+)?authorities|cited\s+authorities)\b"
+            )
+            # End markers: first major section heading after TOA
+            end_pat = re.compile(
+                r"(?im)^\s*(?:argument|summary\s+of\s+argument|statement\s+of\s+interest|statement\s+of\s+the\s+case|introduction|background|conclusion)\b"
+            )
+            spans: List[Tuple[int, int]] = []
+            for sm in start_pat.finditer(doc):
+                start = sm.start()
+                em = end_pat.search(doc, pos=sm.end())
+                end = em.start() if em else min(len(doc), sm.end() + 20000)
+                if end > start:
+                    spans.append((start, end))
+            return spans
+
+        def _in_spans(idx: int, spans: List[Tuple[int, int]]) -> bool:
+            for a, b in spans:
+                if a <= idx < b:
+                    return True
+            return False
 
         # If multiple matches exist (common in TOA where multiple cases share reporters),
         # choose the one with the *smallest gap* between end-of-cite and the year paren.
@@ -1006,12 +1060,16 @@ class UnifiedCitationProcessorV2:
                 pass
             return (gap, len(span_txt))
 
-        best = min(matches, key=_quality)
+        toa_spans = _estimate_toa_spans(text)
+        non_toa = [mm for mm in matches if not _in_spans(mm.start(), toa_spans)] if toa_spans else []
+        pool = non_toa or matches
+
+        best = min(pool, key=_quality)
 
         # Prefer the closest anchored occurrence to start_index when provided and reasonable.
         m = best
         if start_index is not None and start_index >= 0:
-            closest = min(matches, key=lambda mm: abs(mm.start() - start_index))
+            closest = min(pool, key=lambda mm: abs(mm.start() - start_index))
             # If the closest match isn't dramatically worse in quality, use it.
             if _quality(closest) <= (_quality(best)[0] + 3, _quality(best)[1] + 50):
                 m = closest
@@ -2472,8 +2530,17 @@ class UnifiedCitationProcessorV2:
                             f"[VERIFY-SANITIZE] Query citation trimmed: '{str(raw_cit)[:90]}' -> '{query_cit[:90]}'"
                         )
                 case_names = [c.extracted_case_name for c in citations_to_verify]
-                # CRITICAL FIX: Prioritize cluster_year over extracted_date
-                dates = [getattr(c, 'cluster_year', None) or c.extracted_date for c in citations_to_verify]
+                # Document-first policy: only pass extracted years to verification when confidence is not low.
+                # This prevents contaminated/borrowed years from blocking a correct CourtListener match.
+                dates = []
+                for c in citations_to_verify:
+                    md = getattr(c, "metadata", None) or {}
+                    conf = str(md.get("extracted_date_confidence") or "").strip().lower()
+                    y = getattr(c, "cluster_year", None) or c.extracted_date
+                    if conf in ("", "low"):
+                        dates.append(None)
+                    else:
+                        dates.append(y)
                 # Citation-type flags: drive name+date fallback in verification (single path)
                 proprietary_flags = [getattr(c, "is_proprietary_only", False) for c in citations_to_verify]
                 # USER FIX 2026-01-09: Extract in_toa_section metadata for TOA year validation skip
@@ -4762,8 +4829,14 @@ class UnifiedCitationProcessorV2:
             if idx != -1:
                 main = main[:idx].strip()
                 break
-        if re.search(r"\((?:scotus|ca\d+)\s+(?:19|20)\d{2}\s*\)", main, re.IGNORECASE):
-            return None
+        # If the citation itself includes an eyecite-style court+year token, trust it.
+        # This avoids accidental capture of a neighboring year when the citation string is noisy.
+        m_short = re.search(r"\((?:scotus|ca\d+)\s+((?:17|18|19|20)\d{2})\s*\)", main, re.IGNORECASE)
+        if m_short:
+            return m_short.group(1)
+        m_abbrev = re.search(r"\(([a-z]{2,6}\d?)\s+((?:17|18|19|20)\d{2})\s*\)", main, re.IGNORECASE)
+        if m_abbrev:
+            return m_abbrev.group(2)
         best: Optional[str] = None
         for m in re.finditer(r"\(([^)]*)\)", main):
             inner = m.group(1) or ""
@@ -4917,9 +4990,10 @@ class UnifiedCitationProcessorV2:
                     before_semi = span.split(";")[0] if ";" in span else span
                     citing_pos = re.search(r"\(citing\b", before_semi, re.IGNORECASE)
                     before_citing = before_semi[: citing_pos.start()] if citing_pos else before_semi
-                    # Match bare (YYYY) or court-abbreviation years like (S.D.N.Y. 1992), (9th Cir. 2009)
+                    # Match bare (YYYY) or court-abbreviation years like (S.D.N.Y. 1992), (9th Cir. 2009),
+                    # including eyecite-style shorthands like "(ca2 1990)", "(dcd 1987)", "(scotus 1954)".
                     span_match = re.search(r"\([^()]*?(\d{4})\)", before_citing)
-                    if span_match and 1990 <= int(span_match.group(1)) <= 2030:
+                    if span_match and 1700 <= int(span_match.group(1)) <= 2030:
                         # Reject if intervening reporter between cite end and year match
                         text_between = before_citing[
                             before_citing.find(citation.citation or "") + len(citation.citation or "")
@@ -4997,120 +5071,10 @@ class UnifiedCitationProcessorV2:
                         if not _has_intervening_citation_noise(bridge):
                             return _ret(year, "citation_window_before", "medium")
 
-            # Strategy 3: Extract year from the eyecite citation string itself
-            # NOTE: This is LOWER priority because eyecite sometimes reconstructs
-            # the wrong year from nearby text (e.g., document header year)
-            # Prefer year from MAIN citation (before "(quoting" or "(citing")) over nested parenthetical year.
-            main_cite_part = cit_text
-            for sep in ["(quoting ", "(citing ", "(quoted in ", "(cited in "]:
-                idx = cit_text.find(sep)
-                if idx != -1:
-                    main_cite_part = cit_text[:idx]
-                    break
-            year_in_main = re.search(r'\((?:\w+\s+)?(\d{4})\)', main_cite_part)
-            if year_in_main:
-                y = year_in_main.group(1)
-                if 1700 <= int(y) <= 2030:
-                    is_court = bool(re.search(
-                        r'\b(?:scotus|ca\d|Cir\.|dcd|cand|mnd)\s*' + re.escape(y),
-                        year_in_main.group(0),
-                        re.IGNORECASE,
-                    ))
-                    if not is_court and (not _reporter_suggests_old_case(cit_text) or int(y) < 2015):
-                        return _ret(y, "citation_text_main_parenthetical", "medium")
-            # FIX: Reject (Court YYYY) - when the parenthetical is "(scotus 2025)" or "(ca9 2001)" or
-            # "(9th Cir. 2014)", that is court abbreviation + year; the year is often wrong (e.g. doc year).
-            year_in_cit = re.search(r'\((?:\w+\s+)?(\d{4})\)', cit_text)
-            if year_in_cit:
-                full_paren = year_in_cit.group(0)
-                is_court_abbrev_year = bool(
-                    re.search(r'\b(?:scotus|ca\d|Cir\.|dcd|cand|mnd)\s*' + re.escape(year_in_cit.group(1)), full_paren, re.IGNORECASE)
-                )
-                if is_court_abbrev_year:
-                    # Do not use year from "(scotus 2025)" etc.; fall through to Strategy 5
-                    pass
-                else:
-                    year = year_in_cit.group(1)
-                    year_int = int(year)
-                    if 1700 <= year_int <= 2030:
-                        if _reporter_suggests_old_case(cit_text) and year_int >= 2015:
-                            logger.debug(
-                                f"[DATE-CONTEXT-BLEED] Rejecting year {year} from citation text for '{cit_text[:60]}...' "
-                                f"(reporter suggests pre-1950, year likely from nearby citation)"
-                            )
-                        elif end > 0:
-                            ctx_after = text[end:min(len(text), end + 150)]
-                            if re.search(r'\(citing\b', ctx_after, re.IGNORECASE) and re.search(
-                                rf'Cir\.\s*{re.escape(year)}\b', ctx_after, re.IGNORECASE
-                            ):
-                                logger.debug(
-                                    f"[DATE-NESTED-CITING] Rejecting year {year} from citation text for '{cit_text[:60]}...' "
-                                    f"(year appears in nested (citing ... (9th Cir. YYYY)))"
-                                )
-                            else:
-                                return _ret(year, "citation_text_parenthetical", "low")
-                        else:
-                            return _ret(year, "citation_text_parenthetical", "low")
-
-            # Strategy 4: Check metadata for year
-            if hasattr(citation, 'metadata') and isinstance(citation.metadata, dict):
-                meta_year = citation.metadata.get('year')
-                if meta_year:
-                    return _ret(str(meta_year), "citation_metadata_year", "low")
-
-            # Strategy 5: Search the FULL document for another occurrence of the same
-            # base citation that includes a year.  SCOTUS syllabus sections cite cases
-            # without years (e.g., "578 U. S. 330, 340.") but the opinion body later
-            # cites the same case WITH a year (e.g., "578 U. S. 330, 340 (2016)").
-            # Extract volume/reporter/page from the citation string and search globally.
-            base_match = re.search(r'(\d+)\s+([A-Za-z][A-Za-z.\s]+?)\s+(\d+)', cit_text)
-            if base_match:
-                vol, reporter, page = base_match.group(1), base_match.group(2).strip(), base_match.group(3)
-                # Normalize reporter for flexible matching (handle "U.S." vs "U. S.")
-                reporter_pattern = re.escape(reporter).replace(r'\.', r'\.\s*')
-                # Search for: volume reporter page ... (year)
-                global_pattern = re.compile(
-                    rf'{re.escape(vol)}\s+{reporter_pattern}\s+{re.escape(page)}'
-                    rf'[^(]{{0,60}}\((?:[A-Za-z0-9.\s]*?)(\d{{4}})\)',
-                )
-                # Collect candidates and pick the closest match to this citation span.
-                # Returning the first match in document order can “borrow” a wrong year from a distant TOA/header.
-                candidates: List[Tuple[int, int, str]] = []
-                for gm in global_pattern.finditer(text):
-                    year = gm.group(1)
-                    if not (year and year.isdigit() and 1700 <= int(year) <= 2030):
-                        continue
-                    # Skip if this match is at the same position (we already checked it)
-                    if gm.start() == (start or 0):
-                        continue
-                    # Verify it's not a page header year
-                    preceding_ctx = text[max(0, gm.start() - 30):gm.start()]
-                    if re.search(r'Cite\s+as:', preceding_ctx, re.IGNORECASE):
-                        continue
-                    # Skip year from nested (citing ... (9th Cir. YYYY))
-                    match_ctx = text[max(0, gm.start() - 20):gm.end() + 60]
-                    if re.search(r'Cir\.\s*' + re.escape(year) + r'\b', match_ctx, re.IGNORECASE):
-                        continue
-                    # Skip court-abbrev year "(scotus YYYY)" — eyecite annotation, not actual document year
-                    paren_ctx = text[max(0, gm.end() - 20):gm.end()]
-                    if re.search(r'(?:scotus|ca\d|dcd|cand|mnd)\s*' + re.escape(year), paren_ctx, re.IGNORECASE):
-                        continue
-                    # Reject modern year (>= 2015) for historical reporters
-                    if int(year) >= 2015 and _reporter_suggests_old_case(cit_text):
-                        logger.debug(
-                            f"[DATE-STRATEGY5] Rejecting year {year} for old reporter '{cit_text[:50]}'"
-                        )
-                        continue
-                    dist = abs(gm.start() - (start or 0))
-                    candidates.append((dist, gm.start(), year))
-
-                if candidates:
-                    dist, pos, year = min(candidates, key=lambda t: (t[0], t[1]))
-                    logger.debug(
-                        f"[DATE-STRATEGY5] Borrowed year {year} for '{cit_text[:50]}' "
-                        f"from closest occurrence at pos {pos} (dist={dist})"
-                    )
-                    return _ret(year, "citation_global_recovery", "low")
+            # Document-first policy: do not borrow years from reconstructed citation strings,
+            # metadata-only years, or global occurrences. If we didn't find a local year
+            # in the document text around this citation boundary, leave it unknown.
+            return _ret(None, "none", "low")
 
         except Exception as date_err:
             logger.debug(
@@ -6396,7 +6360,12 @@ class UnifiedCitationProcessorV2:
         logger.info("[UNIFIED_EXTRACTION] Step 5: Extracting names and dates with full text context")
         # FIX #44: Use normalized_text for extraction since citation positions are from normalized_text.
         # Always set extracted_case_name (even to "N/A") so the UI never shows blank for "from document".
-        for citation in deduplicated_citations:
+        ordered = sorted(
+            deduplicated_citations,
+            key=lambda c: int(getattr(c, "start_index", None) or 0),
+        )
+        previous_strong_case_name: Optional[str] = None
+        for citation in ordered:
             try:
                 # TOA / eyecite: wrong ``(scotus YYYY)`` when a neighbor cite's year is absorbed
                 try:
@@ -6453,6 +6422,38 @@ class UnifiedCitationProcessorV2:
                         citation.extracted_case_name = inline_name
                         citation._inline_name_set = True
 
+                # Subsequent history binding (document-first): when a citation is introduced by
+                # "aff'd", "rev'd", "cert. denied", etc., inherit the immediately preceding strong
+                # case name anchor from the document flow.
+                try:
+                    si = int(getattr(citation, "start_index", None) or 0)
+                    before = (normalized_text[max(0, si - 80) : si] if normalized_text else "").lower()
+                    hist = None
+                    if re.search(r",\s*aff'?d\b|,\s*affirmed\b", before):
+                        hist = "affirmed"
+                    elif re.search(r",\s*rev'?d\b|,\s*reversed\b", before):
+                        hist = "reversed"
+                    elif re.search(r",\s*vacated\b", before):
+                        hist = "vacated"
+                    elif re.search(r",\s*remanded\b", before):
+                        hist = "remanded"
+                    elif re.search(r",\s*cert\.?\s*denied\b", before):
+                        hist = "cert_denied"
+                    elif re.search(r",\s*cert\.?\s*granted\b", before):
+                        hist = "cert_granted"
+                    elif re.search(r",\s*per\s+curiam\b", before):
+                        hist = "per_curiam"
+                    if hist and previous_strong_case_name and previous_strong_case_name != "N/A":
+                        cur = (getattr(citation, "extracted_case_name", None) or "").strip()
+                        if (not cur) or cur == "N/A" or (" v. " not in cur):
+                            citation.extracted_case_name = previous_strong_case_name
+                            mdh = getattr(citation, "metadata", None) or {}
+                            mdh["is_appellate_history"] = True
+                            mdh["appellate_history_type"] = hist
+                            citation.metadata = mdh
+                except Exception:
+                    pass
+
                 existing_date = getattr(citation, "extracted_date", None)
                 existing_confidence = (getattr(citation, "metadata", None) or {}).get(
                     "extracted_date_confidence", ""
@@ -6473,21 +6474,24 @@ class UnifiedCitationProcessorV2:
                         self._set_extracted_date_provenance(citation, date_source, date_confidence)
 
                 # Cross-check with eyecite's parsed year when available.
-                # Eyecite parses court+year parentheticals like "(S.D.N.Y. 1992)" that
-                # context-based extraction may miss, picking up a wrong year from TOA neighbors.
-                eyecite_year = str((getattr(citation, "metadata", None) or {}).get("year", "") or "").strip()
-                if (
-                    eyecite_year
-                    and eyecite_year.isdigit()
-                    and 1700 <= int(eyecite_year) <= 2030
-                    and citation.extracted_date != eyecite_year
-                    and (
-                        self._is_missing_extracted_date(citation.extracted_date)
+                # Eyecite parses court+year parentheticals like "(dcd 1987)" / "(ca2 1990)" that
+                # context-based extraction may miss (or contaminate via TOA neighbors).
+                md = getattr(citation, "metadata", None) or {}
+                eyecite_year = str((md.get("year", "") or "")).strip()
+                if eyecite_year and eyecite_year.isdigit() and 1700 <= int(eyecite_year) <= 2030:
+                    # Prefer eyecite's year when:
+                    # - extracted date is missing, or
+                    # - the citation text itself contains that year, or
+                    # - we only have low/unknown confidence from context.
+                    cur_conf = (md.get("extracted_date_confidence") or "").strip().lower()
+                    if (
+                        self._is_missing_extracted_date(getattr(citation, "extracted_date", None))
                         or eyecite_year in (citation.citation or "")
-                    )
-                ):
-                    citation.extracted_date = eyecite_year
-                    self._set_extracted_date_provenance(citation, "eyecite_parsed_year", "high")
+                        or cur_conf in ("", "low", "medium")
+                    ):
+                        if str(getattr(citation, "extracted_date", None) or "") != eyecite_year:
+                            citation.extracted_date = eyecite_year
+                            self._set_extracted_date_provenance(citation, "citation_metadata_year", "high")
 
                 # WL/LEXIS override: extract year from WL/LEXIS pattern anywhere in citation text
                 cit_text = citation.citation or ""
@@ -6508,6 +6512,13 @@ class UnifiedCitationProcessorV2:
                         self._set_extracted_date_provenance(
                             citation, "citation_court_year_paren", "high"
                         )
+                    # Keep metadata.year in sync with citation-derived year (used by response formatting).
+                    try:
+                        md2 = getattr(citation, "metadata", None) or {}
+                        md2["year"] = int(y)
+                        citation.metadata = md2
+                    except Exception:
+                        pass
                 # Decision year in cite string wins over context / TOA / signature bleed (Actavis (2013) vs 2015)
                 paren_decision = self._decision_year_from_citation_paren(cit_text)
                 if paren_decision:
@@ -6515,6 +6526,13 @@ class UnifiedCitationProcessorV2:
                     self._set_extracted_date_provenance(
                         citation, "citation_paren_decision_year", "high"
                     )
+                    try:
+                        md3 = getattr(citation, "metadata", None) or {}
+                        if str(md3.get("year") or "").strip() != str(paren_decision):
+                            md3["year"] = int(paren_decision)
+                        citation.metadata = md3
+                    except Exception:
+                        pass
                 elif self._is_missing_extracted_date(getattr(citation, "extracted_date", None)) and cit_text:
                     paren_year = re.search(r"\((19\d{2}|20\d{2})\)", cit_text)
                     if paren_year:
@@ -6563,6 +6581,14 @@ class UnifiedCitationProcessorV2:
                         and not getattr(citation, '_inline_name_set', False)
                         and self._looks_like_quote_not_case_name(citation.extracted_case_name)):
                     citation.extracted_case_name = "N/A"
+
+                # Track the most recent strong case name anchor (for subsequent history binding).
+                try:
+                    cur = (getattr(citation, "extracted_case_name", None) or "").strip()
+                    if cur and cur != "N/A" and " v. " in cur:
+                        previous_strong_case_name = cur
+                except Exception:
+                    pass
 
             except Exception as e:
                 logger.warning(
@@ -8240,6 +8266,40 @@ class UnifiedCitationProcessorV2:
         u = str(url).strip()
         return u.startswith("https://www.google.com/search") or u.startswith("http://www.google.com/search")
 
+    def _citation_court_tier(self, citation_text: str) -> str:
+        """
+        Coarse court tier by reporter family.
+        Used only as a safety guard for parallel identity propagation.
+        """
+        text = str(citation_text or "").lower()
+        if not text:
+            return ""
+        if (
+            re_module.search(r"\b\d+\s+u\.?\s*s\.?\b", text)
+            or re_module.search(r"\b\d+\s+s\.?\s*ct\.?\b", text)
+            or re_module.search(r"\b\d+\s+l\.?\s*ed\.?\s*(?:2d|3d)?\b", text)
+        ):
+            return "supreme"
+        if re_module.search(r"\b\d+\s+f\.?\s*supp\.?\s*(?:2d|3d)?\b", text):
+            return "district"
+        if re_module.search(r"\b\d+\s+f\.?\s*(?:2d|3d|4th|app'?x)\b", text):
+            return "circuit"
+        return ""
+
+    def _parallel_identity_propagation_allowed(
+        self,
+        source_citation: "CitationResult",
+        target_citation: "CitationResult",
+    ) -> bool:
+        """
+        Prevent cross-case canonical contamination when a cluster contains mixed court tiers.
+        """
+        source_tier = self._citation_court_tier(getattr(source_citation, "citation", ""))
+        target_tier = self._citation_court_tier(getattr(target_citation, "citation", ""))
+        if source_tier and target_tier and source_tier != target_tier:
+            return False
+        return True
+
     def propagate_canonical_to_cluster(self, citations: List["CitationResult"]):
         """
         For each group of parallel citations (including main and parallels), if any member is verified and has canonical_name and canonical_date,
@@ -8284,6 +8344,12 @@ class UnifiedCitationProcessorV2:
                 if verified_member:
                     for c in group:
                         logger.info(f"[PARALLEL-DEBUG] Processing citation: {c.citation}, verified: {c.verified}")
+                        if c is not verified_member and not self._parallel_identity_propagation_allowed(verified_member, c):
+                            logger.info(
+                                f"[PARALLEL-DEBUG] Skipping canonical propagation across tiers: "
+                                f"{verified_member.citation} -> {c.citation}"
+                            )
+                            continue
 
                         # Copy canonical data if missing
                         if not c.canonical_name or not c.canonical_date:
@@ -8377,6 +8443,12 @@ class UnifiedCitationProcessorV2:
                 logger.info(
                     f"[PARALLEL-CLUSTER] Marking {cit.citation} as verified by parallel (same cluster as {verified_member.citation})"
                 )
+                if not self._parallel_identity_propagation_allowed(verified_member, cit):
+                    logger.info(
+                        f"[PARALLEL-CLUSTER] Skipping true_by_parallel across tiers: "
+                        f"{verified_member.citation} -> {cit.citation}"
+                    )
+                    continue
                 cit.canonical_name = verified_member.canonical_name
                 cit.canonical_date = verified_member.canonical_date
                 cit.canonical_url = getattr(verified_member, "canonical_url", None)
@@ -8421,6 +8493,13 @@ class UnifiedCitationProcessorV2:
                     c = citation_lookup.get(cite_str)
                     if c:
                         logger.info(f"[PARALLEL-DEBUG] Processing citation: {cite_str}, verified: {c.verified}")
+                        if c is not verified_member and not self._parallel_identity_propagation_allowed(verified_member, c):
+                            logger.info(
+                                f"[PARALLEL-DEBUG] Skipping position-group propagation across tiers: "
+                                f"{verified_member.citation} -> {c.citation}"
+                            )
+                            visited.add(cite_str)
+                            continue
 
                         # Copy canonical data if missing
                         if not c.canonical_name or not c.canonical_date:
@@ -8514,6 +8593,8 @@ class UnifiedCitationProcessorV2:
                 for cit in group_citations:
                     if cit.verified != True and not getattr(cit, "true_by_parallel", False):
                         if bool(getattr(cit, "date_mismatch", False)):
+                            continue
+                        if not self._parallel_identity_propagation_allowed(source_citation, cit):
                             continue
                         if self._na_and_partial_insufficient(cit):
                             logger.info(

@@ -8,13 +8,13 @@
       </template>
       <template v-else-if="helpers.getClusterVerifyingUrl(cluster)">
         <a :href="helpers.getClusterVerifyingUrl(cluster)" target="_blank" rel="noopener" class="canonical-link">
-          <span :class="{ 'highlight-mismatch': helpers.hasNameMismatch(cluster) }">{{ helpers.getClusterVerifyingName(cluster) }}</span>,
-          <span :class="{ 'highlight-mismatch': helpers.hasDateMismatch(cluster) }">{{ helpers.getClusterVerifyingDate(cluster) }}</span>
+          <span>{{ helpers.getClusterSubmittedName(cluster) }}</span>,
+          <span>{{ helpers.getClusterSubmittedDate(cluster) }}</span>
         </a>
       </template>
       <template v-else>
-        <span :class="{ 'highlight-mismatch': helpers.hasNameMismatch(cluster) }">{{ helpers.getClusterVerifyingName(cluster) }}</span>,
-        <span :class="{ 'highlight-mismatch': helpers.hasDateMismatch(cluster) }">{{ helpers.getClusterVerifyingDate(cluster) }}</span>
+        <span>{{ helpers.getClusterSubmittedName(cluster) }}</span>,
+        <span>{{ helpers.getClusterSubmittedDate(cluster) }}</span>
         <!-- FIX 2026-02-24: Show found canonical date when not verified but date differs -->
         <span v-if="helpers.getClusterFoundCanonicalDate(cluster)" class="found-canonical-date">
           (CourtListener: {{ helpers.getClusterFoundCanonicalDate(cluster) }})
@@ -27,6 +27,11 @@
           <template v-else-if="helpers.hasDateMismatch(cluster)">⚠️ Different date</template>
         </strong>
       </span>
+    </div>
+    <div v-if="helpers.getClusterVerifyingName(cluster) || helpers.getClusterVerifyingDate(cluster)" class="cluster-line verifying-as">
+      <strong>Verified as: </strong>
+      <span :class="{ 'highlight-mismatch': helpers.hasNameMismatch(cluster) }">{{ helpers.getClusterVerifyingName(cluster) }}</span>,
+      <span :class="{ 'highlight-mismatch': helpers.hasDateMismatch(cluster) }">{{ helpers.getClusterVerifyingDate(cluster) }}</span>
     </div>
     <div class="cluster-line submitted-document">
       <strong>Extracted from Document: </strong>
@@ -94,6 +99,7 @@ export default {
 .mismatch-badge { margin-left: 8px; color: #FF6F00; }
 .merge-badge { margin-left: 8px; color: #2196F3; }
 .submitted-document { color: #5f6368; font-size: 0.95em; margin-top: 8px; padding-left: 4px; border-left: 3px solid #f0f0f0; }
+.verifying-as { color: #5f6368; font-size: 0.95em; margin-top: 8px; padding-left: 4px; border-left: 3px solid #f0f0f0; }
 .highlight-mismatch { background: #FFEB3B; padding: 2px 6px; border-radius: 3px; font-weight: 600; border: 1px solid #FBC02D; }
 .found-canonical-date { color: #666; font-size: 0.9em; margin-left: 8px; font-style: italic; }
 .cluster-citations { margin: 15px 0; }

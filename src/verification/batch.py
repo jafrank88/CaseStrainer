@@ -280,13 +280,23 @@ class BatchVerifier:
         - spans: (start, end) offsets of each input citation inside text
         """
         batches = []
-        current_batch = {"text": "", "indices": [], "case_names": [], "dates": [], "citation_strings": [], "spans": []}
+        current_batch = {"text": "", "indices": [], "case_names": [], "dates": [], "citation_strings": [], "raw_citation_strings": [], "spans": []}
         current_char_count = 0
+
+        # Generalized: send base reporter citation tokens to citation-lookup.
+        # This prevents variants like "(scotus 1954)" / "(ca2 1990)" from reducing recall.
+        try:
+            from src.utils.response_enrichment import extract_display_base_citation
+        except Exception:
+            extract_display_base_citation = None
         
         for i, (citation, case_name, date) in enumerate(zip(citations, case_names, dates)):
             # Use truncated citation for batch text so we don't hit char limit with long strings.
             # Upstream should already pass pruned citations (~220 chars); this is a safety net.
-            cite_for_text = (citation or "")[:MAX_CHARS_PER_CITATION_IN_BATCH]
+            raw_cite = (citation or "")
+            base = extract_display_base_citation(raw_cite) if extract_display_base_citation else None
+            send_cite = (base or raw_cite)
+            cite_for_text = send_cite[:MAX_CHARS_PER_CITATION_IN_BATCH]
             entry = cite_for_text if not current_batch["indices"] else ". " + cite_for_text
             entry_len = len(entry)
 
@@ -296,7 +306,7 @@ class BatchVerifier:
                 # Save current batch and start new one
                 if current_batch["indices"]:
                     batches.append(current_batch)
-                current_batch = {"text": "", "indices": [], "case_names": [], "dates": [], "citation_strings": [], "spans": []}
+                current_batch = {"text": "", "indices": [], "case_names": [], "dates": [], "citation_strings": [], "raw_citation_strings": [], "spans": []}
                 current_char_count = 0
                 entry = cite_for_text  # No separator for first entry
                 entry_len = len(entry)
@@ -306,7 +316,9 @@ class BatchVerifier:
             current_batch["indices"].append(i)
             current_batch["case_names"].append(case_name)
             current_batch["dates"].append(date)
-            current_batch["citation_strings"].append(citation)  # full citation for result mapping
+            # Use the same normalized token for sent text and result mapping so span-based matching is stable.
+            current_batch["citation_strings"].append(send_cite)
+            current_batch["raw_citation_strings"].append(raw_cite)
             current_batch["spans"].append((start_off, start_off + len(cite_for_text)))  # spans into sent text
             current_char_count += entry_len
         
@@ -331,14 +343,22 @@ class BatchVerifier:
         """Slice batch_info into a sub-batch for indices [start:end]. Rebuilds text and spans."""
         indices = batch_info["indices"][start:end]
         citation_strings = batch_info["citation_strings"][start:end]
+        raw_citation_strings = batch_info.get("raw_citation_strings", [])[start:end] if isinstance(batch_info.get("raw_citation_strings"), list) else []
         case_names = batch_info["case_names"][start:end]
         dates = batch_info["dates"][start:end]
         # Rebuild text and spans for the sub-batch (same format as _build_text_batches)
+        try:
+            from src.utils.response_enrichment import extract_display_base_citation
+        except Exception:
+            extract_display_base_citation = None
         text_parts: List[str] = []
         spans_list: List[tuple] = []
         offset = 0
         for i, cite in enumerate(citation_strings):
-            cite_for_text = (cite or "")[:MAX_CHARS_PER_CITATION_IN_BATCH]
+            raw_cite = (cite or "")
+            base = extract_display_base_citation(raw_cite) if extract_display_base_citation else None
+            send_cite = (base or raw_cite)
+            cite_for_text = send_cite[:MAX_CHARS_PER_CITATION_IN_BATCH]
             start_off = offset
             text_parts.append(cite_for_text)
             spans_list.append((start_off, start_off + len(cite_for_text)))
@@ -352,6 +372,7 @@ class BatchVerifier:
             "case_names": case_names,
             "dates": dates,
             "citation_strings": citation_strings,
+            "raw_citation_strings": raw_citation_strings,
             "spans": spans_list,
         }
 

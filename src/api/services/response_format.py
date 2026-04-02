@@ -357,6 +357,26 @@ def format_analyze_success_response(result, request_id, metadata, start_time):
             return m.group(0) if m else ""
 
         for c in citations_serialized:
+            # Prefer year embedded in the citation string (eyecite style "(ca2 1990)", "(dcd 1987)", "(scotus 1954)")
+            # over any context-derived extracted_date. This is robust for unseen documents and TOA-heavy briefs.
+            try:
+                raw_cit = (c.get("citation") or c.get("text") or "").toString() if False else (c.get("citation") or c.get("text") or "")
+            except Exception:
+                raw_cit = (c.get("citation") or c.get("text") or "")
+            try:
+                md = c.get("metadata") if isinstance(c.get("metadata"), dict) else {}
+                my = str(md.get("year") or "").strip()
+                if my.isdigit() and 1700 <= int(my) <= 2030:
+                    src = str(md.get("extracted_date_source") or "")
+                    if my in str(raw_cit) or src.startswith("citation_"):
+                        # Force extracted_date to the embedded year so UI "Extracted from Document" is correct.
+                        c["extracted_date"] = my
+                        md["extracted_date_source"] = md.get("extracted_date_source") or "citation_metadata_year"
+                        md["extracted_date_confidence"] = "high"
+                        c["metadata"] = md
+            except Exception:
+                pass
+
             exn = c.get("extracted_case_name") or ""
             can = c.get("canonical_name") or c.get("canonical_case_name") or ""
             nex = _normalize_legal_name(exn)
@@ -371,8 +391,11 @@ def format_analyze_success_response(result, request_id, metadata, start_time):
                 c["name_mismatch"] = (nex not in ncan) and (ncan not in nex) and (j < 0.3)
             else:
                 c["name_mismatch"] = False
-            c["submitted_display_name"] = html.unescape(exn or c.get("citation") or "")
-            c["submitted_display_date"] = c.get("extracted_date") or _year_from(c.get("extracted_date")) or ""
+            # Document-side fields: only use values extracted from the document.
+            # Do NOT fall back to canonical name/date here (avoid contaminating the extracted display).
+            c["submitted_display_name"] = html.unescape(exn) if str(exn).strip() else "N/A"
+            _exd = str(c.get("extracted_date") or "").strip()
+            c["submitted_display_date"] = _exd if _exd else "N/A"
             
             # USER FIX 2026-01-09: Map 'verified' to 'found' for UI compatibility
             # The UI checks citation.found to determine verification status
@@ -430,6 +453,31 @@ def format_analyze_success_response(result, request_id, metadata, start_time):
             logger.info(f"[RESPONSE] Built {len(clusters_data)} fallback clusters from {len(citations_serialized)} citations")
         except Exception as _e:
             logger.warning(f"[RESPONSE] Fallback cluster build failed: {_e}")
+
+    # Final cluster-field sync for citations: always trust the cluster objects by cluster_id.
+    # This prevents stale/wrong cluster_case_name leaking onto citations when intermediate steps
+    # copied a different cluster's display identity.
+    try:
+        cl_by_id = {
+            cl.get("cluster_id"): cl
+            for cl in (clusters_data or [])
+            if isinstance(cl, dict) and cl.get("cluster_id")
+        }
+        for c in citations_serialized:
+            if not isinstance(c, dict):
+                continue
+            cid = c.get("cluster_id")
+            cl = cl_by_id.get(cid) if cid else None
+            if not cl:
+                continue
+            if cl.get("cluster_case_name"):
+                c["cluster_case_name"] = cl.get("cluster_case_name")
+            if cl.get("cluster_year") is not None:
+                c["cluster_year"] = cl.get("cluster_year")
+            if cl.get("cluster_size") is not None:
+                c["cluster_size"] = cl.get("cluster_size")
+    except Exception as _e:
+        logger.debug(f"[RESPONSE] cluster-field sync skipped: {_e}")
 
     try:
 

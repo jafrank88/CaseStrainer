@@ -6,6 +6,7 @@ import json
 import logging
 import re
 from datetime import datetime
+from typing import Any, Callable, Dict, Tuple
 
 from flask import jsonify
 
@@ -13,6 +14,179 @@ from src.config import WEBSEARCH_TIMEOUT, REDIS_URL
 from src.utils.response_enrichment import compute_cluster_sections, extract_display_base_citation
 
 logger = logging.getLogger(__name__)
+
+
+def _repair_cluster_citation_sync(citations_list, clusters_list):
+    """Best-effort reconciliation between top-level citations and nested cluster citations."""
+    if not isinstance(citations_list, list) or not isinstance(clusters_list, list):
+        return
+
+    def _base_key(val):
+        raw = str(val or "").strip()
+        if not raw:
+            return ""
+        base = extract_display_base_citation(raw) or raw
+        return re.sub(r"\s+", " ", str(base).strip().lower())
+
+    def _pick_best(rows):
+        best: Dict[str, Any] | None = None
+        best_score = -1
+        for row in rows:
+            if not isinstance(row, dict):
+                continue
+            md: Dict[str, Any] = {}
+            md_raw = row.get("metadata")
+            if isinstance(md_raw, dict):
+                md = md_raw
+            md_y = str(md.get("year") or "").strip()
+            md_src = str(md.get("extracted_date_source") or "")
+            has_local_year = md_y.isdigit() and 1700 <= int(md_y) <= 2030 and md_src.startswith("citation_")
+            score = (
+                (8 if bool(row.get("verified") or row.get("is_verified")) else 0)
+                + (4 if has_local_year else 0)
+                + (2 if bool(row.get("canonical_url")) else 0)
+                + (1 if bool(str(row.get("extracted_case_name") or "").strip()) else 0)
+            )
+            if score > best_score:
+                best = row
+                best_score = score
+        return best
+
+    def _citation_local_year(c):
+        if not isinstance(c, dict):
+            return ""
+        md: Dict[str, Any] = {}
+        md_raw = c.get("metadata")
+        if isinstance(md_raw, dict):
+            md = md_raw
+        md_y = str(md.get("year") or "").strip()
+        md_src = str(md.get("extracted_date_source") or "")
+        if md_y.isdigit() and 1700 <= int(md_y) <= 2030 and md_src.startswith("citation_"):
+            return md_y
+        for k in ("extracted_date", "extracted_year", "canonical_date", "date"):
+            v = str(c.get(k) or "").strip()
+            m = re.search(r"(19|20)\d{2}", v)
+            if m:
+                return m.group(0)
+        ct = str(c.get("citation") or c.get("text") or "")
+        m = re.search(r"\(([^)]*?)\)\s*$", ct)
+        if m:
+            y = re.search(r"(19|20)\d{2}", m.group(1))
+            if y:
+                return y.group(0)
+        return ""
+
+    by_start_base = {}
+    by_base = {}
+    for c in citations_list:
+        if not isinstance(c, dict):
+            continue
+        b = _base_key(c.get("citation") or c.get("text"))
+        if not b:
+            continue
+        si = c.get("start_index") if isinstance(c.get("start_index"), int) else None
+        if si is not None:
+            by_start_base[(si, b)] = c
+        by_base.setdefault(b, []).append(c)
+
+    for cl in clusters_list:
+        if not isinstance(cl, dict):
+            continue
+        cl_cites = cl.get("citations")
+        if not isinstance(cl_cites, list):
+            continue
+
+        for cc in cl_cites:
+            if not isinstance(cc, dict):
+                continue
+            b = _base_key(cc.get("citation") or cc.get("text"))
+            if not b:
+                continue
+            si = cc.get("start_index") if isinstance(cc.get("start_index"), int) else None
+            match = by_start_base.get((si, b)) if si is not None else None
+            if not isinstance(match, dict):
+                match = _pick_best(by_base.get(b, []))
+            if not isinstance(match, dict):
+                continue
+
+            for fld in (
+                "verified",
+                "is_verified",
+                "verification_status",
+                "verification_error",
+                "possible_match",
+                "true_by_parallel",
+                "canonical_name",
+                "canonical_date",
+                "canonical_url",
+                "source",
+                "metadata",
+                "extracted_case_name",
+                "extracted_date",
+                "display_base_citation",
+            ):
+                if fld in match:
+                    cc[fld] = match.get(fld)
+
+        year_counts = {}
+        for cc in cl_cites:
+            y = _citation_local_year(cc)
+            if y:
+                year_counts[y] = year_counts.get(y, 0) + 1
+        if year_counts:
+            cy = sorted(year_counts.items(), key=lambda kv: (-kv[1], kv[0]))[0][0]
+            cl["cluster_year"] = cy
+            cl["date"] = cy
+            for cc in cl_cites:
+                if isinstance(cc, dict):
+                    cc["cluster_year"] = cy
+
+        has_verified = any(
+            isinstance(cc, dict) and bool(cc.get("verified") or cc.get("is_verified"))
+            for cc in cl_cites
+        )
+        if has_verified:
+            cl["verified"] = True
+            cur_status = str(cl.get("verification_status") or "").strip().lower()
+            if not cur_status or cur_status in {"unverified", "not_found"}:
+                cl["verification_status"] = "verified"
+
+
+def _strip_non_case_from_response_payload(citations_list, clusters_list):
+    """Remove statute/rule/journal non-case references from both top-level and clusters."""
+    _non_case_check: Callable[[str], bool]
+    try:
+        from src.utils.verification_display_utils import is_non_case_legal_reference
+        _non_case_check = is_non_case_legal_reference
+    except Exception:
+        def is_non_case_legal_reference(_s: str) -> bool:
+            return False
+        _non_case_check = is_non_case_legal_reference
+
+    def _is_non_case_row(row):
+        if not isinstance(row, dict):
+            return False
+        if str(row.get("citation_type") or "") == "non_case_reference":
+            return True
+        txt = str(row.get("citation") or row.get("text") or "")
+        return bool(_non_case_check(txt))
+
+    filtered_citations = [c for c in (citations_list or []) if isinstance(c, dict) and not _is_non_case_row(c)]
+    filtered_clusters = []
+    for cl in (clusters_list or []):
+        if not isinstance(cl, dict):
+            continue
+        cits = cl.get("citations")
+        if isinstance(cits, list):
+            cl["citations"] = [c for c in cits if isinstance(c, dict) and not _is_non_case_row(c)]
+            cl["cluster_size"] = len(cl["citations"])
+            cl["size"] = len(cl["citations"])
+        objs = cl.get("citation_objects")
+        if isinstance(objs, list):
+            cl["citation_objects"] = [c for c in objs if isinstance(c, dict) and not _is_non_case_row(c)]
+        if (cl.get("citations") or cl.get("citation_objects")):
+            filtered_clusters.append(cl)
+    return filtered_citations, filtered_clusters
 
 
 def register_task_status_routes(bp):
@@ -100,6 +274,48 @@ def register_task_status_routes(bp):
                     result = job.result
                 except Exception as e:
                     logger.error(f"Error getting job result: {e}")
+
+            def _unwrap_result_payload(payload):
+                if not isinstance(payload, dict):
+                    return {}
+                inner = payload.get("result")
+                return inner if isinstance(inner, dict) else payload
+
+            def _extract_array_counts(payload):
+                data = _unwrap_result_payload(payload)
+                if not isinstance(data, dict):
+                    return (0, 0)
+                citations = data.get("citations", []) if isinstance(data.get("citations", []), list) else []
+                clusters = data.get("clusters", []) if isinstance(data.get("clusters", []), list) else []
+                return (len(citations), len(clusters))
+
+            def _extract_expected_counts(payload):
+                data = _unwrap_result_payload(payload)
+                if not isinstance(data, dict):
+                    return (0, 0)
+                metadata = data.get("metadata", {}) if isinstance(data.get("metadata", {}), dict) else {}
+                statistics = data.get("statistics", {}) if isinstance(data.get("statistics", {}), dict) else {}
+                citation_count = (
+                    metadata.get("citation_count")
+                    or metadata.get("citations_count")
+                    or statistics.get("total_citations")
+                    or 0
+                )
+                cluster_count = (
+                    metadata.get("cluster_count")
+                    or metadata.get("clusters_count")
+                    or statistics.get("total_clusters")
+                    or 0
+                )
+                try:
+                    citation_count = int(citation_count or 0)
+                except Exception:
+                    citation_count = 0
+                try:
+                    cluster_count = int(cluster_count or 0)
+                except Exception:
+                    cluster_count = 0
+                return (citation_count, cluster_count)
 
             def _load_best_stored_result():
                 verification_result = None
@@ -382,6 +598,64 @@ def register_task_status_routes(bp):
                         if isinstance(c, dict) and not c.get("display_base_citation"):
                             raw = c.get("citation") or c.get("text") or ""
                             c["display_base_citation"] = extract_display_base_citation(raw)
+                    _repair_cluster_citation_sync(citations, clusters)
+                    # Re-apply post-verify split rules at response time so worker-path
+                    # merge/relabel drift cannot leak mixed canonical clusters to UI.
+                    try:
+                        from src.utils.cluster_postprocess_pipeline import apply_post_verify_cluster_splits
+
+                        clusters = apply_post_verify_cluster_splits(
+                            clusters or [],
+                            run_id=f"{task_id}:task_status",
+                        )
+                        _repair_cluster_citation_sync(citations, clusters)
+                    except Exception:
+                        pass
+                    # Re-run display finalization so stale cluster-level display fields
+                    # (submitted_display_date/name, display_canonical_url) cannot force
+                    # verified clusters into Google-search/unverified UI lanes.
+                    try:
+                        from src.utils.cluster_display_utils import finalize_cluster_for_response
+
+                        for cl in (clusters or []):
+                            if not isinstance(cl, dict):
+                                continue
+                            finalize_cluster_for_response(
+                                cl,
+                                clean_names=False,
+                                clear_unverified_canonical=True,
+                                clear_unverified_citations=True,
+                            )
+                    except Exception:
+                        pass
+                    # Final sync for completed results: align citation cluster fields and prefer citation-derived years.
+                    try:
+                        cl_by_id = {
+                            cl.get("cluster_id"): cl
+                            for cl in (clusters or [])
+                            if isinstance(cl, dict) and cl.get("cluster_id")
+                        }
+                        for c in (citations or []):
+                            if not isinstance(c, dict):
+                                continue
+                            cid = c.get("cluster_id")
+                            cl = cl_by_id.get(cid) if cid else None
+                            if cl and cl.get("cluster_case_name"):
+                                c["cluster_case_name"] = cl.get("cluster_case_name")
+                            md = c.get("metadata") if isinstance(c.get("metadata"), dict) else {}
+                            y = str(md.get("year") or "").strip()
+                            src = str(md.get("extracted_date_source") or "")
+                            if y.isdigit() and 1700 <= int(y) <= 2030 and src.startswith("citation_"):
+                                c["extracted_date"] = y
+                    except Exception:
+                        pass
+                    citations, clusters = _strip_non_case_from_response_payload(citations, clusters)
+                    stats = actual_result.get("statistics", {}) if isinstance(actual_result.get("statistics", {}), dict) else {}
+                    stats["total_citations"] = len(citations or [])
+                    stats["total_clusters"] = len(clusters or [])
+                    stats["verified_citations"] = sum(
+                        1 for c in (citations or []) if isinstance(c, dict) and bool(c.get("verified"))
+                    )
                     return jsonify(
                         {
                             "status": "completed",
@@ -390,7 +664,7 @@ def register_task_status_routes(bp):
                             "citations": citations,
                             "clusters": clusters,
                             "cluster_sections": compute_cluster_sections(clusters),
-                            "statistics": actual_result.get("statistics", {}),
+                            "statistics": stats,
                             "metadata": metadata,
                             "success": True,
                         }
@@ -414,6 +688,58 @@ def register_task_status_routes(bp):
                     metadata = actual_result.get("metadata", {})
                     if verification_result and "metadata" in verification_result:
                         metadata = {**metadata, **verification_result.get("metadata", {})}
+                    _repair_cluster_citation_sync(citations, clusters)
+                    try:
+                        from src.utils.cluster_postprocess_pipeline import apply_post_verify_cluster_splits
+
+                        clusters = apply_post_verify_cluster_splits(
+                            clusters or [],
+                            run_id=f"{task_id}:task_status_started",
+                        )
+                        _repair_cluster_citation_sync(citations, clusters)
+                    except Exception:
+                        pass
+                    try:
+                        from src.utils.cluster_display_utils import finalize_cluster_for_response
+
+                        for cl in (clusters or []):
+                            if not isinstance(cl, dict):
+                                continue
+                            finalize_cluster_for_response(
+                                cl,
+                                clean_names=False,
+                                clear_unverified_canonical=True,
+                                clear_unverified_citations=True,
+                            )
+                    except Exception:
+                        pass
+                    try:
+                        cl_by_id = {
+                            cl.get("cluster_id"): cl
+                            for cl in (clusters or [])
+                            if isinstance(cl, dict) and cl.get("cluster_id")
+                        }
+                        for c in (citations or []):
+                            if not isinstance(c, dict):
+                                continue
+                            cid = c.get("cluster_id")
+                            cl = cl_by_id.get(cid) if cid else None
+                            if cl and cl.get("cluster_case_name"):
+                                c["cluster_case_name"] = cl.get("cluster_case_name")
+                            md = c.get("metadata") if isinstance(c.get("metadata"), dict) else {}
+                            y = str(md.get("year") or "").strip()
+                            src = str(md.get("extracted_date_source") or "")
+                            if y.isdigit() and 1700 <= int(y) <= 2030 and src.startswith("citation_"):
+                                c["extracted_date"] = y
+                    except Exception:
+                        pass
+                    citations, clusters = _strip_non_case_from_response_payload(citations, clusters)
+                    stats = actual_result.get("statistics", {}) if isinstance(actual_result.get("statistics", {}), dict) else {}
+                    stats["total_citations"] = len(citations or [])
+                    stats["total_clusters"] = len(clusters or [])
+                    stats["verified_citations"] = sum(
+                        1 for c in (citations or []) if isinstance(c, dict) and bool(c.get("verified"))
+                    )
                     return jsonify(
                         {
                             "status": "completed",
@@ -422,7 +748,7 @@ def register_task_status_routes(bp):
                             "citations": citations,
                             "clusters": clusters,
                             "cluster_sections": compute_cluster_sections(clusters),
-                            "statistics": actual_result.get("statistics", {}),
+                            "statistics": stats,
                             "metadata": metadata,
                             "success": True,
                         }
@@ -550,6 +876,240 @@ def register_task_status_routes(bp):
                         and "100 citations" in response["message"]
                     ):
                         response["message"] = f"Processing {payload_total} citations... ({payload_processed} processed)"
+
+                # Final safety sync (always for completed jobs): ensure per-citation cluster fields
+                # match the final clusters, and ensure citation-derived year metadata wins for extracted_date.
+                try:
+                    clusters_out = response.get("clusters") or []
+                    from src.utils.same_case import has_case_name, names_are_same_case
+                    from collections import Counter
+                    cl_by_id = {
+                        cl.get("cluster_id"): cl
+                        for cl in clusters_out
+                        if isinstance(cl, dict) and cl.get("cluster_id")
+                    }
+
+                    # Repair cluster_case_name from the authoritative flat citations list.
+                    # (Cluster citations often omit extracted_case_name; response["citations"] has it.)
+                    # Index citations by a normalized "core" key so "347 U.S. 521" and
+                    # "347 U.S. 521 (scotus 1954)" match the same bucket.
+                    from src.utils.response_enrichment import extract_display_base_citation as _extract_display_base_citation
+                    from src.utils.verification_display_utils import citation_core_key
+                    cit_by_core = {}
+                    for c in response.get("citations") or []:
+                        if not isinstance(c, dict):
+                            continue
+                        raw = (c.get("citation") or "").strip()
+                        base = (c.get("display_base_citation") or _extract_display_base_citation(raw) or raw).strip()
+                        core = citation_core_key(base) or citation_core_key(raw) or ""
+                        if core:
+                            cit_by_core.setdefault(core, []).append(c)
+
+                    for cl in clusters_out:
+                        if not isinstance(cl, dict):
+                            continue
+                        names = []
+                        for item in (cl.get("cluster_members") or []):
+                            ct = ""
+                            if isinstance(item, dict):
+                                ct = (item.get("citation") or "").strip()
+                            else:
+                                ct = str(item or "").strip()
+                            if not ct:
+                                continue
+                            # Prefer exact citation row match when available.
+                            exact = next(
+                                (
+                                    rr for rr in (response.get("citations") or [])
+                                    if isinstance(rr, dict) and (rr.get("citation") or "").strip() == ct
+                                ),
+                                None,
+                            )
+                            if isinstance(exact, dict):
+                                nm = (exact.get("extracted_case_name") or "").strip()
+                                if nm and nm != "N/A" and has_case_name(nm):
+                                    names.append(nm)
+                                    continue
+                            base = _extract_display_base_citation(ct) or ct
+                            core = citation_core_key(base) or citation_core_key(ct) or ""
+                            rows = cit_by_core.get(core) if core else None
+                            if not rows:
+                                continue
+                            for row in rows:
+                                nm = (row.get("extracted_case_name") or "").strip()
+                                if nm and nm != "N/A" and has_case_name(nm):
+                                    names.append(nm)
+                        if not names:
+                            continue
+                        best, _cnt = Counter(names).most_common(1)[0]
+                        cur = (cl.get("cluster_case_name") or "").strip()
+                        if not cur or cur == "N/A" or not has_case_name(cur) or not names_are_same_case(best, cur):
+                            cl["cluster_case_name"] = best
+
+                    # Index clusters by case name for safe reassignment.
+                    cl_name_index = []
+                    for cl in clusters_out:
+                        if not isinstance(cl, dict):
+                            continue
+                        nm = (cl.get("cluster_case_name") or cl.get("extracted_case_name") or cl.get("case_name") or "").strip()
+                        if nm and nm != "N/A" and has_case_name(nm):
+                            cl_name_index.append((nm, cl.get("cluster_id")))
+                    for c in response.get("citations") or []:
+                        if not isinstance(c, dict):
+                            continue
+                        cid = c.get("cluster_id")
+                        if cid and cid in cl_by_id:
+                            cl = cl_by_id[cid]
+                            if cl.get("cluster_case_name"):
+                                c["cluster_case_name"] = cl.get("cluster_case_name")
+                            if cl.get("cluster_year") is not None:
+                                c["cluster_year"] = cl.get("cluster_year")
+                            if cl.get("cluster_size") is not None:
+                                c["cluster_size"] = cl.get("cluster_size")
+
+                        md = c.get("metadata") if isinstance(c.get("metadata"), dict) else {}
+                        y = str(md.get("year") or "").strip()
+                        src = str(md.get("extracted_date_source") or "")
+                        if y.isdigit() and 1700 <= int(y) <= 2030 and src.startswith("citation_"):
+                            c["extracted_date"] = y
+
+                    # If a citation has a strong extracted_case_name, ensure it is placed under the matching cluster.
+                    # This fixes "subsequent history" cites (e.g., "aff'd ..., 347 U.S. 521 (1954)") being attached
+                    # to an unrelated nearby case card.
+                    for c in response.get("citations") or []:
+                        if not isinstance(c, dict):
+                            continue
+                        ecn = (c.get("extracted_case_name") or "").strip()
+                        if not ecn or ecn == "N/A" or not has_case_name(ecn):
+                            continue
+                        current = (c.get("cluster_case_name") or "").strip()
+                        if current and current != "N/A" and names_are_same_case(ecn, current):
+                            continue
+                        # At minimum, ensure the citation row's cluster_case_name matches its extracted_case_name.
+                        # (Even if the upstream cluster_id is imperfect, this prevents obviously wrong display names.)
+                        c["cluster_case_name"] = ecn
+                        target_id = None
+                        for nm, clid in cl_name_index:
+                            if clid and names_are_same_case(ecn, nm):
+                                target_id = clid
+                                break
+                        if not target_id:
+                            continue
+                        old_id = c.get("cluster_id")
+                        if old_id == target_id:
+                            continue
+                        # Move citation between cluster citation lists (best-effort).
+                        c["cluster_id"] = target_id
+                        tgt = cl_by_id.get(target_id)
+                        if isinstance(tgt, dict):
+                            if tgt.get("cluster_case_name"):
+                                c["cluster_case_name"] = tgt.get("cluster_case_name")
+                            if tgt.get("cluster_year") is not None:
+                                c["cluster_year"] = tgt.get("cluster_year")
+                            if tgt.get("cluster_size") is not None:
+                                c["cluster_size"] = tgt.get("cluster_size")
+                            tgt.setdefault("citations", [])
+                            if isinstance(tgt.get("citations"), list):
+                                tgt["citations"].append(c)
+                        if old_id and old_id in cl_by_id:
+                            old = cl_by_id.get(old_id)
+                            if isinstance(old, dict) and isinstance(old.get("citations"), list):
+                                cit_txt = (c.get("citation") or "").strip()
+                                if cit_txt:
+                                    old["citations"] = [
+                                        cc for cc in old.get("citations")
+                                        if not (isinstance(cc, dict) and (cc.get("citation") or "").strip() == cit_txt)
+                                    ]
+
+                    # Recompute cluster_size after any moves.
+                    for cl in clusters_out:
+                        if isinstance(cl, dict) and isinstance(cl.get("citations"), list):
+                            cl["cluster_size"] = len(cl.get("citations") or [])
+
+                    # If we still have strong named citations with no corresponding cluster name, create a safety cluster.
+                    # This is a last-resort repair for cases where clustering attached named citations to unrelated cards.
+                    existing_names = []
+                    for cl in clusters_out:
+                        if not isinstance(cl, dict):
+                            continue
+                        nm = (cl.get("cluster_case_name") or "").strip()
+                        if nm and nm != "N/A" and has_case_name(nm):
+                            existing_names.append(nm)
+
+                    def _norm_name(s: str) -> str:
+                        return re.sub(r"\s+", " ", re.sub(r"[^\w\s]", " ", str(s or "").lower())).strip()
+
+                    def _has_cluster_for(name: str) -> bool:
+                        nn = _norm_name(name)
+                        return any(_norm_name(nm) == nn for nm in existing_names)
+
+                    by_ecn = {}
+                    for c in response.get("citations") or []:
+                        if not isinstance(c, dict):
+                            continue
+                        ecn = (c.get("extracted_case_name") or "").strip()
+                        if ecn and ecn != "N/A" and has_case_name(ecn):
+                            by_ecn.setdefault(ecn, []).append(c)
+
+                    next_idx = 1
+                    for ecn, rows in by_ecn.items():
+                        # Only build a safety cluster when clustering clearly attached these named citations
+                        # to a different case card.
+                        mismatch = False
+                        for r in rows:
+                            cur = (r.get("cluster_case_name") or "").strip()
+                            if not cur or cur == "N/A" or not has_case_name(cur):
+                                mismatch = True
+                                break
+                            if not names_are_same_case(ecn, cur):
+                                mismatch = True
+                                break
+                        if not mismatch:
+                            continue
+                        # Create a new cluster and move these citations into it.
+                        new_id = f"cluster_safety_ecn_{next_idx}"
+                        next_idx += 1
+                        yrs = []
+                        for r in rows:
+                            try:
+                                yv = str(r.get("extracted_date") or "").strip()
+                                if yv.isdigit() and 1700 <= int(yv) <= 2030:
+                                    yrs.append(int(yv))
+                            except Exception:
+                                pass
+                        cluster_year = str(min(yrs)) if yrs else None
+                        new_cluster = {
+                            "cluster_id": new_id,
+                            "cluster_case_name": ecn,
+                            "extracted_case_name": ecn,
+                            "case_name": ecn,
+                            "cluster_year": cluster_year,
+                            "cluster_size": len(rows),
+                            "size": len(rows),
+                            "citations": [],
+                            "cluster_members": [],
+                        }
+                        # Remove from old clusters and attach to new.
+                        for r in rows:
+                            old_id = r.get("cluster_id")
+                            r["cluster_id"] = new_id
+                            r["cluster_case_name"] = ecn
+                            if old_id and old_id in cl_by_id:
+                                old = cl_by_id.get(old_id)
+                                if isinstance(old, dict) and isinstance(old.get("citations"), list):
+                                    cit_txt = (r.get("citation") or "").strip()
+                                    if cit_txt:
+                                        old["citations"] = [
+                                            cc for cc in old.get("citations")
+                                            if not (isinstance(cc, dict) and (cc.get("citation") or "").strip() == cit_txt)
+                                        ]
+                            new_cluster["citations"].append(r)
+                            if r.get("citation"):
+                                new_cluster["cluster_members"].append(r.get("citation"))
+                        clusters_out.append(new_cluster)
+                        cl_by_id[new_id] = new_cluster
+                except Exception:
+                    pass
 
                 return jsonify(response)
 

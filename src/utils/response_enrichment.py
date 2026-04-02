@@ -11,6 +11,7 @@ from src.utils.verification_display_utils import (
     is_effectively_verified_citation,
     citation_core_key,
     is_proprietary_citation,
+    is_non_case_legal_reference,
 )
 
 logger = logging.getLogger(__name__)
@@ -445,11 +446,51 @@ def _four_digit_year_from_val(val: Any) -> str:
     return m.group(1) if m else ""
 
 
+def _citation_local_year(c: Dict[str, Any]) -> str:
+    """
+    Citation-local year extractor (document-first).
+
+    Priority:
+    1) metadata.year when extracted from citation-local source
+    2) trailing parenthetical year in citation text (... (court 1990))
+    3) extracted_date / extracted_year / date on citation
+    4) canonical_date as last resort
+    """
+    if not isinstance(c, dict):
+        return ""
+
+    md: Dict[str, Any] = {}
+    md_raw = c.get("metadata")
+    if isinstance(md_raw, dict):
+        md = md_raw
+    md_year = str(md.get("year") or "").strip()
+    md_src = str(md.get("extracted_date_source") or "").strip()
+    if md_year.isdigit() and 1700 <= int(md_year) <= 2030 and md_src.startswith("citation_"):
+        return md_year
+
+    ct = str(c.get("citation") or c.get("text") or "").strip()
+    if ct:
+        m_end = re.search(r"\(([^)]*?)\)\s*$", ct)
+        if m_end:
+            y = _four_digit_year_from_val(m_end.group(1))
+            if y:
+                return y
+        y_any = _four_digit_year_from_val(ct)
+        if y_any:
+            return y_any
+
+    for key in ("extracted_date", "extracted_year", "date", "canonical_date"):
+        y = _four_digit_year_from_val(c.get(key))
+        if y:
+            return y
+    return ""
+
+
 def _citation_year_set_from_cluster(cl: Dict[str, Any]) -> set[str]:
     ys: set[str] = set()
     for c in cl.get("citations") or cl.get("citation_objects") or []:
         if isinstance(c, dict):
-            y = _four_digit_year_from_val(c.get("extracted_date"))
+            y = _citation_local_year(c)
             if y:
                 ys.add(y)
     return ys
@@ -514,7 +555,18 @@ def _rebuild_cluster_from_subset(
     ecn = _strip_toa_case_label(str(prim.get("extracted_case_name") or prim.get("case_name") or ""))
     nc["extracted_case_name"] = ecn
     nc["cluster_case_name"] = _strip_toa_case_label(str(prim.get("cluster_case_name") or ecn))
-    cy = _four_digit_year_from_val(prim.get("extracted_date") or prim.get("cluster_year"))
+    # Recompute split cluster year from citation-local evidence inside this subset.
+    year_counts: Dict[str, int] = {}
+    for c in subset:
+        if not isinstance(c, dict):
+            continue
+        y = _citation_local_year(c)
+        if y:
+            year_counts[y] = year_counts.get(y, 0) + 1
+    if year_counts:
+        cy = sorted(year_counts.items(), key=lambda kv: (-kv[1], kv[0]))[0][0]
+    else:
+        cy = _citation_local_year(prim) or _four_digit_year_from_val(base.get("cluster_year"))
     nc["cluster_year"] = cy or base.get("cluster_year")
     nc["case_name"] = nc["cluster_case_name"]
     nc["date"] = nc.get("cluster_year")
@@ -570,10 +622,6 @@ def split_clusters_cross_case_contamination(clusters: List[Dict[str, Any]]) -> L
             na, nb = _nm(cites[i]), _nm(cites[j])
             if not names_are_same_case(na, nb):
                 return False
-            ya = _four_digit_year_from_val(cites[i].get("extracted_date"))
-            yb = _four_digit_year_from_val(cites[j].get("extracted_date"))
-            if ya and yb and ya != yb:
-                return False
             return True
 
         for ii, i in enumerate(named_idx):
@@ -597,13 +645,13 @@ def split_clusters_cross_case_contamination(clusters: List[Dict[str, Any]]) -> L
         for k in range(len(cites)):
             if k in root_for_index:
                 continue
-            pos_k = cites[k].get("start_index")
-            if pos_k is None:
-                pos_k = 0
+            pos_k_raw = cites[k].get("start_index")
+            pos_k = int(pos_k_raw) if isinstance(pos_k_raw, int) else 0
             best_root = min(
                 roots,
                 key=lambda r: min(
-                    abs((cites[ni].get("start_index") or 0) - pos_k) for ni in root_to_named[r]
+                    abs(((cites[ni].get("start_index") if isinstance(cites[ni].get("start_index"), int) else 0)) - pos_k)
+                    for ni in root_to_named[r]
                 ),
             )
             root_for_index[k] = best_root
@@ -1295,7 +1343,14 @@ def compute_cluster_sections(clusters: List[Dict[str, Any]]) -> Dict[str, List[s
         "verified_by_parallel": [],
         "verified_strict": [],
         "other": [],
+        "informational": [],
     }
+
+    def _is_informational_unverified(cit: Dict[str, Any]) -> bool:
+        if not isinstance(cit, dict):
+            return False
+        txt = str(cit.get("citation") or cit.get("text") or "")
+        return is_non_case_legal_reference(txt)
 
     def is_effectively_verified(cit: Dict[str, Any]) -> bool:
         if not cit:
@@ -1378,8 +1433,13 @@ def compute_cluster_sections(clusters: List[Dict[str, Any]]) -> Dict[str, List[s
         if not isinstance(cits, list):
             continue
 
-        # All clusters without any citation having a non-Google canonical URL → unverified
+        # All clusters without any citation having a non-Google canonical URL -> unverified,
+        # unless every citation is informational-only (WL/LEXIS or statute/code/rule refs).
         if not _cluster_has_real_url(cl, cits):
+            material_cits = [c for c in cits if isinstance(c, dict)]
+            if material_cits and all(_is_informational_unverified(c) for c in material_cits):
+                sections["informational"].append(cid)
+                continue
             sections["unverified"].append(cid)
             continue
 
@@ -1404,6 +1464,7 @@ def compute_cluster_sections(clusters: List[Dict[str, Any]]) -> Dict[str, List[s
         has_unverified = any(
             c
             and not is_effectively_verified(c)
+            and not _is_informational_unverified(c)
             and not (
                 (c.get("true_by_parallel") is True or c.get("true_by_parallel") == "true")
                 and _is_real_canonical_url(str(c.get("canonical_url") or c.get("url") or ""))

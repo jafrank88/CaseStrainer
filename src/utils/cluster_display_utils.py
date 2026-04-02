@@ -703,22 +703,12 @@ def apply_display_fields_to_cluster(cluster: Dict[str, Any]) -> None:
     if isinstance(rep_sub, dict):
         rep_name = str(rep_sub.get("extracted_case_name") or "").strip()
         rep_date = str(rep_sub.get("extracted_date") or "").strip()
-        # Only backfill from context when extracted_date is missing/unknown.
-        # Do NOT overwrite existing extracted year; context windows can contain
-        # nearby unrelated years (e.g., subsequent parentheticals in the same sentence).
+        # Only backfill from document-derived context when extracted_date is missing/unknown.
+        # Do NOT backfill submitted/document date from canonical date; that contaminates the extracted field.
         if not rep_date or rep_date in {"N/A", "Unknown Year", "unknown"}:
-            # Prefer canonical_date when verified — safer than a context year
-            # that can bleed from a neighboring TOA entry.
-            canonical_yr = str(cluster.get("canonical_date") or cluster.get("verifying_display_date") or "").strip()
-            if canonical_yr and canonical_yr not in {"N/A", ""}:
-                from src.utils.date_utils import extract_year_value
-                yr = extract_year_value(canonical_yr)
-                if yr:
-                    rep_date = yr
-            if not rep_date or rep_date in {"N/A", "Unknown Year", "unknown"}:
-                context_year = _context_year_for_display(rep_sub)
-                if context_year:
-                    rep_date = context_year
+            context_year = _context_year_for_display(rep_sub)
+            if context_year:
+                rep_date = context_year
         if rep_name and rep_name != "N/A" and not _is_bad_submitted_name(rep_name):
             cluster["submitted_display_name"] = _normalize_display_name_comma_spacing(normalize_case_name(rep_name))
         else:
@@ -730,6 +720,12 @@ def apply_display_fields_to_cluster(cluster: Dict[str, Any]) -> None:
     else:
         cluster["submitted_display_name"] = get_best_extracted_name(cluster)
         cluster["submitted_display_date"] = get_submitted_date(cluster)
+
+    # Final guard: submitted/document fields must never be sourced from canonical.
+    if not cluster.get("submitted_display_name"):
+        cluster["submitted_display_name"] = "N/A"
+    if not cluster.get("submitted_display_date"):
+        cluster["submitted_display_date"] = "N/A"
     cluster["submitted_display_name"] = _normalize_display_name_comma_spacing(
         str(cluster.get("submitted_display_name") or "")
     )
@@ -1027,3 +1023,19 @@ def finalize_cluster_for_response(
     )
     if clear_unverified_citations:
         clear_unverified_citation_canonical_fields(cluster)
+
+    # Mismatch badges only make sense when we have an effective verified identity
+    # (a real canonical URL / verified-by-parallel with a real URL).
+    # If the cluster is unverified (including "Google search" fallback), suppress mismatch flags
+    # so "Unverified" cases aren't double-flagged as name/date mismatches.
+    try:
+        if not cluster_has_effective_verified(cluster):
+            cluster["has_name_mismatch"] = False
+            cluster["has_date_mismatch"] = False
+            cluster["mismatch_indices"] = []
+            for c in get_cluster_citations(cluster):
+                if isinstance(c, dict) and not is_effectively_verified_citation(c):
+                    c["name_mismatch"] = False
+                    c["date_mismatch"] = False
+    except Exception:
+        pass

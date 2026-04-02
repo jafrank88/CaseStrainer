@@ -56,6 +56,56 @@ def is_proprietary_citation(citation_text: str) -> bool:
     )
 
 
+def is_non_case_legal_reference(citation_text: str) -> bool:
+    """
+    True for statutes/rules/code references that should not be treated as case-verification misses.
+    """
+    s = str(citation_text or "").strip()
+    if not s:
+        return False
+    # If this looks like an adversarial case caption, keep it as a case citation candidate.
+    if " v. " in s.lower():
+        return False
+    upper = s.upper()
+    if any(tok in upper for tok in ("U.S.C.", "C.F.R.", "STAT.", "REG.", "RULE ")):
+        return True
+    # Law review / journal cites (not cases)
+    if re.search(r"\bL\.\s*Rev\.\b", s, re.IGNORECASE):
+        return True
+    if re.search(r"\bLaw\s+Review\b", s, re.IGNORECASE):
+        return True
+    if re.search(r"\bL\.\s*J\.\b", s, re.IGNORECASE):
+        return True
+    if re.search(r"\bJ\.\s*L\.\s*&\s*Econ\.\b", s, re.IGNORECASE):
+        return True
+    if re.search(r"^\s*\d+\s+J\.\s*L\.\s*&\s*Econ\.\s+\d+", s, re.IGNORECASE):
+        return True
+    if re.search(r"\b(?:CAL\.?|N\.?Y\.?|TEX\.?|OHIO|ILL\.?|WASH\.?)\s+CODE\b", s, re.IGNORECASE):
+        return True
+    if re.search(r"\b(?:CAL\.?|N\.?Y\.?|TEX\.?|OHIO|ILL\.?|WASH\.?)\s+LAW\b", s, re.IGNORECASE):
+        return True
+    # Common state statute/code formats from NAAG corpus
+    if re.search(r"\b[A-Z][a-z]{1,12}\.\s+Stat\.\s+Ann\.?", s):
+        return True
+    if re.search(r"\b[A-Z][a-z]{1,12}\.\s+Rev\.\s+Stat\.?", s):
+        return True
+    if re.search(r"\b[A-Z][a-z]{1,12}\.\s+Code\s+Ann\.?", s):
+        return True
+    if re.search(r"\b[A-Z][a-z]{1,12}\.\s+Comp\.\s+Laws", s):
+        return True
+    if re.search(r"\bInd\.\s+Code\b", s, re.IGNORECASE):
+        return True
+    if re.search(r"\bW\.\s*Va\.\s+Code\b", s, re.IGNORECASE):
+        return True
+    if re.search(r"\bCODE\s+§+\s*\d+[A-Za-z0-9\-\.]*", s, re.IGNORECASE):
+        return True
+    if re.search(r"§+\s*\d+[A-Za-z0-9\-\.]*(?:\s*et\s+seq\.?)?", s, re.IGNORECASE):
+        return True
+    if re.search(r"\bet\s+seq\.?\b", s, re.IGNORECASE) and ("code" in s.lower() or "law" in s.lower()):
+        return True
+    return False
+
+
 def citation_core_key(citation_text: str) -> str:
     s = str(citation_text or "").strip()
     if not s:

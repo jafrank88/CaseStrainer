@@ -14,6 +14,7 @@ from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 
 logger = logging.getLogger(__name__)
+from src.utils.verification_display_utils import is_non_case_legal_reference
 
 try:
     from src.utils.legal_abbreviations import expand_abbreviations as _expand_legal_abbreviations
@@ -83,6 +84,8 @@ def is_citation_likely_valid(citation: str) -> bool:
 
     # Skip non-case citations like statutes, codes, etc.
     if any(x in citation.upper() for x in ["U.S.C.", "CODE", "STAT.", "REG.", "F.R.", "C.F.R."]):
+        return False
+    if is_non_case_legal_reference(citation):
         return False
 
     # Check for reasonable Supreme Court citation ranges
@@ -354,6 +357,21 @@ def cluster_matches_extracted_case_name(cluster: Dict[str, Any], extracted_case_
     cn_tokens = set(w.strip(".,'") for w in cn_first if w.strip(".,'") and w.strip(".,'") not in stop)
     if not ecn_tokens or not cn_tokens:
         return True
+
+    # Allow swapped-party matching when both sides are present (A v. B vs B v. A).
+    # This is common for United States cases and prevents false "Name mismatch" rejects.
+    if len(ecn_parts) > 1 and len(cn_parts) > 1:
+        ecn_def = (ecn_parts[1].strip() if len(ecn_parts) > 1 else "").split()
+        cn_def = (cn_parts[1].strip() if len(cn_parts) > 1 else "").split()
+        ecn_d = set(w.strip(".,'") for w in ecn_def if w.strip(".,'") and w.strip(".,'") not in stop)
+        cn_d = set(w.strip(".,'") for w in cn_def if w.strip(".,'") and w.strip(".,'") not in stop)
+        e1s = ecn_tokens - _WEAK_FIRST_PARTY_TOKENS
+        e2s = ecn_d - _WEAK_SECOND_PARTY_TOKENS
+        c1s = cn_tokens - _WEAK_FIRST_PARTY_TOKENS
+        c2s = cn_d - _WEAK_SECOND_PARTY_TOKENS
+        if (e1s & c1s) or (e2s & c2s) or (e1s & c2s) or (e2s & c1s):
+            return True
+
     overlap_plaintiff = ecn_tokens & cn_tokens
     strong_plaintiff = overlap_plaintiff - _WEAK_FIRST_PARTY_TOKENS
     if overlap_plaintiff and not strong_plaintiff and len(ecn_parts) > 1 and len(cn_parts) > 1:

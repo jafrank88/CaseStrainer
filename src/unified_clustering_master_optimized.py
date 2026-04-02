@@ -5,7 +5,7 @@ Parallel citations (same case, multiple reporters) should appear in one cluster.
 If the doc cites A & B and later B & C, transitive merge puts A, B, C in one cluster.
 """
 # Bump when clustering logic changes so API/workers can report which version ran
-CLUSTERING_VERSION = "2026-03-v6"
+CLUSTERING_VERSION = "2026-03-v7"
 
 import re
 import logging
@@ -59,6 +59,39 @@ def _paren_decision_year_from_cit(cit: str) -> Optional[str]:
             if 1700 <= y <= 2030:
                 best = ym.group(1)
     return best
+
+
+def _trailing_paren_year_from_cit(cit: str) -> Optional[str]:
+    """
+    Extract the decision year from the *final* parenthetical right after the citation.
+
+    This matches the most common Bluebook pattern used in briefs:
+      `... 900 F.2d 566 (2d Cir. 1990)`  -> 1990
+      `... 347 U.S. 521 (1954)`         -> 1954
+
+    We intentionally ignore nested "(quoting ...)" / "(citing ...)" segments since they
+    often contain years for *other* cases.
+    """
+    if not (cit or "").strip():
+        return None
+    main = str(cit).strip()
+    for sep in ("(quoting ", "(citing ", "(quoted in ", "(cited in "):
+        ix = main.find(sep)
+        if ix != -1:
+            main = main[:ix].strip()
+            break
+    # Ignore our synthetic suffixes like "(scotus 1954)".
+    if re.search(r"\((?:scotus|ca\d+)\s+(?:19|20)\d{2}\s*\)\s*$", main, re.IGNORECASE):
+        return None
+    m = re.search(r"\(([^)]*?)\)\s*$", main)
+    if not m:
+        return None
+    inner = m.group(1) or ""
+    ym = re.search(r"\b((?:17|18|19|20)\d{2})\b", inner)
+    if not ym:
+        return None
+    y = int(ym.group(1))
+    return ym.group(1) if 1700 <= y <= 2030 else None
 
 
 def _get_citation_key(c: Dict[str, Any]) -> str:
@@ -567,11 +600,22 @@ def cluster_citations_minimal(citations: List[Dict[str, Any]]) -> List[Dict[str,
                 except (AttributeError, ValueError):
                     return 0
 
-            years = [yi for t in candidates if (yi := _year_int(t)) > 0]
-            # When years conflict (e.g. 1981 vs 2015, or CFE I 1995 vs CFE II 2003), prefer more recent
-            if len(years) >= 2 and max(years) - min(years) > 5:
-                best_year = str(max(years))
+            # Primary rule (by far the most common): use the year in the final parenthetical
+            # right after the citation text: `(.... ####)`.
+            trailing_years = [
+                _trailing_paren_year_from_cit((c.get("citation") or "")) for c in group_citations
+            ]
+            trailing_years = [y for y in trailing_years if y]
+            if trailing_years:
+                # Choose the most common trailing year within the group (robust to one-off contamination).
+                counts: Dict[str, int] = {}
+                for y in trailing_years:
+                    counts[y] = counts.get(y, 0) + 1
+                best_year = sorted(counts.items(), key=lambda kv: (-kv[1], kv[0]))[0][0]
             else:
+                # Secondary: if the group has multiple plausible years, avoid "prefer max year" here.
+                # That heuristic amplifies cross-case bleed; instead prefer citation-paren years when
+                # unambiguous, otherwise prefer the year from the shortest citation mention.
                 paren_years = [
                     _paren_decision_year_from_cit((c.get("citation") or ""))
                     for c in group_citations
@@ -580,7 +624,6 @@ def cluster_citations_minimal(citations: List[Dict[str, Any]]) -> List[Dict[str,
                 if paren_years and len(set(paren_years)) == 1:
                     best_year = paren_years[0]
                 else:
-                    # Prefer year from bare reporter (shortest citation) - from immediate doc context
                     candidates_sorted = sorted(candidates, key=lambda t: t[3])
                     best_year = candidates_sorted[0][0]
 

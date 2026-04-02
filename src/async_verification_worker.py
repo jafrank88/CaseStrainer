@@ -117,10 +117,23 @@ def _verify_with_enhanced_fallback(citations: List, text: str, request_id: str) 
             for citation in citations:
                 citation_texts.append(citation.get("citation", str(citation)))
                 extracted_names.append(citation.get("extracted_case_name"))
-                # CRITICAL FIX: Prioritize cluster_year over extracted_date
-                # cluster_year is set by clustering and is more reliable than extracted_date
-                # extracted_date can be contaminated with document metadata dates
-                extracted_years.append(citation.get("cluster_year") or citation.get("extracted_year") or citation.get("extracted_date"))
+                # Verification should be driven by citation-local year evidence (document-first).
+                # NOTE: `cluster_year` can be contaminated when clustering accidentally mixes cases
+                # (e.g., TOA lines like "Twin Laboratories... (1990)" adjacent to "Laurel Sand... (1991)"),
+                # which then causes false "Year mismatch" rejections.
+                md = citation.get("metadata") if isinstance(citation.get("metadata"), dict) else {}
+                md_year = str(md.get("year") or "").strip()
+                md_src = str(md.get("extracted_date_source") or "").strip()
+                year_val = None
+                # Prefer explicitly extracted year when it came from citation text/paren or exact anchor.
+                if md_year.isdigit() and 1700 <= int(md_year) <= 2030 and md_src.startswith("citation_"):
+                    year_val = md_year
+                else:
+                    year_val = citation.get("extracted_year") or citation.get("extracted_date")
+                # Last resort only: fall back to cluster_year if we have nothing else.
+                if not year_val:
+                    year_val = citation.get("cluster_year")
+                extracted_years.append(year_val)
 
             # Call batch verification
             batch_results = await verifier.verify_citations_batch(
@@ -535,6 +548,7 @@ def _verify_with_enhanced_verification(citations: List, text: str, request_id: s
     try:
         from src.enhanced_courtlistener_verification import EnhancedCourtListenerVerifier
         from src.enhanced_fallback_verifier import EnhancedFallbackVerifier
+        from src.utils.response_enrichment import extract_display_base_citation
 
         courtlistener_api_key = os.getenv("COURTLISTENER_API_KEY")
         if not courtlistener_api_key:
@@ -552,7 +566,10 @@ def _verify_with_enhanced_verification(citations: List, text: str, request_id: s
 
             logger.info(f"[AsyncVerificationWorker {request_id}] Starting hybrid verification for: {citation_text}")
 
-            courtlistener_result = courtlistener_verifier.verify_citation_enhanced(citation_text, extracted_case_name)
+            # Generalized: CourtListener lookup is most reliable with the base reporter citation.
+            # This prevents variants like "(scotus 1954)" / "(ca2 1990)" from blocking lookup.
+            query_citation = extract_display_base_citation(citation_text) or citation_text
+            courtlistener_result = courtlistener_verifier.verify_citation_enhanced(query_citation, extracted_case_name)
 
             if courtlistener_result.get("verified", False):
                 logger.info(f"[AsyncVerificationWorker {request_id}] CourtListener verified: {citation_text}")
