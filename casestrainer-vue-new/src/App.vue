@@ -424,8 +424,18 @@ main {
     --dark-color: #e9ecef;
   }
 
-  main {
+  body {
     background: var(--background, #18181b);
+    color: var(--foreground, #f3f4f6);
+  }
+
+  #app {
+    background: var(--background, #18181b);
+    color: var(--foreground, #f3f4f6);
+  }
+
+  main {
+    background: transparent;
     color: var(--foreground, #f3f4f6);
   }
 

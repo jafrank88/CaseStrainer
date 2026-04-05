@@ -3797,6 +3797,10 @@ const handleAsyncTaskError = (errorMessage) => {
     --primary-light: #d4bdfc;
     --primary-dark: #9b7ce8;
     --secondary-color: #1e2228;
+    --accent-color: #ff6b35;
+    --success-color: #4caf50;
+    --warning-color: #ff9800;
+    --error-color: #f44336;
     --text-primary: #f1f5f9;
     --text-secondary: #94a3b8;
     --border-color: #3d4451;
@@ -3816,6 +3820,7 @@ const handleAsyncTaskError = (errorMessage) => {
     --home-dropzone-bg: #1a1d24;
     --home-dropzone-hover-bg: rgba(196, 168, 252, 0.1);
     --home-dropzone-drag-bg: rgba(196, 168, 252, 0.18);
+    --home-focus-ring: color-mix(in srgb, var(--primary-color) 28%, transparent);
   }
 
   .experimental-banner {
@@ -3839,6 +3844,14 @@ const handleAsyncTaskError = (errorMessage) => {
   .features-section {
     background: rgba(0, 0, 0, 0.22);
     border-color: var(--border-color);
+  }
+
+  .main-content-wrapper {
+    background: transparent;
+  }
+
+  .container {
+    background: transparent;
   }
 }
 </style>
