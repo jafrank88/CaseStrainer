@@ -189,6 +189,92 @@ def _deduplicate_citations_across_clusters(
     return result
 
 
+def _split_clusters_by_conflicting_urls(
+    clusters: List[Dict[str, Any]],
+    run_id: str = "",
+) -> List[Dict[str, Any]]:
+    """Bug E: Split clusters where verified citations point to different CourtListener URLs.
+
+    Two different cases that were wrongly merged will each have their own canonical URL.
+    split_clusters_by_canonical_name handles most of this, but can fail when names are
+    similar (e.g. two '... v. AT&T' cases). URL identity is unambiguous.
+    """
+    try:
+        from src.utils.post_verify_split import _is_google_search_url
+    except ImportError:
+        def _is_google_search_url(u: str) -> bool:
+            return "google" in (u or "")
+
+    result: List[Dict[str, Any]] = []
+    for cl in clusters:
+        if not isinstance(cl, dict):
+            result.append(cl)
+            continue
+        cits = cl.get("citations") or []
+        url_groups: Dict[str, List[Any]] = {}
+        unv: List[Any] = []
+        for c in cits:
+            if not isinstance(c, dict):
+                unv.append(c)
+                continue
+            url = (c.get("canonical_url") or "").strip()
+            if not url or _is_google_search_url(url) or not c.get("verified"):
+                unv.append(c)
+                continue
+            url_groups.setdefault(url, []).append(c)
+        if len(url_groups) <= 1:
+            result.append(cl)
+            continue
+        bid = cl.get("cluster_id", "c0")
+        logger.info(
+            f"[URL-SPLIT-{run_id}] '{bid}' has {len(url_groups)} distinct canonical URLs — splitting"
+        )
+        for si, (url, grp) in enumerate(url_groups.items()):
+            nc = dict(cl)
+            nc["cluster_id"] = f"{bid}_urlsplit_{si}"
+            nc["citations"] = grp
+            nc["cluster_size"] = len(grp)
+            nc["canonical_url"] = url
+            nc["canonical_name"] = next(
+                (x.get("canonical_name") for x in grp if x.get("canonical_name")), ""
+            )
+            nc["verified"] = True
+            result.append(nc)
+        if unv:
+            nc2 = dict(cl)
+            nc2["cluster_id"] = f"{bid}_urlsplit_unv"
+            nc2["citations"] = unv
+            nc2["cluster_size"] = len(unv)
+            nc2["verified"] = False
+            nc2["canonical_url"] = None
+            result.append(nc2)
+    if len(result) != len(clusters):
+        logger.info(f"[URL-SPLIT-{run_id}] {len(clusters)} -> {len(result)} clusters")
+    return result
+
+
+def _dedup_cluster_ids(
+    clusters: List[Dict[str, Any]],
+    run_id: str = "",
+) -> List[Dict[str, Any]]:
+    """Bug F: Ensure cluster IDs are unique. When two clusters share the same ID
+    (can happen when multiple merge/split cycles both start from 'c0'), append '_dupN'.
+    """
+    seen: Dict[str, int] = {}
+    for cl in clusters:
+        if not isinstance(cl, dict):
+            continue
+        cid = cl.get("cluster_id") or ""
+        if cid in seen:
+            seen[cid] += 1
+            new_id = f"{cid}_dup{seen[cid]}"
+            logger.info(f"[DEDUP-IDS-{run_id}] Renaming duplicate '{cid}' -> '{new_id}'")
+            cl["cluster_id"] = new_id
+        else:
+            seen[cid] = 0
+    return clusters
+
+
 def apply_post_verify_cluster_splits(
     clusters: List[Dict[str, Any]],
     *,
@@ -204,8 +290,10 @@ def apply_post_verify_cluster_splits(
       4) Split WL from lower-federal where appropriate
       5) Split distinct WL document IDs
       6) Split by canonical name buckets
-      7) Recalculate cluster_case_name from each cluster's own citations
-      8) Global dedup: ensure each citation key lives in exactly one cluster
+      7) Split by conflicting canonical URLs (Bug E: two '... v. AT&T' cases wrongly merged)
+      8) Recalculate cluster_case_name from each cluster's own citations
+      9) Global dedup: ensure each citation key lives in exactly one cluster
+     10) Dedup cluster IDs (Bug F: prevent c0_ecn_0_yr_0 collision)
     """
     if not clusters:
         return clusters
@@ -214,8 +302,10 @@ def apply_post_verify_cluster_splits(
         out = split_clusters_by_date_conflict(out, task_id=run_id)
         out = split_clusters_by_court_tier_and_wl(out, task_id=run_id)
         out = split_clusters_by_canonical_name(out, task_id=run_id)
+        out = _split_clusters_by_conflicting_urls(out, run_id=run_id)
         out = _recalc_cluster_case_names(out, run_id=run_id)
         out = _deduplicate_citations_across_clusters(out, run_id=run_id)
+        out = _dedup_cluster_ids(out, run_id=run_id)
         return out
     except Exception as e:
         logger.warning(f"[POST-CLUSTER-{run_id}] Split pipeline failed: {e}")

@@ -1,0 +1,393 @@
+{
+  "summary_per_doc": [
+    {
+      "doc": "01_Tri-City-Valleycats-v-Commissioner_2023.pdf",
+      "elapsed_s": 30.6,
+      "n_citations": 79,
+      "n_clusters": 30,
+      "n_issues": 1,
+      "error": null
+    },
+    {
+      "doc": "02_Robinson-v-Jackson-Hewitt_2023.pdf",
+      "elapsed_s": 27.9,
+      "n_citations": 56,
+      "n_clusters": 23,
+      "n_issues": 1,
+      "error": null
+    },
+    {
+      "doc": "03_Deslandes-v-McDonalds_2022.pdf",
+      "elapsed_s": 77.9,
+      "n_citations": 81,
+      "n_clusters": 36,
+      "n_issues": 2,
+      "error": null
+    },
+    {
+      "doc": "04_FTC-v-Meta-Platforms_2022.pdf",
+      "elapsed_s": 27.7,
+      "n_citations": 24,
+      "n_clusters": 12,
+      "n_issues": 1,
+      "error": null
+    },
+    {
+      "doc": "05_FTC-v-Hackensack-Meridian_2021.pdf",
+      "elapsed_s": 13.0,
+      "n_citations": 10,
+      "n_clusters": 6,
+      "n_issues": 0,
+      "error": null
+    },
+    {
+      "doc": "06_Impax-v-FTC_2019.pdf",
+      "elapsed_s": 49.7,
+      "n_citations": 74,
+      "n_clusters": 38,
+      "n_issues": 1,
+      "error": null
+    },
+    {
+      "doc": "07_Chamber-of-Commerce-v-Seattle_2018.pdf",
+      "elapsed_s": 9.0,
+      "n_citations": 37,
+      "n_clusters": 16,
+      "n_issues": 0,
+      "error": null
+    },
+    {
+      "doc": "08_Ohio-v-AmEx_2018.pdf",
+      "elapsed_s": 20.3,
+      "n_citations": 50,
+      "n_clusters": 18,
+      "n_issues": 1,
+      "error": null
+    },
+    {
+      "doc": "09_FTC-v-PennState-Hershey_2017.pdf",
+      "elapsed_s": 33.9,
+      "n_citations": 110,
+      "n_clusters": 49,
+      "n_issues": 1,
+      "error": null
+    },
+    {
+      "doc": "10_City-of-Providence-v-WarnerChilcott_2015.pdf",
+      "elapsed_s": 22.1,
+      "n_citations": 81,
+      "n_clusters": 34,
+      "n_issues": 2,
+      "error": null
+    },
+    {
+      "doc": "11_McWane-v-FTC_2014.pdf",
+      "elapsed_s": 25.5,
+      "n_citations": 78,
+      "n_clusters": 28,
+      "n_issues": 1,
+      "error": null
+    },
+    {
+      "doc": "12_St-Lukes-v-FTC_2014.pdf",
+      "elapsed_s": 21.4,
+      "n_citations": 19,
+      "n_clusters": 10,
+      "n_issues": 0,
+      "error": null
+    },
+    {
+      "doc": "13_NC-Dental-v-FTC-Merits_2014.pdf",
+      "elapsed_s": 21.8,
+      "n_citations": 35,
+      "n_clusters": 12,
+      "n_issues": 0,
+      "error": null
+    },
+    {
+      "doc": "14_King-Drug-v-SmithKline_2014.pdf",
+      "elapsed_s": 18.3,
+      "n_citations": 47,
+      "n_clusters": 20,
+      "n_issues": 0,
+      "error": null
+    },
+    {
+      "doc": "15_NC-Dental-v-FTC-Cert_2013.pdf",
+      "elapsed_s": 30.9,
+      "n_citations": 57,
+      "n_clusters": 24,
+      "n_issues": 0,
+      "error": null
+    },
+    {
+      "doc": "16_Mississippi-v-AU-Optronics_2013.pdf",
+      "elapsed_s": 59.5,
+      "n_citations": 168,
+      "n_clusters": 70,
+      "n_issues": 3,
+      "error": null
+    },
+    {
+      "doc": "17_FTC-v-Watson-Pharmaceuticals_2013.pdf",
+      "elapsed_s": 21.9,
+      "n_citations": 49,
+      "n_clusters": 21,
+      "n_issues": 0,
+      "error": null
+    },
+    {
+      "doc": "18_AmEx-v-Italian-Colors_2012.pdf",
+      "elapsed_s": 9.9,
+      "n_citations": 41,
+      "n_clusters": 12,
+      "n_issues": 1,
+      "error": null
+    },
+    {
+      "doc": "19_FTC-v-Phoebe-Putney_2012.pdf",
+      "elapsed_s": 24.7,
+      "n_citations": 59,
+      "n_clusters": 25,
+      "n_issues": 2,
+      "error": null
+    },
+    {
+      "doc": "20_Pepper-v-Apple_2011.pdf",
+      "elapsed_s": 33.9,
+      "n_citations": 112,
+      "n_clusters": 44,
+      "n_issues": 0,
+      "error": null
+    },
+    {
+      "doc": "21_OK-v-BP-America_2010.pdf",
+      "elapsed_s": 99.8,
+      "n_citations": 127,
+      "n_clusters": 55,
+      "n_issues": 4,
+      "error": null
+    },
+    {
+      "doc": "22_K-Dur-3d-Cir_2011.pdf",
+      "elapsed_s": 41.9,
+      "n_citations": 60,
+      "n_clusters": 28,
+      "n_issues": 3,
+      "error": null
+    },
+    {
+      "doc": "23_Leegin-v-PSKS-SCOTUS_2007.pdf",
+      "elapsed_s": 47.7,
+      "n_citations": 85,
+      "n_clusters": 37,
+      "n_issues": 1,
+      "error": null
+    },
+    {
+      "doc": "24_DDAVP-2d-Cir_2007.pdf",
+      "elapsed_s": 14.0,
+      "n_citations": 37,
+      "n_clusters": 17,
+      "n_issues": 1,
+      "error": null
+    },
+    {
+      "doc": "25_Verizon-v-Trinko_2004.pdf",
+      "elapsed_s": 39.8,
+      "n_citations": 106,
+      "n_clusters": 50,
+      "n_issues": 4,
+      "error": null
+    }
+  ],
+  "total_issues": 30,
+  "issues_by_type": {
+    "short_ecn_on_long_citation": 18,
+    "name_mismatch_verified": 6,
+    "oversized_cluster": 4,
+    "year_mismatch": 2
+  },
+  "all_issues": [
+    {
+      "doc": "01_Tri-City-Valleycats-v-Commissioner_2023.pdf",
+      "type": "short_ecn_on_long_citation",
+      "cluster_id": null,
+      "detail": "citation='California v. Arc America Corp., 490 U.S. 93 (scotus 1989)' ecn='N/A'"
+    },
+    {
+      "doc": "02_Robinson-v-Jackson-Hewitt_2023.pdf",
+      "type": "short_ecn_on_long_citation",
+      "cluster_id": null,
+      "detail": "citation='Inc., 968 F. Supp. 2d 1030, 1039 (cand 2013) (\"Antitrust law' ecn='Inc'"
+    },
+    {
+      "doc": "03_Deslandes-v-McDonalds_2022.pdf",
+      "type": "short_ecn_on_long_citation",
+      "cluster_id": null,
+      "detail": "citation='Railway Industry Employee No-Poach Antitrust Litigation, 395' ecn='N/A'"
+    },
+    {
+      "doc": "03_Deslandes-v-McDonalds_2022.pdf",
+      "type": "short_ecn_on_long_citation",
+      "cluster_id": null,
+      "detail": "citation='Aya Healthcare Servs., Inc. v. AMN Healthcare, Inc., 9 F.4th' ecn='N/A'"
+    },
+    {
+      "doc": "04_FTC-v-Meta-Platforms_2022.pdf",
+      "type": "name_mismatch_verified",
+      "cluster_id": "cluster_1",
+      "detail": "submitted='Becerra v. United States Department of the Interior' | canonical='California by and through Becerrav. U.S. Dep't of the Interi'"
+    },
+    {
+      "doc": "06_Impax-v-FTC_2019.pdf",
+      "type": "short_ecn_on_long_citation",
+      "cluster_id": null,
+      "detail": "citation='Impax Labs., Inc., No., 2019 WL 1552939 (2019)' ecn='N/A'"
+    },
+    {
+      "doc": "08_Ohio-v-AmEx_2018.pdf",
+      "type": "short_ecn_on_long_citation",
+      "cluster_id": null,
+      "detail": "citation='Nemours & Co., 351 U.S. 377, 404 (scotus 2014)' ecn='Nemours & Co'"
+    },
+    {
+      "doc": "09_FTC-v-PennState-Hershey_2017.pdf",
+      "type": "short_ecn_on_long_citation",
+      "cluster_id": null,
+      "detail": "citation='ADT, 86 F. Supp. 3d 857an unreported decision, an Eleventh C' ecn='ADT'"
+    },
+    {
+      "doc": "10_City-of-Providence-v-WarnerChilcott_2015.pdf",
+      "type": "short_ecn_on_long_citation",
+      "cluster_id": "cluster_15_yr_0",
+      "detail": "citation='Cipro I & II No. 198616, 2015 WL 2125291 (cal 2015)' ecn='Cipro I & II'"
+    },
+    {
+      "doc": "10_City-of-Providence-v-WarnerChilcott_2015.pdf",
+      "type": "short_ecn_on_long_citation",
+      "cluster_id": null,
+      "detail": "citation='Cipro I & II, No. S198616, 2015 WL 2125291, n.11 (cal 2015) ' ecn='Cipro I & II'"
+    },
+    {
+      "doc": "11_McWane-v-FTC_2014.pdf",
+      "type": "short_ecn_on_long_citation",
+      "cluster_id": null,
+      "detail": "citation='Aspen Skiing Co. v. Aspen Highlands Skiing Corp., 472 U.S. 5' ecn='N/A'"
+    },
+    {
+      "doc": "16_Mississippi-v-AU-Optronics_2013.pdf",
+      "type": "year_mismatch",
+      "cluster_id": "cluster_27_canonical_split_0",
+      "detail": "extracted_year=2008 canonical_year=1995 gap=13yr"
+    },
+    {
+      "doc": "16_Mississippi-v-AU-Optronics_2013.pdf",
+      "type": "name_mismatch_verified",
+      "cluster_id": "cluster_52_canonical_split_0_yr_1",
+      "detail": "submitted='Taylor v. Carryl' | canonical='James L. v. Carryl'"
+    },
+    {
+      "doc": "16_Mississippi-v-AU-Optronics_2013.pdf",
+      "type": "name_mismatch_verified",
+      "cluster_id": "?",
+      "detail": "submitted='Texas v. Scott & Fetzer Co' | canonical='Railroad Comm'n of Tex. v. Pullman Co.'"
+    },
+    {
+      "doc": "18_AmEx-v-Italian-Colors_2012.pdf",
+      "type": "oversized_cluster",
+      "cluster_id": "cluster_1",
+      "detail": "size=8 submitted='Green Tree Financial Corporation -Alabama v. Randolph'"
+    },
+    {
+      "doc": "19_FTC-v-Phoebe-Putney_2012.pdf",
+      "type": "name_mismatch_verified",
+      "cluster_id": "cluster_14_canonical_split_0_yr_1",
+      "detail": "submitted='Prof' v. United States' | canonical='National Society of Professional Engineers v. United States'"
+    },
+    {
+      "doc": "19_FTC-v-Phoebe-Putney_2012.pdf",
+      "type": "oversized_cluster",
+      "cluster_id": "cluster_24_canonical_split_0",
+      "detail": "size=9 submitted='Unknown Case'"
+    },
+    {
+      "doc": "21_OK-v-BP-America_2010.pdf",
+      "type": "name_mismatch_verified",
+      "cluster_id": "cluster_47_canonical_split_0",
+      "detail": "submitted='Control v. Fcc' | canonical='Kavanau v. Santa Monica Rent Control Board'"
+    },
+    {
+      "doc": "21_OK-v-BP-America_2010.pdf",
+      "type": "year_mismatch",
+      "cluster_id": "cluster_3_canonical_split_0_ecn_0_yr_0_ecn_3",
+      "detail": "extracted_year=2006 canonical_year=2010 gap=4yr"
+    },
+    {
+      "doc": "21_OK-v-BP-America_2010.pdf",
+      "type": "short_ecn_on_long_citation",
+      "cluster_id": "cluster_20_canonical_split_0",
+      "detail": "citation='New York, 256 U.S. 490, 500 (scotus 1921)' ecn='New York'"
+    },
+    {
+      "doc": "21_OK-v-BP-America_2010.pdf",
+      "type": "short_ecn_on_long_citation",
+      "cluster_id": null,
+      "detail": "citation='Ayers, 123 U.S. 443, 492 (scotus 1887) (instructing courts t' ecn='In Re Ayers'"
+    },
+    {
+      "doc": "22_K-Dur-3d-Cir_2011.pdf",
+      "type": "name_mismatch_verified",
+      "cluster_id": "cluster_23",
+      "detail": "submitted='Assocs. v. Garlock, Inc' | canonical='W.L. Gore & Associates, Inc., Appellant/cross-Appellee v. Ga'"
+    },
+    {
+      "doc": "22_K-Dur-3d-Cir_2011.pdf",
+      "type": "short_ecn_on_long_citation",
+      "cluster_id": null,
+      "detail": "citation='In Ciprofloxacin Hydrochloride Antitrust Litig.), 625 F.3d 7' ecn='N/A'"
+    },
+    {
+      "doc": "22_K-Dur-3d-Cir_2011.pdf",
+      "type": "short_ecn_on_long_citation",
+      "cluster_id": null,
+      "detail": "citation='Gormully, 144 U.S. 224, 234 (scotus 1892)' ecn='Gormully'"
+    },
+    {
+      "doc": "23_Leegin-v-PSKS-SCOTUS_2007.pdf",
+      "type": "oversized_cluster",
+      "cluster_id": "cluster_6",
+      "detail": "size=6 submitted='Business Electronics Corporation v. Sharp Electronics Corpor'"
+    },
+    {
+      "doc": "24_DDAVP-2d-Cir_2007.pdf",
+      "type": "short_ecn_on_long_citation",
+      "cluster_id": null,
+      "detail": "citation='India, 434 U.S. 308, 312 (scotus 1978) (citations omitted)' ecn='India'"
+    },
+    {
+      "doc": "25_Verizon-v-Trinko_2004.pdf",
+      "type": "oversized_cluster",
+      "cluster_id": "cluster_19",
+      "detail": "size=6 submitted='Spectrum Sports, Inc. v. McQuillan'"
+    },
+    {
+      "doc": "25_Verizon-v-Trinko_2004.pdf",
+      "type": "short_ecn_on_long_citation",
+      "cluster_id": "cluster_32",
+      "detail": "citation='Carterfone, 13 F.C.C.2d 420 (1968) (declaring unlawful pract' ecn='Carterfone'"
+    },
+    {
+      "doc": "25_Verizon-v-Trinko_2004.pdf",
+      "type": "short_ecn_on_long_citation",
+      "cluster_id": "cluster_38",
+      "detail": "citation='21 F.C.C.2d 190 (1970) (permitting private line services)' ecn='N/A'"
+    },
+    {
+      "doc": "25_Verizon-v-Trinko_2004.pdf",
+      "type": "short_ecn_on_long_citation",
+      "cluster_id": null,
+      "detail": "citation='Griffiths, 334 U.S. 100and Berkey Photo, Inc. v. Eastman Kod' ecn='Griffiths'"
+    }
+  ]
+}

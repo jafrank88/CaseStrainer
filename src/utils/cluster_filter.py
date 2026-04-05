@@ -41,8 +41,45 @@ def _parse_vol_rep(citation_text: str) -> Optional[Tuple[str, int]]:
     return None
 
 
-def _extract_year(c: Dict[str, Any]) -> Optional[int]:
-    """Extract 4-digit year from citation dict (metadata or (YYYY) in citation text)."""
+def _citation_text(c: Dict[str, Any]) -> str:
+    return str(c.get("citation") or c.get("text") or "").strip()
+
+
+def _is_wl_or_lexis_cite(cit_text: str) -> bool:
+    """Westlaw / Lexis-style cites often sit next to reporter cites in TOAs; metadata year bleeds from neighbors."""
+    if not cit_text:
+        return False
+    s = cit_text.upper()
+    return bool(re.search(r"\bWL\b", s) or "LEXIS" in s)
+
+
+def _trailing_paren_year_from_citation_text(cit_text: str) -> Optional[int]:
+    """
+    Decision year in the final parenthetical after the citation pin (Bluebook-style).
+    Ignores '(quoting ...)' / '(citing ...)' prefixes the same way as minimal clustering.
+    """
+    if not cit_text:
+        return None
+    main = cit_text.strip()
+    for sep in ("(quoting ", "(citing ", "(quoted in ", "(cited in "):
+        ix = main.find(sep)
+        if ix != -1:
+            main = main[:ix].strip()
+            break
+    if re.search(r"\((?:scotus|ca\d+)\s+(?:19|20)\d{2}\s*\)\s*$", main, re.IGNORECASE):
+        return None
+    m = re.search(r"\(([^)]*?)\)\s*$", main)
+    if not m:
+        return None
+    inner = m.group(1) or ""
+    ym = re.search(r"\b((?:17|18|19|20)\d{2})\b", inner)
+    if not ym:
+        return None
+    y = int(ym.group(1))
+    return y if 1700 <= y <= 2030 else None
+
+
+def _extract_year_from_metadata_only(c: Dict[str, Any]) -> Optional[int]:
     for key in ("extracted_date", "canonical_date", "date"):
         val = c.get(key)
         if not val:
@@ -50,10 +87,39 @@ def _extract_year(c: Dict[str, Any]) -> Optional[int]:
         m = re.search(r"(19|20)\d{2}", str(val))
         if m:
             return int(m.group(0))
-    # Fallback: year in parentheses in citation text (e.g. "741 P.2d 559 (1987)" -> 1987)
-    ct = (c.get("citation") or c.get("text") or "")
+    return None
+
+
+def _extract_year(c: Dict[str, Any]) -> Optional[int]:
+    """
+    Extract 4-digit decision year for clustering / conflict checks.
+
+    Westlaw/Lexis pins: prefer the year on the citation line (trailing parenthetical or any
+    (YYYY)) so TOA neighbor bleed onto extracted_date does not merge e.g. Heinz 2001 with
+    Evanston 2007 WL.
+    """
+    ct = _citation_text(c)
+    meta_y = _extract_year_from_metadata_only(c)
+    trail_y = _trailing_paren_year_from_citation_text(ct)
+
+    if _is_wl_or_lexis_cite(ct):
+        if trail_y is not None:
+            return trail_y
+        if ct:
+            m = re.search(r"\((19\d{2}|20\d{2})\)", ct)
+            if m:
+                return int(m.group(1))
+        return meta_y
+
+    if meta_y is not None and trail_y is not None and abs(meta_y - trail_y) > 2:
+        return trail_y
+
+    if meta_y is not None:
+        return meta_y
+    if trail_y is not None:
+        return trail_y
     if ct:
-        m = re.search(r"\((19\d{2}|20\d{2})\)", str(ct))
+        m = re.search(r"\((19\d{2}|20\d{2})\)", ct)
         if m:
             return int(m.group(1))
     return None
@@ -87,16 +153,10 @@ def citation_conflicts_with_group(citation: Dict[str, Any], group_citations: Lis
     EXCEPTION: Same canonical_name (e.g. CFE I 1995 + CFE II 2003) = same case line, allow merge.
     """
     cit_text = (citation.get("citation") or citation.get("text") or "").strip()
-    parsed = _parse_vol_rep(cit_text)
-    if not parsed:
-        return False
-    rep_new, vol_new = parsed
 
-    # Year conflict: Dow (2005) vs Frederick (2015) in same sentence - different cases
-    # EXCEPTION: Same canonical case (e.g. Campaign for Fiscal Equity 1995 + 2003) - allow merge
-    if _same_canonical_case(citation, group_citations):
-        pass  # Skip year conflict for same case line (CFE I, CFE II, etc.)
-    else:
+    # Year conflict must run for WL / administrative cites too (_parse_vol_rep returns None for WL).
+    # Otherwise adjacent TOA lines with wrong extracted_case_name merge (e.g. Heinz F.3d + Evanston WL).
+    if not _same_canonical_case(citation, group_citations):
         cit_year = _extract_year(citation)
         if cit_year is not None:
             for member in group_citations or []:
@@ -107,6 +167,11 @@ def citation_conflicts_with_group(citation: Dict[str, Any], group_citations: Lis
                         f"(year {cit_year} vs {y} - different cases)"
                     )
                     return True
+
+    parsed = _parse_vol_rep(cit_text)
+    if not parsed:
+        return False
+    rep_new, vol_new = parsed
 
     for member in group_citations or []:
         m_text = (member.get("citation") or member.get("text") or "").strip()

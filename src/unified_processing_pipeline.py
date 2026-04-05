@@ -1761,6 +1761,57 @@ class UnifiedProcessingPipeline:
                         best_canonical_url = cit.get("canonical_url")
                         break
 
+            # Bug B1: Sanity-check canonical_date — reject future dates, pre-U.S. dates, and
+            # large year-gap + name-mismatch combos that indicate wrong CourtListener verification.
+            if best_canonical_date and best_canonical_url:
+                import datetime as _dt
+                _cur_year = _dt.datetime.now().year
+                try:
+                    _canon_yr = int(str(best_canonical_date)[:4])
+                    _extracted_yr = None
+                    for _c in citations:
+                        _ed = str(_c.get("extracted_date") or "")[:4]
+                        if _ed.isdigit():
+                            _extracted_yr = int(_ed)
+                            break
+                    # Fallback: if no citation has an explicit extracted_date, use cluster_year
+                    # (e.g. "Leisy v. Hardin, 135 U.S. 100" has no parenthetical year, so
+                    # _extracted_yr stays None and the gap check would silently skip).
+                    if _extracted_yr is None and cluster_year:
+                        try:
+                            _extracted_yr = int(str(cluster_year)[:4])
+                        except (ValueError, TypeError):
+                            pass
+                    _bad_date = False
+                    if _canon_yr > _cur_year:
+                        _bad_date = True
+                        logger.warning(f"[DATE-SANITY] Future canonical_date {_canon_yr} rejected ({best_canonical_url})")
+                    elif _canon_yr < 1780:
+                        _bad_date = True
+                        logger.warning(f"[DATE-SANITY] Pre-1780 canonical_date {_canon_yr} rejected ({best_canonical_url})")
+                    elif _extracted_yr and abs(_canon_yr - _extracted_yr) > 25:
+                        from src.utils.same_case import names_are_same_case as _nsc_b1
+                        if not _nsc_b1(best_extracted_name or "", best_canonical_name or ""):
+                            _bad_date = True
+                            logger.warning(
+                                f"[DATE-SANITY] {abs(_canon_yr - _extracted_yr)}-yr gap + name mismatch "
+                                f"({best_extracted_name!r} vs {best_canonical_name!r}) → rejecting verification"
+                            )
+                    if _bad_date:
+                        best_canonical_date = None
+                        best_canonical_name = None
+                        best_canonical_url = None
+                        # Also clear citation-level canonical fields so apply_canonical_date_overrides
+                        # cannot restore the rejected date from the individual citation objects.
+                        for _c in citations:
+                            if isinstance(_c, dict):
+                                _c["canonical_date"] = None
+                                _c["canonical_name"] = None
+                                _c["canonical_url"] = None
+                                _c["verified"] = False
+                except (ValueError, TypeError):
+                    pass
+
             # USER FIX 2026-01-12: Reject contaminated cluster_case_name (newlines, excessive length)
             # This prevents "Ibid.\n\nThese statements..." from being used as cluster name
             # MUST be done AFTER best_canonical_name is calculated so we can use it as fallback
@@ -1792,6 +1843,19 @@ class UnifiedProcessingPipeline:
                 from src.utils.case_name_cleaner import clean_extracted_case_name
                 best_extracted_name = clean_extracted_case_name(best_extracted_name)
             clean_submitted_name = best_extracted_name
+            # Bug 4 fix: When verified with a canonical_name that clearly doesn't match the
+            # extracted name (e.g. extracted='Leegin' but canonical='Polk Bros.'), use the
+            # canonical name as the submitted display to avoid showing a wrong case name.
+            if (best_canonical_name and best_canonical_name != "N/A"
+                    and clean_submitted_name and clean_submitted_name != "N/A"
+                    and best_canonical_url):
+                from src.utils.same_case import names_are_same_case as _nsc
+                if not _nsc(clean_submitted_name, best_canonical_name):
+                    logger.info(
+                        f"[DISPLAY-FIX] Submitted name '{clean_submitted_name[:40]}' doesn't match "
+                        f"canonical '{best_canonical_name[:40]}' — using canonical for display"
+                    )
+                    clean_submitted_name = best_canonical_name
             # USER FIX 2026-01-29: Never show citation fragments or statute names as "extracted"
             if clean_submitted_name and clean_submitted_name != "N/A":
                 from src.utils.strict_context_isolator import is_citation_fragment_not_case_name

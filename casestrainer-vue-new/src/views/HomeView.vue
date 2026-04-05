@@ -11,73 +11,94 @@
           <div class="hero-content">
             <div class="hero-text">
               <h1 class="hero-title">
-                <i class="bi bi-shield-check me-3"></i>
+                <i class="bi bi-shield-check me-3" aria-hidden="true"></i>
                 U.S. Case Citation Verification
               </h1>
               <p class="hero-subtitle">
                 Extract and verify U.S. legal case citations from documents, text, or URLs against authoritative databases.
               </p>
               <div class="hero-badges">
-                <span class="hero-badge"><i class="bi bi-lightning-charge-fill me-1"></i>Fast Processing</span>
-                <span class="hero-badge"><i class="bi bi-diagram-3-fill me-1"></i>Clustered Results</span>
-                <span class="hero-badge"><i class="bi bi-shield-lock-fill me-1"></i>No Gen AI</span>
+                <span class="hero-badge"><i class="bi bi-lightning-charge-fill me-1" aria-hidden="true"></i>Fast Processing</span>
+                <span class="hero-badge"><i class="bi bi-diagram-3-fill me-1" aria-hidden="true"></i>Clustered Results</span>
+                <span class="hero-badge"><i class="bi bi-shield-lock-fill me-1" aria-hidden="true"></i>No Gen AI</span>
               </div>
             </div>
 
             <!-- Experimental Use Banner -->
             <div class="experimental-banner">
-              <i class="bi bi-flask me-2"></i>
+              <i class="bi bi-flask me-2" aria-hidden="true"></i>
               <strong>Research Tool:</strong> For educational and research purposes. Always verify results independently.
             </div>
           </div>
 
           <div class="input-container">
-            <!-- Input Method Selection -->
-            <div class="input-methods">
+            <!-- Input Method Selection (tablist) -->
+            <div class="input-methods" role="tablist" aria-label="Choose how to provide your document">
               <div 
+                id="tab-home-paste"
                 :class="['input-method-card', { active: activeTab === 'paste' }]"
-                @click="activeTab = 'paste'"
+                role="tab"
+                :tabindex="activeTab === 'paste' ? 0 : -1"
+                :aria-selected="activeTab === 'paste'"
+                aria-controls="panel-home-paste"
+                aria-label="Paste text: copy and paste legal text"
+                @click="selectHomeTab('paste')"
+                @keydown="onHomeTabKeydown"
               >
                 <div class="method-icon">
-                  <i class="bi bi-clipboard-text"></i>
+                  <i class="bi bi-clipboard-text" aria-hidden="true"></i>
                 </div>
                 <div class="method-content">
                   <h4>Paste Text</h4>
                   <p>Copy and paste legal text</p>
                 </div>
-                <div v-if="activeTab === 'paste'" class="active-indicator">
+                <div v-if="activeTab === 'paste'" class="active-indicator" aria-hidden="true">
                   <i class="bi bi-check"></i>
                 </div>
               </div>
 
               <div 
+                id="tab-home-file"
                 :class="['input-method-card', { active: activeTab === 'file' }]"
-                @click="activeTab = 'file'"
+                role="tab"
+                :tabindex="activeTab === 'file' ? 0 : -1"
+                :aria-selected="activeTab === 'file'"
+                aria-controls="panel-home-file"
+                aria-label="Upload file: PDF, Word, text, and other formats"
+                @click="selectHomeTab('file')"
+                @keydown="onHomeTabKeydown"
               >
                 <div class="method-icon">
-                  <i class="bi bi-file-earmark-text"></i>
+                  <i class="bi bi-file-earmark-text" aria-hidden="true"></i>
                 </div>
                 <div class="method-content">
                   <h4>Upload File</h4>
                   <p>PDF, DOCX, TXT, RTF, MD, HTML, XML</p>
                 </div>
-                <div v-if="activeTab === 'file'" class="active-indicator">
+                <div v-if="activeTab === 'file'" class="active-indicator" aria-hidden="true">
                   <i class="bi bi-check"></i>
                 </div>
               </div>
 
               <div 
+                id="tab-home-url"
                 :class="['input-method-card', { active: activeTab === 'url' }]"
-                @click="activeTab = 'url'"
+                role="tab"
+                :tabindex="activeTab === 'url' ? 0 : -1"
+                :aria-selected="activeTab === 'url'"
+                aria-controls="panel-home-url"
+                aria-label="URL input: analyze online content"
+                @click="selectHomeTab('url')"
+                @keydown="onHomeTabKeydown"
               >
                 <div class="method-icon">
-                  <i class="bi bi-link-45deg"></i>
+                  <i class="bi bi-link-45deg" aria-hidden="true"></i>
                 </div>
                 <div class="method-content">
                   <h4>URL Input</h4>
                   <p>Analyze online content</p>
                 </div>
-                <div v-if="activeTab === 'url'" class="active-indicator">
+                <div v-if="activeTab === 'url'" class="active-indicator" aria-hidden="true">
                   <i class="bi bi-check"></i>
                 </div>
               </div>
@@ -86,65 +107,81 @@
             <!-- Input Content Area -->
             <div class="input-content-area panel-surface">
               <!-- Text Input Tab -->
-              <div v-if="activeTab === 'paste'" class="input-tab-content">
+              <div
+                v-show="activeTab === 'paste'"
+                id="panel-home-paste"
+                class="input-tab-content"
+                role="tabpanel"
+                aria-labelledby="tab-home-paste"
+                :hidden="activeTab !== 'paste'"
+                :aria-hidden="activeTab !== 'paste'"
+              >
                 <div class="form-group">
                   <div class="d-flex justify-content-between align-items-center mb-2">
-                    <label class="form-label mb-0">
-                      <i class="bi bi-clipboard-text me-2"></i>
+                    <label class="form-label mb-0" for="home-legal-text">
+                      <i class="bi bi-clipboard-text me-2" aria-hidden="true"></i>
                       Legal Text
                     </label>
-                    <div v-if="textContent" class="text-muted small">
+                    <div v-if="textContent" class="char-count-pill" aria-live="polite">
                       {{ textContent.length.toLocaleString() }} characters
                     </div>
                   </div>
                   
-                  <div class="position-relative">
+                  <div class="paste-field-wrap position-relative">
                     <textarea 
+                      id="home-legal-text"
                       v-model="textContent"
-                      class="form-control input-field"
+                      class="form-control input-field textarea-legal"
                       :class="{ 'is-valid': textContent && textContent.trim().length >= 10, 'is-invalid': textContent && textContent.trim().length < 10 }"
-                      rows="8"
-                      placeholder="Paste your legal text here..."
+                      rows="10"
+                      placeholder="Paste your legal text here…"
+                      aria-describedby="home-text-hint"
                       @input="validateInput"
                       @keydown.enter.ctrl.exact.prevent="canAnalyze ? analyzeContent() : null"
                       spellcheck="false"
-                      style="resize: vertical; min-height: 200px;"
                     ></textarea>
                     
                     <!-- Clear button (only shown when there's content) -->
                     <button 
                       v-if="textContent"
                       @click="textContent = ''; validateInput()"
-                      class="btn btn-sm btn-outline-secondary position-absolute"
-                      style="top: 0.5rem; right: 0.5rem; z-index: 10;"
+                      class="btn btn-sm btn-outline-secondary textarea-clear-btn"
                       title="Clear text"
                       type="button"
+                      aria-label="Clear legal text"
                     >
-                      <i class="bi bi-x-lg"></i>
+                      <i class="bi bi-x-lg" aria-hidden="true"></i>
                     </button>
                   </div>
+                  <p id="home-text-hint" class="visually-hidden">Press Control and Enter to analyze when enough text is entered.</p>
+                  
+                  <p class="input-keyboard-hint">
+                    <span class="input-keyboard-hint-label">Tip:</span>
+                    <kbd>Ctrl</kbd><span class="kbd-plus">+</span><kbd>Enter</kbd>
+                    <span class="input-keyboard-hint-rest">to analyze when ready</span>
+                  </p>
                   
                   <!-- Input Quality Indicators -->
                   <div v-if="textContent" class="input-quality-indicators mt-3">
                     <div class="d-flex flex-wrap gap-3">
                       <div class="quality-item">
-                        <span class="quality-label"><i class="bi bi-fonts me-1"></i>Words:</span>
+                        <span class="quality-label"><i class="bi bi-fonts me-1" aria-hidden="true"></i>Words:</span>
                         <span class="quality-value">{{ wordCount }}</span>
                       </div>
                       <div class="quality-item">
-                        <span class="quality-label"><i class="bi bi-quote me-1"></i>Est. Citations:</span>
+                        <span class="quality-label"><i class="bi bi-quote me-1" aria-hidden="true"></i>Est. Citations:</span>
                         <span class="quality-value">{{ estimatedCitations }}</span>
                       </div>
                       <div class="quality-item">
-                        <span class="quality-label"><i class="bi bi-calendar3 me-1"></i>Years:</span>
+                        <span class="quality-label"><i class="bi bi-calendar3 me-1" aria-hidden="true"></i>Years:</span>
                         <span class="quality-value">{{ yearCount }}</span>
                       </div>
                     </div>
                     
                     <!-- Text validation feedback -->
                     <div v-if="textContent" class="mt-3">
-                      <div v-if="textContent.trim().length < 10" class="alert alert-warning py-2 mb-0">
-                        <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                      <div v-if="textContent.trim().length < 10" class="alert alert-warning py-2 mb-0" role="status">
+                        <i class="bi bi-exclamation-triangle-fill me-2" aria-hidden="true"></i>
                         Please enter at least 10 characters for meaningful analysis
                       </div>
 
@@ -154,10 +191,18 @@
               </div>
 
               <!-- File Input Tab -->
-              <div v-if="activeTab === 'file'" class="input-tab-content">
+              <div
+                v-show="activeTab === 'file'"
+                id="panel-home-file"
+                class="input-tab-content"
+                role="tabpanel"
+                aria-labelledby="tab-home-file"
+                :hidden="activeTab !== 'file'"
+                :aria-hidden="activeTab !== 'file'"
+              >
                 <div class="form-group">
-                  <label class="form-label">
-                    <i class="bi bi-file-earmark-text me-2"></i>
+                  <label class="form-label" id="label-home-file">
+                    <i class="bi bi-file-earmark-text me-2" aria-hidden="true"></i>
                     Document File
                   </label>
                   <div class="file-upload-container">
@@ -167,23 +212,27 @@
                       ref="fileInput"
                       class="d-none"
                       accept=".pdf,.doc,.docx,.txt,.rtf"
+                      aria-labelledby="label-home-file"
                       @change="handleFileSelect"
                     />
                     
                     <div 
-                      class="file-dropzone rounded-3 border-2 border-dashed p-5 text-center position-relative" 
+                      class="home-file-dropzone file-dropzone rounded-3 border-2 border-dashed p-5 text-center position-relative" 
                       :class="{ 
                         'border-danger': fileError, 
                         'border-success': selectedFile && !fileError,
                         'border-primary': !selectedFile && !fileError,
-                        'bg-light': !dragOver,
-                        'bg-light bg-opacity-75': dragOver
+                        'home-file-dropzone--drag': dragOver
                       }"
+                      role="button"
+                      tabindex="0"
+                      aria-label="Upload a document. Drop a file here or press Enter or Space to browse files."
                       @click="$refs.fileInput.click()"
+                      @keydown.enter.prevent="$refs.fileInput.click()"
+                      @keydown.space.prevent="$refs.fileInput.click()"
                       @dragover.prevent="dragOver = true"
                       @dragleave="dragOver = false"
                       @drop.prevent="handleDrop"
-                      style="cursor: pointer; transition: all 0.3s ease;"
                     >
                       <!-- Drag & Drop Overlay -->
                       <div 
@@ -191,19 +240,19 @@
                         class="position-absolute top-0 start-0 w-100 h-100 d-flex flex-column align-items-center justify-content-center bg-primary bg-opacity-10 rounded-3"
                         style="z-index: 5;"
                       >
-                        <i class="bi bi-cloud-arrow-up fs-1 text-primary"></i>
+                        <i class="bi bi-cloud-arrow-up fs-1 text-primary" aria-hidden="true"></i>
                         <p class="mt-2 mb-0 text-primary fw-bold">Drop file to upload</p>
                       </div>
                       
                       <div class="file-dropzone-content">
-                        <i class="bi bi-upload fs-1 text-muted mb-3"></i>
+                        <i class="bi bi-upload fs-1 text-muted mb-3" aria-hidden="true"></i>
                         <h5 class="mb-2">Drag & drop your file here</h5>
                         <p class="text-muted mb-0">or click to browse files</p>
                         <p class="text-muted small mt-2">Supports: PDF, DOC, DOCX, TXT, RTF</p>
                         
                         <div v-if="selectedFile" class="selected-file mt-3">
                           <div class="d-flex align-items-center justify-content-center">
-                            <i class="bi bi-file-earmark-text me-2"></i>
+                            <i class="bi bi-file-earmark-text me-2" aria-hidden="true"></i>
                             <span class="text-truncate" style="max-width: 200px;">{{ selectedFile.name }}</span>
                             <span class="ms-2 text-muted">({{ formatFileSize(selectedFile.size) }})</span>
                             <button 
@@ -219,13 +268,13 @@
                   </div>
                   
                   <!-- File validation feedback -->
-                  <div v-if="fileError" class="alert alert-danger d-flex align-items-center mt-3 py-2">
-                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                  <div v-if="fileError" class="alert alert-danger d-flex align-items-center mt-3 py-2" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-2" aria-hidden="true"></i>
                     <div>{{ fileError }}</div>
                   </div>
                   
-                  <div v-else-if="selectedFile && !isAnalyzing" class="alert alert-success d-flex align-items-center justify-content-center mt-3 py-2">
-                    <i class="bi bi-check-circle-fill me-2"></i>
+                  <div v-else-if="selectedFile && !isAnalyzing" class="alert alert-success d-flex align-items-center justify-content-center mt-3 py-2" role="status">
+                    <i class="bi bi-check-circle-fill me-2" aria-hidden="true"></i>
                     <div class="text-center">
                       <strong>Ready for analysis</strong>
                       <div class="small">Click "Analyze Content" to process your document</div>
@@ -238,19 +287,30 @@
               </div>
 
               <!-- URL Input Tab -->
-              <div v-if="activeTab === 'url'" class="input-tab-content">
+              <div
+                v-show="activeTab === 'url'"
+                id="panel-home-url"
+                class="input-tab-content"
+                role="tabpanel"
+                aria-labelledby="tab-home-url"
+                :hidden="activeTab !== 'url'"
+                :aria-hidden="activeTab !== 'url'"
+              >
                 <div class="form-group">
-                  <label class="form-label">
-                    <i class="bi bi-link-45deg me-2"></i>
+                  <label class="form-label" for="home-url-input">
+                    <i class="bi bi-link-45deg me-2" aria-hidden="true"></i>
                     Document URL
                   </label>
-                  <div class="input-group">
-                    <span class="input-group-text"><i class="bi bi-link-45deg"></i></span>
+                  <div class="input-group home-url-input-group">
+                    <span class="input-group-text" aria-hidden="true"><i class="bi bi-link-45deg" aria-hidden="true"></i></span>
                     <input 
+                      id="home-url-input"
                       v-model.trim="urlContent"
                       type="url" 
                       class="form-control input-field"
                       placeholder="https://example.com/legal-document"
+                      :aria-describedby="urlAriaDescribedBy"
+                      :aria-invalid="urlError ? 'true' : 'false'"
                       @input="validateInput"
                       :class="{ 'is-invalid': urlError }"
                       autocomplete="off"
@@ -259,37 +319,39 @@
                     />
                   </div>
                   
-                  <div v-if="urlError" class="invalid-feedback d-flex align-items-center mt-1">
-                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                  <div v-if="urlError" id="home-url-err" class="invalid-feedback d-flex align-items-center mt-1" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-2" aria-hidden="true"></i>
                     <span>{{ urlError }}</span>
                   </div>
                   
-                  <div v-else-if="urlContent && !urlError && !isAnalyzing" class="valid-feedback d-flex align-items-center mt-1">
-                    <i class="bi bi-check-circle-fill text-success me-2"></i>
+                  <div v-else-if="urlContent && !urlError && !isAnalyzing" id="home-url-ok" class="valid-feedback d-flex align-items-center mt-1" role="status">
+                    <i class="bi bi-check-circle-fill text-success me-2" aria-hidden="true"></i>
                     <span>Valid URL - ready to analyze</span>
                   </div>
                   
-                  <div v-else class="form-text mt-2">
-                    <i class="bi bi-info-circle me-1"></i>
+                  <div v-else id="home-url-hint" class="form-text home-form-hint mt-2">
+                    <i class="bi bi-info-circle me-1" aria-hidden="true"></i>
                     Enter a valid URL to a legal document (PDF, DOCX, HTML, etc.)
                   </div>
                 </div>
                 
                 <!-- URL Analysis Preview (optional) -->
-                <div v-if="urlContent && !urlError && !isAnalyzing" class="url-preview mt-3 p-3 bg-light rounded">
-                  <h6 class="mb-2"><i class="bi bi-link-45deg me-2"></i>Preview:</h6>
-                  <div class="d-flex align-items-center">
-                    <div class="flex-grow-1 text-truncate">
-                      <a :href="urlContent" target="_blank" class="text-primary text-decoration-none">
-                        {{ urlContent }}
+                <div v-if="urlContent && !urlError && !isAnalyzing" class="url-preview-card mt-3">
+                  <h6 class="url-preview-card-title"><i class="bi bi-link-45deg me-2" aria-hidden="true"></i>Link preview</h6>
+                  <div class="d-flex align-items-center gap-2">
+                    <div class="flex-grow-1 text-truncate url-preview-card-link-wrap">
+                      <a :href="urlContent" target="_blank" rel="noopener noreferrer" class="url-preview-card-link">
+                        {{ urlContent }}<span class="visually-hidden"> (opens in new tab)</span>
                       </a>
                     </div>
                     <button 
                       @click="urlContent = ''; urlError = ''" 
-                      class="btn btn-sm btn-outline-secondary ms-2"
+                      class="btn btn-sm btn-outline-secondary flex-shrink-0"
                       title="Clear URL"
+                      type="button"
+                      aria-label="Clear URL"
                     >
-                      <i class="bi bi-x"></i>
+                      <i class="bi bi-x" aria-hidden="true"></i>
                     </button>
                   </div>
                 </div>
@@ -322,12 +384,14 @@
                   :disabled="!canAnalyze || isAnalyzing"
                   @click="analyzeContent"
                   :title="getAnalyzeButtonTooltip"
+                  :aria-label="getAnalyzeButtonTooltip"
+                  :aria-busy="isAnalyzing ? 'true' : 'false'"
                   style="min-width: 200px; transition: all 0.3s ease;"
                 >
                   <!-- Button content -->
                   <div class="d-flex align-items-center justify-content-center">
                     <span v-if="isAnalyzing" class="spinning-loader me-2" role="status" aria-hidden="true"></span>
-                    <i v-else class="bi bi-search me-2"></i>
+                    <i v-else class="bi bi-search me-2" aria-hidden="true"></i>
                     <span class="fw-medium">
                       {{ getAnalyzeButtonText }}
                     </span>
@@ -337,38 +401,39 @@
                 <!-- Status message -->
                 <div 
                   v-if="!isAnalyzing"
-                  class="mt-2 text-center"
+                  class="mt-3 analyze-status-line text-center"
+                  role="status"
+                  aria-live="polite"
                   :class="{ 
-                    'text-muted': !canAnalyze, 
-                    'text-success': canAnalyze 
+                    'analyze-status-line--muted': !canAnalyze, 
+                    'analyze-status-line--ready': canAnalyze 
                   }"
-                  style="font-size: 0.9em;"
                 >
                   <template v-if="!canAnalyze">
                     <div v-if="activeTab === 'paste' && (!textContent || textContent.trim().length < 10)" class="d-flex align-items-center justify-content-center">
-                      <i class="bi bi-info-circle me-2"></i>
+                      <i class="bi bi-info-circle me-2" aria-hidden="true"></i>
                       <span>Enter at least 10 characters to analyze</span>
                     </div>
                     <div v-else-if="activeTab === 'file' && !selectedFile" class="d-flex align-items-center justify-content-center">
-                      <i class="bi bi-upload me-2"></i>
+                      <i class="bi bi-upload me-2" aria-hidden="true"></i>
                       <span>Upload a document to analyze</span>
                     </div>
                     <div v-else-if="activeTab === 'url' && !urlContent" class="d-flex align-items-center justify-content-center">
-                      <i class="bi bi-link-45deg me-2"></i>
+                      <i class="bi bi-link-45deg me-2" aria-hidden="true"></i>
                       <span>Enter a URL to analyze</span>
                     </div>
                     <div v-else-if="urlError" class="text-danger d-flex align-items-center justify-content-center">
-                      <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                      <i class="bi bi-exclamation-triangle-fill me-2" aria-hidden="true"></i>
                       <span>{{ urlError }}</span>
                     </div>
                     <div v-else-if="fileError" class="text-danger d-flex align-items-center justify-content-center">
-                      <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                      <i class="bi bi-exclamation-triangle-fill me-2" aria-hidden="true"></i>
                       <span>{{ fileError }}</span>
                     </div>
                   </template>
                   <template v-else>
                     <div class="d-flex align-items-center justify-content-center">
-                      <i class="bi bi-check-circle-fill text-success me-2"></i>
+                      <i class="bi bi-check-circle-fill text-success me-2" aria-hidden="true"></i>
                       <span>Ready to analyze</span>
                       <span class="ms-2 text-muted">
                         <template v-if="activeTab === 'paste'">(or press Ctrl+Enter)</template>
@@ -407,24 +472,29 @@
         <!-- SimpleProgress now appears in place of Analyze button when processing starts -->
 
         <!-- Results Section - Replaces input area when results are available -->
-        <div v-if="analysisResults || analysisError" class="results-replacement-area">
+        <div
+          v-if="analysisResults || analysisError"
+          class="results-replacement-area"
+          role="region"
+          aria-labelledby="home-results-heading"
+        >
           <div class="results-header">
             <div class="results-heading">
-              <h2 class="results-title">
-                <i class="bi bi-shield-check me-2"></i>
+              <h2 id="home-results-heading" class="results-title" tabindex="-1">
+                <i class="bi bi-shield-check me-2" aria-hidden="true"></i>
                 Citation Analysis Results
               </h2>
               <div class="results-meta">
                 <span class="result-chip">
-                  <i class="bi bi-journal-text me-1"></i>
+                  <i class="bi bi-journal-text me-1" aria-hidden="true"></i>
                   {{ resultClusterCount }} case mention{{ resultClusterCount === 1 ? '' : 's' }} detected
                 </span>
                 <span class="result-chip">
-                  <i class="bi bi-link-45deg me-1"></i>
+                  <i class="bi bi-link-45deg me-1" aria-hidden="true"></i>
                   {{ resultCitationCount }} citation mention{{ resultCitationCount === 1 ? '' : 's' }} detected
                 </span>
                 <span v-if="analysisError" class="result-chip chip-error">
-                  <i class="bi bi-exclamation-triangle-fill me-1"></i>
+                  <i class="bi bi-exclamation-triangle-fill me-1" aria-hidden="true"></i>
                   Partial/Error State
                 </span>
               </div>
@@ -433,10 +503,12 @@
               </p>
             </div>
             <button 
+              type="button"
               @click="handleNewAnalysis" 
               class="btn btn-primary new-analysis-btn"
+              aria-label="Start a new analysis and return to the input form"
             >
-              <i class="bi bi-plus-circle me-2"></i>
+              <i class="bi bi-plus-circle me-2" aria-hidden="true"></i>
               New Analysis
             </button>
           </div>
@@ -482,12 +554,54 @@ const globalProgress = globalProgressStore;
 
 const router = useRouter();
 const route = useRoute();
+const HOME_TAB_ORDER = ['paste', 'file', 'url'];
+
+function selectHomeTab(tab) {
+  if (!HOME_TAB_ORDER.includes(tab)) return;
+  activeTab.value = tab;
+  nextTick(() => {
+    document.getElementById(`tab-home-${tab}`)?.focus();
+  });
+}
+
+function onHomeTabKeydown(e) {
+  if (e.key === ' ' || e.key === 'Enter') {
+    e.preventDefault();
+    const id = e.currentTarget?.getAttribute?.('id');
+    if (id === 'tab-home-paste') selectHomeTab('paste');
+    else if (id === 'tab-home-file') selectHomeTab('file');
+    else if (id === 'tab-home-url') selectHomeTab('url');
+    return;
+  }
+  const i = HOME_TAB_ORDER.indexOf(activeTab.value);
+  if (i < 0) return;
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+    e.preventDefault();
+    selectHomeTab(HOME_TAB_ORDER[(i + 1) % HOME_TAB_ORDER.length]);
+  } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+    e.preventDefault();
+    selectHomeTab(HOME_TAB_ORDER[(i - 1 + HOME_TAB_ORDER.length) % HOME_TAB_ORDER.length]);
+  } else if (e.key === 'Home') {
+    e.preventDefault();
+    selectHomeTab(HOME_TAB_ORDER[0]);
+  } else if (e.key === 'End') {
+    e.preventDefault();
+    selectHomeTab(HOME_TAB_ORDER[HOME_TAB_ORDER.length - 1]);
+  }
+}
+
 const activeTab = ref('paste');
 const textContent = ref('');
 const urlContent = ref('');
 const selectedFile = ref(null);
 const fileError = ref('');
 const urlError = ref('');
+/** IDs of URL field helper messages (only one branch is visible at a time). */
+const urlAriaDescribedBy = computed(() => {
+  if (urlError.value) return 'home-url-err';
+  if (urlContent.value && !urlError.value) return 'home-url-ok';
+  return 'home-url-hint';
+});
 const isAnalyzing = ref(false);
 // showProcessing removed - SimpleProgress component handles all progress display
 const isDragOver = ref(false);
@@ -538,11 +652,16 @@ const scrollToPageTop = async () => {
   }
 };
 
-// When new results arrive, bring the results header into view at the top.
-watch(analysisResults, async (nextValue, prevValue) => {
-  if (!nextValue) return;
-  if (nextValue === prevValue) return;
+// When results or an error state appears, scroll to top and move focus to the results heading.
+watch([analysisResults, analysisError], async ([res, err], [prevRes, prevErr]) => {
+  const hasNow = !!(res || err);
+  const hadBefore = !!(prevRes || prevErr);
+  if (!hasNow) return;
+  if (hasNow && hadBefore && res === prevRes && err === prevErr) return;
+  await nextTick();
   await scrollToPageTop();
+  await nextTick();
+  document.getElementById('home-results-heading')?.focus({ preventScroll: true });
 });
 
 const normalizeProgressMessage = (rawStep, jobData) => {
@@ -598,8 +717,8 @@ onMounted(() => {
   // CRITICAL FIX: Reset any lingering progress state to prevent timer from starting on page load
   globalProgressStore.resetProgress();
   
-  if (route.query.tab) {
-    activeTab.value = route.query.tab;
+  if (route.query.tab && HOME_TAB_ORDER.includes(String(route.query.tab))) {
+    activeTab.value = String(route.query.tab);
     
     if (route.query.text) {
       textContent.value = route.query.text;
@@ -2476,8 +2595,8 @@ const handleAsyncTaskError = (errorMessage) => {
 .spinning-loader {
   width: 1rem !important;
   height: 1rem !important;
-  border: 0.15rem solid #e9ecef !important;
-  border-top-color: #0d6efd !important;
+  border: 0.15rem solid var(--spinner-track) !important;
+  border-top-color: var(--primary) !important;
   border-radius: 50% !important;
   animation: spin 0.75s linear infinite !important;
   display: inline-block !important;
@@ -2485,7 +2604,8 @@ const handleAsyncTaskError = (errorMessage) => {
 </style>
 
 <style scoped>
-:root {
+/* Main Layout */
+.home {
   --primary-color: #4b2e83;
   --primary-light: #6a4c93;
   --primary-dark: #3a1f5e;
@@ -2499,16 +2619,28 @@ const handleAsyncTaskError = (errorMessage) => {
   --border-color: #e9ecef;
   --shadow-light: 0 2px 12px 0 rgba(60, 72, 88, 0.08);
   --shadow-medium: 0 4px 24px 0 rgba(60, 72, 88, 0.12);
-}
-
-/* Main Layout */
-.home {
+  --home-page-bg: #f6f8fc;
+  --home-surface: rgba(255, 255, 255, 0.95);
+  --home-surface-solid: #ffffff;
+  --home-panel-bg: #fcfcff;
+  --home-panel-border: #ebe7f5;
+  --home-muted-bg: #f8f9fa;
+  --home-active-tint: #f8f9ff;
+  --home-input-border: rgba(75, 46, 131, 0.14);
+  --home-hero-badge-fg: #3e2a69;
+  --home-hero-badge-bg: #f1ecfb;
+  --home-hero-badge-border: #dfd3f4;
+  --home-dropzone-bg: color-mix(in srgb, var(--home-muted-bg) 65%, var(--home-surface-solid));
+  --home-dropzone-hover-bg: color-mix(in srgb, var(--primary-color) 6%, var(--home-surface-solid));
+  --home-dropzone-drag-bg: color-mix(in srgb, var(--primary-color) 11%, var(--home-surface-solid));
+  --home-focus-ring: color-mix(in srgb, var(--primary-color) 28%, transparent);
   position: relative;
   min-height: 100vh;
   overflow: hidden;
   background: radial-gradient(circle at top right, rgba(75, 46, 131, 0.08), transparent 45%),
               radial-gradient(circle at bottom left, rgba(13, 110, 253, 0.06), transparent 40%),
-              #f6f8fc;
+              var(--home-page-bg);
+  color: var(--text-primary);
 }
 
 .background-pattern {
@@ -2546,11 +2678,11 @@ const handleAsyncTaskError = (errorMessage) => {
 }
 
 .main-input-area {
-  background: rgba(255, 255, 255, 0.95);
+  background: var(--home-surface);
   border-radius: 20px;
   padding: 2.2rem;
   box-shadow: 0 10px 30px rgba(31, 38, 135, 0.08);
-  border: 1px solid rgba(75, 46, 131, 0.14);
+  border: 1px solid var(--home-input-border);
   backdrop-filter: blur(6px);
 }
 
@@ -2579,10 +2711,10 @@ const handleAsyncTaskError = (errorMessage) => {
 }
 
 .hero-subtitle {
-  font-size: 1.1rem;
+  font-size: 1.08rem;
   color: var(--text-secondary);
-  line-height: 1.6;
-  max-width: 600px;
+  line-height: 1.65;
+  max-width: 34rem;
   margin: 0 auto;
 }
 
@@ -2609,14 +2741,21 @@ const handleAsyncTaskError = (errorMessage) => {
 .experimental-banner {
   background: linear-gradient(135deg, #fff3cd, #ffeaa7);
   border: 1px solid #ffeaa7;
-  border-radius: 8px;
-  padding: 0.75rem 1rem;
+  border-radius: 10px;
+  padding: 0.85rem 1.1rem;
   color: #856404;
   font-size: 0.9rem;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
+  text-align: center;
+  line-height: 1.45;
+}
+
+.home-form-hint {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
 }
 
 /* Input Container */
@@ -2635,12 +2774,12 @@ const handleAsyncTaskError = (errorMessage) => {
 }
 
 .input-method-card {
-  background: white;
-  border: 2px solid #e9ecef;
-  border-radius: 12px;
-  padding: 1.5rem;
+  background: var(--home-surface-solid);
+  border: 2px solid var(--border-color);
+  border-radius: 14px;
+  padding: 1.35rem 1.5rem;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, background 0.2s ease;
   position: relative;
   display: flex;
   align-items: center;
@@ -2649,15 +2788,22 @@ const handleAsyncTaskError = (errorMessage) => {
   overflow: hidden;
 }
 
+.input-method-card:focus-visible {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px var(--home-focus-ring);
+}
+
 .input-method-card:hover:not(.disabled) {
   border-color: var(--primary-color);
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(75, 46, 131, 0.15);
+  box-shadow: 0 6px 16px color-mix(in srgb, var(--primary-color) 18%, transparent);
 }
 
 .input-method-card.active {
   border-color: var(--primary-color);
-  background: #f8f9ff;
+  background: var(--home-active-tint);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--primary-color) 25%, transparent);
 }
 
 .input-method-card.disabled {
@@ -2666,9 +2812,16 @@ const handleAsyncTaskError = (errorMessage) => {
 }
 
 .method-icon {
-  font-size: 2rem;
-  color: var(--primary-color);
+  width: 3.25rem;
+  height: 3.25rem;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
+  font-size: 1.55rem;
+  color: var(--primary-color);
+  background: color-mix(in srgb, var(--primary-color) 14%, transparent);
 }
 
 .method-content {
@@ -2713,10 +2866,11 @@ const handleAsyncTaskError = (errorMessage) => {
 }
 
 .panel-surface {
-  background: #fcfcff;
-  border: 1px solid #ebe7f5;
-  border-radius: 14px;
-  padding: 1.2rem;
+  background: var(--home-panel-bg);
+  border: 1px solid var(--home-panel-border);
+  border-radius: 16px;
+  padding: 1.5rem 1.75rem 1.75rem;
+  box-shadow: 0 2px 12px color-mix(in srgb, var(--home-panel-border) 35%, transparent);
 }
 
 .input-tab-content {
@@ -2742,27 +2896,188 @@ const handleAsyncTaskError = (errorMessage) => {
 }
 
 .input-field {
-  border: 2px solid #e9ecef;
+  border: 2px solid var(--border-color);
   border-radius: 8px;
   padding: 0.75rem;
   font-size: 1rem;
   transition: all 0.2s ease;
-  background: white;
+  background: var(--home-surface-solid);
+  color: var(--text-primary);
 }
 
 .input-field:focus {
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(75, 46, 131, 0.1);
+  box-shadow: 0 0 0 3px var(--home-focus-ring);
   outline: none;
+}
+
+.paste-field-wrap {
+  margin-top: 0.25rem;
+}
+
+.textarea-legal {
+  min-height: 220px;
+  resize: vertical;
+  line-height: 1.55;
+  padding-right: 3rem;
+  font-size: 0.98rem;
+}
+
+.textarea-clear-btn {
+  position: absolute;
+  top: 0.55rem;
+  right: 0.55rem;
+  z-index: 2;
+  border-radius: 8px;
+  padding: 0.25rem 0.45rem;
+  line-height: 1;
+  opacity: 0.9;
+}
+
+.textarea-clear-btn:hover {
+  opacity: 1;
+}
+
+.char-count-pill {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--home-muted-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  padding: 0.28rem 0.7rem;
+}
+
+.input-keyboard-hint {
+  margin: 0.65rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+  line-height: 1.4;
+}
+
+.input-keyboard-hint-label {
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-right: 0.15rem;
+}
+
+.input-keyboard-hint-rest {
+  margin-left: 0.1rem;
+}
+
+.input-keyboard-hint kbd {
+  font-family: ui-monospace, 'Cascadia Code', 'Segoe UI Mono', monospace;
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.12rem 0.38rem;
+  border-radius: 5px;
+  border: 1px solid var(--border-color);
+  background: var(--home-muted-bg);
+  color: var(--text-primary);
+  box-shadow: 0 1px 0 var(--border-color);
+}
+
+.input-keyboard-hint .kbd-plus {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  user-select: none;
+}
+
+.home-url-input-group .input-group-text {
+  background: var(--home-muted-bg);
+  border-color: var(--border-color);
+  color: var(--text-secondary);
+}
+
+.home-url-input-group .input-field {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.home-url-input-group .input-group-text {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.url-preview-card {
+  padding: 1rem 1.2rem;
+  border-radius: 12px;
+  border: 1px solid var(--home-panel-border);
+  background: var(--home-muted-bg);
+}
+
+.url-preview-card-title {
+  margin: 0 0 0.65rem 0;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.url-preview-card-link {
+  color: var(--primary-color);
+  text-decoration: none;
+  font-weight: 500;
+  word-break: break-all;
+}
+
+.url-preview-card-link:hover {
+  text-decoration: underline;
+}
+
+.analyze-status-line {
+  font-size: 0.9rem;
+  max-width: 28rem;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.45;
+}
+
+.analyze-status-line--muted {
+  color: var(--text-secondary);
+}
+
+.analyze-status-line--ready {
+  color: var(--success-color);
+  font-weight: 500;
+}
+
+.home-file-dropzone {
+  cursor: pointer;
+  transition: background 0.25s ease, border-color 0.25s ease, transform 0.2s ease;
+  background: var(--home-dropzone-bg) !important;
+}
+
+.home-file-dropzone:hover:not(.border-danger) {
+  background: var(--home-dropzone-hover-bg) !important;
+}
+
+.home-file-dropzone.home-file-dropzone--drag {
+  background: var(--home-dropzone-drag-bg) !important;
+}
+
+.home .file-dropzone.border-primary {
+  border-color: var(--primary-color) !important;
+}
+
+.home-file-dropzone .file-dropzone-content h5 {
+  color: var(--text-primary);
+  font-weight: 600;
+  font-size: 1.1rem;
 }
 
 /* File Drop Zone */
 .file-drop-zone {
-  border: 3px dashed #e9ecef;
+  border: 3px dashed var(--border-color);
   border-radius: 12px;
   padding: 2rem;
   text-align: center;
-  background: white;
+  background: var(--home-surface-solid);
   transition: all 0.3s ease;
   cursor: pointer;
   position: relative;
@@ -2811,8 +3126,8 @@ const handleAsyncTaskError = (errorMessage) => {
 
 /* Selected File */
 .selected-file {
-  background: #f8f9fa;
-  border: 1px solid #e9ecef;
+  background: var(--home-muted-bg);
+  border: 1px solid var(--border-color);
   border-radius: 8px;
   padding: 1rem;
   margin-top: 1rem;
@@ -2828,12 +3143,12 @@ const handleAsyncTaskError = (errorMessage) => {
 }
 
 .file-dropzone {
-  border: 2px dashed #0d6efd;
+  border-style: dashed;
   transition: all 0.3s ease;
 }
 
 .file-dropzone:hover {
-  background-color: #f8f9fa;
+  background-color: var(--home-muted-bg);
   transform: translateY(-1px);
 }
 
@@ -2850,7 +3165,7 @@ const handleAsyncTaskError = (errorMessage) => {
   position: absolute;
   bottom: -5px;
   right: -5px;
-  background: white;
+  background: var(--home-surface-solid);
   border-radius: 50%;
   width: 24px;
   height: 24px;
@@ -2898,9 +3213,9 @@ const handleAsyncTaskError = (errorMessage) => {
   gap: 1rem;
   margin-top: 1rem;
   padding: 1rem;
-  background: #f8f9fa;
+  background: var(--home-muted-bg);
   border-radius: 8px;
-  border: 1px solid #e9ecef;
+  border: 1px solid var(--border-color);
 }
 
 .quality-item {
@@ -2936,7 +3251,7 @@ const handleAsyncTaskError = (errorMessage) => {
 .progress-section {
   margin-top: 2rem;
   padding-top: 2rem;
-  border-top: 1px solid #e9ecef;
+  border-top: 1px solid var(--border-color);
 }
 
 .progress-info {
@@ -2955,10 +3270,11 @@ const handleAsyncTaskError = (errorMessage) => {
   align-items: center;
   gap: 0.5rem;
   padding: 0.5rem 1rem;
-  background: rgba(255, 255, 255, 0.8);
+  background: color-mix(in srgb, var(--home-surface-solid) 85%, transparent);
   border-radius: 0.5rem;
   font-size: 0.9rem;
   font-weight: 500;
+  border: 1px solid var(--border-color);
 }
 
 .progress-container {
@@ -2966,9 +3282,9 @@ const handleAsyncTaskError = (errorMessage) => {
 }
 
 .progress {
-  background: rgba(255, 255, 255, 0.8);
-  border: 2px solid rgba(0, 123, 255, 0.2);
-  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+  background: color-mix(in srgb, var(--home-surface-solid) 88%, transparent);
+  border: 2px solid color-mix(in srgb, var(--primary) 35%, var(--border-color));
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.08);
 }
 
 .progress-bar {
@@ -3004,8 +3320,8 @@ const handleAsyncTaskError = (errorMessage) => {
   flex-direction: column;
   align-items: center;
   padding: 1rem 0.5rem;
-  background: rgba(255, 255, 255, 0.8);
-  border: 2px solid #e9ecef;
+  background: color-mix(in srgb, var(--home-surface-solid) 88%, transparent);
+  border: 2px solid var(--border-color);
   border-radius: 12px;
   transition: all 0.3s ease;
   position: relative;
@@ -3015,14 +3331,14 @@ const handleAsyncTaskError = (errorMessage) => {
 .phase-indicator i {
   font-size: 1.5rem;
   margin-bottom: 0.5rem;
-  color: #6c757d;
+  color: var(--text-secondary);
   transition: all 0.3s ease;
 }
 
 .phase-indicator span {
   font-size: 0.85rem;
   font-weight: 600;
-  color: #6c757d;
+  color: var(--text-secondary);
   text-align: center;
   transition: all 0.3s ease;
 }
@@ -3144,12 +3460,12 @@ const handleAsyncTaskError = (errorMessage) => {
 }
 
 .feature-card {
-  background: rgba(255, 255, 255, 0.9);
+  background: color-mix(in srgb, var(--home-surface-solid) 92%, transparent);
   border-radius: 1rem;
   padding: 1rem;
   text-align: center;
   box-shadow: var(--shadow-light);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid var(--border-color);
   transition: all 0.3s ease;
 }
 
@@ -3185,7 +3501,7 @@ const handleAsyncTaskError = (errorMessage) => {
 }
 
 .quality-indicator {
-  background: white;
+  background: var(--home-surface-solid);
   border-radius: 1.5rem;
   padding: 1.5rem;
   margin-bottom: 2rem;
@@ -3202,7 +3518,7 @@ const handleAsyncTaskError = (errorMessage) => {
 
 .quality-bar {
   height: 8px;
-  background: #e9ecef;
+  background: var(--border-color);
   border-radius: 4px;
   overflow: hidden;
   margin-bottom: 1rem;
@@ -3223,10 +3539,10 @@ const handleAsyncTaskError = (errorMessage) => {
 }
 
 .stat-item {
-  background: #f7f5fa;
+  background: var(--home-active-tint);
   border-radius: 0.65rem;
   box-shadow: 0 1.5px 6px rgba(75, 46, 131, 0.06);
-  border: 1.2px solid #e3e0f3;
+  border: 1.2px solid var(--home-panel-border);
   min-width: 90px;
   min-height: 54px;
   padding: 0.5rem 0.3rem 0.3rem 0.3rem;
@@ -3240,13 +3556,13 @@ const handleAsyncTaskError = (errorMessage) => {
 .stat-value {
   font-size: 1.15rem;
   font-weight: 700;
-  color: #4b2e83;
+  color: var(--primary-color);
   margin-bottom: 0.05rem;
 }
 
 .stat-label {
   font-size: 0.78rem;
-  color: #6c757d;
+  color: var(--text-secondary);
   margin-top: 0.05rem;
 }
 
@@ -3348,9 +3664,9 @@ const handleAsyncTaskError = (errorMessage) => {
   align-items: flex-start;
   margin-bottom: 2rem;
   padding: 1.25rem 1.4rem;
-  background: linear-gradient(135deg, #f8f9ff 0%, #eef2f9 100%);
+  background: linear-gradient(135deg, var(--home-active-tint) 0%, var(--home-muted-bg) 100%);
   border-radius: 14px;
-  border: 1px solid #dce3f0;
+  border: 1px solid var(--home-panel-border);
   box-shadow: 0 4px 14px rgba(37, 56, 88, 0.08);
 }
 
@@ -3362,7 +3678,7 @@ const handleAsyncTaskError = (errorMessage) => {
 
 .results-title {
   margin: 0;
-  color: #253858;
+  color: var(--text-primary);
   font-size: 1.35rem;
   font-weight: 700;
 }
@@ -3473,5 +3789,56 @@ const handleAsyncTaskError = (errorMessage) => {
 .analyze-btn:disabled {
   opacity: 0.7;
   cursor: not-allowed;
+}
+
+@media (prefers-color-scheme: dark) {
+  .home {
+    --primary-color: #c4a8fc;
+    --primary-light: #d4bdfc;
+    --primary-dark: #9b7ce8;
+    --secondary-color: #1e2228;
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --border-color: #3d4451;
+    --shadow-light: 0 2px 12px 0 rgba(0, 0, 0, 0.35);
+    --shadow-medium: 0 4px 24px 0 rgba(0, 0, 0, 0.45);
+    --home-page-bg: #12141a;
+    --home-surface: rgba(37, 40, 48, 0.92);
+    --home-surface-solid: #252830;
+    --home-panel-bg: #2a2d35;
+    --home-panel-border: #3d4451;
+    --home-muted-bg: #1e2228;
+    --home-active-tint: rgba(196, 168, 252, 0.12);
+    --home-input-border: rgba(196, 168, 252, 0.22);
+    --home-hero-badge-fg: #e9deff;
+    --home-hero-badge-bg: rgba(75, 46, 131, 0.35);
+    --home-hero-badge-border: rgba(196, 168, 252, 0.35);
+    --home-dropzone-bg: #1a1d24;
+    --home-dropzone-hover-bg: rgba(196, 168, 252, 0.1);
+    --home-dropzone-drag-bg: rgba(196, 168, 252, 0.18);
+  }
+
+  .experimental-banner {
+    background: linear-gradient(135deg, #3d3520, #3a3220);
+    border-color: #5c4d28;
+    color: #fde68a;
+  }
+
+  .main-input-area {
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  }
+
+  .results-header {
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35);
+  }
+
+  .new-analysis-btn {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
+  }
+
+  .features-section {
+    background: rgba(0, 0, 0, 0.22);
+    border-color: var(--border-color);
+  }
 }
 </style>

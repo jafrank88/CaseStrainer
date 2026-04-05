@@ -4,7 +4,7 @@ This checklist ensures that all necessary steps are followed when starting the C
 
 ## Prerequisites
 
-- Ensure Python 3.8 or higher is installed.
+- Ensure Python 3.10 or higher is installed.
 - Verify that pip is available and up to date.
 - Ensure Docker is installed and running.
 - Verify that Nginx is installed and configured correctly.

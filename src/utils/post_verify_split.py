@@ -724,7 +724,7 @@ def split_clusters_by_canonical_name(clusters, task_id=""):
             if not isinstance(c, dict):
                 unv.append(c); continue
             cn = (c.get("canonical_name") or "").strip()
-            if not cn or cn == "N/A" or not c.get("verified"):
+            if not cn or cn == "N/A":
                 unv.append(c)
                 continue
             # Group by same case (names_are_same_case) so "Kustura v. Department..."
@@ -732,9 +732,10 @@ def split_clusters_by_canonical_name(clusters, task_id=""):
             placed = False
             c_url = (c.get("canonical_url") or "").strip()
             for existing_cn, group_list in list(cn_map.items()):
-                # Hard split guard: if both cites are verified rows with different
-                # non-google canonical URLs, they are different cases.
-                # This prevents false merges like MCI 708 F.2d 1081 + S. Pac. 740 F.2d 980.
+                # Hard split guard: if citations have different non-google canonical URLs,
+                # they are different cases—regardless of verification status.
+                # This prevents false merges like MCI 708 F.2d 1081 + S. Pac. 740 F.2d 980
+                # even when one citation shows verified=False despite having a canonical URL.
                 ref = next((x for x in group_list if isinstance(x, dict)), None)
                 if ref is not None:
                     ref_url = (ref.get("canonical_url") or "").strip()
@@ -742,8 +743,6 @@ def split_clusters_by_canonical_name(clusters, task_id=""):
                         c_url and ref_url and c_url != ref_url
                         and not _is_google_search_url(c_url)
                         and not _is_google_search_url(ref_url)
-                        and bool(c.get("verified"))
-                        and bool(ref.get("verified"))
                     ):
                         continue
                 if names_are_same_case(cn, existing_cn):

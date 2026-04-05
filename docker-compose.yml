@@ -31,6 +31,7 @@ services:
       - PYTHONPATH=/app
       - COURTLISTENER_API_KEY=***REDACTED_COURTLISTENER_KEY***
       - FAST_VERIFICATION=true
+      - SECRET_KEY=${SECRET_KEY:-casestrainer-prod-key-xK9mP2vL8nQ4wR7jF1hT6yB3cA0dE5gU}
     volumes:
       - ./src:/app/src  # DEVELOPMENT: Mount source code for live updates
       - ./uploads:/app/uploads
@@ -64,6 +65,7 @@ services:
       - PYTHONPATH=/app
       - COURTLISTENER_API_KEY=***REDACTED_COURTLISTENER_KEY***
       - FAST_VERIFICATION=true
+      - SECRET_KEY=${SECRET_KEY:-casestrainer-prod-key-xK9mP2vL8nQ4wR7jF1hT6yB3cA0dE5gU}
       - RQ_QUEUE_NAME=casestrainer
       - RQ_MAX_JOBS=100
       - RQ_MAX_MEMORY_MB=1024

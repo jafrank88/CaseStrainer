@@ -20,6 +20,8 @@ from typing import Dict, Any, Optional, List
 from flask import Flask
 import asyncio
 
+from src.config import DATA_RETENTION_ASYNC_SECONDS
+
 logging.getLogger("urllib3").setLevel(logging.WARNING)
 logging.getLogger("requests").setLevel(logging.WARNING)
 
@@ -230,7 +232,9 @@ class SSEProgressManager:
                 data["results"] = tracker.results
                 data["errors"] = tracker.errors
                 self.redis_client.setex(  # type: ignore
-                    f"progress:{task_id}", 3600, json.dumps(data, default=str)  # 1 hour expiration
+                    f"progress:{task_id}",
+                    DATA_RETENTION_ASYNC_SECONDS,
+                    json.dumps(data, default=str),
                 )
         except Exception as e:
             logger.error(f"Failed to store progress in Redis: {e}")
@@ -428,10 +432,10 @@ class ChunkedCitationProcessor:
                     task_id=task_id,
                     document_text=document_text,
                     document_type=document_type,
-                    timeout=3600,  # 1 hour timeout
-                    ttl=86400,  # Job expires after 24 hours
-                    result_ttl=86400,  # Result kept for 24 hours
-                    failure_ttl=3600,  # Failure info kept for 1 hour
+                    timeout=3600,  # 1 hour execution timeout (wall clock for the worker)
+                    ttl=DATA_RETENTION_ASYNC_SECONDS,
+                    result_ttl=DATA_RETENTION_ASYNC_SECONDS,
+                    failure_ttl=DATA_RETENTION_ASYNC_SECONDS,
                 )
 
                 logger.info(f"Task submitted to RQ queue: job_id={job.id}, task_id={task_id}")

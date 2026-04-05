@@ -30,6 +30,7 @@ from src.utils.cluster_display_utils import finalize_cluster_for_response
 from src.utils.response_finalize import merge_dedupe_and_refinalize_clusters
 from src.utils.cluster_postprocess_pipeline import apply_post_verify_cluster_splits
 from src.metrics import record_citations
+from src.config import CASESTRAINER_LOG_FULL_API_RESPONSES
 
 logger = logging.getLogger(__name__)
 
@@ -786,15 +787,16 @@ def format_analyze_success_response(result, request_id, metadata, start_time):
 
     logger.info(f"[Request {request_id}] Request completed successfully in {processing_time_ms}ms")
 
-    try:
-        os.makedirs("/app/logs", exist_ok=True)
+    if CASESTRAINER_LOG_FULL_API_RESPONSES:
+        try:
+            os.makedirs("/app/logs", exist_ok=True)
 
-        serializable_data = safe_serialize(response_data)
+            serializable_data = safe_serialize(response_data)
 
-        with open("/app/logs/frontend_api_results.log", "a", encoding="utf-8") as f:
-            f.write(json.dumps(serializable_data, ensure_ascii=False) + "\n")
-    except Exception as e:
-        logger.error(f"Failed to write API response to log file: {e}")
+            with open("/app/logs/frontend_api_results.log", "a", encoding="utf-8") as f:
+                f.write(json.dumps(serializable_data, ensure_ascii=False) + "\n")
+        except Exception as e:
+            logger.error(f"Failed to write API response to log file: {e}")
 
     try:
         json.dumps(response_data)

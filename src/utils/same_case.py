@@ -25,6 +25,12 @@ _LEGAL_STOP_WORDS = frozenset({
     # expanded forms (after abbreviation expansion)
     "incorporated", "corporation", "limited", "company",
     "association", "cooperative",
+    # Generic legal/procedural terms common in "In re" case names.
+    # Without these, "In re Delta Dental Antitrust Litigation" and
+    # "In re Railway Industry Employee No-Poach Antitrust Litigation"
+    # get 0.50 fuzzy overlap from shared "antitrust" + "litigation".
+    "litigation", "litig", "antitrust", "cases", "case",
+    "proceedings", "proceeding", "matter", "estate",
 })
 
 
@@ -126,9 +132,12 @@ def names_are_same_case(name_a: Optional[str], name_b: Optional[str]) -> bool:
     has_a = has_case_name(ecn_a)
     has_b = has_case_name(ecn_b)
 
-    # Neither has a name -> allow proximity grouping
+    # Neither has a name -> cannot confirm same case.
+    # Returning True here caused all N/A citations to transitively merge
+    # into one giant cluster.  Proximity grouping (detect_parallel_groups)
+    # handles nearby citations independently of this check.
     if not has_a and not has_b:
-        return True
+        return False
 
     # One has a name, the other doesn't -> usually don't merge
     if has_a != has_b:

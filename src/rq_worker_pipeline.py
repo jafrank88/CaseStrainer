@@ -37,8 +37,22 @@ from src.utils.mismatch_utils import compute_cluster_mismatch_flags
 from src.utils.same_case import names_are_same_case
 from src.utils.date_utils import validate_year_match
 from src.utils.cluster_postprocess_pipeline import apply_post_verify_cluster_splits
+from src.config import DATA_RETENTION_ASYNC_SECONDS, UPLOAD_DELETE_AFTER_PROCESSING
 
 __all__ = ["run_citation_task"]
+
+
+def _maybe_delete_upload_file(file_path: object, task_id: str, log: logging.Logger) -> None:
+    if not UPLOAD_DELETE_AFTER_PROCESSING or not file_path:
+        return
+    fp = str(file_path).strip()
+    if not fp or not os.path.isfile(fp):
+        return
+    try:
+        os.remove(fp)
+        log.info(f"[TASK:{task_id}] Removed uploaded file after processing (UPLOAD_DELETE_AFTER_PROCESSING)")
+    except OSError as e:
+        log.warning(f"[TASK:{task_id}] Could not remove upload {fp}: {e}")
 
 
 def _ensure_redis_and_service(task_id: str, input_type: str, input_data: dict, logger):
@@ -3152,8 +3166,8 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
                         try:
                             result_key = f"rq:job:{task_id}:result"
                             task_result_key = f"task_result:{task_id}"
-                            redis_conn.setex(result_key, 86400, json.dumps(result))
-                            redis_conn.setex(task_result_key, 86400, json.dumps(result))
+                            redis_conn.setex(result_key, DATA_RETENTION_ASYNC_SECONDS, json.dumps(result))
+                            redis_conn.setex(task_result_key, DATA_RETENTION_ASYNC_SECONDS, json.dumps(result))
                             progress_data = {
                                 "status": "completed",
                                 "progress": 100,
@@ -3161,7 +3175,9 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
                                 "current_step": "Complete",
                                 "timestamp": time.time(),
                             }
-                            redis_conn.setex(f"progress:{task_id}", 3600, json.dumps(progress_data))
+                            redis_conn.setex(
+                                f"progress:{task_id}", DATA_RETENTION_ASYNC_SECONDS, json.dumps(progress_data)
+                            )
                             logger.info(f"[TASK:{task_id}] Result stored in Redis ({result_key}, {task_result_key})")
                         except Exception as redis_err:
                             logger.warning(f"[TASK:{task_id}] Redis result write failed (non-critical): {redis_err}")
@@ -3703,9 +3719,11 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
 
                 redis_client = Redis.from_url(REDIS_URL)
                 early_result_payload = json.dumps(result, default=str)
-                redis_client.setex(f"rq:job:{task_id}:result", 86400, early_result_payload)
-                redis_client.setex(f"task_result:{task_id}", 86400, early_result_payload)
-                redis_client.setex(f"verification:result:{task_id}", 3600, early_result_payload)
+                redis_client.setex(f"rq:job:{task_id}:result", DATA_RETENTION_ASYNC_SECONDS, early_result_payload)
+                redis_client.setex(f"task_result:{task_id}", DATA_RETENTION_ASYNC_SECONDS, early_result_payload)
+                redis_client.setex(
+                    f"verification:result:{task_id}", DATA_RETENTION_ASYNC_SECONDS, early_result_payload
+                )
                 early_progress_data = {
                     "status": "completed",
                     "progress": 100,
@@ -3715,7 +3733,9 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
                     "clusters_count": len(clusters),
                     "timestamp": time.time(),
                 }
-                redis_client.setex(f"progress:{task_id}", 3600, json.dumps(early_progress_data))
+                redis_client.setex(
+                    f"progress:{task_id}", DATA_RETENTION_ASYNC_SECONDS, json.dumps(early_progress_data)
+                )
                 logger.info(f"[TASK:{task_id}] Early final result persisted for task_status")
             except Exception as early_store_err:
                 logger.warning(f"[TASK:{task_id}] Early final Redis persistence failed: {early_store_err}")
@@ -3778,20 +3798,20 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
                 from src.config import REDIS_URL
                 redis_client = Redis.from_url(REDIS_URL)
 
-                # Store the result with a 24-hour TTL
+                # Store the result with configurable TTL (see DATA_RETENTION_ASYNC_SECONDS)
                 result_key = f"rq:job:{task_id}:result"
-                redis_client.setex(result_key, 86400, json.dumps(result))
+                redis_client.setex(result_key, DATA_RETENTION_ASYNC_SECONDS, json.dumps(result))
                 logger.info(f"[TASK:{task_id}] Result stored in Redis with key: {result_key}")
 
                 # Also store in task_result for task_status fallback (when job not yet marked finished)
                 task_result_key = f"task_result:{task_id}"
-                redis_client.setex(task_result_key, 86400, json.dumps(result))
+                redis_client.setex(task_result_key, DATA_RETENTION_ASYNC_SECONDS, json.dumps(result))
                 logger.info(f"[TASK:{task_id}] Result stored in {task_result_key}")
 
                 # Also store in the job hash for RQ compatibility
                 job_key = f"rq:job:{task_id}"
                 redis_client.hset(job_key, "result", json.dumps(result))
-                redis_client.expire(job_key, 86400)
+                redis_client.expire(job_key, DATA_RETENTION_ASYNC_SECONDS)
                 logger.info(f"[TASK:{task_id}] Result stored in job hash")
 
                 # CRITICAL FIX 2026-01-29: Update progress key to "completed" status
@@ -3806,7 +3826,9 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
                     "clusters_count": num_clusters,
                     "timestamp": time.time()
                 }
-                redis_client.setex(f"progress:{task_id}", 3600, json.dumps(progress_data))
+                redis_client.setex(
+                    f"progress:{task_id}", DATA_RETENTION_ASYNC_SECONDS, json.dumps(progress_data)
+                )
                 logger.info(f"[TASK:{task_id}] Progress key updated to 'completed' status")
 
             except Exception as e:
@@ -3881,6 +3903,11 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
             logger.debug(f"[TASK:{task_id}] Error stack-trace attachment skipped: {stack_err}")
         return out
     finally:
+        try:
+            if input_type == "file" and isinstance(input_data, dict):
+                _maybe_delete_upload_file(input_data.get("file_path"), task_id, logger)
+        except Exception as cleanup_err:
+            logger.debug(f"[TASK:{task_id}] Upload cleanup skipped: {cleanup_err}")
         if platform.system() != "Windows" and timeout_set:
             try:
                 signal.alarm(0)  # type: ignore[attr-defined]

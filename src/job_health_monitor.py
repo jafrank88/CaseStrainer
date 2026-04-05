@@ -14,7 +14,7 @@ from rq import Queue, Worker
 from rq.job import Job
 from rq.registry import StartedJobRegistry
 
-from src.config import REDIS_URL
+from src.config import REDIS_URL, DATA_RETENTION_ASYNC_SECONDS
 STUCK_THRESHOLD = int(os.environ.get("JOB_STUCK_THRESHOLD_SEC", "600"))
 MONITOR_INTERVAL = int(os.environ.get("MONITOR_INTERVAL_SEC", "60"))
 QUEUE_NAME = "casestrainer"
@@ -111,7 +111,7 @@ def cleanup_stuck_jobs(conn):
                     cleaned += 1
                     result_key = f"task_result:{job_id}"
                     if not conn.exists(result_key):
-                        conn.setex(result_key, 86400, json.dumps({
+                        conn.setex(result_key, DATA_RETENTION_ASYNC_SECONDS, json.dumps({
                             "success": False,
                             "error": f"Job timed out after {int(elapsed)}s",
                             "citations": [], "clusters": [],

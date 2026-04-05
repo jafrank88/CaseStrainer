@@ -13,6 +13,7 @@ const WordPlugin = () => import('@/views/WordPlugin.vue');
 const ApiDocs = () => import('@/views/ApiDocs.vue');
 const Docs = () => import('@/views/Docs.vue');
 const ProcessingPipeline = () => import('@/views/ProcessingPipeline.vue');
+const DataRetention = () => import('@/views/DataRetention.vue');
 
 const routes = [
   {
@@ -71,6 +72,17 @@ const routes = [
       title: 'Processing Pipeline | CaseStrainer',
       metaTags: [
         { name: 'description', content: 'Learn how CaseStrainer processes and verifies legal citations through its 6-phase pipeline.' }
+      ]
+    }
+  },
+  {
+    path: '/docs/data-retention',
+    name: 'DataRetention',
+    component: DataRetention,
+    meta: {
+      title: 'Data Retention | CaseStrainer',
+      metaTags: [
+        { name: 'description', content: 'How CaseStrainer retains async task data, uploads, and logs, and how to configure retention.' }
       ]
     }
   },
@@ -151,6 +163,15 @@ router.beforeEach((to, from, next) => {
   }
   
   next();
+});
+
+// Move focus to main on route change (SPA accessibility)
+router.afterEach(() => {
+  requestAnimationFrame(() => {
+    const main = document.getElementById('main-content');
+    if (!main) return;
+    main.focus({ preventScroll: true });
+  });
 });
 
 export default router;

@@ -11,25 +11,25 @@
             </p>
             <div class="d-flex justify-content-center gap-3">
               <router-link to="/" class="btn btn-primary btn-lg">
-                <i class="bi bi-house-door me-2"></i> Back to Home
+                <i class="bi bi-house-door me-2" aria-hidden="true"></i> Back to Home
               </router-link>
-              <a href="#" class="btn btn-outline-secondary btn-lg" @click="goBack">
-                <i class="bi bi-arrow-left me-2"></i> Go Back
-              </a>
+              <button type="button" class="btn btn-outline-secondary btn-lg" @click="goBack">
+                <i class="bi bi-arrow-left me-2" aria-hidden="true"></i> Go Back
+              </button>
             </div>
           </div>
           
           <div class="mt-5 pt-5">
             <h3 class="h5 mb-3">Or try these helpful links:</h3>
             <div class="d-flex flex-wrap justify-content-center gap-3">
-              <router-link to="/" class="btn btn-outline-primary">
-                <i class="bi bi-shield-check me-2"></i> Enhanced Validator
+              <router-link to="/docs" class="btn btn-outline-primary">
+                <i class="bi bi-journal-bookmark me-2" aria-hidden="true"></i> Documentation
               </router-link>
-              <a href="#" class="btn btn-outline-secondary">
-                <i class="bi bi-question-circle me-2"></i> Help Center
-              </a>
-              <a href="#" class="btn btn-outline-secondary">
-                <i class="bi bi-envelope me-2"></i> Contact Support
+              <router-link to="/docs/api" class="btn btn-outline-secondary">
+                <i class="bi bi-code-slash me-2" aria-hidden="true"></i> API docs
+              </router-link>
+              <a href="mailto:jafrank@uw.edu?subject=CaseStrainer%20support" class="btn btn-outline-secondary">
+                <i class="bi bi-envelope me-2" aria-hidden="true"></i> Contact support
               </a>
             </div>
           </div>

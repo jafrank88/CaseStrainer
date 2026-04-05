@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<!-- Sideload this copy when hosting the task pane from the Vite dev server (HTTPS may be required except localhost). -->
+<OfficeApp
+    xmlns="http://schemas.microsoft.com/office/appforoffice/1.1"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:bt="http://schemas.microsoft.com/office/officeappbasictypes/1.0"
+    xsi:type="TaskPaneApp">
+
+    <Id>8b5e9d3f-2c0e-5f4b-9a7d-3e6f0b2c4d8e</Id>
+    <Version>1.1.0.0</Version>
+    <ProviderName>CaseStrainer (local)</ProviderName>
+    <DefaultLocale>en-US</DefaultLocale>
+    <DisplayName DefaultValue="CaseStrainer (local)" />
+    <Description DefaultValue="Local dev — task pane from Vite." />
+    <IconUrl DefaultValue="http://localhost:5173/casestrainer/word-addin/icons/icon-32.png" />
+    <HighResolutionIconUrl DefaultValue="http://localhost:5173/casestrainer/word-addin/icons/icon-64.png" />
+    <SupportUrl DefaultValue="https://github.com/jafrank88/casestrainer" />
+
+    <Hosts>
+        <Host Name="Document" />
+    </Hosts>
+    <DefaultSettings>
+        <SourceLocation DefaultValue="http://localhost:5173/casestrainer/word-addin/index.html" />
+    </DefaultSettings>
+
+    <Permissions>ReadWriteDocument</Permissions>
+
+    <VersionOverrides xmlns="http://schemas.microsoft.com/office/taskpaneappversionoverrides" xsi:type="VersionOverridesV1_0">
+        <Hosts>
+            <Host xsi:type="Document">
+                <DesktopFormFactor>
+                    <FunctionFile resid="Commands.Url" />
+                    <ExtensionPoint xsi:type="PrimaryCommandSurface">
+                        <OfficeTab id="TabHome">
+                            <Group id="CaseStrainerGroupLocal">
+                                <Label resid="GroupLabel" />
+                                <Icon>
+                                    <bt:Image size="16" resid="Icon16" />
+                                    <bt:Image size="32" resid="Icon32" />
+                                    <bt:Image size="80" resid="Icon80" />
+                                </Icon>
+                                <Control xsi:type="Button" id="CaseStrainerPaneLocal">
+                                    <Label resid="ButtonLabel" />
+                                    <Supertip>
+                                        <Title resid="ButtonLabel" />
+                                        <Description resid="ButtonTip" />
+                                    </Supertip>
+                                    <Icon>
+                                        <bt:Image size="16" resid="Icon16" />
+                                        <bt:Image size="32" resid="Icon32" />
+                                        <bt:Image size="80" resid="Icon80" />
+                                    </Icon>
+                                    <Action xsi:type="ShowTaskpane">
+                                        <TaskpaneId>CaseStrainerTaskpaneLocal</TaskpaneId>
+                                        <SourceLocation resid="Taskpane.Url" />
+                                    </Action>
+                                </Control>
+                            </Group>
+                        </OfficeTab>
+                    </ExtensionPoint>
+                </DesktopFormFactor>
+            </Host>
+        </Hosts>
+        <Resources>
+            <bt:Images>
+                <bt:Image id="Icon16" DefaultValue="http://localhost:5173/casestrainer/word-addin/icons/icon-16.png" />
+                <bt:Image id="Icon32" DefaultValue="http://localhost:5173/casestrainer/word-addin/icons/icon-32.png" />
+                <bt:Image id="Icon80" DefaultValue="http://localhost:5173/casestrainer/word-addin/icons/icon-80.png" />
+            </bt:Images>
+            <bt:Urls>
+                <bt:Url id="Commands.Url" DefaultValue="http://localhost:5173/casestrainer/word-addin/commands.html" />
+                <bt:Url id="Taskpane.Url" DefaultValue="http://localhost:5173/casestrainer/word-addin/index.html" />
+            </bt:Urls>
+            <bt:ShortStrings>
+                <bt:String id="GroupLabel" DefaultValue="CaseStrainer" />
+                <bt:String id="ButtonLabel" DefaultValue="Citations (local)" />
+            </bt:ShortStrings>
+            <bt:LongStrings>
+                <bt:String id="ButtonTip" DefaultValue="Open local CaseStrainer task pane." />
+            </bt:LongStrings>
+        </Resources>
+    </VersionOverrides>
+</OfficeApp>

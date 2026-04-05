@@ -45,9 +45,12 @@ The CaseStrainer Word Add-In, branded as **BriefCheck**, allows legal profession
 
 ### Installation Steps
 
-1. **Download the Manifest File**
-   - Navigate to: https://github.com/jafrank88/casestrainer/tree/main/word_addin
-   - Download `manifest.xml`
+1. **Download the manifest**
+   - **Production (hosted with the web app):**  
+     `https://wolf.law.uw.edu/casestrainer/word-addin/manifest.xml`
+   - **From source:**  
+     `casestrainer-vue-new/public/word-addin/manifest.xml` (same content as production after deploy)
+   - **Local dev with Vite:** use `manifest.local.xml` in that folder (points at `http://localhost:5173/casestrainer/word-addin/`)
 
 2. **Add to Word**
    
@@ -165,62 +168,49 @@ https://wolf.law.uw.edu:5000/api/analyze
 - API keys (if required) should be configured server-side
 - No citation data is stored locally or transmitted to third parties
 
-## Files Structure
+## Files structure
 
 ```
-word_addin/
-├── manifest.xml           # Office Add-in manifest
-├── taskpane.html         # Main task pane interface
-├── function-file.html    # Background function file
-└── help.html             # Help documentation
+casestrainer-vue-new/public/word-addin/
+├── manifest.xml          # Production — points at wolf.law.uw.edu task pane URLs
+├── manifest.local.xml    # Local sideload — Vite dev server (port 5173)
+├── index.html            # Task pane shell
+├── app.js                # UI + Word.run text extraction / highlighting
+├── api-client.js         # POST /analyze + task_status polling
+├── commands.html         # Ribbon function file (minimal)
+├── styles.css
+└── icons/                # PNG icons referenced by the manifest
 ```
 
-### Key Files
+### Key files
 
 #### manifest.xml
-- Defines add-in metadata and permissions
-- Specifies hosting URLs
-- Configures Office integration points
-- Current version: 1.0.0.0
+- Add-in metadata, HTTPS `SourceLocation` on the deployed site, ribbon button → task pane
+- Version in-repo: **1.1.0.0**
 
-#### taskpane.html
-- Main user interface
-- Bootstrap 5-based responsive design
-- Real-time progress indicators
-- Accordion-style results display
+#### index.html / app.js
+- Office Fabric–styled task pane
+- `Word.run` for full-document or selection text and optional highlighting
+- Settings persisted with `Office.context.roamingSettings`
 
-## API Integration
+## API integration
 
-### Request Format
-```javascript
+The add-in uses the same contract as the web app.
+
+### Request (JSON)
+```json
 {
-  "text": "Document text with citations...",
-  "iterations": 3,
-  "threshold": 0.7,
-  "use_local_pdf_search": false
+  "type": "text",
+  "text": "Pasted or extracted document text…",
+  "force_mode": "sync"
 }
 ```
 
-### Response Format
-```javascript
-{
-  "total_citations": 10,
-  "hallucinated_citations": 2,
-  "results": [
-    {
-      "citation": "149 Wn.2d 647",
-      "is_hallucinated": false,
-      "confidence": 0.95,
-      "method": "api",
-      "exists": true,
-      "case_data": {...},
-      "case_summary": "...",
-      "similarity_score": 0.85,
-      "summaries": [...]
-    }
-  ]
-}
-```
+### Response
+- Immediate `citations` / `clusters` when the server completes synchronously, **or**
+- `task_id` + `status: "processing"` — poll `GET /casestrainer/api/task_status/{task_id}` until `completed`.
+
+Citation objects use fields such as `citation`, `verified`, `found`, `confidence`, `canonical_name` (see [API docs](API_DOCUMENTATION.md)).
 
 ## Troubleshooting
 
@@ -257,31 +247,14 @@ word_addin/
 
 ## Development
 
-### Local Development Setup
+### Local development
 
-1. **Clone Repository**
-   ```bash
-   git clone https://github.com/jafrank88/casestrainer.git
-   cd casestrainer/word_addin
-   ```
+1. **Clone the repository** and open `casestrainer-vue-new/`.
+2. **Run the Vue dev server:** `npm install` then `npm run dev` (default `http://localhost:5173/casestrainer/`).
+3. **Sideload `public/word-addin/manifest.local.xml`** in Word (shared folder or Insert → Add-ins → Upload My Add-in).
+4. **Run the CaseStrainer backend** separately if you are not using the production API; set the task pane **Analyze URL** to your `…/casestrainer/api/analyze` endpoint (e.g. `http://127.0.0.1:5001/casestrainer/api/analyze`).
 
-2. **Set Up Local Server**
-   ```bash
-   # Install dependencies
-   pip install flask
-   
-   # Run local development server
-   python -m flask run --port 5000
-   ```
-
-3. **Update Manifest URLs**
-   - Change all URLs in manifest.xml to point to localhost
-   - Example: `https://localhost:5000/word-addin/taskpane.html`
-
-4. **Sideload for Testing**
-   - Follow the sideload instructions above
-   - Make changes to HTML/CSS/JS files
-   - Refresh the task pane to see changes
+Refresh the task pane after editing static files under `public/word-addin/`.
 
 ### Making Changes
 
@@ -344,7 +317,7 @@ We welcome contributions! Please:
 - [ ] Team collaboration features
 - [ ] Citation correction suggestions
 
-### Future Enhancements (v2.0)
+### Future enhancements
 - [ ] Machine learning citation classifier
 - [ ] Real-time verification as you type
 - [ ] Integration with citation management tools

@@ -12,7 +12,6 @@ graph TD
     
     C -->|GET /health| D[Health Check Endpoint]
     C -->|POST /analyze| E[Main Analyze Endpoint]
-    C -->|POST /analyze_enhanced| F[Enhanced Analyze Endpoint]
     C -->|GET /task_status| G[Task Status Endpoint]
     
     D --> D1[Database Stats Check]
@@ -24,8 +23,9 @@ graph TD
     E1 -->|File Upload| E2[File Upload Handler]
     E1 -->|JSON Text| E3[JSON Input Handler]
     E1 -->|Form Data| E4[Form Input Handler]
-    
-    F --> F1[Citation Service]
+    E2 --> F1[Citation Service]
+    E3 --> F1
+    E4 --> F1
     F1 --> F2{Process Immediately?}
     F2 -->|Yes| F3[Immediate Processing]
     F2 -->|No| F4[Async Task Queue]

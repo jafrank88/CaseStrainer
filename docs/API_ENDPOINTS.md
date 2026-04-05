@@ -1,10 +1,11 @@
 # CaseStrainer API Endpoints
 
-This document lists all active API endpoints in the CaseStrainer application after the cleanup and consolidation.
+**Release alignment:** Application version is **`2.1.0`** (see repo root `VERSION` and `casestrainer-vue-new/package.json`). This document lists active API endpoints after cleanup and consolidation.
 
 ## ✅ **Canonical Endpoints (Use These)**
 
 - `POST /casestrainer/api/analyze` - **Unified endpoint for all document analysis** (text, files, URLs)
+- `GET /casestrainer/api/analyze/progress-stream/<request_id>` - **SSE** live progress for an async analyze task
 - `GET /casestrainer/api/health` - Health check
 - `GET /casestrainer/api/version` - Version information
 - `GET /casestrainer/api/task_status/<task_id>` - Task status

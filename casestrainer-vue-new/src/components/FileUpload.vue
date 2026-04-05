@@ -406,9 +406,9 @@ defineExpose({
 </script>
 
 <style scoped>
-:root {
-  --primary-color: #1976d2;
-  --primary-light: #42a5f5;
+.modern-file-upload {
+  --primary-color: #4b2e83;
+  --primary-light: #6a4c93;
   --success-color: #4caf50;
   --error-color: #f44336;
   --warning-color: #ff9800;
@@ -418,16 +418,15 @@ defineExpose({
   --background-light: #f8f9fa;
   --shadow-light: 0 2px 12px 0 rgba(60, 72, 88, 0.08);
   --shadow-medium: 0 4px 24px 0 rgba(60, 72, 88, 0.12);
-}
-
-.modern-file-upload {
+  --input-focus-ring: color-mix(in srgb, var(--primary-color) 28%, transparent);
   width: 100%;
   max-width: 600px;
   margin: 0 auto;
+  color: var(--foreground, var(--text-primary));
 }
 
 .upload-card {
-  background: white;
+  background: var(--card-bg, #fff);
   border-radius: 2rem;
   box-shadow: var(--shadow-medium);
   border: 1px solid var(--border-color);
@@ -497,7 +496,7 @@ defineExpose({
   border-radius: 1.5rem;
   padding: 3rem 2rem;
   text-align: center;
-  background: var(--background-light);
+  background: var(--ui-surface-2, var(--background-light));
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
   position: relative;
@@ -512,7 +511,7 @@ defineExpose({
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, transparent, rgba(25, 118, 210, 0.1), transparent);
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--primary-color) 12%, transparent), transparent);
   transition: left 0.6s;
 }
 
@@ -522,9 +521,9 @@ defineExpose({
 
 .drop-zone.dragover {
   border-color: var(--primary-color);
-  background: rgba(25, 118, 210, 0.05);
+  background: color-mix(in srgb, var(--primary-color) 8%, var(--card-bg, #fff));
   transform: scale(1.02);
-  box-shadow: 0 8px 25px rgba(25, 118, 210, 0.2);
+  box-shadow: 0 8px 25px color-mix(in srgb, var(--primary-color) 22%, transparent);
 }
 
 .drop-zone.has-file {
@@ -584,7 +583,7 @@ defineExpose({
   display: flex;
   align-items: center;
   gap: 1.5rem;
-  background: white;
+  background: var(--card-bg, #fff);
   padding: 1.5rem;
   border-radius: 1rem;
   box-shadow: var(--shadow-light);
@@ -686,17 +685,17 @@ defineExpose({
 }
 
 .analyze-btn {
-  background: #1976d2;
+  background: linear-gradient(90deg, var(--primary-color) 60%, var(--primary-light) 100%);
   color: #fff;
   border: none;
-  border-radius: 8px;
+  border-radius: 12px;
   padding: 14px 36px;
   font-size: 1.1rem;
-  font-weight: bold;
+  font-weight: 600;
   cursor: pointer;
   margin-top: 24px;
-  box-shadow: 0 2px 12px rgba(25, 118, 210, 0.12);
-  transition: background 0.2s, box-shadow 0.2s;
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--primary-color) 35%, transparent);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
   display: block;
   width: 100%;
   max-width: 340px;
@@ -705,13 +704,15 @@ defineExpose({
 }
 .analyze-btn:hover:not(:disabled),
 .analyze-btn:focus:not(:disabled) {
-  background: #1565c0;
-  box-shadow: 0 4px 16px rgba(25, 118, 210, 0.18);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px color-mix(in srgb, var(--primary-color) 42%, transparent);
 }
 .analyze-btn:disabled {
-  background: #bdbdbd;
+  background: var(--text-secondary);
   cursor: not-allowed;
-  opacity: 0.7;
+  opacity: 0.75;
+  transform: none;
+  box-shadow: none;
 }
 
 .secondary-actions {
@@ -720,7 +721,7 @@ defineExpose({
 }
 
 .analysis-progress {
-  background: var(--background-light);
+  background: var(--ui-surface-2, var(--background-light));
   border-radius: 1rem;
   padding: 2rem;
   text-align: center;
@@ -756,7 +757,7 @@ defineExpose({
 .step {
   flex: 1;
   padding: 0.5rem;
-  background: white;
+  background: var(--card-bg, #fff);
   border-radius: 0.5rem;
   font-size: 0.85rem;
   color: var(--text-secondary);
@@ -823,6 +824,19 @@ defineExpose({
   
   .step {
     min-width: auto;
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  .modern-file-upload {
+    --primary-color: #c4a8fc;
+    --primary-light: #d4bdfc;
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --border-color: #3d4451;
+    --background-light: #1e2228;
+    --shadow-light: 0 2px 12px rgba(0, 0, 0, 0.35);
+    --shadow-medium: 0 4px 24px rgba(0, 0, 0, 0.45);
   }
 }
 

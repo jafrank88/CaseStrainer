@@ -66,7 +66,8 @@ CaseStrainer/
 │   └── package.json       # Node.js dependencies
 ├── docker-compose.prod.yml # Production Docker configuration
 ├── docker-compose.dev.yml  # Development Docker configuration
-├── launcher.ps1           # PowerShell launcher with auto-restart
+├── cslauncher.ps1         # Production Docker reload (Vue build + compose; see script header)
+├── VERSION                # API release version (copied into backend image; health endpoint)
 ├── docs/                  # Documentation
 ├── logs/                  # Application logs
 └── tests/                 # Test files
@@ -77,32 +78,25 @@ CaseStrainer/
 
 ### Local Development
 
+Run the backend and Vue dev server separately (see root [README.md](../README.md)):
+
+- Backend: e.g. `python src/app_final_vue.py` with `PYTHONPATH` set to the repo root (port depends on config; often 5000)
+- Frontend: `cd casestrainer-vue-new && npm run dev` (Vite, port 5173)
+- Redis: local install or Docker as needed for queue features
+
+### Docker development / full stack
+
 ```powershell
-.\launcher.ps1 -Environment Development
+docker-compose -f docker-compose.yml up -d
 
 ```text
 
-- Backend: Flask development server on port 5000
-- Frontend: Vue.js dev server on port 5173
-- Redis: Local or Docker container
-- Hot reload enabled
-
-### Docker Development
-
-```powershell
-.\launcher.ps1 -Environment DockerDevelopment
-
-```text
-
-- Backend: Containerized Flask development server
-- Frontend: Containerized Vue.js dev server
-- Redis: Dedicated container
-- Volume mounts for live code changes
+For Wolf-style production reload (rebuild Vue, refresh containers), use `.\cslauncher.ps1` from the repo root (see script comments for flags such as `-Build:$false`).
 
 ### Docker Production
 
 ```powershell
-.\launcher.ps1 -Environment DockerProduction
+.\cslauncher.ps1
 
 ```text
 

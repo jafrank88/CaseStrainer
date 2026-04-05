@@ -1,5 +1,7 @@
 # CaseStrainer Auto-Restart System Guide
 
+> **Current tooling (v2.1.0):** Production reload and worker refresh use **`cslauncher.ps1`** at the repo root. The old interactive **`launcher.ps1`** menu is removed; flags such as `-ServicesOff`, `-CleanDocker`, and `-Build:$false` are documented in the script header.
+
 ## Overview
 
 CaseStrainer includes a robust auto-restart system that automatically monitors and recovers from service failures. The system can automatically start Docker Desktop, manage Redis containers, and restart all application services when needed.
@@ -22,7 +24,7 @@ Before using CaseStrainer with auto-restart, ensure you have:
 
 - **Windows 10/11** with PowerShell
 - **Node.js** and **npm** installed
-- **Python 3.8+** installed
+- **Python 3.10+** installed
 - **Docker Desktop** installed (recommended for Redis)
 - **CaseStrainer** project downloaded and extracted
 
@@ -42,26 +44,17 @@ Before using CaseStrainer with auto-restart, ensure you have:
 cd "d:\dev\casestrainer"
 ```
 
-### 2. Start CaseStrainer
+### 2. Start / reload CaseStrainer (Docker production)
 
 ```powershell
-.\launcher.ps1
+.\cslauncher.ps1
 ```
 
-```text
+This rebuilds the Vue app, refreshes Docker images (by default), and restarts the stack. For local UI development without a full reload, use `npm run dev` under `casestrainer-vue-new/` (see [DEPLOYMENT_VUE.md](./DEPLOYMENT_VUE.md)).
 
-### 3. Choose Environment
+### 3. Docker diagnostics
 
-When the menu appears, select:
-
-- **Option 1**: Development Mode (recommended for testing)
-- **Option 2**: Production Mode (for production use)
-- **Option 3**: Docker Development Mode (containerized development)
-- **Option 4**: Docker Production Mode (full containerized production with comprehensive network cleanup and advanced diagnostics)
-
-### 4. Docker-Specific Diagnostics (Option 4)
-
-Option 4 now includes comprehensive Docker diagnostics that help identify restart issues:
+`cslauncher.ps1` and the production compose stack include diagnostics that help identify restart issues:
 
 #### **Docker Daemon & System Checks**
 
@@ -140,7 +133,7 @@ The system automatically monitors and restarts:
 
 ### Auto-Restart Configuration
 
-- **Enabled by default** when you start the launcher
+- **Enabled by default** when you use **`cslauncher.ps1`** (see also the optional Windows auto-restart service: `cslauncher.ps1 -InstallService`)
 - **Maximum restart attempts**: 5 (configurable)
 - **Health check interval**: Every 30 seconds
 - **Restart delay**: 10 seconds between attempts
@@ -372,14 +365,13 @@ If health checks are failing:
 1. **Check service status**:
 
    ```powershell
-   .\launcher.ps1 -Environment DockerProduction -NoMenu
+   Invoke-WebRequest -Uri "http://localhost:5001/casestrainer/api/health" -UseBasicParsing
    ```text
 
 2. **View detailed logs**:
 
    ```powershell
-   # From launcher menu, select Option 5 (View Logs)
-   # Or check Docker logs directly
+   # Check Docker logs directly
    docker logs casestrainer-backend-prod
    docker logs casestrainer-redis-prod
    ```text
@@ -397,7 +389,7 @@ If health checks are failing:
 ### Common Issues
 
 1. **Docker Desktop not running**:
-   - The launcher will prompt to start Docker Desktop
+   - Start Docker Desktop, then run **`cslauncher.ps1`** again
    - Wait 30-60 seconds for Docker to become available
 
 2. **Port conflicts**:
@@ -417,8 +409,7 @@ If health checks are failing:
 1. **Stop all services**:
 
    ```powershell
-   .\launcher.ps1 -Environment DockerProduction -NoMenu
-   # Select option 4: Stop All Services
+   docker-compose -f docker-compose.prod.yml down
    ```text
 
 2. **Restart Docker Desktop**:
@@ -458,9 +449,9 @@ NGINX_PORT=443
 
 ```text
 
-### Launcher Configuration
+### Launcher configuration
 
-The launcher uses these default settings:
+Typical monitoring defaults (also used by `monitor-casestrainer.ps1`) include:
 
 ```powershell
 
@@ -590,5 +581,5 @@ For issues with the auto-restart system:
 
 1. **Documentation**: Review this guide and other docs
 2. **Logs**: Check crash logs and Docker logs
-3. **Health checks**: Use launcher menu option 5
+3. **Health checks**: Hit `/casestrainer/api/health` and review `logs/`
 4. **GitHub issues**: Report bugs and request features

@@ -327,7 +327,12 @@ python -m pytest --cov=src tests/
 
 ### Recent Updates
 
-#### Version 2.0.0 (Current)
+#### Version 2.1.0 (Current)
+
+- **Documentation and tooling**: Website API docs, repo guides, and launcher references aligned with `cslauncher.ps1` and release `VERSION` / Vue `package.json`
+- **Health/version consistency**: Auxiliary health helpers read the same `VERSION` file as the main Vue API health route where applicable
+
+#### Version 2.0.0
 
 - **Major Refactoring**: Consolidated citation processing pipeline
 - **Security Enhancements**: Comprehensive security audit and fixes

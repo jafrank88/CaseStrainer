@@ -1,24 +1,117 @@
-// CaseStrainer Browser Extension - Background Service Worker
-// Handles API requests and manages extension state
+// CaseStrainer — MV3 service worker: POST /analyze + optional task polling
+'use strict';
 
-const API_BASE_URL = 'https://wolf.law.uw.edu/casestrainer/api';
+const DEFAULT_API_BASE = 'https://wolf.law.uw.edu/casestrainer/api';
 
-// Default settings
 const DEFAULT_SETTINGS = {
   autoVerify: true,
-  apiUrl: API_BASE_URL,
+  apiUrl: DEFAULT_API_BASE,
   highlightVerified: true,
   highlightUnverified: true,
   verifiedColor: '#28a745',
   unverifiedColor: '#dc3545',
-  showConfidence: true
+  showConfidence: true,
 };
 
-// Initialize extension
+function normalizeApiBase(url) {
+  return String(url || DEFAULT_API_BASE).replace(/\/$/, '');
+}
+
+function analyzeUrlFromBase(base) {
+  return `${normalizeApiBase(base)}/analyze`;
+}
+
+async function postAnalyze(analyzeUrl, text) {
+  const res = await fetch(analyzeUrl, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ type: 'text', text, force_mode: 'sync' }),
+  });
+  const raw = await res.text();
+  let data;
+  try {
+    data = raw ? JSON.parse(raw) : {};
+  } catch {
+    throw new Error(`Invalid JSON (${res.status})`);
+  }
+  if (!res.ok) throw new Error(data.error || data.details || `HTTP ${res.status}`);
+  return data;
+}
+
+async function pollTask(apiBase, taskId) {
+  for (let i = 0; i < 90; i++) {
+    const r = await fetch(`${apiBase}/task_status/${encodeURIComponent(taskId)}`);
+    const raw = await r.text();
+    let d = {};
+    try {
+      d = raw ? JSON.parse(raw) : {};
+    } catch {
+      throw new Error('task_status: invalid JSON');
+    }
+    if (!r.ok) throw new Error(d.error || `task_status ${r.status}`);
+    if (d.status === 'completed' || d.status === 'failed' || d.status === 'error') return d;
+    await new Promise((x) => setTimeout(x, 2000));
+  }
+  throw new Error('Analysis timed out');
+}
+
+async function analyzeText(apiBase, text) {
+  const aurl = analyzeUrlFromBase(apiBase);
+  const data = await postAnalyze(aurl, text);
+  if (
+    data.task_id &&
+    (data.status === 'processing' || data.status === 'queued') &&
+    (!Array.isArray(data.citations) || data.citations.length === 0)
+  ) {
+    return pollTask(normalizeApiBase(apiBase), data.task_id);
+  }
+  return data;
+}
+
+function rowsFromResponse(data) {
+  const raw = data.citations || [];
+  return raw.map((c) => ({
+    citation: String(c.citation || c.text || '').trim(),
+    verified: !!(c.verified === true || c.found === true || c.true_by_parallel === true),
+    confidence:
+      typeof c.confidence === 'number' ? (c.confidence > 1 ? c.confidence / 100 : c.confidence) : 0,
+    canonical_name: c.canonical_name || c.extracted_case_name,
+  }));
+}
+
+function mapRequestedCitations(data, requested) {
+  const rows = rowsFromResponse(data).filter((r) => r.citation);
+  const norm = (s) => s.replace(/\s+/g, ' ').trim().toLowerCase();
+  const by = new Map();
+  for (const r of rows) {
+    by.set(norm(r.citation), r);
+  }
+  const out = {};
+  for (const req of requested) {
+    const n = norm(req);
+    let m = by.get(n);
+    if (!m) {
+      for (const [k, v] of by) {
+        if (k.includes(n) || n.includes(k)) {
+          m = v;
+          break;
+        }
+      }
+    }
+    const verified = !!(m && m.verified);
+    let conf = m && typeof m.confidence === 'number' ? m.confidence : verified ? 0.82 : 0;
+    if (conf > 1) conf /= 100;
+    out[req] = {
+      citation: req,
+      verified,
+      confidence: conf,
+      caseName: m ? m.canonical_name : undefined,
+    };
+  }
+  return out;
+}
+
 chrome.runtime.onInstalled.addListener(() => {
-  console.log('CaseStrainer extension installed');
-  
-  // Set default settings
   chrome.storage.sync.get('settings', (result) => {
     if (!result.settings) {
       chrome.storage.sync.set({ settings: DEFAULT_SETTINGS });
@@ -26,158 +119,57 @@ chrome.runtime.onInstalled.addListener(() => {
   });
 });
 
-// Handle messages from content scripts
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
-  if (request.action === 'verifyCitation') {
-    verifyCitation(request.citation)
-      .then(result => sendResponse({ success: true, data: result }))
-      .catch(error => sendResponse({ success: false, error: error.message }));
-    return true; // Keep channel open for async response
+function updateBadge(tabId, count) {
+  if (count > 0) {
+    chrome.action.setBadgeText({ text: String(Math.min(count, 99)), tabId });
+    chrome.action.setBadgeBackgroundColor({ color: '#0d6efd', tabId });
+  } else {
+    chrome.action.setBadgeText({ text: '', tabId });
   }
-  
-  if (request.action === 'batchVerify') {
-    batchVerifyCitations(request.citations)
-      .then(results => sendResponse({ success: true, data: results }))
-      .catch(error => sendResponse({ success: false, error: error.message }));
+}
+
+chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+  if (request.action === 'updateBadge') {
+    if (sender.tab && sender.tab.id != null) {
+      updateBadge(sender.tab.id, request.count);
+    }
+    sendResponse({ success: true });
     return true;
   }
-  
+
   if (request.action === 'getSettings') {
     chrome.storage.sync.get('settings', (result) => {
       sendResponse({ success: true, data: result.settings || DEFAULT_SETTINGS });
     });
     return true;
   }
+
+  if (request.action === 'verifyCitation') {
+    const cite = request.citation;
+    getSettings()
+      .then((s) => analyzeText(s.apiUrl || DEFAULT_API_BASE, cite))
+      .then((data) => {
+        const mapped = mapRequestedCitations(data, [cite]);
+        sendResponse({ success: true, data: mapped[cite] });
+      })
+      .catch((err) => sendResponse({ success: false, error: err.message }));
+    return true;
+  }
+
+  if (request.action === 'batchVerify') {
+    const citations = request.citations || [];
+    const text = citations.join('\n\n');
+    getSettings()
+      .then((s) => analyzeText(s.apiUrl || DEFAULT_API_BASE, text))
+      .then((data) => sendResponse({ success: true, data: mapRequestedCitations(data, citations) }))
+      .catch((err) => sendResponse({ success: false, error: err.message }));
+    return true;
+  }
+
+  return false;
 });
 
-// Verify a single citation using CaseStrainer API
-async function verifyCitation(citation) {
-  try {
-    const settings = await getSettings();
-    const apiUrl = settings.apiUrl || API_BASE_URL;
-    
-    const response = await fetch(`${apiUrl}/analyze`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        text: citation,
-        source_type: 'text'
-      })
-    });
-    
-    if (!response.ok) {
-      throw new Error(`API error: ${response.status}`);
-    }
-    
-    const data = await response.json();
-    return parseCitationResult(data, citation);
-  } catch (error) {
-    console.error('Citation verification error:', error);
-    throw error;
-  }
-}
-
-// Batch verify multiple citations
-async function batchVerifyCitations(citations) {
-  try {
-    const settings = await getSettings();
-    const apiUrl = settings.apiUrl || API_BASE_URL;
-    
-    // Combine citations into single text
-    const text = citations.join(' ');
-    
-    const response = await fetch(`${apiUrl}/analyze`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        text: text,
-        source_type: 'text'
-      })
-    });
-    
-    if (!response.ok) {
-      throw new Error(`API error: ${response.status}`);
-    }
-    
-    const data = await response.json();
-    return parseBatchResults(data, citations);
-  } catch (error) {
-    console.error('Batch verification error:', error);
-    throw error;
-  }
-}
-
-// Parse API result for single citation
-function parseCitationResult(data, citation) {
-  if (!data.results || data.results.length === 0) {
-    return {
-      citation: citation,
-      verified: false,
-      confidence: 0,
-      message: 'No results found'
-    };
-  }
-  
-  const result = data.results[0];
-  return {
-    citation: result.citation || citation,
-    verified: result.exists || !result.is_hallucinated,
-    confidence: result.confidence || 0,
-    caseName: result.case_name,
-    method: result.method,
-    similarityScore: result.similarity_score
-  };
-}
-
-// Parse batch API results
-function parseBatchResults(data, citations) {
-  const results = {};
-  
-  if (!data.results || data.results.length === 0) {
-    citations.forEach(cit => {
-      results[cit] = {
-        citation: cit,
-        verified: false,
-        confidence: 0,
-        message: 'No results found'
-      };
-    });
-    return results;
-  }
-  
-  data.results.forEach(result => {
-    const citation = result.citation;
-    results[citation] = {
-      citation: citation,
-      verified: result.exists || !result.is_hallucinated,
-      confidence: result.confidence || 0,
-      caseName: result.case_name,
-      method: result.method,
-      similarityScore: result.similarity_score
-    };
-  });
-  
-  // Fill in missing citations
-  citations.forEach(cit => {
-    if (!results[cit]) {
-      results[cit] = {
-        citation: cit,
-        verified: false,
-        confidence: 0,
-        message: 'Not verified'
-      };
-    }
-  });
-  
-  return results;
-}
-
-// Get settings from storage
-async function getSettings() {
+function getSettings() {
   return new Promise((resolve) => {
     chrome.storage.sync.get('settings', (result) => {
       resolve(result.settings || DEFAULT_SETTINGS);
@@ -185,18 +177,7 @@ async function getSettings() {
   });
 }
 
-// Badge to show number of citations found
-function updateBadge(tabId, count) {
-  if (count > 0) {
-    chrome.action.setBadgeText({ text: count.toString(), tabId: tabId });
-    chrome.action.setBadgeBackgroundColor({ color: '#0d6efd', tabId: tabId });
-  } else {
-    chrome.action.setBadgeText({ text: '', tabId: tabId });
-  }
-}
-
-// Listen for tab updates to reset badge
-chrome.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
   if (changeInfo.status === 'complete') {
     updateBadge(tabId, 0);
   }

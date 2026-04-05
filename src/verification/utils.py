@@ -369,8 +369,26 @@ def cluster_matches_extracted_case_name(cluster: Dict[str, Any], extracted_case_
         e2s = ecn_d - _WEAK_SECOND_PARTY_TOKENS
         c1s = cn_tokens - _WEAK_FIRST_PARTY_TOKENS
         c2s = cn_d - _WEAK_SECOND_PARTY_TOKENS
-        if (e1s & c1s) or (e2s & c2s) or (e1s & c2s) or (e2s & c1s):
+        # Same-party overlaps are strong: plaintiff matches plaintiff, or defendant matches defendant.
+        if (e1s & c1s) or (e2s & c2s):
             return True
+        # Cross-party overlaps (plaintiff token appears in other case's defendant, or vice versa)
+        # are weak when only a single ambiguous token matches (e.g. "Control" in "Rent Control Board").
+        # Require either 2+ matching tokens OR the token is not in the expanded ambiguous set.
+        _CROSS_PARTY_AMBIGUOUS = frozenset({
+            "control", "board", "agency", "commission", "department", "bureau",
+            "authority", "office", "division", "services", "systems", "management",
+            "resources", "enterprises", "industries", "properties", "development",
+            "communications", "network", "networks", "health", "care", "products",
+            "financial", "investment", "investments", "group", "groups", "national",
+            "general", "public", "private", "first", "second", "central", "western",
+            "eastern", "southern", "northern",
+        })
+        cross = (e1s & c2s) | (e2s & c1s)
+        if cross:
+            distinctive_cross = cross - _CROSS_PARTY_AMBIGUOUS
+            if distinctive_cross or len(cross) >= 2:
+                return True
 
     overlap_plaintiff = ecn_tokens & cn_tokens
     strong_plaintiff = overlap_plaintiff - _WEAK_FIRST_PARTY_TOKENS

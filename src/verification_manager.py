@@ -22,6 +22,8 @@ import redis
 from rq import Queue
 from rq.job import Job
 
+from src.config import DATA_RETENTION_ASYNC_SECONDS
+
 logger = logging.getLogger(__name__)
 
 
@@ -89,9 +91,9 @@ class VerificationManager:
         try:
             if self.redis_conn:
                 payload = json.dumps(status)
-                self.redis_conn.setex(f"verification:status:{request_id}", 3600, payload)
+                self.redis_conn.setex(f"verification:status:{request_id}", DATA_RETENTION_ASYNC_SECONDS, payload)
                 if job_id:
-                    self.redis_conn.setex(f"verification:job:{job_id}", 3600, payload)
+                    self.redis_conn.setex(f"verification:job:{job_id}", DATA_RETENTION_ASYNC_SECONDS, payload)
         except Exception:
             pass
 
@@ -123,15 +125,15 @@ class VerificationManager:
             if self.redis_conn:
                 payload = json.dumps(status)
                 # Always write under the id used for lookup
-                self.redis_conn.setex(f"verification:status:{id_or_job}", 3600, payload)
+                self.redis_conn.setex(f"verification:status:{id_or_job}", DATA_RETENTION_ASYNC_SECONDS, payload)
                 # Mirror under job key if available
                 job_id = status.get("job_id") or (id_or_job if id_or_job.startswith("client-") is False else None)
                 if job_id:
-                    self.redis_conn.setex(f"verification:job:{job_id}", 3600, payload)
+                    self.redis_conn.setex(f"verification:job:{job_id}", DATA_RETENTION_ASYNC_SECONDS, payload)
                 # Mirror under client request_id if available
                 req_id = status.get("request_id")
                 if req_id:
-                    self.redis_conn.setex(f"verification:status:{req_id}", 3600, payload)
+                    self.redis_conn.setex(f"verification:status:{req_id}", DATA_RETENTION_ASYNC_SECONDS, payload)
 
                 # FIX 2026-01-30: Also sync to progress:{task_id} for frontend polling
                 # The frontend/API polls progress:{task_id} but we were only storing under verification:status:*
@@ -146,7 +148,7 @@ class VerificationManager:
                     "total_citations": total_citations,
                     "timestamp": time.time()
                 })
-                self.redis_conn.setex(f"progress:{id_or_job}", 3600, progress_payload)
+                self.redis_conn.setex(f"progress:{id_or_job}", DATA_RETENTION_ASYNC_SECONDS, progress_payload)
         except Exception:
             pass
 
@@ -168,13 +170,13 @@ class VerificationManager:
             if self.redis_conn:
                 # Save status
                 payload = json.dumps(status)
-                self.redis_conn.setex(f"verification:status:{id_or_job}", 3600, payload)
+                self.redis_conn.setex(f"verification:status:{id_or_job}", DATA_RETENTION_ASYNC_SECONDS, payload)
                 job_id = status.get("job_id") or (id_or_job if id_or_job.startswith("client-") is False else None)
                 if job_id:
-                    self.redis_conn.setex(f"verification:job:{job_id}", 3600, payload)
+                    self.redis_conn.setex(f"verification:job:{job_id}", DATA_RETENTION_ASYNC_SECONDS, payload)
                 req_id = status.get("request_id")
                 if req_id:
-                    self.redis_conn.setex(f"verification:status:{req_id}", 3600, payload)
+                    self.redis_conn.setex(f"verification:status:{req_id}", DATA_RETENTION_ASYNC_SECONDS, payload)
 
                 # FIX 2026-01-30: Also sync to progress:{task_id} for frontend polling
                 # Set status to "completed" so polling service detects completion
@@ -190,7 +192,7 @@ class VerificationManager:
                     "total_citations": total_citations,
                     "timestamp": time.time()
                 })
-                self.redis_conn.setex(f"progress:{id_or_job}", 3600, progress_payload)
+                self.redis_conn.setex(f"progress:{id_or_job}", DATA_RETENTION_ASYNC_SECONDS, progress_payload)
                 logger.info(f"[VERIFICATION-MANAGER] Synced progress key with completed status for {id_or_job}")
 
                 # CRITICAL FIX: Also save the actual result data to Redis
@@ -207,10 +209,10 @@ class VerificationManager:
                             )
                         else:
                             try:
-                                self.redis_conn.setex(result_key, 3600, result_payload)
+                                self.redis_conn.setex(result_key, DATA_RETENTION_ASYNC_SECONDS, result_payload)
                                 if job_id:
                                     job_result_key = f"verification:result:{job_id}"
-                                    self.redis_conn.setex(job_result_key, 3600, result_payload)
+                                    self.redis_conn.setex(job_result_key, DATA_RETENTION_ASYNC_SECONDS, result_payload)
                                 logger.info(
                                     f"[VERIFICATION-MANAGER] Saved result data to Redis: {result_key} ({len(result_payload)} bytes)"
                                 )
@@ -239,13 +241,13 @@ class VerificationManager:
         try:
             if self.redis_conn:
                 payload = json.dumps(status)
-                self.redis_conn.setex(f"verification:status:{id_or_job}", 3600, payload)
+                self.redis_conn.setex(f"verification:status:{id_or_job}", DATA_RETENTION_ASYNC_SECONDS, payload)
                 job_id = status.get("job_id") or (id_or_job if id_or_job.startswith("client-") is False else None)
                 if job_id:
-                    self.redis_conn.setex(f"verification:job:{job_id}", 3600, payload)
+                    self.redis_conn.setex(f"verification:job:{job_id}", DATA_RETENTION_ASYNC_SECONDS, payload)
                 req_id = status.get("request_id")
                 if req_id:
-                    self.redis_conn.setex(f"verification:status:{req_id}", 3600, payload)
+                    self.redis_conn.setex(f"verification:status:{req_id}", DATA_RETENTION_ASYNC_SECONDS, payload)
         except Exception:
             pass
 
@@ -383,7 +385,7 @@ class SmartVerificationStrategy:
             self.verification_queue = None
         self.active_verifications: Dict[str, Any] = {}
         self.result_cache: Dict[str, Any] = {}
-        self.cache_ttl = 3600
+        self.cache_ttl = DATA_RETENTION_ASYNC_SECONDS
         self.cleanup_interval = 300.0
         self.verification_strategy = self
 

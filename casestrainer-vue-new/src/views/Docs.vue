@@ -2,15 +2,18 @@
   <div class="docs-page">
     <h1>CaseStrainer Documentation</h1>
     <p>Comprehensive guides and documentation for using CaseStrainer's citation processing system.</p>
+    <p class="text-muted small">
+      Current release <strong>2.1.0</strong> — web UI version from <code>package.json</code>; API version from the repo <code>VERSION</code> file (see <router-link to="/docs/api">API docs</router-link>).
+    </p>
 
     <div class="docs-section">
-      <h2><i class="bi bi-link-45deg me-2"></i>Live Application</h2>
+      <h2><i class="bi bi-link-45deg me-2" aria-hidden="true"></i>Live Application</h2>
       <ul class="docs-list">
         <li>
-          <a href="https://wolf.law.uw.edu/casestrainer/" target="_blank" rel="noopener">
-            <i class="bi bi-globe me-2"></i>
+          <a href="https://wolf.law.uw.edu/casestrainer/" target="_blank" rel="noopener noreferrer">
+            <i class="bi bi-globe me-2" aria-hidden="true"></i>
             <div>
-              <strong>CaseStrainer on the Web</strong>
+              <strong>CaseStrainer on the Web <span class="visually-hidden">(opens in new tab)</span></strong>
               <p class="text-muted mb-0">Use CaseStrainer at https://wolf.law.uw.edu/casestrainer/ — upload documents, paste text, or enter URLs to analyze and verify citations.</p>
             </div>
           </a>
@@ -19,11 +22,11 @@
     </div>
     
     <div class="docs-section">
-      <h2><i class="bi bi-book-half me-2"></i>User Guides</h2>
+      <h2><i class="bi bi-book-half me-2" aria-hidden="true"></i>User Guides</h2>
       <ul class="docs-list">
         <li>
           <router-link to="/docs/pipeline">
-            <i class="bi bi-diagram-3 me-2"></i>
+            <i class="bi bi-diagram-3 me-2" aria-hidden="true"></i>
             <div>
               <strong>Processing Pipeline Guide</strong>
               <p class="text-muted mb-0">Learn how CaseStrainer processes citations through its 6-phase pipeline</p>
@@ -31,10 +34,19 @@
           </router-link>
         </li>
         <li>
-          <a href="https://github.com/jafrank88/casestrainer/blob/main/README.md" target="_blank">
-            <i class="bi bi-file-text me-2"></i>
+          <router-link to="/docs/data-retention">
+            <i class="bi bi-shield-lock me-2" aria-hidden="true"></i>
             <div>
-              <strong>Getting Started Guide</strong>
+              <strong>Data retention</strong>
+              <p class="text-muted mb-0">Redis TTLs, upload cleanup, optional API response logging, and environment variables</p>
+            </div>
+          </router-link>
+        </li>
+        <li>
+          <a href="https://github.com/jafrank88/casestrainer/blob/main/README.md" target="_blank" rel="noopener noreferrer">
+            <i class="bi bi-file-text me-2" aria-hidden="true"></i>
+            <div>
+              <strong>Getting Started Guide <span class="visually-hidden">(opens in new tab)</span></strong>
               <p class="text-muted mb-0">Installation, setup, and basic usage instructions</p>
             </div>
           </a>
@@ -43,11 +55,11 @@
     </div>
 
     <div class="docs-section">
-      <h2><i class="bi bi-code-square me-2"></i>Developer Documentation</h2>
+      <h2><i class="bi bi-code-square me-2" aria-hidden="true"></i>Developer Documentation</h2>
       <ul class="docs-list">
         <li>
           <router-link to="/docs/api">
-            <i class="bi bi-code-slash me-2"></i>
+            <i class="bi bi-code-slash me-2" aria-hidden="true"></i>
             <div>
               <strong>API Documentation</strong>
               <p class="text-muted mb-0">REST API endpoints, request/response formats, and integration examples</p>
@@ -55,10 +67,10 @@
           </router-link>
         </li>
         <li>
-          <a href="https://github.com/jafrank88/casestrainer/tree/main/docs" target="_blank">
-            <i class="bi bi-github me-2"></i>
+          <a href="https://github.com/jafrank88/casestrainer/tree/main/docs" target="_blank" rel="noopener noreferrer">
+            <i class="bi bi-github me-2" aria-hidden="true"></i>
             <div>
-              <strong>GitHub Documentation</strong>
+              <strong>GitHub Documentation <span class="visually-hidden">(opens in new tab)</span></strong>
               <p class="text-muted mb-0">Additional technical documentation and development guides</p>
             </div>
           </a>
@@ -67,11 +79,11 @@
     </div>
 
     <div class="docs-section">
-      <h2><i class="bi bi-puzzle me-2"></i>Integrations</h2>
+      <h2><i class="bi bi-puzzle me-2" aria-hidden="true"></i>Integrations</h2>
       <ul class="docs-list">
         <li>
           <router-link to="/word-plugin">
-            <i class="bi bi-file-word me-2"></i>
+            <i class="bi bi-file-word me-2" aria-hidden="true"></i>
             <div>
               <strong>Microsoft Word Add-In</strong>
               <p class="text-muted mb-0">Validate citations directly in Word documents</p>
@@ -80,7 +92,7 @@
         </li>
         <li>
           <router-link to="/browser-extension">
-            <i class="bi bi-browser-chrome me-2"></i>
+            <i class="bi bi-browser-chrome me-2" aria-hidden="true"></i>
             <div>
               <strong>Browser Extension</strong>
               <p class="text-muted mb-0">Validate citations on any webpage</p>
@@ -92,7 +104,7 @@
 
     <div class="text-center mt-4">
       <router-link to="/" class="btn btn-outline-primary">
-        <i class="bi bi-house me-2"></i>Back to Home
+        <i class="bi bi-house me-2" aria-hidden="true"></i>Back to Home
       </router-link>
     </div>
   </div>

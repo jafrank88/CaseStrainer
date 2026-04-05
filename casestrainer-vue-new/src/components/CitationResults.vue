@@ -1,22 +1,22 @@
 <template>
-  <div class="citation-results">
+  <div class="citation-results" role="region" aria-label="Citation analysis details">
     <!-- Perfect Score Celebration (SHOW ONLY IF 100% VERIFIED AND NO MISMATCHES) -->
     <div v-if="allCitationsVerified && (mismatchClusters?.length || 0) === 0" class="perfect-score-celebration">
       <div class="celebration-content">
-        <h2>🎉 Perfect Score!</h2>
+        <h2><span aria-hidden="true">🎉 </span>Perfect Score!</h2>
         <p>All {{ (verifiedCitations?.length || 0) + (verifiedByParallelCitations?.length || 0) }} citations have been successfully verified!</p>
         <div class="celebration-stats">
-          <div>✅ {{ verifiedCitations?.length || 0 }} Citations Verified</div>
-          <div v-if="(verifiedByParallelCitations?.length || 0) > 0">🟠 {{ verifiedByParallelCitations?.length || 0 }} Verified by Parallel</div>
-          <div>📚 {{ clusters?.length || 0 }} Cases Found</div>
+          <div><span aria-hidden="true">✅ </span>{{ verifiedCitations?.length || 0 }} Citations Verified</div>
+          <div v-if="(verifiedByParallelCitations?.length || 0) > 0"><span aria-hidden="true">🟠 </span>{{ verifiedByParallelCitations?.length || 0 }} Verified by Parallel</div>
+          <div><span aria-hidden="true">📚 </span>{{ clusters?.length || 0 }} Cases Found</div>
         </div>
       </div>
     </div>
 
     <!-- Coverage banner when there are mismatches -->
-    <div v-if="allCitationsVerified && (mismatchClusters?.length || 0) > 0" class="results-content" style="border-color:#2196F3;background:#E3F2FD;">
+    <div v-if="allCitationsVerified && (mismatchClusters?.length || 0) > 0" class="results-content results-content-coverage">
       <div class="results-header">
-        <h2>✅ All Citations Verified</h2>
+        <h2><span aria-hidden="true">✅ </span>All Citations Verified</h2>
         <p>{{ (verifiedCitations?.length || 0) + (verifiedByParallelCitations?.length || 0) }} citation{{ ((verifiedCitations?.length || 0) + (verifiedByParallelCitations?.length || 0)) !== 1 ? 's' : '' }} verified • {{ mismatchClusters?.length || 0 }} with differences</p>
       </div>
     </div>
@@ -35,7 +35,7 @@
         <p class="results-explainer">
           One case can include multiple citations, so citation totals are usually higher than case totals.
         </p>
-        <div v-if="results?.metadata?.verification_requested_but_none_matched" class="verification-hint-banner">
+        <div v-if="results?.metadata?.verification_requested_but_none_matched" class="verification-hint-banner" role="alert">
           <strong>Verification was requested but no citations were matched.</strong>
           {{ results?.metadata?.verification_hint || 'Ensure COURTLISTENER_API_KEY is set in the worker environment (check server/worker logs).' }}
         </div>
@@ -44,17 +44,17 @@
       <div class="clusters-list">
         <template v-if="(clustersUnverified?.length || 0) > 0">
           <div class="results-header">
-            <h3>⏳ Unverified</h3>
+            <h3><span aria-hidden="true">⏳ </span>Unverified</h3>
             <p class="results-explainer">Some sites with cases block automated tools - click on the link to search the web for unverified cases.</p>
           </div>
           <ClusterCard v-for="cluster in clustersUnverified" :key="cluster.cluster_id + '-unv'" :cluster="cluster" section-key="unv" :helpers="clusterHelpers" :show-mismatch-badge="true" />
         </template>
         <template v-if="(clustersCaseMismatch?.length || 0) > 0">
-          <div class="results-header"><h3>⚠️ Name Differences</h3></div>
+          <div class="results-header"><h3><span aria-hidden="true">⚠️ </span>Name Differences</h3></div>
           <ClusterCard v-for="cluster in clustersCaseMismatch" :key="cluster.cluster_id + '-nm'" :cluster="cluster" section-key="nm" :helpers="clusterHelpers" :show-mismatch-badge="true" />
         </template>
         <template v-if="(clustersDateMismatch?.length || 0) > 0">
-          <div class="results-header"><h3>📅 Date Differences</h3></div>
+          <div class="results-header"><h3><span aria-hidden="true">📅 </span>Date Differences</h3></div>
           <ClusterCard v-for="cluster in clustersDateMismatch" :key="cluster.cluster_id + '-dm'" :cluster="cluster" section-key="dm" :helpers="clusterHelpers" :show-mismatch-badge="true" />
         </template>
         <template v-if="(clustersOther?.length || 0) > 0">
@@ -65,7 +65,7 @@
           <ClusterCard v-for="cluster in clustersOther" :key="cluster.cluster_id + '-oth'" :cluster="cluster" section-key="oth" :helpers="clusterHelpers" :show-mismatch-badge="false" />
         </template>
         <template v-if="(clustersVerifiedStrict?.length || 0) > 0">
-          <div class="results-header"><h3>✅ Verified</h3></div>
+          <div class="results-header"><h3><span aria-hidden="true">✅ </span>Verified</h3></div>
           <ClusterCard v-for="cluster in clustersVerifiedStrict" :key="cluster.cluster_id + '-verified'" :cluster="cluster" section-key="verified" :helpers="clusterHelpers" :show-mismatch-badge="false" />
         </template>
       </div>
@@ -82,7 +82,11 @@
         <div v-for="citation in citations" :key="citation.text || citation.citation" class="citation-item">
           <div class="citation-text">{{ formatCitationText(citation) }}</div>
           <div class="citation-status">
-            <span :style="{ color: isEffectivelyVerified(citation) ? 'green' : (citation.true_by_parallel ? '#FF9800' : 'red') }">
+            <span
+              class="citation-verdict"
+              :style="{ color: isEffectivelyVerified(citation) ? 'green' : (citation.true_by_parallel ? '#FF9800' : 'red') }"
+            >
+              <span class="visually-hidden">Status: </span>
               {{ isEffectivelyVerified(citation) ? '✅ VERIFIED' : (citation.true_by_parallel ? '✅ VERIFIED BY PARALLEL' : '❌ UNVERIFIED') }}
             </span>
             <div v-if="!isEffectivelyVerified(citation) && citation.error" class="verification-error mt-1">
@@ -140,10 +144,17 @@ export default {
       getCitationStatusText: (citation, cluster) => clusterDisplay.getCitationStatusText(citation, cluster, isEffectivelyVerified, isNaAndPartial),
     }
 
+    function inlineCitationStatusClass(citation) {
+      if (isEffectivelyVerified(citation)) return 'cite-inline-verified'
+      if (citation && citation.true_by_parallel) return 'cite-inline-parallel'
+      return 'cite-inline-unverified'
+    }
+
     return {
       ...clusterData,
       clusterHelpers,
       formatCitationText: clusterDisplay.formatCitationText,
+      inlineCitationStatusClass,
     }
   },
 }
@@ -152,13 +163,20 @@ export default {
 <style scoped>
 .citation-results {
   padding: 20px;
+  color: var(--ui-text);
 }
 
 .results-content {
   margin-bottom: 30px;
-  border: 1px solid #ddd;
+  border: 1px solid var(--ui-border);
   border-radius: 8px;
   padding: 20px;
+  background: var(--ui-surface);
+}
+
+.results-content-coverage {
+  border-color: var(--ui-accent);
+  background: var(--ui-info-surface);
 }
 
 .results-header {
@@ -167,17 +185,17 @@ export default {
 
 .results-header h3 {
   font-size: 1.4em;
-  color: #2c2c2c;
+  color: var(--ui-text-heading);
   margin: 28px 0 18px 0;
   font-weight: 700;
   letter-spacing: -0.01em;
   padding-bottom: 12px;
-  border-bottom: 2px solid #f0f0f0;
+  border-bottom: 2px solid var(--ui-divider-strong);
 }
 
 .results-header h2 {
   font-size: 1.85em;
-  color: #1a1a1a;
+  color: var(--ui-text);
   margin-bottom: 0.5rem;
   font-weight: 700;
   letter-spacing: -0.02em;
@@ -185,40 +203,40 @@ export default {
 
 .results-explainer {
   margin: 6px 0 0 0;
-  color: #5f6f86;
+  color: var(--ui-text-secondary);
   font-size: 0.9rem;
 }
 
 .citation-details {
   margin-top: 8px;
   font-size: 0.9em;
-  color: #666;
+  color: var(--ui-text-muted);
 }
 
 .verification-error {
   margin-top: 4px;
   font-size: 0.85em;
-  color: #d32f2f;
+  color: var(--ui-error-text);
   font-style: italic;
 }
 
 .verification-hint-banner {
   margin-top: 12px;
   padding: 12px 16px;
-  background: #FFF3E0;
-  border: 1px solid #FF9800;
+  background: var(--ui-warning-banner-bg);
+  border: 1px solid var(--ui-warning-banner-border);
   border-radius: 6px;
   font-size: 0.9em;
-  color: #E65100;
+  color: var(--ui-warning-banner-fg);
 }
 
 .perfect-score-celebration {
-  background: linear-gradient(135deg, #4CAF50, #45a049);
-  color: white;
+  background: linear-gradient(135deg, var(--ui-celebration-1), var(--ui-celebration-2));
+  color: #fff;
   padding: 30px;
   border-radius: 3px;
   font-weight: 600;
-  border: 1px solid #FBC02D;
+  border: 1px solid var(--ui-celebration-border);
   text-align: center;
   margin-bottom: 30px;
 }
@@ -242,72 +260,72 @@ export default {
 }
 
 .cluster-item {
-  background: #ffffff;
-  border: 1px solid #e8eaf0;
+  background: var(--ui-surface);
+  border: 1px solid var(--ui-border);
   border-radius: 12px;
   padding: 24px;
   margin-bottom: 20px;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+  box-shadow: 0 2px 4px var(--ui-card-shadow);
 }
 
 .cluster-item:hover {
-  box-shadow: 0 8px 16px rgba(0,0,0,0.08);
-  border-color: #2196F3;
+  box-shadow: 0 8px 16px var(--ui-card-shadow-hover);
+  border-color: var(--ui-accent);
   transform: translateY(-2px);
 }
 
 .unverified-cluster {
-  border-left: 4px solid #f44336;
-  background: #fff8f8;
+  border-left: 4px solid var(--ui-danger-accent);
+  background: var(--ui-danger-surface);
 }
 
 .mismatch-cluster {
-  border-left: 4px solid #FF9800;
-  background: #fff9e6;
-  border: 2px solid #FF9800;
+  border-left: 4px solid var(--ui-warning-soft-border);
+  background: var(--ui-warning-soft-bg);
+  border: 2px solid var(--ui-warning-soft-border);
 }
 
 .mismatch-header {
-  color: #FF6F00;
+  color: var(--status-parallel-fg);
   font-size: 1.05em;
   margin-bottom: 12px;
   padding: 8px;
-  background: #FFE0B2;
+  background: var(--ui-warning-header-bg);
   border-radius: 4px;
 }
 
 .mismatch-extracted {
-  background: #FFF3E0;
+  background: var(--ui-mismatch-extracted-bg);
   padding: 8px;
   border-radius: 4px;
   margin-top: 4px;
 }
 
 .highlight-mismatch {
-  background: #FFEB3B;
+  background: var(--ui-mismatch-highlight-bg);
   padding: 2px 6px;
   border-radius: 3px;
   font-weight: 600;
-  border: 1px solid #FBC02D;
+  border: 1px solid var(--ui-mismatch-highlight-border);
+  color: var(--ui-text);
 }
 
 .cluster-header-line {
   font-size: 1.1em;
   margin-bottom: 12px;
   padding-bottom: 8px;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid var(--ui-divider);
 }
 
 .cluster-case-name {
-  color: #333;
+  color: var(--ui-text-muted);
   font-weight: 500;
   padding: 40px;
-  color: #666;
 }
 
 .cluster-date {
-  color: #666;
+  color: var(--ui-text-muted);
   font-size: 0.9em;
 }
 
@@ -323,40 +341,40 @@ export default {
 .verifying-source {
   font-size: 1.15em;
   font-weight: 600;
-  color: #1a1a1a;
+  color: var(--ui-text);
   letter-spacing: -0.01em;
 }
 
 .canonical-link {
-  color: #1976D2;
+  color: var(--ui-link);
   text-decoration: none;
   font-weight: 600;
   transition: color 0.2s ease;
 }
 
 .canonical-link:hover {
-  color: #1565C0;
+  color: var(--ui-link-hover);
   text-decoration: none;
-  background: linear-gradient(to right, #E3F2FD, transparent);
-  border-bottom: 2px solid #2196F3;
+  background: linear-gradient(to right, var(--ui-info-surface), transparent);
+  border-bottom: 2px solid var(--ui-link-underline);
 }
 
 .source-badge {
-  color: #666;
+  color: var(--ui-text-muted);
   font-weight: normal;
   font-size: 0.9em;
 }
 
 .submitted-document {
-  color: #5f6368;
+  color: var(--ui-text-secondary);
   font-size: 0.95em;
   margin-top: 8px;
   padding-left: 4px;
-  border-left: 3px solid #f0f0f0;
+  border-left: 3px solid var(--ui-divider-strong);
 }
 
 .citation-extracted-label {
-  color: var(--text-muted, #666);
+  color: var(--ui-text-muted);
   font-size: 0.9em;
 }
 
@@ -386,47 +404,47 @@ export default {
 }
 
 .status-verified {
-  color: #4CAF50;
-  background: #E8F5E8;
+  color: var(--status-verified-fg);
+  background: var(--status-verified-bg);
 }
 
 .status-parallel {
-  color: #FF9800;
-  background: #FFF3E0;
+  color: var(--status-parallel-fg);
+  background: var(--status-parallel-bg);
 }
 
 .status-unverified {
-  color: #f44336;
-  background: #FFEBEE;
+  color: var(--status-unverified-fg);
+  background: var(--status-unverified-bg);
 }
 
 .status-possible-match {
-  color: #FF9800;
-  background: #FFF8E1;
-  border: 1px solid #FFB74D;
+  color: var(--status-possible-fg);
+  background: var(--status-possible-bg);
+  border: 1px solid var(--status-possible-border);
 }
 
 .possible-match-cluster {
-  border-left: 4px solid #FF9800;
-  background: #FFF8E1;
+  border-left: 4px solid var(--ui-warning-soft-border);
+  background: var(--status-possible-bg);
 }
 
 .citation-card, .cluster-card {
-  border: 1px solid #eee;
+  border: 1px solid var(--ui-divider);
   border-radius: 6px;
   padding: 15px;
-  background: #f9f9f9;
+  background: var(--ui-surface-3);
 }
 
 .cluster-header h3 {
   margin: 0 0 10px 0;
-  color: #333;
+  color: var(--ui-text);
 }
 
 .cluster-meta {
   display: flex;
   gap: 20px;
-  color: #666;
+  color: var(--ui-text-muted);
   font-size: 0.9em;
 }
 
@@ -435,11 +453,12 @@ export default {
 }
 
 .cluster-citation {
-  background: #e3f2fd;
+  background: var(--ui-code-bg-alt);
   padding: 5px 10px;
   margin: 5px 0;
   border-radius: 4px;
   font-family: monospace;
+  color: var(--ui-code-fg);
 }
 
 .citations-list {
@@ -449,9 +468,9 @@ export default {
 }
 
 .citation-item {
-  border-left: 4px solid #2196F3;
+  border-left: 4px solid var(--ui-accent);
   padding: 15px;
-  background: #f8f9fa;
+  background: var(--ui-surface-2);
   border-radius: 4px;
 }
 
@@ -462,7 +481,7 @@ export default {
 
 .citation-details {
   font-size: 0.9em;
-  color: #666;
+  color: var(--ui-text-muted);
 }
 
 .citation-details div {
@@ -498,16 +517,16 @@ export default {
 
 .unverified-info li {
   margin: 8px 0;
-  color: #6c757d;
+  color: var(--ui-text-secondary);
 }
 
 .unverified-info .help-text {
   margin: 0;
   padding: 12px;
-  background-color: #e3f2fd;
-  border-left: 4px solid #2196f3;
+  background-color: var(--ui-help-info-bg);
+  border-left: 4px solid var(--ui-help-info-border);
   border-radius: 4px;
-  color: #1565c0;
+  color: var(--ui-help-info-fg);
   font-style: italic;
 }
 </style>

@@ -77,38 +77,39 @@ export default {
 
 <style scoped>
 .cluster-item {
-  background: #ffffff;
-  border: 1px solid #e8eaf0;
+  background: var(--ui-surface);
+  border: 1px solid var(--ui-border);
   border-radius: 12px;
   padding: 24px;
   margin-bottom: 20px;
-  transition: all 0.3s ease;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s ease;
+  box-shadow: 0 2px 4px var(--ui-card-shadow);
+  color: var(--ui-text);
 }
 .cluster-item:hover {
-  box-shadow: 0 8px 16px rgba(0,0,0,0.08);
-  border-color: #2196F3;
+  box-shadow: 0 8px 16px var(--ui-card-shadow-hover);
+  border-color: var(--ui-accent);
   transform: translateY(-2px);
 }
 .cluster-line { margin-bottom: 8px; line-height: 1.6; }
 .cluster-line:last-child { margin-bottom: 0; }
-.verifying-source { font-size: 1.15em; font-weight: 600; color: #1a1a1a; }
-.canonical-link { color: #1976D2; text-decoration: none; font-weight: 600; }
-.canonical-link:hover { color: #1565C0; }
-.source-badge { color: #666; font-size: 0.9em; }
-.mismatch-badge { margin-left: 8px; color: #FF6F00; }
-.merge-badge { margin-left: 8px; color: #2196F3; }
-.submitted-document { color: #5f6368; font-size: 0.95em; margin-top: 8px; padding-left: 4px; border-left: 3px solid #f0f0f0; }
-.verifying-as { color: #5f6368; font-size: 0.95em; margin-top: 8px; padding-left: 4px; border-left: 3px solid #f0f0f0; }
-.highlight-mismatch { background: #FFEB3B; padding: 2px 6px; border-radius: 3px; font-weight: 600; border: 1px solid #FBC02D; }
-.found-canonical-date { color: #666; font-size: 0.9em; margin-left: 8px; font-style: italic; }
+.verifying-source { font-size: 1.15em; font-weight: 600; color: var(--ui-text); }
+.canonical-link { color: var(--ui-link); text-decoration: none; font-weight: 600; }
+.canonical-link:hover { color: var(--ui-link-hover); }
+.source-badge { color: var(--ui-text-muted); font-size: 0.9em; }
+.mismatch-badge { margin-left: 8px; color: var(--status-parallel-fg); }
+.merge-badge { margin-left: 8px; color: var(--ui-accent); }
+.submitted-document { color: var(--ui-text-secondary); font-size: 0.95em; margin-top: 8px; padding-left: 4px; border-left: 3px solid var(--ui-divider-strong); }
+.verifying-as { color: var(--ui-text-secondary); font-size: 0.95em; margin-top: 8px; padding-left: 4px; border-left: 3px solid var(--ui-divider-strong); }
+.highlight-mismatch { background: var(--ui-mismatch-highlight-bg); padding: 2px 6px; border-radius: 3px; font-weight: 600; border: 1px solid var(--ui-mismatch-highlight-border); color: var(--ui-text); }
+.found-canonical-date { color: var(--ui-text-muted); font-size: 0.9em; margin-left: 8px; font-style: italic; }
 .cluster-citations { margin: 15px 0; }
 .citation-line { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-.citation-text { font-family: 'Courier New', Consolas, monospace; background: #e8f4fd; padding: 4px 10px; border-radius: 6px; font-size: 0.9em; font-weight: 500; border: 1px solid #d0e9ff; color: #0d47a1; }
+.citation-text { font-family: 'Courier New', Consolas, monospace; background: var(--ui-code-bg); padding: 4px 10px; border-radius: 6px; font-size: 0.9em; font-weight: 500; border: 1px solid var(--ui-code-border); color: var(--ui-code-fg); }
 .citation-status { font-weight: 600; padding: 2px 8px; border-radius: 12px; font-size: 0.85em; }
-.citation-extracted-label { color: #666; font-size: 0.9em; }
-.status-verified { color: #4CAF50; background: #E8F5E8; }
-.status-parallel { color: #FF9800; background: #FFF3E0; }
-.status-unverified { color: #f44336; background: #FFEBEE; }
-.status-possible-match { color: #FF9800; background: #FFF8E1; border: 1px solid #FFB74D; }
+.citation-extracted-label { color: var(--ui-text-muted); font-size: 0.9em; }
+.status-verified { color: var(--status-verified-fg); background: var(--status-verified-bg); }
+.status-parallel { color: var(--status-parallel-fg); background: var(--status-parallel-bg); }
+.status-unverified { color: var(--status-unverified-fg); background: var(--status-unverified-bg); }
+.status-possible-match { color: var(--status-possible-fg); background: var(--status-possible-bg); border: 1px solid var(--status-possible-border); }
 </style>

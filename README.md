@@ -2,23 +2,33 @@
 
 A production-ready legal citation analysis and verification system with Docker deployment, Vue.js frontend, and Flask backend.
 
+## Release versions
+
+| Artifact | Location | Current |
+|----------|----------|---------|
+| API / Docker image | Root `VERSION` (copied to `/app/VERSION` in the backend container; exposed as `version` on `GET /casestrainer/api/health`) | **2.1.0** |
+| Web UI | `casestrainer-vue-new/package.json` → Vite `__APP_VERSION__` (shown in the site chrome) | **2.1.0** |
+| Citation clustering engine | `src/unified_clustering_master_optimized.py` → `CLUSTERING_VERSION` (included in pipeline metadata as `clustering_version` on completed tasks) | **2026-04-v8** |
+
+Bump these together when you cut a release so the website, API health, and docs stay aligned.
+
 ## 🚀 Quick Start
 
 ### Production Deployment (Recommended)
 
 ```powershell
 
-# Start production deployment with Docker
+# Start production deployment with Docker (Wolf / full stack reload)
 
-.\launcher.ps1 -Environment DockerProduction
+.\cslauncher.ps1
 
 ```text
 
 This will:
 
-- Build the Vue.js frontend
-- Start all Docker containers (Nginx, Frontend, Backend, Redis, RQ Workers)
-- Configure SSL and routing
+- Build the Vue.js frontend (`npm run build`) and rebuild the frontend Docker image each run
+- Start or refresh Docker containers (Nginx, Frontend, Backend, Redis, RQ workers)
+- Configure SSL and routing when used in the full Wolf deployment
 - Make the application available at https://wolf.law.uw.edu/casestrainer/
 
 ### Manual Docker Deployment
@@ -47,7 +57,7 @@ CaseStrainer uses a modern microservices architecture:
 - **Frontend**: Vue.js application served by Nginx (port 8080)
 - **Backend**: Flask API server with Waitress WSGI (port 5001)
 - **Redis**: Task queue and caching (port 6380)
-- **RQ Workers**: Background task processing (3 instances)
+- **RQ Workers**: Background task processing (multiple worker containers in production compose)
 
 ## ✨ Features
 
@@ -79,8 +89,8 @@ CaseStrainer uses a modern microservices architecture:
 ## 📋 Requirements
 
 - Docker and Docker Compose
-- Node.js 16+ (for frontend development)
-- Python 3.8+ (for backend development)
+- Node.js 18+ (for frontend development; LTS recommended)
+- Python 3.10+ (for backend development; match `requirements.txt` / CI)
 - CourtListener API key
 - LangSearch API key (optional)
 
@@ -166,11 +176,13 @@ docker-compose -f docker-compose.prod.yml up -d --build \
 
 ### Production Deployment
 
-1. **Using Launcher Script** (Recommended):
+1. **Using the launcher script** (recommended for Wolf-style full reload):
 
    ```powershell
-   .\launcher.ps1 -Environment DockerProduction
+   .\cslauncher.ps1
    ```text
+
+   Use `.\cslauncher.ps1 -Build:$false` to skip backend/worker image rebuilds (the Vue app and frontend image still rebuild every run). See script comments for other flags.
 
 2. **Manual Deployment**:
 
@@ -184,11 +196,7 @@ docker-compose -f docker-compose.prod.yml up -d --build \
 
 ```powershell
 
-# Start development environment
-
-.\launcher.ps1 -Environment DockerDevelopment
-
-# Or manual development setup
+# Docker stack (adjust compose file to your environment)
 
 docker-compose -f docker-compose.yml up -d
 
@@ -257,16 +265,16 @@ For detailed troubleshooting, see [TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md).
 - [Enhanced Citation Processing](docs/ENHANCED_CITATION_PROCESSING.md) - Citation processing details
 - [Troubleshooting Guide](docs/TROUBLESHOOTING.md) - Common issues and solutions
 - [Deployment Guide](docs/DEPLOYMENT_VUE.md) - Complete deployment instructions
-- [Word Add-In (BriefCheck)](docs/WORD_ADDIN.md) - Microsoft Word integration guide
-- [Browser Extension](docs/BROWSER_EXTENSION.md) - Browser extension documentation (planned feature)
+- [Word add-in](docs/WORD_ADDIN.md) — task pane source in `casestrainer-vue-new/public/word-addin/` (served at `/casestrainer/word-addin/` when deployed)
+- [Browser extension](docs/BROWSER_EXTENSION.md) — Chromium MV3 extension in `browser-extension/` (load unpacked)
 
 ## 📦 Extensions & Integrations
 
-### Word Add-In (BriefCheck)
-Analyze and verify citations directly within Microsoft Word documents. See [WORD_ADDIN.md](docs/WORD_ADDIN.md) for installation and usage instructions.
+### Word add-in
+Task pane HTML/JS and `manifest.xml` live in **`casestrainer-vue-new/public/word-addin/`** and ship with the Vue build. Production manifest URL: `https://wolf.law.uw.edu/casestrainer/word-addin/manifest.xml`. See [WORD_ADDIN.md](docs/WORD_ADDIN.md).
 
-### Browser Extension (Planned)
-Verify citations in real-time while browsing legal websites. See [BROWSER_EXTENSION.md](docs/BROWSER_EXTENSION.md) for planned features and development roadmap.
+### Browser extension
+Chromium extension in **`browser-extension/`** — detects citation-like strings on configured sites and calls the same API as the web app. See [BROWSER_EXTENSION.md](docs/BROWSER_EXTENSION.md).
 
 ## 🔗 Repository
 

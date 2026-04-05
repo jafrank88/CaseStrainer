@@ -5,7 +5,7 @@ Parallel citations (same case, multiple reporters) should appear in one cluster.
 If the doc cites A & B and later B & C, transitive merge puts A, B, C in one cluster.
 """
 # Bump when clustering logic changes so API/workers can report which version ran
-CLUSTERING_VERSION = "2026-03-v7"
+CLUSTERING_VERSION = "2026-04-v8"
 
 import re
 import logging

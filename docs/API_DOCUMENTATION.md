@@ -1,5 +1,7 @@
 # CaseStrainer API Documentation
 
+**Release:** API version **2.1.0** (root `VERSION` file, exposed on `GET /casestrainer/api/health`). Web UI **2.1.0** (`casestrainer-vue-new/package.json`). Completed async tasks include `metadata.clustering_version` (e.g. **2026-04-v8**).
+
 ## ⚠️ **IMPORTANT: Upload Behavior Warning**
 
 **CaseTrainer does NOT cache or deduplicate uploads.** Each file upload, URL submission, or text input is processed as a completely new request. This means:
@@ -20,6 +22,7 @@
 - `GET /casestrainer/api/db_stats` - Database statistics
 - `GET /casestrainer/api/metrics/summary` - Metrics summary
 - `GET /casestrainer/api/analyze/progress/<request_id>` - Progress for a request
+- `GET /casestrainer/api/analyze/progress-stream/<request_id>` - Server-Sent Events stream for live progress
 
 **Removed / Deprecated (Do NOT Use):**
 

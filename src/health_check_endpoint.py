@@ -6,10 +6,28 @@ the new clean pipeline v2.
 """
 
 import logging
+import os
 from datetime import datetime
 from typing import Dict, Any
 
 logger = logging.getLogger(__name__)
+
+
+def _read_app_version() -> str:
+    """Prefer /app/VERSION (Docker), else repo root VERSION — same sources as Vue API health."""
+    for path in (
+        os.path.join("/app", "VERSION"),
+        os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "VERSION")),
+    ):
+        try:
+            if os.path.isfile(path):
+                with open(path, encoding="utf-8") as vf:
+                    v = vf.read().strip()
+                    if v:
+                        return v
+        except OSError:
+            continue
+    return "2.1.0"
 
 
 def get_health_status() -> Dict[str, Any]:
@@ -23,7 +41,12 @@ def get_health_status() -> Dict[str, Any]:
         - version: System version
         - components: Status of each component
     """
-    health = {"status": "healthy", "timestamp": datetime.utcnow().isoformat(), "version": "2.0.0", "components": {}}
+    health = {
+        "status": "healthy",
+        "timestamp": datetime.utcnow().isoformat(),
+        "version": _read_app_version(),
+        "components": {},
+    }
 
     # Check unified extraction master
     try:
@@ -162,10 +185,12 @@ def create_health_endpoint(app):
             citations = result.get("citations", [])
             ok = not result.get("error") and len(citations) >= 1
 
+            app_ver = _read_app_version()
+            vlabel = app_ver if app_ver.startswith("v") else f"v{app_ver}"
             if ok:
                 return {
                     "status": "healthy",
-                    "version": "v2.0.0",
+                    "version": vlabel,
                     "accuracy": "87-93%",
                     "method": "unified_pipeline",
                     "case_name_bleeding": "zero",
@@ -175,7 +200,7 @@ def create_health_endpoint(app):
             else:
                 return {
                     "status": "degraded",
-                    "version": "v2.0.0",
+                    "version": vlabel,
                     "test_passed": False,
                     "message": result.get("error", "Extraction test failed"),
                     "timestamp": datetime.utcnow().isoformat(),

@@ -1,6 +1,6 @@
 # CaseStrainer Browser Extension
 
-Legal citation verification extension for Chrome, Edge, and Firefox.
+Manifest **V3** extension for **Chrome and Edge** (load unpacked). Calls `POST …/casestrainer/api/analyze` with `{ "type": "text", … }` and polls `task_status` when the server returns a `task_id`. Firefox builds are not shipped in this folder.
 
 ## Features
 
@@ -250,7 +250,7 @@ We welcome contributions! To contribute:
 - [ ] Citation history
 - [ ] Custom verification rules
 
-### Future (2.0.0)
+### Future roadmap
 - [ ] Safari support
 - [ ] Offline mode with cached results
 - [ ] Team collaboration features

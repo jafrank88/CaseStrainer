@@ -1,6 +1,12 @@
 <template>
   <transition name="fade">
-    <div v-if="isProcessing" class="simple-progress-container">
+    <div
+      v-if="isProcessing"
+      class="simple-progress-container"
+      role="status"
+      aria-live="polite"
+      aria-atomic="true"
+    >
       <div class="progress-card">
         <!-- Main Progress Bar -->
         <div v-if="!hasError" class="progress-section">
@@ -8,7 +14,7 @@
             <p class="subtitle centered-message">{{ currentMessage }}</p>
           </div>
           <div class="processing-indicator" v-if="isActive">
-            <i class="bi bi-arrow-repeat spinning me-1"></i>
+            <i class="bi bi-arrow-repeat spinning me-1" aria-hidden="true"></i>
             <span>Still processing</span>
             <span class="dot-sep">•</span>
             <span>{{ elapsedTimeFormatted }} elapsed</span>
@@ -40,7 +46,7 @@
         <!-- Error Message -->
         <div v-if="hasError && !isComplete" class="error-section">
           <div class="alert alert-danger mb-0">
-            <i class="bi bi-exclamation-triangle-fill me-2"></i>
+            <i class="bi bi-exclamation-triangle-fill me-2" aria-hidden="true"></i>
             {{ errorMessage }}
           </div>
         </div>
@@ -281,11 +287,12 @@ onUnmounted(() => {
 }
 
 .progress-card {
-  background: white;
+  background: var(--card-bg, #fff);
   border-radius: 16px;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 24px var(--ui-card-shadow, rgba(0, 0, 0, 0.08));
   padding: 2rem;
-  border: 1px solid #e5e7eb;
+  border: 1px solid var(--border, #e5e7eb);
+  color: var(--foreground, inherit);
 }
 
 .progress-header {
@@ -303,7 +310,7 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   border-radius: 12px;
-  background: #f8f9fa;
+  background: var(--ui-surface-2, #f8f9fa);
 }
 
 .loading-spinner i {
@@ -312,12 +319,12 @@ onUnmounted(() => {
 
 .success-icon {
   font-size: 2rem;
-  color: #28a745;
+  color: var(--success, #28a745);
 }
 
 .error-icon {
   font-size: 2rem;
-  color: #dc3545;
+  color: var(--danger, #dc3545);
 }
 
 .header-content {
@@ -329,13 +336,13 @@ onUnmounted(() => {
   margin: 0 0 0.25rem 0;
   font-size: 1.25rem;
   font-weight: 600;
-  color: #1f2937;
+  color: var(--foreground, #1f2937);
 }
 
 .subtitle {
   margin: 0;
   font-size: 0.95rem;
-  color: #6b7280;
+  color: var(--ui-text-secondary, #6b7280);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -367,7 +374,7 @@ onUnmounted(() => {
   justify-content: center;
   gap: 0.25rem;
   font-size: 0.875rem;
-  color: #4b5563;
+  color: var(--ui-text-muted, #4b5563);
 }
 
 .spinning {
@@ -376,7 +383,7 @@ onUnmounted(() => {
 }
 
 .dot-sep {
-  color: #9ca3af;
+  color: var(--ui-text-muted, #9ca3af);
 }
 
 @keyframes progress-spin {
@@ -385,7 +392,7 @@ onUnmounted(() => {
 }
 
 .progress {
-  background-color: #e5e7eb;
+  background-color: var(--border, #e5e7eb);
 }
 
 .progress-bar {
@@ -420,7 +427,7 @@ onUnmounted(() => {
   align-items: center;
   gap: 0.25rem;
   font-size: 0.875rem;
-  color: #6b7280;
+  color: var(--ui-text-secondary, #6b7280);
 }
 
 .stat-item i {

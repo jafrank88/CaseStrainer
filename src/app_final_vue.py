@@ -595,9 +595,30 @@ class ApplicationFactory:
         """Configure CORS with security considerations"""
         from flask_cors import CORS
 
-        cors_origins = os.getenv(
-            "CORS_ORIGINS", "https://wolf.law.uw.edu,http://localhost:5000,http://localhost:8080"
-        ).split(",")
+        cors_origins = [
+            o.strip()
+            for o in os.getenv(
+                "CORS_ORIGINS",
+                "https://wolf.law.uw.edu,http://localhost:5000,http://localhost:8080,"
+                "http://127.0.0.1:5001,http://localhost:5173",
+            ).split(",")
+            if o.strip()
+        ]
+
+        # Browser extensions send Origin: chrome-extension://<id> or moz-extension://<id>
+        # flask-cors treats strings with * as regex (see try_match_pattern).
+        allow_extensions = os.getenv("CORS_ALLOW_BROWSER_EXTENSIONS", "true").lower() in (
+            "1",
+            "true",
+            "yes",
+        )
+        if allow_extensions:
+            cors_origins.extend(
+                [
+                    r"chrome-extension://.*",
+                    r"moz-extension://.*",
+                ]
+            )
 
         _ = CORS(
             app,
@@ -608,7 +629,11 @@ class ApplicationFactory:
             max_age=3600,
         )  # Cache preflight requests
 
-        self.logger.info(f"CORS configured for origins: {cors_origins}")
+        self.logger.info(
+            "CORS configured: %s origins/patterns%s",
+            len(cors_origins),
+            " (includes browser-extension / moz-extension regex)" if allow_extensions else "",
+        )
 
     def _setup_upload_security(self, app: Any) -> None:
         """Setup secure upload directory"""

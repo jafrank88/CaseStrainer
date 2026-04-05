@@ -22,6 +22,7 @@ from src.config import (
     MAX_JOB_TIMEOUT_SECONDS,
     LARGE_DOCUMENT_CITATION_THRESHOLD,
     TIMEOUT_PER_EXTRA_CITATION,
+    DATA_RETENTION_ASYNC_SECONDS,
 )
 
 logger = logging.getLogger(__name__)
@@ -805,8 +806,8 @@ class UnifiedInputProcessor:
                         args=(request_id, "text", {"text": text, "enable_verification": enable_verification}),
                         job_id=request_id,  # Use request_id as the job ID
                         job_timeout=dynamic_timeout,  # Dynamic timeout based on document size
-                        result_ttl=86400,
-                        failure_ttl=86400,
+                        result_ttl=DATA_RETENTION_ASYNC_SECONDS,
+                        failure_ttl=DATA_RETENTION_ASYNC_SECONDS,
                     )
 
                     logger.error(f"[Unified Processor {request_id}] [OK] Task enqueued successfully!")

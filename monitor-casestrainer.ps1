@@ -29,7 +29,7 @@ function Show-Help {
     Write-Host "Usage:"
     Write-Host "  .\monitor-casestrainer.ps1 [Options]`n"
     Write-Host "Options:"
-    Write-Host "  -Environment <Production|Development>  # Environment to monitor (default: Production)"
+    Write-Host "  -Environment <Production|Development>  # Monitoring profile only; Docker restarts use cslauncher.ps1"
     Write-Host "  -CheckInterval <seconds>              # Health check interval (default: 30)"
     Write-Host "  -MaxRestartAttempts <number>          # Max restart attempts (default: 5)"
     Write-Host "  -RestartDelay <seconds>               # Delay before restart (default: 10)"
@@ -145,10 +145,10 @@ function Restart-Backend {
         
         # Start backend using launcher
         try {
-            $launcherPath = Join-Path $PSScriptRoot "launcher.ps1"
+            $launcherPath = Join-Path $PSScriptRoot "cslauncher.ps1"
             if (Test-Path $launcherPath) {
-                Write-Log "Starting backend via launcher..." -Level "INFO"
-                Start-Process -FilePath "powershell.exe" -ArgumentList "-ExecutionPolicy", "Bypass", "-File", "`"$launcherPath`"", "-Environment", $Environment, "-NoMenu" -WindowStyle Hidden
+                Write-Log "Starting Docker stack via cslauncher.ps1 (ignores -Environment; use for health-based reload)..." -Level "INFO"
+                Start-Process -FilePath "powershell.exe" -ArgumentList "-ExecutionPolicy", "Bypass", "-File", "`"$launcherPath`"" -WindowStyle Hidden
                 Start-Sleep -Seconds $RestartDelay
             } else {
                 Write-Log "Launcher not found, attempting direct start..." -Level "WARN"

@@ -2,12 +2,23 @@
   <div class="container py-4">
     <h1 class="mb-3">API Documentation</h1>
     <p class="lead">Welcome to the CaseStrainer API documentation page.</p>
+    <p class="text-muted small mb-3">
+      <strong>Release 2.1.0:</strong> Web UI version comes from the frontend <code>package.json</code>.
+      The API <code>version</code> field on <code>GET /casestrainer/api/health</code> is read from the <code>VERSION</code> file in the backend container (repo root <code>VERSION</code> in source).
+      Completed analysis tasks include <code>metadata.clustering_version</code> (citation clustering build id).
+    </p>
     <p>
       Here you will find information about available API endpoints, request/response formats, and usage examples.
     </p>
-    <p class="alert alert-info">
-      <strong>Production API base:</strong> <code>https://wolf.law.uw.edu/casestrainer/api</code> — use this base URL for all endpoints when integrating with the live application.
+    <p class="text-muted small">
+      Async task results and progress in Redis use a configurable TTL (default one hour). See
+      <router-link to="/docs/data-retention">data retention</router-link>.
     </p>
+    <div class="alert alert-info" role="region" aria-label="Production API base URL">
+      <p class="mb-0">
+        <strong>Production API base:</strong> <code>https://wolf.law.uw.edu/casestrainer/api</code> — use this base URL for all endpoints when integrating with the live application.
+      </p>
+    </div>
     <hr />
     
     <div class="mb-5">
@@ -19,17 +30,9 @@
         <li><code>GET /casestrainer/api/db_stats</code> &mdash; Database statistics</li>
         <li><code>GET /casestrainer/api/metrics/summary</code> &mdash; Metrics summary</li>
         <li><code>GET /casestrainer/api/metrics</code> &mdash; Metrics dashboard</li>
-        <li><code>GET /casestrainer/api/analyze/progress/{request_id}</code> &mdash; Progress for a request</li>
+        <li><code>GET /casestrainer/api/analyze/progress/{request_id}</code> &mdash; JSON progress snapshot for a request</li>
+        <li><code>GET /casestrainer/api/analyze/progress-stream/{request_id}</code> &mdash; Server-Sent Events stream for live progress</li>
       </ul>
-    </div>
-
-    <div class="mb-5">
-      <h2>Single Analyze Endpoint</h2>
-      <p>
-        <code>POST /casestrainer/api/analyze</code> supports file uploads, URL input, and pasted text.
-        Processing is async-first and returns <code>task_id</code>; poll <code>/task_status/{task_id}</code> for status and results.
-        The same endpoint supports file upload, URL input, and pasted text.
-      </p>
     </div>
 
     <div class="mb-5">
@@ -38,9 +41,12 @@
       
       <h3>Overview</h3>
       <p>
-        The analyze endpoint processes legal documents and extracts/verifies citations. It supports three input types:
-        file uploads, direct text input, and URL content extraction. Processing is asynchronous and returns a task ID
-        that can be used to poll for results.
+        The analyze endpoint processes legal documents and extracts/verifies citations. It supports file uploads,
+        pasted text, and URL extraction. Production is <strong>async-first</strong>: the response usually includes a
+        <code>task_id</code> to poll via <code>GET /task_status/{task_id}</code>. For small inputs, the same endpoint may
+        return a <strong>synchronous</strong> JSON body with <code>citations</code> and <code>clusters</code> immediately
+        (see server routing and optional <code>force_mode</code> in form/JSON). Optional form field
+        <code>force_mode</code>: <code>async</code>, <code>sync</code>, or <code>auto</code> where supported.
       </p>
 
       <h3>Input Types</h3>
@@ -112,7 +118,7 @@
     "source_type": "file",
     "source_name": "document.pdf",
     "file_type": ".pdf",
-    "timestamp": "2024-01-15T10:30:00Z",
+    "timestamp": "2026-04-02T10:30:00Z",
     "user_agent": "curl/7.68.0"
   }
 }</code></pre>
@@ -168,7 +174,8 @@
     "source_type": "file",
     "source_name": "document.pdf",
     "file_type": ".pdf",
-    "timestamp": "2024-01-15T10:30:00Z"
+    "timestamp": "2026-04-02T10:30:00Z",
+    "clustering_version": "2026-04-v8"
   },
   "progress": 100,
   "total_citations": 1,
@@ -196,7 +203,12 @@
             <tr>
               <td><code>found</code></td>
               <td>boolean</td>
-              <td>Whether the citation was found in legal databases</td>
+              <td>UI-oriented flag (mapped from verification); prefer <code>verified</code> for API logic</td>
+            </tr>
+            <tr>
+              <td><code>verified</code></td>
+              <td>boolean</td>
+              <td>Whether the citation matched a canonical case (e.g. CourtListener) with required fields</td>
             </tr>
             <tr>
               <td><code>source</code></td>
@@ -214,9 +226,9 @@
               <td>Case name extracted from the document text</td>
             </tr>
             <tr>
-              <td><code>url</code></td>
+              <td><code>url</code> / <code>canonical_url</code></td>
               <td>string</td>
-              <td>Direct link to the case (if available)</td>
+              <td>Opinion URL when resolved (often CourtListener)</td>
             </tr>
             <tr>
               <td><code>explanation</code></td>
@@ -328,138 +340,46 @@
     </div>
 
     <div class="mb-5">
-      <h2>Enhanced Analyze Endpoint</h2>
-      <p class="text-muted">POST <code>/casestrainer/api/analyze_enhanced</code></p>
-      
-      <h3>Overview</h3>
+      <h2>Synchronous vs asynchronous <code>/analyze</code></h2>
       <p>
-        The enhanced analyze endpoint provides synchronous citation analysis with immediate results.
-        It's optimized for quick text processing and testing, but doesn't support file uploads or URL processing.
+        There is <strong>no</strong> separate <code>/analyze_enhanced</code> endpoint. The same
+        <code>POST /casestrainer/api/analyze</code> route either enqueues work and returns a <code>task_id</code>
+        (then poll <code>/task_status/{task_id}</code>) or, for small inputs, returns <code>citations</code> and
+        <code>clusters</code> immediately with <code>success: true</code>. Routing depends on document size,
+        estimated citation count, optional <code>force_mode</code>, and server configuration.
       </p>
-
-      <h3>Input Format</h3>
-      <div class="card mb-3">
-        <div class="card-header">
-          <h4 class="mb-0">Text Input Only</h4>
-        </div>
-        <div class="card-body">
-          <p><strong>Content-Type:</strong> <code>application/json</code></p>
-          
-          <h5>Request Format:</h5>
-          <pre><code>{
-  "type": "text",
-  "text": "The court held in Smith v. Jones, 123 F.3d 456 (9th Cir. 2020) that..."
-}</code></pre>
-        </div>
-      </div>
-
-      <h3>Response Format</h3>
-      <p>The enhanced endpoint returns immediate results without task IDs:</p>
-      
-      <div class="card mb-3">
-        <div class="card-header">
-          <h4 class="mb-0">Success Response</h4>
-        </div>
-        <div class="card-body">
-          <pre><code>{
-  "citations": [
-    {
-      "citation": "123 F.3d 456",
-      "case_name": "Smith v. Jones",
-      "extracted_case_name": "Smith v. Jones",
-      "canonical_name": "Smith v. Jones",
-      "extracted_date": "2020",
-      "canonical_date": "2020",
-      "verified": true,
-      "court": "9th Cir.",
-      "confidence": 0.95,
-      "method": "CourtListener",
-      "url": "https://www.courtlistener.com/opinion/12345/",
-      "source": "CourtListener",
-      "metadata": {...}
-    }
-  ],
-  "clusters": [
-    {
-      "cluster_id": "cluster_1",
-      "canonical_name": "Smith v. Jones",
-      "canonical_date": "2020",
-      "extracted_case_name": "Smith v. Jones",
-      "extracted_date": "2020",
-      "citations": [...],
-      "size": 2
-    }
-  ],
-  "success": true
-}</code></pre>
-        </div>
-      </div>
-
-      <h3>Error Response</h3>
-      <div class="card mb-3">
-        <div class="card-header">
-          <h4 class="mb-0">Error Format</h4>
-        </div>
-        <div class="card-body">
-          <pre><code>{
-  "error": "Analysis failed",
-  "details": "Error message details"
-}</code></pre>
-        </div>
-      </div>
-
-      <h3>Example Usage</h3>
-      <div class="card">
-        <div class="card-header">
-          <h4 class="mb-0">Complete Example</h4>
-        </div>
-        <div class="card-body">
-          <h5>Request:</h5>
-          <pre><code>curl -X POST https://wolf.law.uw.edu/casestrainer/api/analyze \
-  -H "Content-Type: application/json" \
-  -d '{
-    "type": "text",
-    "text": "The court held in Smith v. Jones, 123 F.3d 456 (9th Cir. 2020) that..."
-  }'</code></pre>
-          
-          <h5>Response:</h5>
-          <pre><code>{
-  "citations": [
-    {
-      "citation": "123 F.3d 456",
-      "case_name": "Smith v. Jones",
-      "extracted_case_name": "Smith v. Jones",
-      "canonical_name": "Smith v. Jones",
-      "verified": true,
-      "confidence": 0.95
-    }
-  ],
-  "clusters": [...],
-  "success": true
-}</code></pre>
-        </div>
-      </div>
     </div>
 
     <div class="mb-5">
       <h2>Health Check Endpoint</h2>
-      <p class="text-muted">GET <code>/casestrainer/api/health</code></p>
-      <p>Returns the current status of the API service.</p>
+      <p class="text-muted">GET <code>/casestrainer/api/health</code> (alias: same handler on the API blueprint)</p>
+      <p>Returns service status, <code>version</code> from the container <code>VERSION</code> file (e.g. <strong>2.1.0</strong>), database and Redis component checks, and environment metadata.</p>
       
-      <h5>Response:</h5>
+      <h5>Example response (abridged):</h5>
       <pre><code>{
   "status": "healthy",
-  "service": "CaseStrainer Vue API",
-  "timestamp": "2024-01-15T10:30:00Z",
-  "uptime": {
-    "seconds": 3600,
-    "formatted": "1 hour"
+  "timestamp": "2026-04-02T12:00:00.000000",
+  "version": "2.1.0",
+  "components": {
+    "database": "healthy",
+    "upload_directory": "healthy",
+    "citation_processor": "healthy",
+    "redis": "healthy"
   },
-  "redis": "connected",
-  "database": "healthy",
-  "rq_worker": "running",
-  "environment": "production",
-  "version": "2.0.0"
+  "database_stats": {
+    "tables": 0,
+    "size_mb": 0.0,
+    "path": "/path/to/data.db"
+  },
+  "environment": {
+    "python_version": "3.11.0",
+    "platform": "linux"
+  },
+  "endpoints": {
+    "current": "/casestrainer/api/health",
+    "alias": "/health",
+    "base_url": "https://example.com/casestrainer/api/health"
+  }
 }</code></pre>
     </div>
 
@@ -477,7 +397,7 @@
       <h5>Response:</h5>
       <pre><code>{
   "timestamp": 1642248600,
-  "current_time": "2024-01-15 10:30:00",
+  "current_time": "2026-04-02 10:30:00",
   "uptime": {
     "seconds": 3600,
     "formatted": "1 hour"
@@ -489,8 +409,18 @@
     </div>
 
     <div class="mb-5">
+      <h2>Integrations (same API)</h2>
+      <p>
+        <router-link to="/browser-extension">Browser extension</router-link> (Chromium, load unpacked from <code>browser-extension/</code>)
+        and <router-link to="/word-plugin">Word add-in</router-link> (task pane hosted at <code>/casestrainer/word-addin/</code> after deploy)
+        call this API. Use JSON <code>{ "type": "text", "text": "...", "force_mode": "sync" }</code> when you need an immediate
+        <code>citations</code> array; otherwise poll <code>task_status</code> when you receive a <code>task_id</code>.
+      </p>
+    </div>
+
+    <div class="mb-5">
       <h2>Additional Resources</h2>
-      <p>For more detailed information, see the <a href="https://wolf.law.uw.edu/casestrainer/" target="_blank" rel="noopener">live application</a> and the <a href="https://github.com/jafrank88/casestrainer" target="_blank" rel="noopener">GitHub repository</a>.</p>
+      <p>For more detailed information, see the <a href="https://wolf.law.uw.edu/casestrainer/" target="_blank" rel="noopener noreferrer">live application<span class="visually-hidden"> (opens in new tab)</span></a> and the <a href="https://github.com/jafrank88/casestrainer" target="_blank" rel="noopener noreferrer">GitHub repository<span class="visually-hidden"> (opens in new tab)</span></a>.</p>
     </div>
   </div>
 </template>
@@ -515,8 +445,9 @@ h1 {
 }
 
 pre {
-  background-color: #f8f9fa;
-  border: 1px solid #e9ecef;
+  background-color: #f1f5f9;
+  color: #0f172a;
+  border: 1px solid #cbd5e1;
   border-radius: 0.375rem;
   padding: 1rem;
   font-size: 0.875rem;
@@ -524,7 +455,8 @@ pre {
 }
 
 code {
-  background-color: #f1f3f4;
+  background-color: #e2e8f0;
+  color: #0f172a;
   padding: 0.125rem 0.25rem;
   border-radius: 0.25rem;
   font-size: 0.875em;

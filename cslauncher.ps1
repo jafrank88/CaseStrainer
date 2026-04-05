@@ -6,7 +6,7 @@
 #   .\cslauncher.ps1 -ServicesOff     # Reload without auto-restart service
 #   .\cslauncher.ps1 -UpdateDocker    # Pause service for Docker update, then exit
 #   .\cslauncher.ps1 -InstallService  # One-time setup: install auto-restart service (needs admin)
-#   .\cslauncher.ps1 -Build           # Rebuild backend container
+#   .\cslauncher.ps1 -Build:$false   # Skip backend+worker image rebuilds (frontend still rebuilds every run)
 #   .\cslauncher.ps1 -CleanDocker     # Force Docker cleanup
 #   .\cslauncher.ps1 -WaitForServices -CleanupStuckJobs   # After health OK: wait-for-services.py + cleanup-stuck-jobs.py
 #
@@ -17,7 +17,7 @@
 # - Multi-check verification (ensures fixes are deployed)
 # - Smart Docker cleanup (memory/disk threshold-based)
 # - Automatic cache clearing (Redis + in-memory via restart)
-# - Build support (rebuild backend when needed)
+# - Backend + workers: image rebuild every run by default (-Build:$false to skip)
 # - Crash logging (track reload operations)
 # - Admin check (warn if not admin for Docker operations)
 # - Verbose mode (detailed output)
@@ -26,7 +26,7 @@
 # - Persistent healthcheck logging (tracks all healthcheck results)
 # - Automatic crash detection and diagnostics capture
 # - Docker auto-restart service management (enabled by default, -ServicesOff to disable)
-# - Automatic Vue frontend build detection and rebuild (detects source changes, runs npm build)
+# - Vue frontend: npm run build + frontend Docker image on every run (no flag; Wolf always serves latest dist)
 #
 # WORKERS: There are six RQ workers (rqworker1 through rqworker6). After changing verification,
 # batch, or citation pipeline code, run cslauncher so all six are rebuilt and restarted. Otherwise
@@ -36,7 +36,7 @@
 [CmdletBinding()]
 param(
     [Parameter()]
-    [switch]$Build = $true,  # DEFAULT: rebuild backend + workers before restart (use -Build:$false to skip)
+    [switch]$Build = $true,  # DEFAULT: rebuild backend + worker images before restart (use -Build:$false to skip). Frontend rebuilds every run regardless.
 
     [Parameter()]
     [switch]$CleanDocker,  # Force Docker cleanup (prune images, containers)
@@ -145,7 +145,7 @@ function Invoke-ManageDockerService {
             Write-Host "   Disabling Docker auto-restart service..." -ForegroundColor Yellow
 
             if (-not $isAdminForService) {
-                Write-Host "   (Requires admin - launching elevated prompt...)" -ForegroundColor Gray
+                Write-Host '   (Requires admin - launching elevated prompt...)' -ForegroundColor Gray
                 Start-Process PowerShell -Verb RunAs -ArgumentList "-ExecutionPolicy Bypass -File `"$serviceScriptPath`" -Pause" -Wait -ErrorAction SilentlyContinue
                 Write-ReloadLog "Docker auto-restart service paused (via elevation)" "SUCCESS"
                 Write-Host "   Service paused" -ForegroundColor Green
@@ -773,82 +773,6 @@ function Invoke-CaptureCrashDiagnostics {
     Write-DockerDiagnosticsLog "=== CRASH DIAGNOSTICS COMPLETE ===" "ERROR"
 }
 
-function Test-VueBuildNeeded {
-    # Check if Vue frontend needs to be rebuilt
-    # Returns true if Vue source files are newer than dist files, or if dist doesn't exist
-    $vueDir = Join-Path $PSScriptRoot "casestrainer-vue-new"
-    $distIndexPath = Join-Path $vueDir "dist\index.html"
-    $srcDir = Join-Path $vueDir "src"
-    
-    if (-not (Test-Path $srcDir)) {
-        Write-ReloadLog "Vue source directory not found: $srcDir" "WARN"
-        return $false
-    }
-    
-    # If dist doesn't exist, we need to build
-    if (-not (Test-Path $distIndexPath)) {
-        Write-ReloadLog "Vue dist not found - build needed" "INFO"
-        return $true
-    }
-    
-    # Check if any Vue source files are newer than dist
-    try {
-        $distTime = (Get-Item $distIndexPath).LastWriteTime
-        $vueSourceFiles = Get-ChildItem -Path $srcDir -Recurse -File -Include "*.vue","*.js","*.ts","*.css","*.scss" -ErrorAction SilentlyContinue
-        
-        if ($vueSourceFiles) {
-            $newestSource = $vueSourceFiles | Sort-Object LastWriteTime -Descending | Select-Object -First 1
-            if ($newestSource -and $newestSource.LastWriteTime -gt $distTime) {
-                Write-ReloadLog "Vue source files newer than dist - build needed (newest: $($newestSource.Name) at $($newestSource.LastWriteTime))" "INFO"
-                return $true
-            }
-        }
-        
-        return $false
-    } catch {
-        Write-ReloadLog "Error checking Vue build status: $($_.Exception.Message)" "WARN"
-        return $false
-    }
-}
-
-function Test-FrontendContainerRebuildNeeded {
-    # Check if frontend container needs to be rebuilt
-    # Returns true if dist is newer than the container, or if container doesn't exist
-    try {
-        # Get container creation time
-        $containerInfo = docker inspect casestrainer-frontend-prod --format '{{.Created}}' 2>&1
-        if ($LASTEXITCODE -ne 0 -or -not $containerInfo) {
-            Write-ReloadLog "Frontend container not found or inspect failed - rebuild needed" "INFO"
-            return $true
-        }
-        
-        # Parse container creation time (ISO 8601 format)
-        $containerTime = [DateTime]::Parse($containerInfo)
-        
-        # Get dist build time
-        $distIndexPath = Join-Path $PSScriptRoot "casestrainer-vue-new\dist\index.html"
-        if (-not (Test-Path $distIndexPath)) {
-            Write-ReloadLog "Dist not found - container rebuild not needed (no dist to use)" "INFO"
-            return $false
-        }
-        
-        $distTime = (Get-Item $distIndexPath).LastWriteTime
-        
-        # If dist is newer than container, rebuild needed
-        if ($distTime -gt $containerTime) {
-            $timeDiff = $distTime - $containerTime
-            Write-ReloadLog "Frontend container rebuild needed - dist is $([math]::Round($timeDiff.TotalHours, 1)) hours newer than container" "INFO"
-            return $true
-        }
-        
-        return $false
-    } catch {
-        Write-ReloadLog "Error checking frontend container rebuild status: $($_.Exception.Message)" "WARN"
-        # If we can't check, assume rebuild is needed to be safe
-        return $true
-    }
-}
-
 function Invoke-BuildVueFrontend {
     # Build Vue.js frontend using npm
     $vueDir = Join-Path $PSScriptRoot "casestrainer-vue-new"
@@ -978,7 +902,7 @@ if ($UpdateDocker) {
             Write-Host "   1. Start Docker Desktop" -ForegroundColor Gray
             Write-Host "   2. Wait for it to be ready" -ForegroundColor Gray
             Write-Host "   3. Run: .\cslauncher.ps1" -ForegroundColor Gray
-            Write-Host "      (This will re-enable the auto-restart service)" -ForegroundColor Gray
+            Write-Host '      (This will re-enable the auto-restart service)' -ForegroundColor Gray
         }
         exit 0
     }
@@ -1068,7 +992,7 @@ if ($UpdateDocker) {
     Write-Host "   1. Start Docker Desktop" -ForegroundColor Gray
     Write-Host "   2. Wait for it to be ready" -ForegroundColor Gray
     Write-Host "   3. Run: .\cslauncher.ps1" -ForegroundColor Gray
-    Write-Host "      (This will re-enable the auto-restart service)" -ForegroundColor Gray
+    Write-Host '      (This will re-enable the auto-restart service)' -ForegroundColor Gray
     Write-Host ""
     exit 0
 }
@@ -1144,15 +1068,15 @@ Write-Host "   Clearing Redis cache..." -ForegroundColor Gray
 $redisPw = Get-CaseStrainerRedisPassword
 if (-not $redisPw) {
     Write-ReloadLog "   Redis FLUSHDB skipped: REDIS_PASSWORD not set (add to .env for production)" "WARN"
-    Write-Host "   WARNING: REDIS_PASSWORD not set — skipped Redis FLUSHDB" -ForegroundColor Yellow
+    Write-Host "   WARNING: REDIS_PASSWORD not set - skipped Redis FLUSHDB" -ForegroundColor Yellow
 } else {
-    docker exec -e "REDISCLI_AUTH=$redisPw" casestrainer-redis-prod redis-cli FLUSHDB 2>$null | Out-Null
+    docker exec -e "REDISCLI_AUTH=$redisPw" casestrainer-redis redis-cli FLUSHDB 2>$null | Out-Null
     if ($LASTEXITCODE -eq 0) {
         Write-Host "   Redis cache cleared" -ForegroundColor Green
         Write-ReloadLog "   Redis FLUSHDB succeeded" "SUCCESS"
 
         if ($VerbosePreference -eq 'Continue') {
-            $keyCount = docker exec -e "REDISCLI_AUTH=$redisPw" casestrainer-redis-prod redis-cli DBSIZE 2>$null
+            $keyCount = docker exec -e "REDISCLI_AUTH=$redisPw" casestrainer-redis redis-cli DBSIZE 2>$null
             if ($keyCount -match '^\d+$') {
                 Write-Host "      Current keys: $keyCount" -ForegroundColor DarkGreen
                 Write-ReloadLog "      Redis keys after flush: $keyCount" "INFO"
@@ -1189,33 +1113,26 @@ if ($verificationCacheResult -match "cleared") {
 Write-Host "   All caches cleared" -ForegroundColor Green
 Write-ReloadLog "   Cache clearing complete: Redis + file-based caches cleared" "SUCCESS"
 
-# Step 4: Build Vue frontend (if needed)
+# Step 4: Vue frontend — always npm build + bake dist into Docker (no timestamp heuristics)
 Write-Host ""
-Write-ReloadLog "FRONTEND: Checking if Vue frontend needs rebuild..." "INFO"
+Write-ReloadLog "FRONTEND: Building Vue and frontend image (every run)..." "INFO"
 
 $frontendRebuilt = $false
-$vueBuildNeeded = Test-VueBuildNeeded
-$containerRebuildNeeded = Test-FrontendContainerRebuildNeeded
+$distIndexPath = Join-Path $PSScriptRoot "casestrainer-vue-new\dist\index.html"
 
-if ($vueBuildNeeded) {
-    Write-Host "   Vue source files changed - building frontend..." -ForegroundColor Cyan
-    if (Invoke-BuildVueFrontend) {
-        Write-Host "   Frontend build complete" -ForegroundColor Green
-        $containerRebuildNeeded = $true  # Always rebuild container after successful build
-    } else {
-        Write-Host "   WARNING: Frontend build failed - continuing with existing dist" -ForegroundColor Yellow
-        Write-ReloadLog "FRONTEND: Build failed but continuing with existing dist" "WARN"
-    }
+Write-Host "   Building Vue frontend (npm run build)..." -ForegroundColor Cyan
+$vueBuildOk = Invoke-BuildVueFrontend
+if ($vueBuildOk) {
+    Write-Host "   Frontend build complete" -ForegroundColor Green
 } else {
-    Write-Host "   Vue frontend is up to date (no rebuild needed)" -ForegroundColor Gray
-    Write-ReloadLog "FRONTEND: No rebuild needed - dist is current" "INFO"
+    Write-Host "   WARNING: Frontend build failed - continuing with existing dist if present" -ForegroundColor Yellow
+    Write-ReloadLog "FRONTEND: npm build failed; will still try container rebuild if dist exists" "WARN"
 }
 
-# Rebuild frontend container if dist is newer than container (even if we didn't just build)
-if ($containerRebuildNeeded) {
-    Write-Host "   Rebuilding frontend container (to use latest dist files)..." -ForegroundColor Yellow
-    Write-ReloadLog "FRONTEND: Rebuilding container to pick up dist changes..." "INFO"
-    
+if (Test-Path $distIndexPath) {
+    Write-Host "   Rebuilding frontend container (bakes latest dist into image)..." -ForegroundColor Yellow
+    Write-ReloadLog "FRONTEND: Rebuilding container (every run)..." "INFO"
+
     docker-compose -f docker-compose.prod.yml build frontend-prod 2>&1 | Out-Null
     if ($LASTEXITCODE -eq 0) {
         Write-Host "   Frontend container rebuilt successfully" -ForegroundColor Green
@@ -1226,8 +1143,8 @@ if ($containerRebuildNeeded) {
         Write-ReloadLog "FRONTEND: Container rebuild failed (exit code: $LASTEXITCODE)" "WARN"
     }
 } else {
-    Write-Host "   Frontend container is up to date (no rebuild needed)" -ForegroundColor Gray
-    Write-ReloadLog "FRONTEND: Container is current - no rebuild needed" "INFO"
+    Write-Host "   WARNING: No dist/index.html - skipped frontend container rebuild" -ForegroundColor Yellow
+    Write-ReloadLog "FRONTEND: dist missing - container rebuild skipped" "WARN"
 }
 
 # Step 5: Rebuild backend + workers (if requested)
@@ -1253,7 +1170,7 @@ if ($Build) {
     foreach ($svc in $script:WorkerServices) {
         docker rmi "casestrainer-$svc" 2>$null
     }
-    Write-Host "   Building with --no-cache to ensure latest code..." -ForegroundColor Yellow
+    Write-Host '   Building with --no-cache to ensure latest code...' -ForegroundColor Yellow
     docker-compose -f docker-compose.prod.yml build --no-cache backend $script:WorkerServices
     if ($LASTEXITCODE -ne 0) {
         Write-ReloadLog "ERROR: Backend/worker build failed!" "ERROR"
@@ -1275,7 +1192,7 @@ import sys
 
 try:
     pw = os.environ.get("REDIS_PASSWORD") or ""
-    r = Redis.from_url(f"redis://:{pw}@casestrainer-redis-prod:6379/0")
+    r = Redis.from_url(f"redis://:{pw}@casestrainer-redis:6379/0")
 
     # Delete all stale worker registrations
     worker_keys = r.keys('rq:worker:*')
@@ -1302,7 +1219,7 @@ except Exception as e:
 # Run cleanup via backend container (has Redis access)
 $rqPw = Get-CaseStrainerRedisPassword
 if (-not $rqPw) {
-    Write-Host "   WARNING: REDIS_PASSWORD not set — skipped RQ Redis cleanup" -ForegroundColor Yellow
+    Write-Host "   WARNING: REDIS_PASSWORD not set - skipped RQ Redis cleanup" -ForegroundColor Yellow
     Write-ReloadLog "   RQ cleanup skipped: no REDIS_PASSWORD" "WARN"
 } else {
     # Multi-line script: do not use python -c (PowerShell/newlines break -c; empty -c -> "Argument expected for the -c option")
@@ -1323,9 +1240,9 @@ if (-not $rqPw) {
 # image. Otherwise (a) a worker that crashed and was restarted by Docker keeps the old
 # container/image, and (b) compose might skip recreation if it thinks the image didn't change.
 Write-Host ""
-Write-ReloadLog "RESTART: Recreating containers with new images (--force-recreate)..." "INFO"
+Write-ReloadLog 'RESTART: Recreating containers with new images (--force-recreate)...' "INFO"
 
-Write-Host "   Recreating all $script:WorkerCount RQ workers (--force-recreate so each runs the new image)..." -ForegroundColor Gray
+Write-Host ('   Recreating all ' + $script:WorkerCount + ' RQ workers (--force-recreate so each runs the new image)...') -ForegroundColor Gray
 docker-compose -f docker-compose.prod.yml up -d --force-recreate $script:WorkerServices 2>&1 | Out-Null
 
 if ($LASTEXITCODE -ne 0) {
@@ -1335,7 +1252,7 @@ if ($LASTEXITCODE -ne 0) {
 Write-Host "   Waiting for workers to initialize..." -ForegroundColor Gray
 Start-Sleep -Seconds 3
 
-Write-Host "   Recreating backend with new image (--force-recreate)..." -ForegroundColor Gray
+Write-Host '   Recreating backend with new image (--force-recreate)...' -ForegroundColor Gray
 docker-compose -f docker-compose.prod.yml up -d --force-recreate backend 2>&1 | Out-Null
 
 if ($LASTEXITCODE -ne 0) {
@@ -1527,7 +1444,7 @@ foreach ($wc in $workerContainerNames) {
     if ($mc -match '^\s*(\d+)\s*$' -and [int]$Matches[1] -gt 0) {
         Write-Host "   [OK] $wc has pin-repair Phase 7.5" -ForegroundColor Green
     } else {
-        Write-Host "   [MISSING] $wc - marker not found in unified_citation_processor_v2.py (old code or mount?)" -ForegroundColor Red
+        Write-Host ('   [MISSING] ' + $wc + ' - marker not found in unified_citation_processor_v2.py (old code or mount?)') -ForegroundColor Red
         $workersMarkerOk = $false
     }
 }
@@ -1605,8 +1522,8 @@ if ($allVerified) {
     Write-Host ""
     Write-Host "   Volume mount may not be working. Try:" -ForegroundColor Yellow
     Write-Host "      docker-compose -f docker-compose.prod.yml down" -ForegroundColor Gray
-    Write-Host "      docker rmi casestrainer-backend; docker rmi casestrainer-rqworker1 (.. rqworker6)" -ForegroundColor Gray
-    Write-Host "      docker-compose -f docker-compose.prod.yml up -d --build" -ForegroundColor Gray
+    Write-Host '      docker rmi casestrainer-backend; docker rmi casestrainer-rqworker1 (repeat for rqworker2 through rqworker6)' -ForegroundColor Gray
+    Write-Host '      docker-compose -f docker-compose.prod.yml up -d --build' -ForegroundColor Gray
 }
 
 # Final summary
@@ -1626,9 +1543,9 @@ Write-Host "   Healthcheck log: $dockerHealthcheckLogPath" -ForegroundColor Cyan
 Write-Host ""
 
 Write-Host "Next steps:" -ForegroundColor Yellow
-Write-Host "   1. Optional stricter checks: .\cslauncher.ps1 ... -WaitForServices -CleanupStuckJobs" -ForegroundColor Gray
-Write-Host "   2. After verification/batch pipeline code changes, run cslauncher so all $script:WorkerCount workers get the new code" -ForegroundColor Gray
-Write-Host "   3. Clear browser cache (Ctrl+Shift+Delete or Incognito)" -ForegroundColor Gray
+Write-Host '   1. Optional stricter checks: .\cslauncher.ps1 ... -WaitForServices -CleanupStuckJobs' -ForegroundColor Gray
+Write-Host ('   2. After verification/batch pipeline code changes, run cslauncher so all ' + $script:WorkerCount + ' workers get the new code') -ForegroundColor Gray
+Write-Host '   3. Clear browser cache (Ctrl+Shift+Delete or Incognito)' -ForegroundColor Gray
 Write-Host "   4. Test with fresh document/PDF" -ForegroundColor Gray
 Write-Host "   5. Check logs:" -ForegroundColor Gray
 Write-Host "      docker logs -f casestrainer-backend-prod | Select-String 'DATE|VERIFY'" -ForegroundColor DarkGray
@@ -1644,7 +1561,7 @@ Invoke-CaptureDockerDiagnostics -Context "Post-Reload Complete"
 # Optional: run full-document flow test (upload PDF, poll task_status until done or timeout)
 if ($RunFullDocumentTest) {
     Write-Host ""
-    Write-Host "Running full-document flow test (upload + poll until done or 15min timeout)..." -ForegroundColor Cyan
+    Write-Host 'Running full-document flow test (upload + poll until done or 15min timeout)...' -ForegroundColor Cyan
     $testScript = Join-Path $PSScriptRoot "scripts\test_full_document_flow.py"
     if (-not (Test-Path $testScript)) {
         Write-Host "Test script not found: $testScript" -ForegroundColor Red
@@ -1657,14 +1574,14 @@ if ($RunFullDocumentTest) {
             $testExit = -1
         }
         Write-Host ""
-        Write-Host "To check if batch timeout fired (worker that ran the job):" -ForegroundColor Yellow
-        Write-Host '  docker logs casestrainer-rqworker1-prod --tail 80 2>&1 | Select-String "BATCH|timed out"' -ForegroundColor DarkGray
-        Write-Host "  (repeat for rqworker2-prod ... rqworker6-prod if job ran on another worker)" -ForegroundColor DarkGray
+        Write-Host 'To check if batch timeout fired (worker that ran the job):' -ForegroundColor Yellow
+        Write-Host '  docker logs casestrainer-rqworker1-prod --tail 80 2>&1 | Select-String ''BATCH|timed out''' -ForegroundColor DarkGray
+        Write-Host '  (repeat for rqworker2-prod ... rqworker6-prod if job ran on another worker)' -ForegroundColor DarkGray
     }
 }
 
 if ($VerbosePreference -eq 'Continue') {
-    Write-Host "Container Status:" -ForegroundColor Cyan
+    Write-Host 'Container Status:' -ForegroundColor Cyan
     docker-compose -f docker-compose.prod.yml ps
     Write-Host ""
 }

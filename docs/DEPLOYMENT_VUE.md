@@ -4,8 +4,8 @@
 
 ## Quick Start for New Contributors
 
-- **Use `launcher.ps1` to start/restart all services in any environment.**
-- **Build the Vue.js frontend with `build_and_deploy_vue.bat`.**
+- **Use `cslauncher.ps1` from the repo root for production-style Docker reload (Vue build + images/containers).** For local dev, use `npm run dev` + backend process separately.
+- **Production reload:** `.\cslauncher.ps1` runs `npm run build` in `casestrainer-vue-new/` and rebuilds the frontend Docker image each time. Legacy `build_and_deploy_vue.bat` may still exist but is not the primary Wolf workflow.
 - **All API endpoints must use the `/casestrainer/api/` prefix.**
 - **Copy `.env.example` to `.env` and fill in your secrets.**
   - Never commit real secrets!
@@ -16,7 +16,7 @@
   pip install pre-commit
   pre-commit install
   pre-commit run --all-files
-  ```text
+  ```
 
 - **Check logs** in the `logs/` directory if issues arise
 - **Docker logs** are available via `docker logs <container-name>`
@@ -60,8 +60,8 @@ casestrainer-vue-new/
 
 ## Prerequisites
 
-- **Python 3.8+** with pip
-- **Node.js 16+** and npm 8+ (LTS recommended)
+- **Python 3.10+** with pip
+- **Node.js 18+** and npm (LTS recommended)
 - **Docker Desktop** for Windows with WSL 2 backend
 - **Git** for version control
 - **PowerShell** (included with Windows)
@@ -75,61 +75,29 @@ casestrainer-vue-new/
 
 ## Deployment Options
 
-### 1. Docker Production (Recommended)
+### 1. Docker production stack (Wolf / recommended)
 
 ```powershell
-.\launcher.ps1 -Environment DockerProduction
+.\cslauncher.ps1
 
 ```text
 
-This starts the complete production stack:
+From the repo root, this rebuilds the Vue app, rebuilds backend/worker/frontend images (unless `-Build:$false`), clears caches as configured, and recreates containers per `docker-compose.prod.yml`. See the script header for flags (`-ServicesOff`, `-CleanDocker`, `-SkipHealthCheck`, etc.).
 
-- **Backend**: Containerized Flask app with Waitress WSGI server
-- **Frontend**: Nginx container serving Vue.js build
-- **Redis**: Dedicated container with persistence
-- **RQ Workers**: Multiple worker containers for background tasks
-- **Nginx**: Reverse proxy with SSL support
-- **Health Checks**: Automatic monitoring and recovery
-
-### 2. Docker Development
+### 2. Docker Compose without cslauncher
 
 ```powershell
-.\launcher.ps1 -Environment DockerDevelopment
+docker-compose -f docker-compose.prod.yml up -d --build
 
 ```text
 
-This starts a development environment with:
+Use when you only need to bring the stack up and already have images built.
 
-- **Backend**: Containerized Flask development server
-- **Frontend**: Containerized Vue.js dev server with hot reload
-- **Redis**: Dedicated container
-- **Volume mounts**: Live code changes
+### 3. Local development (no full Docker reload)
 
-### 3. Local Development
-
-```powershell
-.\launcher.ps1 -Environment Development
-
-```text
-
-This starts local services:
-
-- **Backend**: Flask development server on port 5000
-- **Frontend**: Vue.js dev server on port 5173
-- **Redis**: Local or Docker container
-
-### 4. Local Production
-
-```powershell
-.\launcher.ps1 -Environment Production
-
-```text
-
-This starts local production services:
-
-- **Backend**: Flask app with Waitress WSGI
-- **Frontend**: Built and served by Flask
-- **Nginx**: Reverse proxy on port 443
+- **Frontend:** `cd casestrainer-vue-new` then `npm run dev` (Vite).
+- **Backend:** from repo root with `PYTHONPATH` set, run `python src/app_final_vue.py` (or your usual entrypoint).
+- **Redis / queue:** start Redis locally or via `docker-compose` as needed.
 
 ## Docker Configuration
 
@@ -321,7 +289,7 @@ CASTRAINER_ENV=production
    - `Dockerfile` - Backend container definition
    - `casestrainer-vue-new/Dockerfile.prod` - Frontend container definition
 5. **Launcher Script**:
-   - `launcher.ps1` - PowerShell launcher with auto-restart capabilities
+   - `cslauncher.ps1` - PowerShell launcher with auto-restart capabilities
 
 ## Deployment Steps
 
@@ -396,19 +364,14 @@ MAIL_DEFAULT_SENDER=your-netid@uw.edu
 
 ### 4. Start Docker Production Stack
 
-Use the launcher to start the complete production stack:
+Use the launcher to start or refresh the production stack:
 
 ```powershell
-.\launcher.ps1 -Environment DockerProduction
+.\cslauncher.ps1
 
 ```text
 
-This will:
-
-- Build Docker images if needed
-- Start all containers with proper dependencies
-- Configure health checks and monitoring
-- Set up auto-restart capabilities
+This will rebuild the Vue bundle and Docker images (by default), restart workers and backend, and run health checks. Use `.\cslauncher.ps1 -Build:$false` to skip backend/worker image rebuilds only.
 
 ### 5. Verify the Deployment
 
@@ -423,7 +386,7 @@ After deployment, verify that the application is working correctly:
 2. **Check health status**:
 
    ```powershell
-   .\launcher.ps1 -Environment DockerProduction -NoMenu
+   curl http://localhost:5001/casestrainer/api/health
    ```text
 
 3. **Test endpoints**:
@@ -542,8 +505,7 @@ If you see a 502 Bad Gateway error when accessing the application:
 1. **Stop all services**:
 
    ```powershell
-   .\launcher.ps1 -Environment DockerProduction -NoMenu
-   # Select option 4: Stop All Services
+   docker-compose -f docker-compose.prod.yml down
    ```text
 
 2. **Restart Docker Desktop**:

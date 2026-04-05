@@ -272,6 +272,10 @@ def normalize_case_name(case_name: str) -> str:
     # First apply general text normalization
     normalized = normalize_text(case_name)
 
+    # PDF artifact: some fonts render lowercase 'l' as '!' after an apostrophe
+    # e.g. "Cont'! T.V." -> "Cont'l T.V.", "Nat'! Resources" -> "Nat'l Resources"
+    normalized = re.sub(r"(\w)'!", r"\1'l", normalized)
+
     # Legal-specific normalizations
     # Handle common abbreviations
     normalized = re.sub(r"\bDept\b", "Dep't", normalized, flags=re.IGNORECASE)

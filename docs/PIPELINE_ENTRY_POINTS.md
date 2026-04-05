@@ -57,6 +57,8 @@ flowchart TB
     end
 ```
 
+**Clustering build id:** Pipeline metadata includes `clustering_version` (e.g. `2026-04-v8` from `CLUSTERING_VERSION` in `src/unified_clustering_master_optimized.py`) so API consumers and support can tell which merge/split rules produced a result.
+
 **Routing (simplified):** Sync is used when the user requests `force_mode=sync` (and document is not too large: ≤100 estimated citations and ≤200KB text), or when automatic routing chooses sync (e.g. ≤5 citations and &lt;5KB text). Async is used for large or citation-heavy documents, or when `force_mode=async`. The same **unified pipeline** runs in both cases; only the execution context (in-process vs RQ worker) and response delivery (immediate vs poll `task_status`) differ.
 
 ---

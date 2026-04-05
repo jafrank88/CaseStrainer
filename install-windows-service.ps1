@@ -10,8 +10,9 @@ param(
 $ServiceName = "CaseStrainer"
 $ServiceDisplayName = "CaseStrainer Citation Validator"
 $ServiceDescription = "CaseStrainer citation validation service with auto-restart capabilities"
-$ServicePath = Join-Path $PSScriptRoot "launcher.ps1"
-$ServiceArguments = "-Environment Production -NoMenu"
+# Docker production reload (see cslauncher.ps1 header). Legacy launcher.ps1 is removed.
+$ServicePath = Join-Path $PSScriptRoot "cslauncher.ps1"
+$ServiceArguments = ""
 
 function Show-Help {
     Write-Host "CaseStrainer Windows Service Installer`n" -ForegroundColor Cyan
@@ -24,6 +25,7 @@ function Show-Help {
     Write-Host "  .\install-windows-service.ps1              # Install the service"
     Write-Host "  .\install-windows-service.ps1 -Uninstall   # Remove the service`n"
     Write-Host "Note: This script must be run as Administrator" -ForegroundColor Yellow
+    Write-Host "The service runs cslauncher.ps1 (Docker production reload). Ensure Docker Desktop is available on this host." -ForegroundColor DarkGray
 }
 
 function Test-Administrator {

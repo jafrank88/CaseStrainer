@@ -1,5 +1,7 @@
 # Enhanced Citation Validator with CitationProcessor
 
+> **Note (2026):** The production app uses the unified Vue API and pipeline under `src/api/` and related modules. This README still documents the older `CitationProcessor` pattern for reference; see the repo root [README.md](../README.md) for current deployment and version **2.1.0**.
+
 This module provides enhanced citation validation functionality using the `CitationProcessor` class, which integrates with the eyecite library and provides additional features like caching, batching, and error handling.
 
 ## Features

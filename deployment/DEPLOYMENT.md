@@ -1,13 +1,10 @@
-Analysis Results
-
-Not Found
 # CaseStrainer Deployment Guide
 
 This comprehensive guide provides instructions for deploying CaseStrainer to production environments, with specific focus on the current deployment at wolf.law.uw.edu/casestrainer.
 
 ## Prerequisites
 
-- Python 3.8 or higher
+- Python 3.10 or higher
 - pip package manager
 - CourtListener API key (stored as environment variable)
 - LangSearch API key (stored as environment variable)
@@ -41,7 +38,7 @@ The application uses Docker Compose for production deployment with the following
 
 ```powershell
 # Start production deployment
-.\launcher.ps1 -Environment DockerProduction
+.\cslauncher.ps1
 ```
 
 This will:
@@ -151,7 +148,7 @@ docker-compose -f docker-compose.prod.yml up -d --build \
 
 1. **Start with launcher**:
    ```powershell
-   .\launcher.ps1 -Environment DockerProduction
+   .\cslauncher.ps1
    ```
 
 2. **Or manual deployment**:
@@ -243,7 +240,7 @@ curl http://localhost:8080/casestrainer/
 
 3. Or use the launcher:
    ```powershell
-   .\launcher.ps1 -Environment DockerProduction
+   .\cslauncher.ps1
    ```
 
 ### Monitoring

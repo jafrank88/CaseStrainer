@@ -5,16 +5,16 @@ param(
     [string]$ServiceName = "CaseStrainer",
     [string]$DisplayName = "CaseStrainer Citation Verification Service",
     [string]$Description = "CaseStrainer citation verification and analysis service",
-    [string]$Environment = "Production",
+    [string]$Environment = "Production", # Logged only; service runs cslauncher.ps1 (Docker reload)
     [switch]$Uninstall,
     [switch]$Force
 )
 
 # Configuration
 $ScriptPath = Split-Path -Parent $MyInvocation.MyCommand.Path
-$LauncherPath = Join-Path $ScriptPath "..\launcher.ps1"
+$LauncherPath = Join-Path $ScriptPath "..\cslauncher.ps1"
 $ServicePath = "powershell.exe"
-$ServiceArgs = "-ExecutionPolicy Bypass -File `"$LauncherPath`" -Environment $Environment -NoMenu"
+$ServiceArgs = "-ExecutionPolicy Bypass -File `"$LauncherPath`""
 $LogPath = Join-Path $ScriptPath "..\logs\windows-service.log"
 
 function Write-Log {

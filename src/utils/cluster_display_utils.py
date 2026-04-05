@@ -88,10 +88,12 @@ def _is_bad_submitted_name(name: str) -> bool:
         return True
     # ---- Narrative text without case-name structure ----
     # Real case names contain "v." or "In re" / "Ex parte" / "In the Matter of" / "Estate of".
-    # Text that lacks ALL of these indicators and contains narrative signals is not a case name.
+    # Also accept "Antitrust Litig." / "Antitrust Litigation" / trailing "Litig." — these are
+    # "In re" style case names where eyecite stripped the leading "In re" prefix.
     _has_case_structure = bool(
         re.search(r"\bv\.\s", s)
         or re.search(r"\b(?:In\s+re|Ex\s+parte|In\s+the\s+Matter\s+of|Estate\s+of)\b", s, re.IGNORECASE)
+        or re.search(r"\bAntitrust\s+Litig(?:ation)?\b|\bLitig\.?\s*$", s, re.IGNORECASE)
     )
     if not _has_case_structure:
         # Possessive + abstract noun/verb phrase (e.g. "Cockrum's failure to demonstrate")
@@ -173,7 +175,8 @@ def strip_signal_phrases(name: Optional[str]) -> Optional[str]:
 def _looks_truncated_extracted_name(name: Optional[str]) -> bool:
     """
     Detect extracted names that likely lost the plaintiff side and start with
-    a corporate suffix token, e.g. "Inc. v. Windsor".
+    a corporate suffix token (e.g. "Inc. v. Windsor") OR an abbreviated
+    single-token like "Nw., Inc. v. EEOC" or "Assocs. v. Garlock".
     """
     s = str(name or "").strip()
     if not s or s.upper() == "N/A":
@@ -181,8 +184,17 @@ def _looks_truncated_extracted_name(name: Optional[str]) -> bool:
     parts = re.split(r"\s+v\.?\s+", s, maxsplit=1, flags=re.IGNORECASE)
     if len(parts) < 2:
         return False
-    left = parts[0].strip().lower()
-    return left in _TRUNCATED_PARTY_PREFIXES
+    left = parts[0].strip()
+    left_lower = left.lower()
+    # Original: bare entity-suffix token
+    if left_lower in _TRUNCATED_PARTY_PREFIXES:
+        return True
+    # New: first word of plaintiff is a short abbreviation ending in "."
+    # (e.g. "Nw.", "Am.", "E.", "Assocs.") — clearly the tail of a longer name
+    first_token = left.split()[0] if left.split() else ""
+    if first_token.endswith(".") and len(first_token) <= 7:
+        return True
+    return False
 
 
 def _recover_truncated_name_from_context(cit: Any, truncated_name: str) -> Optional[str]:
@@ -215,17 +227,40 @@ def _recover_truncated_name_from_context(cit: Any, truncated_name: str) -> Optio
     elif defendant.endswith(" Corp.") or defendant.endswith(" Corp"):
         base = defendant.rstrip(" .")[:-4]  # remove " Corp" or " Corp."
         defendant_alt = defendant_escaped + r"|" + re.escape(base + " Corporation")
+    # Primary: plaintiff must end in an entity-type suffix
     pattern = (
         r"([A-Z][A-Za-z0-9&\.\',\-\s]{2,120}?"
         r"(?:,\s*)?(?:Inc|Corp|LLC|Ltd|Corporation)\.?)\s+v\.?\s+"
-        r"(?:" + defendant_alt + r")\b"
+        r"(?:" + defendant_alt + r")(?:\b|,)"
     )
     m = re.search(pattern, context, flags=re.IGNORECASE)
+    # Secondary: broader search not requiring entity suffix — catches names like
+    # "W.L. Gore & Assocs., Inc.", "Northwest Airlines", "E.I. du Pont de Nemours"
+    if not m:
+        pattern_broad = (
+            r"([A-Z][A-Za-z0-9&\.\',\-\s]{5,100})\s+v\.?\s+"
+            r"(?:" + defendant_alt + r")(?:\b|,)"
+        )
+        m = re.search(pattern_broad, context, flags=re.IGNORECASE)
     if not m:
         return None
 
+    recovered_plaintiff = m.group(1).strip()
+
+    # Reject if recovered plaintiff substantially overlaps with the defendant
+    # e.g. "Reese Finer Foods, Inc." appearing as plaintiff when defendant is also "Reese Finer Foods, Inc."
+    def _name_tokens(s: str):
+        return set(re.sub(r'[^a-z\s]', '', s.lower()).split()) - {'inc', 'corp', 'llc', 'ltd', 'co', 'v', 'the', 'a'}
+
+    plt_tokens = _name_tokens(recovered_plaintiff)
+    def_tokens = _name_tokens(defendant)
+    if plt_tokens and def_tokens:
+        overlap = plt_tokens & def_tokens
+        if len(overlap) >= max(1, min(len(plt_tokens), len(def_tokens)) - 1):
+            return None
+
     # Use original defendant for output (preserve "Corporation" not "Corp")
-    candidate = f"{m.group(1).strip()} v. {defendant}"
+    candidate = f"{recovered_plaintiff} v. {defendant}"
     cleaned = normalize_case_name(strip_signal_phrases(candidate) or candidate)
     return cleaned if cleaned and not _looks_truncated_extracted_name(cleaned) else None
 
@@ -1037,5 +1072,24 @@ def finalize_cluster_for_response(
                 if isinstance(c, dict) and not is_effectively_verified_citation(c):
                     c["name_mismatch"] = False
                     c["date_mismatch"] = False
+    except Exception:
+        pass
+
+    # ECN propagation: back-fill extracted_case_name on citations that still show N/A
+    # when the cluster has a good submitted_display_name.  This ensures the citation-level
+    # field matches what the cluster card displays, so downstream checks are consistent.
+    try:
+        best_name = (cluster.get("submitted_display_name") or "").strip()
+        _good = bool(
+            best_name and best_name != "N/A"
+            and (re.search(r"\bv\.\s", best_name)
+                 or re.search(r"\b(?:In\s+re|Ex\s+parte)\b", best_name, re.IGNORECASE))
+        )
+        if _good:
+            for _c in get_cluster_citations(cluster):
+                if isinstance(_c, dict):
+                    _ecn = (_c.get("extracted_case_name") or "").strip()
+                    if not _ecn or _ecn == "N/A":
+                        _c["extracted_case_name"] = best_name
     except Exception:
         pass

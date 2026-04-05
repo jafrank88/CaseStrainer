@@ -158,7 +158,12 @@ def _same_case_check(cit_a, cit_b):
             return canonical
         ecn = _clean_ecn(_get_attr(cit, "extracted_case_name", "") or "")
         return ecn
-    return names_are_same_case(_best_name(cit_a), _best_name(cit_b))
+    na, nb = _best_name(cit_a), _best_name(cit_b)
+    # If neither citation has a meaningful name we cannot confirm same case.
+    # Without this guard, bare N/A citations transitively merge into one giant cluster.
+    if not na and not nb:
+        return False
+    return names_are_same_case(na, nb)
 
 
 def _get_year(cit: Any) -> Optional[int]:

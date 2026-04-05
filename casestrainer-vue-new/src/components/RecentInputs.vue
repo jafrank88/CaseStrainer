@@ -150,11 +150,11 @@ const clearAll = () => {
 
 <style scoped>
 .recent-inputs-sidebar {
-  background: #f8f9fa;
-  border: 1px solid #e9ecef;
+  background: var(--ui-surface-2, #f8f9fa);
+  border: 1px solid var(--border, #e9ecef);
   border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 2px 8px var(--ui-card-shadow, rgba(0, 0, 0, 0.1));
 }
 
 .sidebar-header {
@@ -162,13 +162,13 @@ const clearAll = () => {
   justify-content: space-between;
   align-items: center;
   padding: 1rem;
-  background: #ffffff;
-  border-bottom: 1px solid #e9ecef;
+  background: var(--card-bg, #ffffff);
+  border-bottom: 1px solid var(--border, #e9ecef);
 }
 
 .sidebar-title {
   font-weight: 600;
-  color: #495057;
+  color: var(--ui-meta-fg, #495057);
   font-size: 1rem;
   display: flex;
   align-items: center;
@@ -187,18 +187,19 @@ const clearAll = () => {
 }
 
 .recent-input-card {
-  background: white;
-  border: 1px solid #e9ecef;
+  background: var(--card-bg, #fff);
+  border: 1px solid var(--border, #e9ecef);
   border-radius: 8px;
   padding: 0.75rem;
   cursor: pointer;
   transition: all 0.2s ease;
   position: relative;
+  color: var(--foreground, inherit);
 }
 
 .recent-input-card:hover {
-  border-color: #007bff;
-  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.15);
+  border-color: var(--primary, #007bff);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--primary, #007bff) 22%, transparent);
   transform: translateY(-1px);
 }
 
@@ -210,8 +211,8 @@ const clearAll = () => {
 }
 
 .input-type-badge {
-  background: #e3f2fd;
-  color: #1976d2;
+  background: var(--ui-info-surface, #e3f2fd);
+  color: var(--ui-link, #1976d2);
   padding: 0.25rem 0.5rem;
   border-radius: 12px;
   font-size: 0.75rem;
@@ -223,7 +224,7 @@ const clearAll = () => {
 
 .input-time {
   font-size: 0.7rem;
-  color: #6c757d;
+  color: var(--ui-text-secondary, #6c757d);
 }
 
 .input-card-content {
@@ -233,7 +234,7 @@ const clearAll = () => {
 
 .input-title {
   font-weight: 600;
-  color: #495057;
+  color: var(--foreground, #495057);
   font-size: 0.9rem;
   margin-bottom: 0.25rem;
   overflow: hidden;
@@ -243,7 +244,7 @@ const clearAll = () => {
 
 .input-preview {
   font-size: 0.8rem;
-  color: #6c757d;
+  color: var(--ui-text-secondary, #6c757d);
   line-height: 1.4;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -252,12 +253,12 @@ const clearAll = () => {
 }
 
 .file-warning {
-  background: #fff3cd;
-  border: 1px solid #ffeaa7;
+  background: var(--ui-warning-banner-bg, #fff3cd);
+  border: 1px solid var(--ui-warning-banner-border, #ffeaa7);
   border-radius: 4px;
   padding: 0.25rem 0.5rem;
   font-size: 0.7rem;
-  color: #856404;
+  color: var(--ui-warning-banner-fg, #856404);
   display: flex;
   align-items: center;
 }
@@ -282,7 +283,7 @@ const clearAll = () => {
 .empty-state {
   text-align: center;
   padding: 2rem 1rem;
-  color: #6c757d;
+  color: var(--ui-text-secondary, #6c757d);
 }
 
 .empty-state i {
@@ -302,17 +303,17 @@ const clearAll = () => {
 }
 
 .sidebar-content::-webkit-scrollbar-track {
-  background: #f1f1f1;
+  background: var(--ui-surface-2, #f1f1f1);
   border-radius: 3px;
 }
 
 .sidebar-content::-webkit-scrollbar-thumb {
-  background: #c1c1c1;
+  background: var(--border, #c1c1c1);
   border-radius: 3px;
 }
 
 .sidebar-content::-webkit-scrollbar-thumb:hover {
-  background: #a8a8a8;
+  background: var(--ui-text-muted, #a8a8a8);
 }
 
 /* Responsive design */

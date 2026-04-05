@@ -6,34 +6,15 @@ The CaseStrainer Browser Extension allows users to verify legal citations direct
 
 ## Status
 
-**⚠️ PLANNED FEATURE** - This extension is planned for future development as part of CaseStrainer's enhancement roadmap.
+**Available in-repo (Chromium)** — Manifest V3 extension under `browser-extension/` at the repo root. Load unpacked in Chrome or Edge (developer mode). It calls the same CaseStrainer API as the web app (`POST …/analyze`, `GET …/task_status/…` when the server returns a `task_id`).
 
-## Planned Features
+Firefox / Safari packages are not maintained here yet.
 
-### Real-Time Citation Verification
-- **Automatic Detection**: Automatically detects legal citations on web pages
-- **Visual Indicators**: Highlights verified and unverified citations with color-coded indicators
-- **Hover Information**: Shows citation details on hover without leaving the page
-- **Quick Actions**: One-click access to case details and related citations
+## Features
 
-### Integration Capabilities
-- **CourtListener Integration**: Real-time verification using CourtListener API
-- **Context Analysis**: Extracts case names and dates from page context
-- **Citation Clusters**: Identifies parallel citations on the same page
-- **Export Options**: Save verified citations to your CaseStrainer account
-
-### Supported Browsers
-- Chrome/Edge (Chromium-based)
-- Firefox
-- Safari
-
-### Supported Legal Websites
-- CourtListener
-- Google Scholar
-- Justia
-- FindLaw
-- Law school and court websites
-- Any website containing legal citations
+- **On-page patterns**: Content script matches common reporter-style citation strings on allowlisted legal sites (see `manifest.json` `content_scripts.matches`).
+- **Verification**: Background worker sends extracted strings to the API (batched with newlines), maps results back for highlighting and the popup list.
+- **Options**: Configurable API base URL (default `https://wolf.law.uw.edu/casestrainer/api`).
 
 ## Architecture
 
@@ -56,45 +37,27 @@ browser-extension/
     └── styles/          # Shared styles
 ```
 
-### API Integration
-- **CaseStrainer API**: https://wolf.law.uw.edu/casestrainer/api/
-- **Endpoint**: `POST /casestrainer/api/analyze`
-- **Authentication**: API key (configured in extension settings)
+### API integration
+- **Default API base**: `https://wolf.law.uw.edu/casestrainer/api`
+- **Endpoints**: `POST …/analyze`, `GET …/task_status/{task_id}` (when the server responds with `task_id`)
+- **CORS**: By default the app allows `chrome-extension://…` and `moz-extension://…` via regex (see `_configure_cors` in `app_final_vue.py`). Set `CORS_ALLOW_BROWSER_EXTENSIONS=false` to turn that off. Override allowed web origins with `CORS_ORIGINS` (comma-separated).
 
-## Installation (When Available)
+## Installation (Chrome / Edge)
 
-### Chrome/Edge
-1. Visit the Chrome Web Store
-2. Search for "CaseStrainer"
-3. Click "Add to Chrome/Edge"
-4. Configure your API key in extension settings
+1. Clone https://github.com/jafrank88/casestrainer
+2. Open `chrome://extensions` or `edge://extensions`
+3. Enable **Developer mode** → **Load unpacked**
+4. Choose the `browser-extension` directory (contains `manifest.json`)
+5. Optional: open **Extension options** and set the API base (for local dev, e.g. `http://127.0.0.1:5001/casestrainer/api`)
 
-### Firefox
-1. Visit Firefox Add-ons
-2. Search for "CaseStrainer"
-3. Click "Add to Firefox"
-4. Configure your API key in extension settings
+### Firefox / Safari
 
-### Safari
-1. Visit the App Store
-2. Search for "CaseStrainer"
-3. Download and install
-4. Enable in Safari Extensions preferences
+Not packaged in this repository yet.
 
-## Configuration
+## Configuration (Options page)
 
-### API Key Setup
-1. Open extension settings
-2. Navigate to the CaseStrainer web application: https://wolf.law.uw.edu/casestrainer/
-3. Generate an API key from your account settings
-4. Paste the API key into the extension settings
-5. Save settings
-
-### Verification Settings
-- **Auto-verify**: Enable/disable automatic citation verification
-- **Highlight colors**: Customize colors for verified/unverified citations
-- **Confidence threshold**: Set minimum confidence level for verification
-- **Performance**: Adjust batch size and verification speed
+- **API base URL** — no `/analyze` suffix; the service worker appends `/analyze` and calls `task_status` on the same host.
+- **Auto-verify**, **highlight colors**, and related toggles apply to the content script and popup.
 
 ## Usage
 

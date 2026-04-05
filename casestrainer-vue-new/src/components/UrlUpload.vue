@@ -455,9 +455,9 @@ export default {
 </script>
 
 <style scoped>
-:root {
-  --primary-color: #1976d2;
-  --primary-light: #42a5f5;
+.modern-url-upload {
+  --primary-color: #4b2e83;
+  --primary-light: #6a4c93;
   --success-color: #4caf50;
   --error-color: #f44336;
   --warning-color: #ff9800;
@@ -467,16 +467,15 @@ export default {
   --background-light: #f8f9fa;
   --shadow-light: 0 2px 12px 0 rgba(60, 72, 88, 0.08);
   --shadow-medium: 0 4px 24px 0 rgba(60, 72, 88, 0.12);
-}
-
-.modern-url-upload {
+  --input-focus-ring: color-mix(in srgb, var(--primary-color) 28%, transparent);
   width: 100%;
   max-width: 600px;
   margin: 0 auto;
+  color: var(--foreground, var(--text-primary));
 }
 
 .upload-card {
-  background: white;
+  background: var(--card-bg, #fff);
   border-radius: 2rem;
   box-shadow: var(--shadow-medium);
   border: 1px solid var(--border-color);
@@ -575,14 +574,18 @@ export default {
   border-radius: 1rem;
   font-size: 1.05rem;
   transition: all 0.3s ease;
-  background: white;
+  background: var(--card-bg, #fff);
   color: var(--text-primary);
 }
 
 .url-input:focus {
   outline: none;
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 0.2rem rgba(25, 118, 210, 0.15);
+}
+
+.url-input:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
 }
 
 .url-input.valid {
@@ -670,7 +673,7 @@ export default {
   display: flex;
   align-items: center;
   gap: 1rem;
-  background: white;
+  background: var(--card-bg, #fff);
   padding: 1rem;
   border-radius: 0.75rem;
   border: 1px solid var(--border-color);
@@ -749,7 +752,7 @@ export default {
   padding: 0.75rem;
   border: 2px solid var(--border-color);
   border-radius: 0.75rem;
-  background: white;
+  background: var(--card-bg, #fff);
   color: var(--text-primary);
   cursor: pointer;
   transition: all 0.3s ease;
@@ -762,7 +765,7 @@ export default {
 
 .example-btn:hover:not(:disabled) {
   border-color: var(--primary-color);
-  background: rgba(25, 118, 210, 0.05);
+  background: color-mix(in srgb, var(--primary-color) 8%, var(--card-bg, #fff));
   transform: translateY(-2px);
 }
 
@@ -799,7 +802,7 @@ export default {
   align-items: center;
   gap: 0.75rem;
   padding: 1rem;
-  background: white;
+  background: var(--card-bg, #fff);
   border-radius: 0.75rem;
   border: 2px solid transparent;
   cursor: pointer;
@@ -877,7 +880,7 @@ export default {
 }
 
 .analyze-info {
-  background: var(--background-light);
+  background: var(--ui-surface-2, var(--background-light));
   border-radius: 0.75rem;
   padding: 1rem;
   border: 1px solid var(--border-color);
@@ -902,7 +905,7 @@ export default {
 }
 
 .analysis-progress {
-  background: var(--background-light);
+  background: var(--ui-surface-2, var(--background-light));
   border-radius: 1rem;
   padding: 2rem;
   border: 1px solid var(--border-color);
@@ -938,7 +941,7 @@ export default {
 .step {
   flex: 1;
   padding: 1rem 0.5rem;
-  background: white;
+  background: var(--card-bg, #fff);
   border-radius: 0.75rem;
   border: 2px solid var(--border-color);
   color: var(--text-secondary);
@@ -1040,35 +1043,22 @@ export default {
   }
 }
 
+@media (prefers-color-scheme: dark) {
+  .modern-url-upload {
+    --primary-color: #c4a8fc;
+    --primary-light: #d4bdfc;
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --border-color: #3d4451;
+    --background-light: #1e2228;
+    --shadow-light: 0 2px 12px rgba(0, 0, 0, 0.35);
+    --shadow-medium: 0 4px 24px rgba(0, 0, 0, 0.45);
+  }
+}
+
 /* Additional animations and interactions */
 .url-input-container {
   position: relative;
-}
-
-.url-input-container::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  border-radius: 1rem;
-  padding: 2px;
-  background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
-  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-  mask-composite: exclude;
-  opacity: 0;
-  transition: opacity 0.3s ease;
-  pointer-events: none;
-}
-
-.url-input:focus + .url-input-container::before {
-  opacity: 1;
-}
-
-/* Smooth transitions for all interactive elements */
-* {
-  transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
 }
 
 /* Loading states */
@@ -1086,9 +1076,9 @@ export default {
 }
 
 /* Focus styles for accessibility */
-.example-btn:focus,
-.option-item:focus,
-.analyze-btn:focus {
+.example-btn:focus-visible,
+.option-item:focus-visible,
+.analyze-btn:focus-visible {
   outline: 2px solid var(--primary-color);
   outline-offset: 2px;
 }
@@ -1101,7 +1091,7 @@ export default {
 
 .option-item:has(input:checked) {
   border-color: var(--primary-color);
-  background: rgba(25, 118, 210, 0.05);
+  background: color-mix(in srgb, var(--primary-color) 8%, var(--card-bg, #fff));
 }
 
 /* Progress animation */

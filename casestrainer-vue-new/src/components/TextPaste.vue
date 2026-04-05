@@ -677,9 +677,9 @@ export default {
 </script>
 
 <style scoped>
-:root {
-  --primary-color: #1976d2;
-  --primary-light: #42a5f5;
+.modern-text-paste {
+  --primary-color: #4b2e83;
+  --primary-light: #6a4c93;
   --success-color: #4caf50;
   --warning-color: #ff9800;
   --error-color: #f44336;
@@ -689,16 +689,15 @@ export default {
   --background-light: #f8f9fa;
   --shadow-light: 0 2px 12px 0 rgba(60, 72, 88, 0.08);
   --shadow-medium: 0 4px 24px 0 rgba(60, 72, 88, 0.12);
-}
-
-.modern-text-paste {
+  --input-focus-ring: color-mix(in srgb, var(--primary-color) 28%, transparent);
   width: 100%;
   max-width: 800px;
   margin: 0 auto;
+  color: var(--foreground, var(--text-primary));
 }
 
 .paste-card {
-  background: white;
+  background: var(--card-bg, #fff);
   border-radius: 2rem;
   box-shadow: var(--shadow-medium);
   border: 1px solid var(--border-color);
@@ -769,10 +768,11 @@ export default {
 
 .mode-toggle {
   display: flex;
-  background: var(--background-light);
+  background: var(--ui-surface-2, var(--background-light));
   border-radius: 1.5rem;
   padding: 0.5rem;
   gap: 0.5rem;
+  border: 1px solid var(--border-color);
 }
 
 .mode-btn {
@@ -791,14 +791,14 @@ export default {
 }
 
 .mode-btn.active {
-  background: white;
+  background: var(--card-bg, #fff);
   color: var(--primary-color);
   box-shadow: var(--shadow-light);
   transform: translateY(-1px);
 }
 
 .mode-btn:hover:not(.active):not(:disabled) {
-  background: rgba(255, 255, 255, 0.7);
+  background: color-mix(in srgb, var(--card-bg, #fff) 88%, var(--primary-color));
   color: var(--text-primary);
 }
 
@@ -812,10 +812,10 @@ export default {
 }
 
 .input-container {
-  background: #f8fafe;
+  background: color-mix(in srgb, var(--primary-color) 5%, var(--card-bg, #fff));
   border-radius: 1.5rem;
   padding: 2rem;
-  border: 1px solid #e3f2fd;
+  border: 1px solid color-mix(in srgb, var(--primary-color) 14%, var(--border-color));
   position: relative;
 }
 
@@ -853,14 +853,14 @@ export default {
   font-family: 'Courier New', monospace;
   font-weight: 500;
   transition: all 0.3s ease;
-  background: white;
+  background: var(--card-bg, #fff);
   color: var(--text-primary);
 }
 
 .citation-input:focus {
   outline: none;
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 0.2rem rgba(25, 118, 210, 0.15);
+  box-shadow: 0 0 0 3px var(--input-focus-ring);
 }
 
 .citation-input.valid {
@@ -901,14 +901,14 @@ export default {
   line-height: 1.6;
   resize: vertical;
   transition: all 0.3s ease;
-  background: white;
+  background: var(--card-bg, #fff);
   color: var(--text-primary);
 }
 
 .text-input:focus {
   outline: none;
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 0.2rem rgba(25, 118, 210, 0.15);
+  box-shadow: 0 0 0 3px var(--input-focus-ring);
 }
 
 .text-input.analyzing {
@@ -920,7 +920,7 @@ export default {
   position: absolute;
   bottom: 1rem;
   right: 1rem;
-  background: rgba(255, 255, 255, 0.95);
+  background: color-mix(in srgb, var(--card-bg, #fff) 92%, transparent);
   backdrop-filter: blur(10px);
   border-radius: 0.75rem;
   padding: 0.75rem;
@@ -944,7 +944,7 @@ export default {
 }
 
 .citation-examples {
-  background: white;
+  background: var(--card-bg, #fff);
   border-radius: 1rem;
   padding: 1.5rem;
   border: 1px solid var(--border-color);
@@ -969,7 +969,7 @@ export default {
   padding: 1rem;
   border: 2px solid var(--border-color);
   border-radius: 0.75rem;
-  background: white;
+  background: var(--card-bg, #fff);
   cursor: pointer;
   transition: all 0.3s ease;
   text-align: left;
@@ -978,7 +978,7 @@ export default {
 
 .example-citation:hover:not(:disabled) {
   border-color: var(--primary-color);
-  background: rgba(25, 118, 210, 0.05);
+  background: color-mix(in srgb, var(--primary-color) 8%, var(--card-bg, #fff));
   transform: translateY(-1px);
 }
 
@@ -1000,7 +1000,7 @@ export default {
 }
 
 .citation-preview {
-  background: white;
+  background: var(--card-bg, #fff);
   border-radius: 1rem;
   padding: 1.5rem;
   border: 1px solid var(--border-color);
@@ -1040,7 +1040,7 @@ export default {
 }
 
 .quality-indicator {
-  background: white;
+  background: var(--card-bg, #fff);
   border-radius: 1rem;
   padding: 1.5rem;
   border: 1px solid var(--border-color);
@@ -1070,7 +1070,7 @@ export default {
 
 .quality-bar {
   height: 8px;
-  background: #e9ecef;
+  background: var(--border-color);
   border-radius: 4px;
   overflow: hidden;
   margin-bottom: 1rem;
@@ -1113,7 +1113,7 @@ export default {
 }
 
 .options-section {
-  background: var(--background-light);
+  background: var(--ui-surface-2, var(--background-light));
   border-radius: 1.5rem;
   padding: 1.5rem;
   margin-bottom: 2rem;
@@ -1140,7 +1140,7 @@ export default {
   align-items: center;
   gap: 1rem;
   padding: 1rem;
-  background: white;
+  background: var(--card-bg, #fff);
   border-radius: 0.75rem;
   border: 2px solid transparent;
   cursor: pointer;
@@ -1153,7 +1153,7 @@ export default {
 
 .option-item:has(input:checked) {
   border-color: var(--primary-color);
-  background: rgba(25, 118, 210, 0.05);
+  background: color-mix(in srgb, var(--primary-color) 8%, var(--card-bg, #fff));
 }
 
 .option-item input[type="checkbox"] {
@@ -1196,26 +1196,27 @@ export default {
 }
 
 .analyze-btn {
-  background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+  background: linear-gradient(90deg, var(--primary-color) 60%, var(--primary-light) 100%);
   border: none;
-  border-radius: 1.5rem;
-  padding: 1.25rem 2rem;
+  border-radius: 12px;
+  padding: 1rem 2rem;
   font-size: 1.1rem;
   font-weight: 600;
-  color: white;
-  box-shadow: 0 6px 20px rgba(25, 118, 210, 0.3);
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  color: #fff;
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--primary-color) 35%, transparent);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
-  margin-bottom: 1rem;
+  max-width: 400px;
+  margin: 0 auto 1rem;
 }
 
 .analyze-btn:hover:not(.disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(25, 118, 210, 0.4);
+  box-shadow: 0 6px 20px color-mix(in srgb, var(--primary-color) 42%, transparent);
 }
 
 .analyze-btn.disabled {
@@ -1223,12 +1224,13 @@ export default {
   box-shadow: none;
   cursor: not-allowed;
   transform: none;
+  opacity: 0.75;
 }
 
 .analyze-info {
   text-align: center;
   padding: 1rem;
-  background: var(--background-light);
+  background: var(--ui-surface-2, var(--background-light));
   border-radius: 0.75rem;
   border: 1px solid var(--border-color);
 }
@@ -1243,7 +1245,7 @@ export default {
 }
 
 .analysis-progress {
-  background: var(--background-light);
+  background: var(--ui-surface-2, var(--background-light));
   border-radius: 1rem;
   padding: 2rem;
   border: 1px solid var(--border-color);
@@ -1278,7 +1280,7 @@ export default {
 .step {
   flex: 1;
   padding: 1rem 0.5rem;
-  background: white;
+  background: var(--card-bg, #fff);
   border-radius: 0.75rem;
   border: 2px solid var(--border-color);
   color: var(--text-secondary);
@@ -1460,37 +1462,20 @@ export default {
   border-color: var(--error-color);
 }
 
-/* Smooth transitions for all interactive elements */
-* {
-  transition: color 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
-}
+@media (prefers-color-scheme: dark) {
+  .modern-text-paste {
+    --primary-color: #c4a8fc;
+    --primary-light: #d4bdfc;
+    --text-primary: #f1f5f9;
+    --text-secondary: #94a3b8;
+    --border-color: #3d4451;
+    --background-light: #1e2228;
+    --shadow-light: 0 2px 12px rgba(0, 0, 0, 0.35);
+    --shadow-medium: 0 4px 24px rgba(0, 0, 0, 0.45);
+  }
 
-.analyze-btn {
-  background: #1976d2;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  padding: 14px 36px;
-  font-size: 1.1rem;
-  font-weight: bold;
-  cursor: pointer;
-  margin-top: 24px;
-  box-shadow: 0 2px 12px rgba(25, 118, 210, 0.12);
-  transition: background 0.2s, box-shadow 0.2s;
-  display: block;
-  width: 100%;
-  max-width: 340px;
-  margin-left: auto;
-  margin-right: auto;
-}
-.analyze-btn:hover:not(:disabled),
-.analyze-btn:focus:not(:disabled) {
-  background: #1565c0;
-  box-shadow: 0 4px 16px rgba(25, 118, 210, 0.18);
-}
-.analyze-btn:disabled {
-  background: #bdbdbd;
-  cursor: not-allowed;
-  opacity: 0.7;
+  .paste-card {
+    box-shadow: var(--shadow-medium);
+  }
 }
 </style>

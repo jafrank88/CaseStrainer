@@ -38,7 +38,7 @@ This guide provides solutions for common issues that may arise when using or dep
    python --version
    ```text
 
-   Ensure it's Python 3.8 or higher.
+   Ensure it's Python 3.10 or higher.
 
 ### 2. Nginx Container Issues
 

@@ -7,7 +7,7 @@
 project = 'CaseStrainer'
 copyright = '2026, UW Law'
 author = 'UW Law'
-release = '2.0.0'
+release = '2.1.0'
 
 # -- General configuration -----------------------------------------------------
 extensions = [

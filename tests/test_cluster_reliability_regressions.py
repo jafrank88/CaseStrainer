@@ -6,10 +6,12 @@ import pytest
 
 from src.utils.case_name_cleaner import clean_extracted_case_name
 from src.utils.extraction_cleaner import normalize_citation_text
+from src.utils.cluster_filter import citation_conflicts_with_group
 from src.utils.response_enrichment import (
     merge_clusters_by_shared_citation,
     split_clusters_cross_case_contamination,
 )
+from src.unified_clustering_master_optimized import cluster_citations_minimal
 
 
 def _cite(txt: str, name: str, year: str, start: int) -> dict:
@@ -93,3 +95,30 @@ def test_clean_extracted_case_name_strips_toa_federal_cases():
 def test_normalize_citation_text_chapman_us_page_typo():
     assert "386 U.S. 18" in normalize_citation_text("See Chapman, 386 U.S. 188 (1967).")
     assert "386 U.S. 188" not in normalize_citation_text("See Chapman, 386 U.S. 188 (1967).")
+
+
+def test_wl_cite_year_conflict_blocks_merge_with_prior_f3d_heinz():
+    """
+    TOA line bleed: Evanston WL can get Heinz extracted_case_name + extracted_date 2001.
+    Must still conflict on year (2007 vs 2001) and must not merge with 246 F.3d Heinz by name.
+    """
+    heinz = {
+        "citation": "F.T.C. v. H.J. Heinz Co., 246 F.3d 708 (D.C. Cir. 2001)",
+        "extracted_case_name": "Federal Trade Commission v. H.J. Heinz Co.",
+        "extracted_date": "2001",
+        "canonical_url": "https://www.courtlistener.com/opinion/185377/federal-trade-commission-v-hj-heinz-co/",
+        "verified": True,
+    }
+    evanston_wl_wrong_name = {
+        "citation": "2007 WL 2286195, 9315 (2007)",
+        "extracted_case_name": "F. T. C. v. H. J. Heinz Co",
+        "extracted_date": "2001",
+        "canonical_name": None,
+        "verified": False,
+    }
+    assert citation_conflicts_with_group(evanston_wl_wrong_name, [heinz]) is True
+
+    clusters = cluster_citations_minimal([heinz, evanston_wl_wrong_name])
+    assert len(clusters) == 2
+    sizes = sorted(c["size"] for c in clusters)
+    assert sizes == [1, 1]

@@ -23,6 +23,7 @@ from src.config import (
     ANALYZE_ASYNC_ONLY,
     ANALYZE_ALLOW_SYNC_OVERRIDE,
     FILE_PROCESSING_TIMEOUT_MINUTES,
+    DATA_RETENTION_ASYNC_SECONDS,
 )
 from src.api.services.citation_service import CitationService
 from src.extraction import extract_case_name_from_strict_context
@@ -1244,8 +1245,8 @@ def _handle_file_upload(service, request_id):
                     args=(request_id, "file", {"file_path": file_path_for_worker, "filename": filename, "options": options}),
                     job_id=request_id,  # FIX: Use request_id as job_id to prevent caching duplicate requests
                     job_timeout=FILE_PROCESSING_TIMEOUT_MINUTES * 60,  # 6 minutes timeout (optimized)
-                    result_ttl=86400,  # Keep results for 24 hours
-                    failure_ttl=86400,  # Keep failed jobs for 24 hours
+                    result_ttl=DATA_RETENTION_ASYNC_SECONDS,
+                    failure_ttl=DATA_RETENTION_ASYNC_SECONDS,
                 )
 
                 logger.info(f"[File Upload {request_id}] File processing task enqueued with job_id: {job.id}")

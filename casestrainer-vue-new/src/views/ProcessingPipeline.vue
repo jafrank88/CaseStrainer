@@ -3,8 +3,10 @@
     <div class="container">
       <h1 class="mb-4">Citation Processing Pipeline</h1>
       
-      <div class="alert alert-info">
-        <strong>Overview:</strong> CaseStrainer uses a single unified pipeline (5 stages) for all inputs. Requests are async-first in production and return a task ID for progress polling. See <a href="https://github.com/jafrank88/casestrainer/blob/main/docs/PIPELINE_ENTRY_POINTS.md" target="_blank" rel="noopener">PIPELINE_ENTRY_POINTS.md</a> for flowcharts and entry points.
+      <div class="alert alert-info" role="region" aria-label="Pipeline overview">
+        <p class="mb-0">
+          <strong>Overview:</strong> CaseStrainer uses a single unified pipeline (5 stages) for all inputs. Requests are async-first in production and return a task ID for progress polling. Clustering build id <code>2026-04-v8</code> is recorded as <code>metadata.clustering_version</code> on completed tasks. See <a href="https://github.com/jafrank88/casestrainer/blob/main/docs/PIPELINE_ENTRY_POINTS.md" target="_blank" rel="noopener noreferrer">PIPELINE_ENTRY_POINTS.md<span class="visually-hidden"> (opens in new tab)</span></a> for flowcharts and entry points.
+        </p>
       </div>
 
       <!-- Flowchart: how documents are processed -->
@@ -82,7 +84,7 @@ flowchart TB
           <h2><span class="phase-number">5</span> Formatting & clustering</h2>
         </div>
         <div class="phase-body">
-          <p>Builds clusters (proximity + parallel links), annotates mismatch flags (name/date), applies date overrides, and formats the response with display fields for the UI.</p>
+          <p>Builds clusters (minimal clustering: same-case / parallel detection, year and reporter conflicts, Westlaw pins vs reporter cites). Annotates mismatch flags, applies date overrides, and formats the response for the UI.</p>
         </div>
       </div>
 

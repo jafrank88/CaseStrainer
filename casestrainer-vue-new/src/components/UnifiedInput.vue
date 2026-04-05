@@ -1,73 +1,129 @@
 <template>
   <div class="unified-input">
-    <!-- Tab Navigation -->
-    <ul class="nav nav-tabs mb-4" id="inputTabs" role="tablist">
+    <ul
+      class="nav nav-tabs mb-4"
+      role="tablist"
+      aria-label="Document input method"
+      @keydown="onTabListKeydown"
+    >
       <li class="nav-item" role="presentation">
-        <button class="nav-link" :class="{ active: activeTab === 'file' }" 
-                @click="activeTab = 'file'" type="button">
-          <i class="bi bi-upload me-2"></i>File Upload
+        <button
+          id="tab-unified-file"
+          class="nav-link"
+          :class="{ active: activeTab === 'file' }"
+          type="button"
+          role="tab"
+          :tabindex="activeTab === 'file' ? 0 : -1"
+          :aria-selected="activeTab === 'file'"
+          aria-controls="panel-unified-file"
+          @click="selectTab('file')"
+        >
+          <i class="bi bi-upload me-2" aria-hidden="true"></i>File Upload
         </button>
       </li>
       <li class="nav-item" role="presentation">
-        <button class="nav-link" :class="{ active: activeTab === 'text' }" 
-                @click="activeTab = 'text'" type="button">
-          <i class="bi bi-text-paragraph me-2"></i>Paste Text
+        <button
+          id="tab-unified-text"
+          class="nav-link"
+          :class="{ active: activeTab === 'text' }"
+          type="button"
+          role="tab"
+          :tabindex="activeTab === 'text' ? 0 : -1"
+          :aria-selected="activeTab === 'text'"
+          aria-controls="panel-unified-text"
+          @click="selectTab('text')"
+        >
+          <i class="bi bi-text-paragraph me-2" aria-hidden="true"></i>Paste Text
         </button>
       </li>
       <li class="nav-item" role="presentation">
-        <button class="nav-link" :class="{ active: activeTab === 'url' }" 
-                @click="activeTab = 'url'" type="button">
-          <i class="bi bi-link-45deg me-2"></i>Enter URL
+        <button
+          id="tab-unified-url"
+          class="nav-link"
+          :class="{ active: activeTab === 'url' }"
+          type="button"
+          role="tab"
+          :tabindex="activeTab === 'url' ? 0 : -1"
+          :aria-selected="activeTab === 'url'"
+          aria-controls="panel-unified-url"
+          @click="selectTab('url')"
+        >
+          <i class="bi bi-link-45deg me-2" aria-hidden="true"></i>Enter URL
         </button>
       </li>
     </ul>
 
-    <!-- Tab Content -->
     <div class="tab-content">
-      <!-- File Upload Tab -->
-      <div v-if="activeTab === 'file'" class="tab-pane fade show active">
-        <FileUpload 
+      <div
+        v-show="activeTab === 'file'"
+        id="panel-unified-file"
+        class="tab-pane"
+        role="tabpanel"
+        aria-labelledby="tab-unified-file"
+        :hidden="activeTab !== 'file'"
+        :aria-hidden="activeTab !== 'file'"
+      >
+        <FileUpload
           @analyze="handleAnalyze"
           :is-loading="isLoading"
           ref="fileUpload"
         />
       </div>
 
-      <!-- Text Input Tab -->
-      <div v-if="activeTab === 'text'" class="tab-pane fade show active">
-        <TextPaste 
+      <div
+        v-show="activeTab === 'text'"
+        id="panel-unified-text"
+        class="tab-pane"
+        role="tabpanel"
+        aria-labelledby="tab-unified-text"
+        :hidden="activeTab !== 'text'"
+        :aria-hidden="activeTab !== 'text'"
+      >
+        <TextPaste
           @analyze="handleAnalyze"
           :is-loading="isLoading"
           ref="textPaste"
         />
       </div>
 
-      <!-- URL Input Tab -->
-      <div v-if="activeTab === 'url'" class="tab-pane fade show active">
+      <div
+        v-show="activeTab === 'url'"
+        id="panel-unified-url"
+        class="tab-pane"
+        role="tabpanel"
+        aria-labelledby="tab-unified-url"
+        :hidden="activeTab !== 'url'"
+        :aria-hidden="activeTab !== 'url'"
+      >
         <div class="url-input-container">
           <div class="input-group mb-3">
-            <span class="input-group-text">
-              <i class="bi bi-link-45deg"></i>
+            <span class="input-group-text" aria-hidden="true">
+              <i class="bi bi-link-45deg" aria-hidden="true"></i>
             </span>
-            <input 
-              type="url" 
-              class="form-control" 
-              v-model="url" 
+            <input
+              id="input-unified-url"
+              type="url"
+              class="form-control"
+              v-model="url"
               placeholder="Enter URL to analyze"
+              aria-label="URL to analyze"
+              aria-describedby="hint-unified-url"
               :disabled="isLoading"
               @keyup.enter="analyzeUrl"
-            >
-            <button 
-              class="btn btn-primary" 
+            />
+            <button
+              class="btn btn-primary"
               type="button"
               @click="analyzeUrl"
               :disabled="!isValidUrl || isLoading"
             >
-              <span v-if="isLoading" class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-              <span v-else><i class="bi bi-search me-2"></i>Analyze</span>
+              <span v-if="isLoading" class="spinner-border spinner-border-sm me-2" role="status">
+                <span class="visually-hidden">Analyzing</span>
+              </span>
+              <span v-else><i class="bi bi-search me-2" aria-hidden="true"></i>Analyze</span>
             </button>
           </div>
-          <small class="text-muted">Enter a valid URL to analyze its content</small>
+          <small id="hint-unified-url" class="text-muted">Enter a valid URL to analyze its content</small>
         </div>
       </div>
     </div>
@@ -75,23 +131,22 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, defineEmits, defineExpose } from 'vue';
+import { ref, computed, nextTick, defineEmits, defineExpose } from 'vue';
 import FileUpload from './FileUpload.vue';
 import TextPaste from './TextPaste.vue';
+import { analyze } from '../api/api';
 
-// Define emits
-const emit = defineEmits(['analyze']);
+const emit = defineEmits(['analyze', 'error']);
 
-// Component state
+const TAB_ORDER = ['file', 'text', 'url'];
+
 const activeTab = ref('file');
 const isLoading = ref(false);
 const url = ref('');
 
-// Refs for child components
 const fileUpload = ref(null);
 const textPaste = ref(null);
 
-// Computed property to validate URL
 const isValidUrl = computed(() => {
   try {
     new URL(url.value);
@@ -101,7 +156,33 @@ const isValidUrl = computed(() => {
   }
 });
 
-// Handle analyze event from child components
+function selectTab(tab) {
+  if (!TAB_ORDER.includes(tab)) return;
+  activeTab.value = tab;
+  nextTick(() => {
+    document.getElementById(`tab-unified-${tab}`)?.focus();
+  });
+}
+
+function onTabListKeydown(e) {
+  const i = TAB_ORDER.indexOf(activeTab.value);
+  if (i < 0) return;
+
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+    e.preventDefault();
+    selectTab(TAB_ORDER[(i + 1) % TAB_ORDER.length]);
+  } else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+    e.preventDefault();
+    selectTab(TAB_ORDER[(i - 1 + TAB_ORDER.length) % TAB_ORDER.length]);
+  } else if (e.key === 'Home') {
+    e.preventDefault();
+    selectTab(TAB_ORDER[0]);
+  } else if (e.key === 'End') {
+    e.preventDefault();
+    selectTab(TAB_ORDER[TAB_ORDER.length - 1]);
+  }
+}
+
 const handleAnalyze = async (data) => {
   try {
     isLoading.value = true;
@@ -113,52 +194,26 @@ const handleAnalyze = async (data) => {
   }
 };
 
-// Import the API service
-import { analyze } from '../api/api';
-
-// Handle URL analysis
 const analyzeUrl = async () => {
   if (!isValidUrl.value) {
     console.error('Invalid URL:', url.value);
     return;
   }
-  
+
   try {
     isLoading.value = true;
-    console.log('Starting URL analysis for:', url.value);
-    
-    // Use the API service instead of direct fetch
     const response = await analyze({
       type: 'url',
       url: url.value
     });
-    
-    console.log('Analysis response received:', {
-      hasCitations: !!response.citations,
-      citationsCount: response.citations?.length || 0,
-      hasClusters: !!response.clusters,
-      clustersCount: response.clusters?.length || 0,
-      status: response.status,
-      taskId: response.task_id || response.request_id,
-      response: response
+
+    emit('analyze', {
+      ...response,
+      type: 'url',
+      source: url.value
     });
-    
-    // The API service will handle polling for async results
-    emit('analyze', { 
-      ...response, 
-      type: 'url', 
-      source: url.value 
-    });
-    
   } catch (error) {
-    console.error('Error analyzing URL:', {
-      url: url.value,
-      error: error,
-      message: error.message,
-      stack: error.stack
-    });
-    
-    // Emit error to parent component
+    console.error('Error analyzing URL:', error);
     emit('error', {
       type: 'url_analysis_error',
       message: `Failed to analyze URL: ${error.message}`,
@@ -170,16 +225,10 @@ const analyzeUrl = async () => {
   }
 };
 
-// Expose methods to parent component
 defineExpose({
   fileUpload,
   textPaste,
   analyzeUrl
-});
-
-// Component mounted hook
-onMounted(() => {
-  // Component initialization code here
 });
 </script>
 
@@ -199,7 +248,7 @@ onMounted(() => {
 }
 
 .nav-tabs .nav-link {
-  color: #495057;
+  color: #1a1d21;
   border: 1px solid transparent;
   border-top-left-radius: 0.25rem;
   border-top-right-radius: 0.25rem;
@@ -209,17 +258,29 @@ onMounted(() => {
 
 .nav-tabs .nav-link:hover {
   border-color: #e9ecef #e9ecef #dee2e6;
+  color: #0d6efd;
+}
+
+.nav-tabs .nav-link:focus-visible {
+  outline: 3px solid #0d6efd;
+  outline-offset: 2px;
+  z-index: 1;
+  position: relative;
 }
 
 .nav-tabs .nav-link.active {
-  color: #0d6efd;
+  color: #0a58ca;
   background-color: #fff;
   border-color: #dee2e6 #dee2e6 #fff;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .tab-content {
   padding: 0 0.5rem;
+}
+
+.tab-pane:focus-visible {
+  outline: none;
 }
 
 .url-input-container {
@@ -241,6 +302,11 @@ onMounted(() => {
   border-color: #0a58ca;
 }
 
+.btn-primary:focus-visible {
+  outline: 3px solid #0d6efd;
+  outline-offset: 3px;
+}
+
 .btn:disabled {
   cursor: not-allowed;
   opacity: 0.65;
@@ -250,6 +316,7 @@ onMounted(() => {
   display: block;
   margin-top: 0.5rem;
   font-size: 0.875em;
+  color: #495057 !important;
 }
 
 .spinner-border {
@@ -257,5 +324,4 @@ onMounted(() => {
   height: 1rem;
   border-width: 0.15em;
 }
-
 </style>

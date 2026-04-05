@@ -6,7 +6,7 @@ import { readFileSync } from 'fs';
 const packageJson = JSON.parse(
   readFileSync(new URL('./package.json', import.meta.url), 'utf-8')
 );
-const appVersion = packageJson.version || '0.8.0';
+const appVersion = packageJson.version || '2.1.0';
 
 // https://vitejs.dev/config/
 export default defineConfig({

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>CaseStrainer — Word</title>
+    <script type="text/javascript" src="https://appsforoffice.microsoft.com/lib/1.1/hosted/office.js"></script>
+    <link rel="stylesheet" href="https://static2.sharepointonline.com/files/fabric/office-ui-fabric-core/11.0.0/css/fabric.min.css"/>
+    <link href="styles.css" rel="stylesheet" type="text/css" />
+</head>
+<body class="ms-font-m ms-welcome">
+    <div id="content-header">
+        <div class="padding">
+            <h1>CaseStrainer</h1>
+            <p>Validate citations via the same API as the web app</p>
+        </div>
+    </div>
+
+    <div id="content-main">
+        <div class="padding">
+            <div id="status-section" class="section">
+                <h2>Status</h2>
+                <div id="status-message" class="status-message">Ready.</div>
+                <div id="progress-container" class="progress-container" style="display: none;">
+                    <div id="progress-bar" class="progress-bar"></div>
+                    <div id="progress-text">0%</div>
+                </div>
+            </div>
+
+            <div id="action-buttons" class="section">
+                <button id="validate-button" type="button" class="ms-Button ms-Button--primary">
+                    <span class="ms-Button-label">Validate</span>
+                </button>
+                <button id="clear-button" type="button" class="ms-Button">
+                    <span class="ms-Button-label">Clear highlights</span>
+                </button>
+            </div>
+
+            <div id="results-section" class="section">
+                <h2>Results</h2>
+                <div id="results-summary" class="results-summary">
+                    <div class="summary-item">
+                        <span class="label">Total</span>
+                        <span id="total-citations" class="value">0</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="label">Verified</span>
+                        <span id="verified-citations" class="value verified">0</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="label">Unverified</span>
+                        <span id="unverified-citations" class="value unverified">0</span>
+                    </div>
+                </div>
+                <div id="citations-list" class="citations-list"></div>
+            </div>
+
+            <div id="settings-section" class="section">
+                <h2>Settings</h2>
+                <div class="settings-group">
+                    <label class="ms-Label">
+                        <input type="checkbox" id="auto-validate">
+                        Auto-validate (experimental)
+                    </label>
+                </div>
+                <div class="settings-group">
+                    <label class="ms-Label">
+                        <input type="checkbox" id="highlight-citations" checked>
+                        Highlight citations after validate
+                    </label>
+                </div>
+                <div class="settings-group">
+                    <label class="ms-Label" for="api-endpoint">Analyze URL (must end with <code>/analyze</code> or API base)</label>
+                    <input type="text" id="api-endpoint" class="ms-TextField" autocomplete="off"
+                           placeholder="https://wolf.law.uw.edu/casestrainer/api/analyze" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="loading-spinner" class="loading-spinner" style="display: none;">
+        <div class="spinner"></div>
+    </div>
+
+    <script src="api-client.js"></script>
+    <script src="app.js" type="text/javascript"></script>
+</body>
+</html>

@@ -226,6 +226,29 @@ if IS_PRODUCTION and REDIS_URL and any(m in REDIS_URL for m in _KNOWN_WEAK_REDIS
         raise SystemExit(_weak_redis_msg)
     logging.getLogger(__name__).warning(_weak_redis_msg)
 
+# Async pipeline: Redis/RQ TTL for task results, progress keys, verification status/result keys (seconds).
+# Default 3600 (1 hour). Clamped to a safe range so misconfiguration cannot wipe data instantly or retain for months by accident.
+_RAW_DATA_RETENTION_ASYNC = int(get_config_value("DATA_RETENTION_ASYNC_SECONDS", "3600"))
+_DATA_RETENTION_LO, _DATA_RETENTION_HI = 60, 604800
+if not (_DATA_RETENTION_LO <= _RAW_DATA_RETENTION_ASYNC <= _DATA_RETENTION_HI):
+    logging.getLogger(__name__).warning(
+        "DATA_RETENTION_ASYNC_SECONDS=%s is outside [%s, %s]; clamping.",
+        _RAW_DATA_RETENTION_ASYNC,
+        _DATA_RETENTION_LO,
+        _DATA_RETENTION_HI,
+    )
+DATA_RETENTION_ASYNC_SECONDS: int = max(
+    _DATA_RETENTION_LO, min(_DATA_RETENTION_HI, _RAW_DATA_RETENTION_ASYNC)
+)
+
+# After async file jobs finish, delete the uploaded path on the worker (success or failure).
+UPLOAD_DELETE_AFTER_PROCESSING: bool = get_bool_config_value("UPLOAD_DELETE_AFTER_PROCESSING", True)
+
+# When true, append full JSON API responses to disk under /app/logs (privacy risk).
+CASESTRAINER_LOG_FULL_API_RESPONSES: bool = get_bool_config_value(
+    "CASESTRAINER_LOG_FULL_API_RESPONSES", False
+)
+
 USE_ENHANCED_EXTRACTION: bool = get_bool_config_value("USE_ENHANCED_EXTRACTION", True)
 EXTRACTION_CONFIDENCE_THRESHOLD: float = float(get_config_value("EXTRACTION_CONFIDENCE_THRESHOLD", "0.7"))
 DATA_SEPARATION_SIMILARITY_THRESHOLD: float = float(get_config_value("DATA_SEPARATION_SIMILARITY_THRESHOLD", "0.85"))

@@ -1,5 +1,7 @@
 # 🎉 Repository Cleanup Complete - READ THIS FIRST
 
+> **Update (April 2026):** This file is a historical snapshot from January 2025. For current installation, versions, and deployment, start with **[README.md](./README.md)** in the repository root (release **2.1.0**, UI `package.json` + API `VERSION` file).
+
 **Date**: January 20, 2025  
 **Status**: ✅ READY FOR GITHUB PUSH
 

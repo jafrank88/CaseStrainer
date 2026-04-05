@@ -417,12 +417,12 @@ Select-String -Path "logs\crash_log_*.log" -Pattern "auto-restart" | Measure-Obj
 
 ## Best Practices
 
-### 1. Use Production Mode
+### 1. Use Docker production reload
 
-Always use Docker Production mode for production deployments:
+For production deployments, refresh the stack from the repo root:
 
 ```powershell
-.\launcher.ps1 -Environment DockerProduction
+.\cslauncher.ps1
 
 ```text
 

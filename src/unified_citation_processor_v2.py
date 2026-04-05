@@ -193,7 +193,7 @@ _COMMA_ABBREVS = (
 _COMMA_ABBREVS_PAT = re.compile(r"^(" + _COMMA_ABBREVS + r")\s*,?\s*\d+\s+[A-Z]", re.IGNORECASE)
 _SUFFIX_PAT = re.compile(r"^(" + _COMMA_ABBREVS + r")", re.IGNORECASE)
 _NAME_THEN_CITE_RE = re.compile(
-    r"([A-Z][A-Za-z.\'\,&\ \t\-]+[ \t\n]+v\s*\.\s*[ \t\n]+[A-Z][A-Za-z.\'\,&\ \t\-]+?)\s*,\s*(\d+)\s+[A-Z]",
+    r"([A-Z\u00C0-\u024F][A-Za-z\u00C0-\u024F.\'\,&\ \t\-]+[ \t\n]+v\s*\.\s*[ \t\n]+[A-Z\u00C0-\u024F][A-Za-z\u00C0-\u024F.\'\,&\ \t\-]+?)\s*,\s*(\d+)\s+[A-Z]",
     re.IGNORECASE,
 )
 _DOCKET_CAPTION_LINE_RE = re.compile(
@@ -2080,6 +2080,13 @@ class UnifiedCitationProcessorV2:
             prev = current_group[-1]
             if curr.start_index and prev.end_index and curr.start_index - prev.end_index <= 100:
                 text_between = text[prev.end_index : curr.start_index]
+                # CRITICAL: Do NOT group citations separated by TOA dotted leaders (e.g. "...15, 16")
+                # These are separate TOA entries for different cases even if close in position.
+                if re.search(r'\.{3,}', text_between):
+                    if len(current_group) > 1:
+                        groups.append(current_group)
+                    current_group = [curr]
+                    continue
                 # CRITICAL: Do NOT group citations separated by semicolon (e.g. "A; B; C")
                 if ";" in text_between:
                     if len(current_group) > 1:
@@ -4330,7 +4337,13 @@ class UnifiedCitationProcessorV2:
         r'So\.?\s*(?:2d|3d)?\s+\d|A\.?\s*(?:2d|3d)?\s+\d|'
         # Old reporters (Wheat., Cranch, Wall., How., Pet., Barb., Dall., Black.)
         r'Wheat\.?\s+\d|Cranch\s+\d|Wall\.?\s+\d|How\.?\s+\d|Pet\.?\s+\d|'
-        r'Barb\.?\s+\d|Dall\.?\s+\d|Black\.?\s+\d'
+        r'Barb\.?\s+\d|Dall\.?\s+\d|Black\.?\s+\d|'
+        # Administrative reporters (FCC, FTC, NLRB, CPUC, FERC, Trade Reg. Rep., Trade Cas.)
+        r'F\.?\s*C\.?\s*C\.?\s*(?:2d)?\s+\d|F\.?\s*T\.?\s*C\.?\s+\d|'
+        r'N\.?\s*L\.?\s*R\.?\s*B\.?\s+\d|F\.?\s*E\.?\s*R\.?\s*C\.?\s+\d|'
+        r'C\.?\s*P\.?\s*U\.?\s*C\.?\s*(?:2d)?\s+\d|'
+        r'Trade\s+Reg\.?\s*(?:Rep\.?)?\s+\d|'
+        r'Trade\s+Cas\.?\s*(?:\(CCH\)\s+)?P\s+\d+'
         r')'
         r'|'
         # IL public domain citations: year IL number or year IL App (Xth) number
@@ -4364,8 +4377,20 @@ class UnifiedCitationProcessorV2:
 
         prefix = citation_text[: m.start()].strip()
 
+        # PDF artifact: some fonts render lowercase 'l' as '!' after apostrophe
+        # e.g. "Cont'! T.V." → "Cont'l T.V.", "Nat'! Resources" → "Nat'l Resources"
+        prefix = re.sub(r"(\w)'!", r"\1'l", prefix)
+
         # Strip trailing comma / semicolon
         prefix = re.sub(r'[,;:\s]+$', '', prefix).strip()
+
+        # Strip leading brief-title / amicus prefixes that appear in TOA-style citation lines
+        # e.g. "Amici Curiae Supporting Petitioners, La. Wholesale Drug Co. v. ..." → "La. Wholesale Drug Co. v. ..."
+        prefix = re.sub(
+            r'^(?:Brief\s+(?:of\s+)?)?Amici?\s+Curiae\s+(?:of\s+)?(?:Supporting\s+(?:Petitioners?|Respondents?),?\s*'
+            r'|(?:for\s+)?(?:Petitioners?|Respondents?),?\s*)?',
+            '', prefix, flags=re.IGNORECASE,
+        ).strip()
 
         # Strip leading signal phrases
         prefix = re.sub(
@@ -4377,10 +4402,13 @@ class UnifiedCitationProcessorV2:
         # Strip leading sentence-ending fragments for IL short-form citations
         # e.g. "State. Walker" → "Walker",  "West 2020)). Parmar" → "Parmar"
         # Only strip if the fragment before the period/paren is NOT a "v." name
+        # and NOT an abbreviation-heavy "In re" style name (e.g. "Ry. Indus. Emp. No-Poach Antitrust Litig.")
         if " v. " not in prefix:
-            frag_m = re.match(r'^(.+?[.)]+)\s+([A-Z]\w.*)$', prefix)
-            if frag_m:
-                prefix = frag_m.group(2).strip()
+            _abbrev_count = len(re.findall(r'\b[A-Z][A-Za-z]{0,5}\.', prefix))
+            if _abbrev_count < 2:  # skip strip for "In re" names with 2+ abbreviation tokens
+                frag_m = re.match(r'^(.+?[.)]+)\s+([A-Z]\w.*)$', prefix)
+                if frag_m:
+                    prefix = frag_m.group(2).strip()
         # Strip trailing periods (e.g. "State." → "State")
         prefix = prefix.rstrip('.')
 
@@ -4396,9 +4424,13 @@ class UnifiedCitationProcessorV2:
             after = prefix[toa_junk.end():].strip()
             if len(after) >= 3:
                 prefix = after
-        # Strip "Cases-Continued: Page" or similar TOA header prefixes
+        # Strip TOA header prefixes: "Cases-Continued: Page", "Cited Authorities Page",
+        # "Table of Authorities", etc.
         prefix = re.sub(
-            r'^(?:Cases(?:-Continued)?:\s*(?:Page\s*)?)',
+            r'^(?:Cases(?:-Continued)?:\s*(?:Page\s*)?'
+            r'|Cited\s+Authorities\s+(?:Page\s*)?'
+            r'|Table\s+of\s+(?:Cases\s+)?Cited\s+'
+            r'|Table\s+of\s+Authorities\s+)',
             '', prefix, flags=re.IGNORECASE,
         ).strip()
 
@@ -4612,6 +4644,10 @@ class UnifiedCitationProcessorV2:
                     between = context_before[m.end() :]
                     if " v. " in between.split(",")[0]:  # skip if another case name before next comma
                         continue
+                    # TOA guard: dotted leaders or "passim" between matched name and
+                    # our citation means the name belongs to a different TOA entry.
+                    if re.search(r'\.{3,}|\bpassim\b', between):
+                        continue
                     name_imm = m.group(1).strip()
                     name_imm = re.sub(r"[,;:\s]+$", "", name_imm)
                     name_imm = re.sub(r"\s+", " ", name_imm).strip()
@@ -4649,13 +4685,13 @@ class UnifiedCitationProcessorV2:
             # Allow optional space around "v." (v\s*\.\s*) for PDF artifacts like " v . "
             # Party names: letters, abbreviation dots, commas, &, hyphens, spaces/tabs
             matches = list(re.finditer(
-                r'([A-Z][A-Za-z.\'\,&\ \t\-]+[ \t\n]+v\.[ \t\n]+[A-Z][A-Za-z.\'\,&\ \t\-]+?)(?:\.\s+[A-Z]|,\s*\d|,\s*|\s+\d{1,3}\s+[A-Z]|\s*$)',
+                r'([A-Z\u00C0-\u024F][A-Za-z\u00C0-\u024F.\'\,&\ \t\-]+[ \t\n]+v\.[ \t\n]+[A-Z\u00C0-\u024F][A-Za-z\u00C0-\u024F.\'\,&\ \t\-]+?)(?:\.\s+[A-Z]|,\s*\d|,\s*|\s+\d{1,3}\s+[A-Z]|\s*$)',
                 context_before
             ))
             if not matches:
                 # Relaxed: allow " v . " (space between v and dot) from PDF extraction
                 matches = list(re.finditer(
-                    r'([A-Z][A-Za-z.\'\,&\ \t\-]+[ \t\n]+v\s*\.\s*[ \t\n]+[A-Z][A-Za-z.\'\,&\ \t\-]+?)(?:\.\s+[A-Z]|,\s*\d|,\s*|\s+\d{1,3}\s+[A-Z]|\s*$)',
+                    r'([A-Z\u00C0-\u024F][A-Za-z\u00C0-\u024F.\'\,&\ \t\-]+[ \t\n]+v\s*\.\s*[ \t\n]+[A-Z\u00C0-\u024F][A-Za-z\u00C0-\u024F.\'\,&\ \t\-]+?)(?:\.\s+[A-Z]|,\s*\d|,\s*|\s+\d{1,3}\s+[A-Z]|\s*$)',
                     context_before
                 ))
             if matches:
@@ -4796,7 +4832,7 @@ class UnifiedCitationProcessorV2:
                 fallback_ctx_start = max(0, start - 1200)
                 fallback_before = self._clean_context_for_case_name(text[fallback_ctx_start:start])
                 fallback_matches = list(re.finditer(
-                    r'([A-Z][A-Za-z.\'\,&\ \t\-]+[ \t\n]+v\.[ \t\n]+[A-Z][A-Za-z.\'\,&\ \t\-]+?)(?:\.\s+[A-Z]|,\s*\d|,\s*|\s+\d{1,3}\s+[A-Z]|\s*$)',
+                    r'([A-Z\u00C0-\u024F][A-Za-z\u00C0-\u024F.\'\,&\ \t\-]+[ \t\n]+v\.[ \t\n]+[A-Z\u00C0-\u024F][A-Za-z\u00C0-\u024F.\'\,&\ \t\-]+?)(?:\.\s+[A-Z]|,\s*\d|,\s*|\s+\d{1,3}\s+[A-Z]|\s*$)',
                     fallback_before
                 ))
                 if fallback_matches:
@@ -5979,6 +6015,86 @@ class UnifiedCitationProcessorV2:
             final = [c for c in final if id(c) not in to_drop]
             logger.info(f"[DEDUP-WL-SUBSUME] Removed {before_sub - len(final)} bare WL cite(s) embedded in longer citation")
 
+        # Phase 2.6: Remove volume-truncated duplicates caused by OCR errors.
+        # OCR may produce "4837 U.S. 117" instead of "437 U.S. 117"; eyecite then
+        # parses it as "48, 37 U.S. 117", creating a phantom "37 U.S. 117".
+        # Drop the shorter-volume citation when a longer-volume one shares the same
+        # reporter and page number.
+        _vol_rep_page = re.compile(
+            r"(?:^|,\s*)(\d{1,4})\s+"                     # volume
+            r"([A-Z][A-Za-z.\s]*(?:2d|3d|4th|5th)?)\s+"   # reporter
+            r"(\d{1,5})\b"                                 # page
+        )
+        vol_truncate_drop = set()
+        parsed = []
+        for c in final:
+            ct = (c.citation or "").strip()
+            m = _vol_rep_page.search(ct)
+            if m:
+                parsed.append((c, m.group(1), m.group(2).strip(), m.group(3)))
+            else:
+                parsed.append((c, None, None, None))
+        for i, (ci, vi, ri, pi) in enumerate(parsed):
+            if vi is None:
+                continue
+            for j, (cj, vj, rj, pj) in enumerate(parsed):
+                if i == j or vj is None:
+                    continue
+                # Same reporter (normalized) and same page, but one volume is a suffix of the other
+                if pi == pj and ri.replace(" ", "").lower() == rj.replace(" ", "").lower():
+                    if vj.endswith(vi) and len(vj) > len(vi):
+                        # ci has the shorter (truncated) volume -> drop it
+                        vol_truncate_drop.add(id(ci))
+                        logger.info(
+                            f"[DEDUP-VOL-TRUNCATE] Dropping '{ci.citation}' "
+                            f"(vol {vi}) — subsumed by '{cj.citation}' (vol {vj})"
+                        )
+                        break
+        if vol_truncate_drop:
+            before_vt = len(final)
+            final = [c for c in final if id(c) not in vol_truncate_drop]
+            logger.info(f"[DEDUP-VOL-TRUNCATE] Removed {before_vt - len(final)} volume-truncated duplicate(s)")
+
+        # Phase 2.7: Remove page-truncated duplicates caused by pincite concatenation.
+        # PDF text like "651 F. Supp. 81, 9" (page=81, pincite=9) can be concatenated
+        # into "651 F. Supp. 819" when a comma is dropped during extraction.
+        # Drop the longer-page citation when a shorter-page one shares the same
+        # volume+reporter and the shorter page is a numeric prefix of the longer one.
+        _vol_rep_page2 = re.compile(
+            r"(?:^|,\s*)(\d{1,4})\s+"                     # volume
+            r"([A-Z][A-Za-z.\s]*(?:2d|3d|4th|5th)?)\s+"   # reporter
+            r"(\d{1,5})\b"                                  # page
+        )
+        page_truncate_drop = set()
+        parsed2 = []
+        for c in final:
+            ct = (c.citation or "").strip()
+            m = _vol_rep_page2.search(ct)
+            if m:
+                parsed2.append((c, m.group(1), m.group(2).strip(), m.group(3)))
+            else:
+                parsed2.append((c, None, None, None))
+        for i, (ci, vi, ri, pi) in enumerate(parsed2):
+            if vi is None or pi is None:
+                continue
+            for j, (cj, vj, rj, pj) in enumerate(parsed2):
+                if i == j or vj is None or pj is None:
+                    continue
+                # Same volume and reporter (normalized), and page_j starts with page_i
+                # but is longer (pi="81", pj="819" → pj starts with pi)
+                if (vi == vj and ri.replace(" ", "").lower() == rj.replace(" ", "").lower()
+                        and pj.startswith(pi) and len(pj) > len(pi)):
+                    page_truncate_drop.add(id(cj))
+                    logger.info(
+                        f"[DEDUP-PAGE-TRUNCATE] Dropping '{cj.citation}' "
+                        f"(page {pj}) — likely concat of '{ci.citation}' (page {pi}) + pincite"
+                    )
+                    break
+        if page_truncate_drop:
+            before_pt = len(final)
+            final = [c for c in final if id(c) not in page_truncate_drop]
+            logger.info(f"[DEDUP-PAGE-TRUNCATE] Removed {before_pt - len(final)} page-truncated duplicate(s)")
+
         logger.info(f"[DEDUP] Finished: {len(citations)} -> {len(final)} citations ({len(citations) - len(final)} removed)")
 
         # Filter court-year-only parentheticals
@@ -6351,11 +6467,19 @@ class UnifiedCitationProcessorV2:
         # Step 4b: Set citation-type flags once (drives extraction + verification + display).
         # NOTE: When we fall back to regex in process_text() (unified failed), those citations
         # never run Step 4b; process_text() sets the same flags for them (see "CRITICAL: Regex-fallback" block).
-        from src.utils.citation_type_utils import is_proprietary_only_citation, name_likely_in_left_context as _name_in_left
+        from src.utils.citation_type_utils import is_proprietary_only_citation, name_likely_in_left_context as _name_in_left, is_statutory_citation
         for citation in deduplicated_citations:
             ct = citation.citation or ""
             citation.is_proprietary_only = is_proprietary_only_citation(ct)
             citation.name_likely_in_left_context = _name_in_left(ct)
+
+        # Step 4c: Remove statutory / non-case citations (Pub. L., U.S.C., Stat., Cong. Rec., etc.)
+        # These are not court opinions and should not go through case name extraction or verification.
+        pre_filter_count = len(deduplicated_citations)
+        deduplicated_citations = [c for c in deduplicated_citations if not is_statutory_citation(c.citation or "")]
+        filtered_count = pre_filter_count - len(deduplicated_citations)
+        if filtered_count:
+            logger.info(f"[UNIFIED_EXTRACTION] Step 4c: Removed {filtered_count} statutory/non-case citations")
 
         logger.info("[UNIFIED_EXTRACTION] Step 5: Extracting names and dates with full text context")
         # FIX #44: Use normalized_text for extraction since citation positions are from normalized_text.
