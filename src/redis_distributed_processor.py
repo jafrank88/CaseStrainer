@@ -23,7 +23,7 @@ import logging
 import hashlib
 import asyncio
 from typing import Optional, Dict, List, Tuple, Any
-import pickle
+import json
 from dataclasses import dataclass
 import sys
 
@@ -131,17 +131,11 @@ class RedisDistributedPDFSystem:
         try:
             cached = self.redis_client.get(key)
             if cached:
-                if isinstance(cached, bytes):
-                    try:
-                        return pickle.loads(cached)  # type: ignore
-                    except Exception:
-                        return None
-                else:
-                    try:
-                        data_bytes = cached.encode("utf-8") if isinstance(cached, str) else cached
-                        return pickle.loads(data_bytes)  # type: ignore
-                    except Exception:
-                        return None
+                raw = cached.decode("utf-8") if isinstance(cached, bytes) else cached
+                try:
+                    return json.loads(raw)
+                except Exception:
+                    return None
         except Exception as e:
             logger.warning(f"Cache get failed: {e}")
 
@@ -154,7 +148,7 @@ class RedisDistributedPDFSystem:
 
         try:
             ttl = ttl or self.cache_ttl
-            serialized = pickle.dumps(value)
+            serialized = json.dumps(value, default=str).encode("utf-8")
             self.redis_client.setex(key, ttl, serialized)
             return True
         except Exception as e:

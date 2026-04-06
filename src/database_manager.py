@@ -409,10 +409,10 @@ class DatabaseManager:
                 }
 
                 for table_name, _ in tables:
-                    cursor.execute(f"SELECT COUNT(*) FROM {table_name}")
+                    cursor.execute(f'SELECT COUNT(*) FROM "{table_name}"')
                     row_count = cursor.fetchone()[0]
 
-                    cursor.execute(f"PRAGMA table_info({table_name})")
+                    cursor.execute(f'PRAGMA table_info("{table_name}")') 
                     column_count = len(cursor.fetchall())
 
                     stats["tables"][table_name] = {"row_count": row_count, "column_count": column_count}
