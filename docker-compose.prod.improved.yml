@@ -9,16 +9,16 @@ services:
       - redis_data_prod:/data
     restart: unless-stopped
     environment:
-      - REDIS_PASSWORD=***REDACTED_REDIS_PASSWORD***
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
     healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
+      test: ["CMD", "redis-cli", "-a", "$$REDIS_PASSWORD", "ping"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 30s
     networks:
       - app-network
-    command: ["redis-server", "--bind", "0.0.0.0", "--port", "6379", "--requirepass", "***REDACTED_REDIS_PASSWORD***", "--appendonly", "yes", "--maxmemory", "512mb", "--maxmemory-policy", "allkeys-lru"]
+    command: ["sh", "-c", "redis-server --bind 0.0.0.0 --port 6379 --requirepass \"$$REDIS_PASSWORD\" --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru"]
     deploy:
       resources:
         limits:
@@ -39,7 +39,7 @@ services:
       redis:
         condition: service_healthy
     environment:
-      - REDIS_URL=redis://:***REDACTED_REDIS_PASSWORD***@redis:6379/0
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
       - FLASK_ENV=production
       - FLASK_DEBUG=False
       - PYTHONPATH=/app
@@ -93,7 +93,7 @@ services:
       redis:
         condition: service_healthy
     environment:
-      - REDIS_URL=redis://:***REDACTED_REDIS_PASSWORD***@redis:6379/0
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
       - CASTRAINER_ENV=production
       - PYTHONPATH=/app
       - COURTLISTENER_API_KEY=${COURTLISTENER_API_KEY}
@@ -139,7 +139,7 @@ services:
       redis:
         condition: service_healthy
     environment:
-      - REDIS_URL=redis://:***REDACTED_REDIS_PASSWORD***@redis:6379/0
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
       - CASTRAINER_ENV=production
       - PYTHONPATH=/app
       - COURTLISTENER_API_KEY=${COURTLISTENER_API_KEY}
@@ -184,7 +184,7 @@ services:
       redis:
         condition: service_healthy
     environment:
-      - REDIS_URL=redis://:***REDACTED_REDIS_PASSWORD***@redis:6379/0
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@redis:6379/0
       - CASTRAINER_ENV=production
       - PYTHONPATH=/app
       - COURTLISTENER_API_KEY=${COURTLISTENER_API_KEY}
