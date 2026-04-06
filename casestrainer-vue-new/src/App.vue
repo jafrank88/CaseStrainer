@@ -231,8 +231,13 @@ html {
 }
 
 #main-content:focus-visible {
-  outline: 3px solid #4f46e5;
-  outline-offset: 4px;
+  outline: 2px solid rgba(107, 70, 193, 0.55);
+  outline-offset: 0;
+  box-shadow:
+    0 0 0 5px rgba(107, 70, 193, 0.10),
+    0 0 18px 2px rgba(107, 70, 193, 0.08);
+  border-radius: 2px;
+  transition: outline 0.15s ease, box-shadow 0.15s ease;
 }
 
 /* Base styles */
