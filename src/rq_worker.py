@@ -388,7 +388,7 @@ def process_citation_task_async(task_id: str, document_text: str, document_type:
 
             progress_manager = ProgressManager(redis_client=redis_conn)
             progress_manager.update_progress(task_id, 0, "failed", f"Task failed: {str(e)}", error=str(e))
-        except:
+        except Exception:
             pass  # Best effort error reporting
 
     return {

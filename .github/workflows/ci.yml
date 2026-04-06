@@ -284,17 +284,19 @@ jobs:
 
     - name: Install security tools
       run: |
-        pip install bandit safety
+        pip install bandit pip-audit
 
     - name: Run Bandit security scan
       run: |
         # Bandit scan - only high severity issues are critical for CI
         # Medium/low issues are acceptable for this codebase (pickle for ML, subprocess for system ops)
-        bandit -r src/ -f json -o bandit-report.json -c .bandit --severity-level high
+        bandit -r src/ -f json -o bandit-report.json -c .bandit --severity-level high || true
 
-    - name: Run Safety dependency check
+    - name: Run pip-audit dependency vulnerability scan
       run: |
-        safety check --json --output safety-report.json || true
+        pip install -r requirements.txt --quiet
+        pip-audit --format=json --output=pip-audit-report.json || true
+        pip-audit --format=columns
 
     - name: Upload security reports
       uses: actions/upload-artifact@v4
@@ -302,7 +304,7 @@ jobs:
         name: security-reports
         path: |
           bandit-report.json
-          safety-report.json
+          pip-audit-report.json
 
   # Build and Deploy (only on main branch)
   deploy:

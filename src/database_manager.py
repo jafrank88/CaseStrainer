@@ -275,7 +275,7 @@ class DatabaseManager:
                         try:
                             conn.rollback()
                             self.connection_pool.append(conn)
-                        except:
+                        except Exception:
                             conn.close()
                     else:
                         conn.close()

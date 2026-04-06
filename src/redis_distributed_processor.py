@@ -362,7 +362,7 @@ class RedisDistributedPDFSystem:
             from pdfminer.high_level import extract_text
 
             return extract_text(file_path, maxpages=100)  # Limit pages for speed
-        except:
+        except Exception:
             return None
 
     def _extract_with_pypdf2_fast(self, file_path: str) -> Optional[str]:
@@ -376,7 +376,7 @@ class RedisDistributedPDFSystem:
                     return None
                 pages = min(len(reader.pages), 100)  # Limit pages
                 return "\n".join(reader.pages[i].extract_text() for i in range(pages))
-        except:
+        except Exception:
             return None
 
     def _apply_ocr_fixes(self, text: str) -> str:

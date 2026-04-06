@@ -130,7 +130,7 @@ class PersistentLogger:
                 "available_gb": round(mem.available / (1024**3), 2),
                 "percent_used": mem.percent,
             }
-        except:
+        except Exception:
             startup_info["memory"] = "unavailable"
 
         # Save session file
@@ -184,7 +184,7 @@ class PersistentLogger:
                 session_data["shutdown_type"] = "normal"
                 with open(self.session_file, "w") as f:
                     json.dump(session_data, f, indent=2)
-        except:
+        except Exception:
             pass  # Don't fail on shutdown logging
 
     def _handle_shutdown_signal(self, signum, frame):
@@ -206,7 +206,7 @@ class PersistentLogger:
                 session_data["signal_number"] = signum
                 with open(self.session_file, "w") as f:
                     json.dump(session_data, f, indent=2)
-            except:
+            except Exception:
                 pass
 
         # Call original handler or exit
@@ -246,7 +246,7 @@ class PersistentLogger:
                 session_data["exception_message"] = str(exc_value)
                 with open(self.session_file, "w") as f:
                     json.dump(session_data, f, indent=2)
-            except:
+            except Exception:
                 pass
 
         # Call default exception handler

@@ -29,9 +29,10 @@ services:
       - FLASK_ENV=production
       - CASTRAINER_ENV=production
       - PYTHONPATH=/app
-      - COURTLISTENER_API_KEY=***REDACTED_COURTLISTENER_KEY***
+      - COURTLISTENER_API_KEY=${COURTLISTENER_API_KEY}
       - FAST_VERIFICATION=true
-      - SECRET_KEY=${SECRET_KEY:-casestrainer-prod-key-xK9mP2vL8nQ4wR7jF1hT6yB3cA0dE5gU}
+      - SECRET_KEY=${SECRET_KEY}
+      - SENTRY_DSN=${SENTRY_DSN:-}
     volumes:
       - ./src:/app/src  # DEVELOPMENT: Mount source code for live updates
       - ./uploads:/app/uploads
@@ -63,9 +64,10 @@ services:
       - REDIS_URL=redis://casestrainer-redis:6379/0
       - CASTRAINER_ENV=production
       - PYTHONPATH=/app
-      - COURTLISTENER_API_KEY=***REDACTED_COURTLISTENER_KEY***
+      - COURTLISTENER_API_KEY=${COURTLISTENER_API_KEY}
       - FAST_VERIFICATION=true
-      - SECRET_KEY=${SECRET_KEY:-casestrainer-prod-key-xK9mP2vL8nQ4wR7jF1hT6yB3cA0dE5gU}
+      - SECRET_KEY=${SECRET_KEY}
+      - SENTRY_DSN=${SENTRY_DSN:-}
       - RQ_QUEUE_NAME=casestrainer
       - RQ_MAX_JOBS=100
       - RQ_MAX_MEMORY_MB=1024

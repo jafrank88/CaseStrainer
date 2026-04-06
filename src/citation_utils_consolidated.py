@@ -352,7 +352,7 @@ def calculate_extraction_confidence(case_name, date, context, citation_text):
             if date.endswith("-01-01"):
                 confidence["date_confidence"] += 0.1
                 confidence["date_reasons"].append("Standard year-only format")
-        except:
+        except Exception:
             confidence["date_confidence"] -= 0.2
             confidence["date_reasons"].append("Invalid date format")
         confidence["date_confidence"] = min(confidence["date_confidence"], 1.0)
@@ -514,7 +514,7 @@ def validate_extraction_quality(result):
                 quality_score -= 0.3
             else:
                 quality_score += 0.3
-        except:
+        except Exception:
             issues.append("Invalid date format")
             quality_score -= 0.3
     else:
@@ -944,7 +944,7 @@ class ConfidenceScorer:
                 year_int = int(year)
                 if 1800 <= year_int <= 2100:
                     confidence += 0.2
-            except:
+            except Exception:
                 pass
 
         return min(confidence, 1.0)
@@ -1006,7 +1006,7 @@ def validate_citation_dates(citation):
                 year_int = int(year)
                 if year_int < 1800 or year_int > 2100:
                     logger.warning(f"Year out of reasonable range: {year}")
-            except:
+            except Exception:
                 logger.warning(f"Invalid year format: {year}")
 
         for date_field in ["extracted_date", "canonical_date"]:

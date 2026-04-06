@@ -146,7 +146,7 @@ class RobustPDFExtractor:
                                 text, footnote_count = convert_footnotes_to_endnotes(text, enable=True)
                                 if self.verbose and footnote_count > 0:
                                     logger.info(f"[NOTE] Converted {footnote_count} footnotes")
-                            except:
+                            except Exception:
                                 pass  # Fail silently, use original
 
                         elapsed = time.time() - start_time

@@ -161,14 +161,14 @@ def extract_canonical_date(cluster: Dict[str, Any], citation: str = "", extracte
                                                 if parsed_date.year == extracted_year:
                                                     formatted = parsed_date.strftime("%Y-%m-%d")
                                                     return formatted
-                                            except:
+                                            except Exception:
                                                 continue
 
                     try:
                         corrected_date = decided_dt.replace(year=extracted_year)
                         formatted_date = corrected_date.strftime("%Y-%m-%d")
                         return formatted_date
-                    except:
+                    except Exception:
                         return str(extracted_year)
 
             except Exception as e:
@@ -186,7 +186,7 @@ def extract_canonical_date(cluster: Dict[str, Any], citation: str = "", extracte
             docket_date = docket.get("date_filed") or docket.get("dateFiled")
             if docket_date:
                 return docket_date
-    except:
+    except Exception:
         pass
 
     if extracted_year is not None and decided:

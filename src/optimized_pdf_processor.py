@@ -317,7 +317,7 @@ class OptimizedPDFProcessor:
                         processing_time=time.time() - start_time,
                         pages_processed=1,
                     )
-        except:
+        except Exception:
             pass
 
         return ExtractionResult(
@@ -347,7 +347,7 @@ class OptimizedPDFProcessor:
                         first_page = reader.pages[0]
                         sample_text = first_page.extract_text()
                         has_text = bool(sample_text and len(sample_text.strip()) > 10)
-                except:
+                except Exception:
                     has_text = False
 
                 is_scanned = not has_text

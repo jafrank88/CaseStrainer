@@ -574,7 +574,7 @@ def fetch_url_content(url: str) -> str:
             if e.response:
                 try:
                     response_text = e.response.text[:500].lower()  # Get first 500 chars
-                except:
+                except Exception:
                     response_text = ""
 
             # Detect anti-bot protection indicators

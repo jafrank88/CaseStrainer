@@ -565,7 +565,7 @@ class UnifiedTextExtractor:
             if text and len(text.strip()) > 100:
                 logger.warning("[WARNING] Using low-quality plain text extraction for .doc file")
                 return text, "doc:plaintext_fallback"
-        except:
+        except Exception:
             pass
 
         logger.error("[ERROR] No method available to extract .doc file. Install antiword or textract.")
