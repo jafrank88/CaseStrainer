@@ -80,6 +80,11 @@ hyperscan/
 vcpkg/
 models/
 learning_data/
+scripts/learning_data/
+# ML model artefacts (regenerated at runtime)
+src/ml_models/
+# JavaScript source maps (dev tooling only, not for production)
+*.map
 # Vue.js specific
 node_modules/
 *.tsbuildinfo
@@ -163,6 +168,13 @@ analyze_*.py
 # Database files - with exceptions
 *.db
 !example_citations.db
+# Timestamped database backups (runtime artefacts)
+data/backups/
+# Runtime citation data / test outputs
+data/citations/
+data/adaptive_learning/
+data/extracted_text/
+data/context_analysis_dataset_*.json
 # Backup files
 *.bak
 *.backup
@@ -262,6 +274,9 @@ nginx/temp/
 nginx-1.24.0/html/
 nginx-1.24.0/temp/
 nginx/nginx/
+nginx/logs/
+nginx/*.exe
+nginx/*.pid
 # Static and template files (if not needed in repo)
 static/
 templates/
@@ -337,6 +352,7 @@ src/diag*.txt
 src/ecn_debug*.txt
 src/network_response.txt
 src/unverified_citations.txt
+src/response.json
 
 # -------------------------------------------------------------------------------
 # Ephemeral / local QA outputs (keep the repo root clean; safe to delete anytime)

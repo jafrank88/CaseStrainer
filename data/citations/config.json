@@ -1,6 +1,0 @@
-{
-    "courtlistener_api_key": "***REDACTED_COURTLISTENER_KEY***",
-    "langsearch_api_key": "***REDACTED_LANGSEARCH_KEY***",
-    "ssl_cert_path": "D:/dify/docker/nginx/ssl/cert.pem",
-    "ssl_key_path": "D:/dify/docker/nginx/ssl/key.pem"
-}
