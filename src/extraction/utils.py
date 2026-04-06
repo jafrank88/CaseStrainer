@@ -24,37 +24,9 @@ def clean_case_name(name: str) -> str:
 
 
 def calculate_name_similarity(name1: str, name2: str) -> float:
-    """
-    Calculate similarity between two case names.
-    
-    Uses word overlap and sequence matching.
-    """
-    if not name1 or not name2:
-        return 0.0
-    
-    from difflib import SequenceMatcher
-    
-    # Normalize both names
-    n1 = _normalize_for_comparison(name1)
-    n2 = _normalize_for_comparison(name2)
-    
-    # Word overlap
-    words1 = set(n1.split())
-    words2 = set(n2.split())
-    
-    if not words1 or not words2:
-        return 0.0
-    
-    # Jaccard similarity for words
-    intersection = len(words1 & words2)
-    union = len(words1 | words2)
-    word_sim = intersection / union if union > 0 else 0.0
-    
-    # Sequence similarity
-    seq_sim = SequenceMatcher(None, n1, n2).ratio()
-    
-    # Weighted combination
-    return 0.6 * word_sim + 0.4 * seq_sim
+    """Delegates to src.utils.similarity_utils (single source of truth, cached Jaccard)."""
+    from src.utils.similarity_utils import calculate_name_similarity as _sim
+    return _sim(name1, name2)
 
 
 def _normalize_for_comparison(name: str) -> str:

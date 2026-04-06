@@ -116,17 +116,9 @@ def is_truncated(name: str) -> bool:
 
 
 def calculate_name_similarity(name1: str, name2: str) -> float:
-    """Calculate similarity between two case names."""
-    from difflib import SequenceMatcher
-    
-    if not name1 or not name2:
-        return 0.0
-    
-    # Normalize
-    n1 = _normalize_name(name1)
-    n2 = _normalize_name(name2)
-    
-    return SequenceMatcher(None, n1, n2).ratio()
+    """Delegates to src.utils.similarity_utils (single source of truth, cached Jaccard)."""
+    from src.utils.similarity_utils import calculate_name_similarity as _sim
+    return _sim(name1, name2)
 
 
 def _normalize_name(name: str) -> str:
