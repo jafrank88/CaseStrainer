@@ -403,10 +403,6 @@ def process_citation_task_async(task_id: str, document_text: str, document_type:
 
 def main():
     """Main entry point for the RQ worker with enhanced error handling and monitoring."""
-    print("=" * 80, flush=True)
-    print("DEBUG STEP 1: main() function entered", flush=True)
-    print("=" * 80, flush=True)
-
     # Configure logging
     log_level = os.environ.get("LOG_LEVEL", "INFO").upper()
     logging.basicConfig(
@@ -415,31 +411,21 @@ def main():
         handlers=[logging.StreamHandler()],
     )
 
-    print("DEBUG STEP 2: Logging configured", flush=True)
-
     # Log startup information
-    print("=" * 80, flush=True)
-    print("RQ WORKER MAIN() CALLED - AUTO-RELOAD CHECK STARTING", flush=True)
-    print("=" * 80, flush=True)
     logger.info("=" * 80)
     logger.info(f"Starting CaseStrainer Worker (PID: {os.getpid()})")
     logger.info(f"Python: {sys.version}")
     logger.info(f"Redis URL: {REDIS_URL[:50]}...")
     logger.info("=" * 80)
 
-    print("DEBUG STEP 3: Startup info logged", flush=True)
-
     # Set up signal handlers
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
 
-    print("DEBUG STEP 4: Signal handlers configured", flush=True)
-
     # Configure queue and worker name
     queue_name = os.environ.get("RQ_QUEUE_NAME", "casestrainer")
     worker_name = f"worker-{os.getpid()}@{os.uname().nodename}"
-
-    print(f"DEBUG STEP 5: Queue={queue_name}, Worker={worker_name}", flush=True)
+    logger.info(f"Queue={queue_name}, Worker={worker_name}")
 
     # CRITICAL: Clean up any stale registration with the same name
     # This prevents "worker already exists" errors after container restarts
@@ -450,12 +436,10 @@ def main():
         for w in existing_workers:
             if w.name == worker_name:
                 logger.info(f"Removing stale worker registration: {worker_name}")
-                print(f"Removing stale worker registration: {worker_name}", flush=True)
                 w.register_death()
                 break
     except Exception as e:
         logger.warning(f"Could not clean up stale worker registration: {e}")
-        print(f"Could not clean up stale worker: {e}", flush=True)
 
     # Configure worker settings
     worker_functions = register_worker_functions()
@@ -463,57 +447,36 @@ def main():
 
     worker_kwargs = {"connection": redis_conn, "queues": [queue_name], "name": worker_name}
 
-    print("DEBUG STEP 6: Worker kwargs configured", flush=True)
-
     # Check if auto-reload is enabled (for development)
     auto_reload = os.environ.get("RQ_WORKER_AUTORELOAD", "false").lower() == "true"
-
-    print(
-        f"DEBUG STEP 7: Auto-reload check: RQ_WORKER_AUTORELOAD={os.environ.get('RQ_WORKER_AUTORELOAD', 'not set')}, auto_reload={auto_reload}",
-        flush=True,
-    )
+    logger.info(f"Auto-reload: {auto_reload} (RQ_WORKER_AUTORELOAD={os.environ.get('RQ_WORKER_AUTORELOAD', 'not set')})") 
 
     # Start the worker with error handling
     max_restarts = 10
     restart_count = 0
     monitor = None  # Initialize here to avoid UnboundLocalError
 
-    print(f"DEBUG STEP 8: About to enter worker loop (max_restarts={max_restarts})", flush=True)
-
     while restart_count < max_restarts:
-        print(f"DEBUG STEP 9: Loop iteration {restart_count + 1}/{max_restarts}", flush=True)
-
         try:
-            print("DEBUG STEP 10: Inside try block", flush=True)
             logger.info(f"Starting worker (attempt {restart_count + 1}/{max_restarts})")
 
-            print("DEBUG STEP 11: About to create RobustWorker", flush=True)
             worker = RobustWorker(**worker_kwargs)
-            print("DEBUG STEP 12: RobustWorker created successfully", flush=True)
 
             # Start code change monitor if auto-reload is enabled
             if auto_reload:
-                print("DEBUG STEP 13: Auto-reload is TRUE, starting monitor...", flush=True)
                 try:
-                    print("DEBUG STEP 14: Creating CodeChangeMonitor instance", flush=True)
                     monitor = CodeChangeMonitor(watch_dir="/app/src", check_interval=2)
-                    print("DEBUG STEP 15: CodeChangeMonitor created, starting monitoring", flush=True)
                     monitor.start_monitoring(os.getpid())
-                    print("DEBUG STEP 16: Auto-reload monitor started successfully!", flush=True)
                     logger.info("Auto-reload monitor started successfully")
                 except Exception as e:
-                    print(f"DEBUG: Monitor exception: {e}", flush=True)
                     logger.warning(f"Could not start code monitor: {e}")
                     logger.warning("Continuing without auto-reload...")
                     monitor = None
             else:
-                print("DEBUG STEP 13: Auto-reload is FALSE", flush=True)
                 logger.info("Auto-reload disabled. Set RQ_WORKER_AUTORELOAD=true to enable.")
 
-            print("DEBUG STEP 17: About to call worker.work()", flush=True)
             logger.info("Worker started. Press Ctrl+C to exit.")
             worker.work(logging_level="INFO")
-            print("DEBUG STEP 18: worker.work() returned", flush=True)
 
             # Stop monitoring if active
             if monitor:
