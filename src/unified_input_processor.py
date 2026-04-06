@@ -251,7 +251,7 @@ class UnifiedInputProcessor:
                             f"[Unified Processor {request_id}] PDF HEAD: Content-Type={ct}, Content-Length={cl}"
                         )
                     except Exception:
-                        pass
+                        logger.debug("Suppressed exception", exc_info=True)
                     tmp_path = None
                     try:
                         try:
@@ -309,7 +309,7 @@ class UnifiedInputProcessor:
                                 if alt_text and len(alt_text.strip()) > len(text or ""):
                                     text = alt_text
                             except Exception:
-                                pass
+                                logger.debug("Suppressed exception", exc_info=True)
                         # Optional third attempt: try OCR if available and content still too short
                         # Leave OCR as an optional internal path only if supported by RobustPDFExtractor in deployment
                         if not text or len(text.strip()) < 50:
@@ -338,9 +338,9 @@ class UnifiedInputProcessor:
                                         f"[Unified Processor {request_id}] Local test PDF extracted: {len(local_alt or '')} chars (for comparison)"
                                     )
                                 except Exception:
-                                    pass
+                                    logger.debug("Suppressed exception", exc_info=True)
                         except Exception:
-                            pass
+                            logger.debug("Suppressed exception", exc_info=True)
 
                         return {
                             "success": True,
@@ -358,7 +358,7 @@ class UnifiedInputProcessor:
                             try:
                                 os.unlink(tmp_path)
                             except Exception:
-                                pass
+                                logger.debug("Suppressed exception", exc_info=True)
                 except Exception as pdf_err:
                     logger.error(f"[Unified Processor {request_id}] PDF fetch/extract failed: {pdf_err}")
                     # Fall through to generic fetch as a fallback
@@ -613,7 +613,7 @@ class UnifiedInputProcessor:
                             interval=0.8,
                         )
                     except Exception:
-                        pass
+                        logger.debug("Suppressed exception", exc_info=True)
 
                     logger.info(
                         f"[Unified Processor {request_id}] About to call process_citations_unified with enable_verification={enable_verification}"
@@ -707,11 +707,11 @@ class UnifiedInputProcessor:
                                 time.sleep(3.0)
                                 self.progress_manager.cleanup_task(request_id, keep_redis_data=True)
                             except Exception:
-                                pass
+                                logger.debug("Suppressed exception", exc_info=True)
 
                         threading.Thread(target=_cleanup_done, daemon=True).start()
                     except Exception:
-                        pass
+                        logger.debug("Suppressed exception", exc_info=True)
 
                     # Build metadata
                     response_metadata = {
@@ -843,7 +843,7 @@ class UnifiedInputProcessor:
                                 interval=1.0,
                             )
                         except Exception:
-                            pass
+                            logger.debug("Suppressed exception", exc_info=True)
 
                         def _async_heartbeat_and_watcher():
                             try:
@@ -888,11 +888,11 @@ class UnifiedInputProcessor:
                                                         time.sleep(3.0)
                                                         self.progress_manager.cleanup_task(request_id)
                                                     except Exception:
-                                                        pass
+                                                        logger.debug("Suppressed exception", exc_info=True)
 
                                                 threading.Thread(target=_cleanup_async, daemon=True).start()
                                             except Exception:
-                                                pass
+                                                logger.debug("Suppressed exception", exc_info=True)
                                             break
                                         # Reflect verification progress above heartbeat floor
                                         self.progress_manager.update_progress(
@@ -903,11 +903,11 @@ class UnifiedInputProcessor:
                                     if status in ("completed", "failed"):
                                         break
                             except Exception:
-                                pass
+                                logger.debug("Suppressed exception", exc_info=True)
 
                         threading.Thread(target=_async_heartbeat_and_watcher, daemon=True).start()
                     except Exception:
-                        pass
+                        logger.debug("Suppressed exception", exc_info=True)
 
                     return {
                         "success": True,

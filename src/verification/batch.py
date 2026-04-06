@@ -191,7 +191,7 @@ class BatchVerifier:
                 import ctypes
                 ctypes.CDLL("libc.so.6").malloc_trim(0)
             except Exception:
-                pass
+                logger.debug("Suppressed exception", exc_info=True)
             if batch_idx < len(batches) - 1:
                 try:
                     from src.config import BATCH_DELAY_BETWEEN_REQUESTS_SECONDS
@@ -402,7 +402,7 @@ class BatchVerifier:
                 _mem_before = psutil.Process(os.getpid()).memory_info().rss // (1024 * 1024)
                 logger.info(f"[BATCH-MEM] Before API call: {_mem_before}MB, text_len={len(text)}")
             except Exception:
-                pass
+                logger.debug("Suppressed exception", exc_info=True)
             throttle_courtlistener(cost=cost, context="batch-citation-lookup")
             resp = self.session.post(url, data=form_data, headers=headers, timeout=req_timeout)
             # Automatically adapt on payload too large: split batch in half and retry
@@ -480,7 +480,7 @@ class BatchVerifier:
             _mem_after = psutil.Process(os.getpid()).memory_info().rss // (1024 * 1024)
             logger.info(f"[BATCH-MEM] After API call + parse: {_mem_after}MB")
         except Exception:
-            pass
+            logger.debug("Suppressed exception", exc_info=True)
         return self._match_results_to_citations(api_results, batch_info)
 
     def _match_results_to_citations(

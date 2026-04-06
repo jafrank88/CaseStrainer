@@ -267,7 +267,7 @@ class UnifiedProcessingPipeline:
                         97, "Formatting", f"Parallel verification complete — formatting {len(citations)} citations"
                     )
                 except Exception:
-                    pass
+                    logger.debug("Suppressed exception", exc_info=True)
 
             # STAGE 4: Final Formatting
             context.trace_stage("formatting")
@@ -297,7 +297,7 @@ class UnifiedProcessingPipeline:
                         if cl.get("cluster_size") is not None:
                             c["cluster_size"] = cl.get("cluster_size")
             except Exception:
-                pass
+                logger.debug("Suppressed exception", exc_info=True)
 
             # Progress: Stage 4 done, about to return (vm.complete sets the final 100%)
             if self.processor and hasattr(self.processor, '_update_progress'):
@@ -308,7 +308,7 @@ class UnifiedProcessingPipeline:
                         99, "Finalizing", f"Results ready: {num_cits} citations, {num_clus} clusters"
                     )
                 except Exception:
-                    pass
+                    logger.debug("Suppressed exception", exc_info=True)
 
             # SUCCESS - Complete processing
             context.trace_stage("completed")
@@ -628,7 +628,7 @@ class UnifiedProcessingPipeline:
                     f"[PIPELINE-{context.trace_id}] Annotated mismatch flags for {len(citation_dicts)} citations"
                 )
             except Exception:
-                pass
+                logger.debug("Suppressed exception", exc_info=True)
 
             # CRITICAL FIX: Remove placeholder citations from Cite as context BEFORE clustering
             # "594 U.S. _ (scotus 2021)" from page headers must not be clustered with Milkovich (497 U.S.)
@@ -1203,7 +1203,7 @@ class UnifiedProcessingPipeline:
                     if cid and cid in cluster_name_by_id:
                         cit_dict["cluster_case_name"] = cluster_name_by_id.get(cid)
             except Exception:
-                pass
+                logger.debug("Suppressed exception", exc_info=True)
 
             # USER FIX 2026-01-12: Add display fields to clusters for frontend compatibility
             # The frontend expects submitted_display_name and verifying_display_name fields
@@ -1306,7 +1306,7 @@ class UnifiedProcessingPipeline:
                                 if isinstance(c, dict) and c.get("canonical_date"):
                                     c["canonical_date"] = verifying_date_val
                     except Exception:
-                        pass
+                        logger.debug("Suppressed exception", exc_info=True)
                 cluster["verifying_display_date"] = verifying_date_val
                 cluster["submitted_display_date"] = cluster.get("extracted_date", "") or "N/A"
                 # If the two dates we display have the same year, do not show "Different date"

@@ -86,7 +86,7 @@ def cleanup_stuck_jobs(conn):
                 try:
                     registry.remove(job_id)
                 except Exception:
-                    pass
+                    logger.debug("Suppressed exception", exc_info=True)
                 continue
             started_at = job.started_at
             if started_at is None:
@@ -148,7 +148,7 @@ def main():
                 conn = redis.from_url(REDIS_URL)
                 conn.ping()
             except Exception:
-                pass
+                logger.debug("Suppressed exception", exc_info=True)
         except Exception as e:
             logger.error("Monitor error: %s", e)
 

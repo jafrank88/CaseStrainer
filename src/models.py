@@ -136,7 +136,7 @@ class CitationResult:
             from src.utils.cluster_display_utils import _repair_truncated_llc
             cleaned_canonical_name = _repair_truncated_llc(cleaned_canonical_name or "") or cleaned_canonical_name
         except Exception:
-            pass
+            pass  # noqa: BLE001
         case_name = cleaned_canonical_name or cleaned_extracted_name or "N/A"
         
         # CRITICAL FIX: Clean the citation field itself

@@ -57,7 +57,7 @@ def _force_release_memory() -> None:
         libc = ctypes.CDLL("libc.so.6")
         libc.malloc_trim(0)
     except Exception:
-        pass
+        pass  # noqa: BLE001
 
 
 def _get_citation_state(citation_text: str) -> str:

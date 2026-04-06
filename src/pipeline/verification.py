@@ -87,7 +87,7 @@ async def run_parallel_verification(
             text = getattr(context, "input_text", "") or ""
             processor.ensure_bidirectional_parallels(citations, text)
         except Exception:
-            pass
+            logger.debug("Suppressed exception", exc_info=True)
         processor.propagate_canonical_to_cluster(citations)
 
         parallel_count = sum(

@@ -97,7 +97,7 @@ def extract_canonical_date(cluster: Dict[str, Any], citation: str = "", extracte
                             )
                             return f"{extracted_year}-12-31"
                     except Exception:
-                        pass
+                        logger.debug("Suppressed exception", exc_info=True)
                     return decided
                 return decided
 
@@ -111,7 +111,7 @@ def extract_canonical_date(cluster: Dict[str, Any], citation: str = "", extracte
                         )
                         return f"{extracted_year}-12-31"
                 except Exception:
-                    pass
+                    logger.debug("Suppressed exception", exc_info=True)
                 return decided
 
             return decided
@@ -187,7 +187,7 @@ def extract_canonical_date(cluster: Dict[str, Any], citation: str = "", extracte
             if docket_date:
                 return docket_date
     except Exception:
-        pass
+        logger.debug("Suppressed exception", exc_info=True)
 
     if extracted_year is not None and decided:
         try:
@@ -198,7 +198,7 @@ def extract_canonical_date(cluster: Dict[str, Any], citation: str = "", extracte
             if decided_year >= 2015 and extracted_year < 2015 and year_diff > 5:
                 return str(extracted_year)
         except Exception:
-            pass
+            logger.debug("Suppressed exception", exc_info=True)
 
     if decided:
         try:
@@ -223,7 +223,7 @@ def extract_canonical_date(cluster: Dict[str, Any], citation: str = "", extracte
                         if extracted_year and extracted_year < 2015:
                             return str(extracted_year)
         except Exception:
-            pass
+            logger.debug("Suppressed exception", exc_info=True)
 
         return decided
 

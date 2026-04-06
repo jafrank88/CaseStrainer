@@ -108,7 +108,7 @@ class VerificationRegistry:
         try:
             return asdict(res)
         except Exception:
-            pass
+            logger.debug("Suppressed exception", exc_info=True)
         # Object with __dict__
         if hasattr(res, "__dict__"):
             try:
@@ -116,7 +116,7 @@ class VerificationRegistry:
                 d.setdefault("citation", citation)
                 return d
             except Exception:
-                pass
+                logger.debug("Suppressed exception", exc_info=True)
         # Already a dict
         if isinstance(res, dict):
             res.setdefault("citation", citation)

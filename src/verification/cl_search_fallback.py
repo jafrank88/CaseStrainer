@@ -34,7 +34,7 @@ def _cl_search_api_key_and_base(api_key: Optional[str]):
         if COURTLISTENER_API_URL:
             base = (COURTLISTENER_API_URL or base).rstrip("/")
     except Exception:
-        pass
+        logger.debug("Suppressed exception", exc_info=True)
     return key, base
 
 
@@ -336,7 +336,7 @@ def _normalize_case_name_for_cl_search(raw: Optional[str]) -> Optional[str]:
         try:
             s = expand_abbreviations(s)
         except Exception:
-            pass
+            logger.debug("Suppressed exception", exc_info=True)
     # expand_abbreviations may match "Cnty" without the following period, leaving "County. of"
     s = re.sub(r"\bCounty\.\s+", "County ", s, flags=re.IGNORECASE)
     s = re.sub(r"\s+&\s+", " and ", s)
@@ -453,7 +453,7 @@ async def cl_search_fallback(session, api_key, citation, extracted_case_name=Non
                 else:
                     resp0.close(); del resp0
         except Exception:
-            pass
+            logger.debug("Suppressed exception", exc_info=True)
         try:
             params0r: Dict[str, Any] = {"q": str(citation), "type": "r"}
             t0r = _next_timeout(6.0)
@@ -487,7 +487,7 @@ async def cl_search_fallback(session, api_key, citation, extracted_case_name=Non
             else:
                 resp0r.close(); del resp0r
         except Exception:
-            pass
+            logger.debug("Suppressed exception", exc_info=True)
 
     # Strategy 0.5: Name + date recovery lane, even when citation text is noisy.
     # CourtListener Search API expects fielded queries in the q parameter:
@@ -513,7 +513,7 @@ async def cl_search_fallback(session, api_key, citation, extracted_case_name=Non
                 else:
                     resp_nd.close(); del resp_nd
         except Exception:
-            pass
+            logger.debug("Suppressed exception", exc_info=True)
 
     # Strategy 1: Opinion search with case_name + date filter
     # Use fielded q: caseName:"..." AND dateFiled:[... TO ...]
@@ -577,7 +577,7 @@ async def cl_search_fallback(session, api_key, citation, extracted_case_name=Non
                 else:
                     resp15.close(); del resp15
             except Exception:
-                pass
+                logger.debug("Suppressed exception", exc_info=True)
 
         # Strategy 2: Free-text search with case name + citation
         params2: Dict[str, Any] = {"q": f"{q_case_name} {citation}", "type": "o"}
@@ -688,7 +688,7 @@ async def cl_search_fallback(session, api_key, citation, extracted_case_name=Non
                                 "diagnostic": "Found via RECAP docket-entries date filter",
                             }
             except Exception:
-                pass
+                logger.debug("Suppressed exception", exc_info=True)
 
         return {"verified": False, "error": "No matching results in any search strategy"}
     except Exception as e:
@@ -772,7 +772,7 @@ def _build_result(best, citation, method, extracted_case_name=None):
         if scoring.get("diagnostics"):
             result["verification_note"] = "; ".join(scoring["diagnostics"])
     except Exception:
-        pass
+        logger.debug("Suppressed exception", exc_info=True)
     return result
 
 

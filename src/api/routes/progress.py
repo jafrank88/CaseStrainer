@@ -162,7 +162,7 @@ def register_progress_routes(bp):
                     try:
                         sse_mgr.cleanup_task(request_id)
                     except Exception:
-                        pass
+                        logger.debug("Suppressed exception", exc_info=True)
             except Exception as e:
                 logger.error(f"Error in progress stream for {request_id}: {e}")
                 yield f'data: {{"type": "error", "message": "Progress stream error: {str(e)}"}}\n\n'

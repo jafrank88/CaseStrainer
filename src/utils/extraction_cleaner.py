@@ -99,7 +99,7 @@ def normalize_to_ascii_display(text: str) -> str:
         for u, a in UNICODE_MAPPINGS.items():
             s = s.replace(u, a)
     except Exception:
-        pass
+        logger.debug("Suppressed exception", exc_info=True)
     # 3) Non-breaking space
     s = s.replace("\u00a0", " ")
     # 4) Bold/italic (HTML, markdown, Unicode math symbols)

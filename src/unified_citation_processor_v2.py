@@ -679,7 +679,7 @@ class UnifiedCitationProcessorV2:
             if base:
                 return base
         except Exception:
-            pass
+            logger.debug("Suppressed exception", exc_info=True)
 
         # If already compact, keep as-is.
         if len(s) <= 180:
@@ -920,7 +920,7 @@ class UnifiedCitationProcessorV2:
                 if 1700 <= yv <= 2030:
                     year = py.group("year")
             except Exception:
-                pass
+                logger.debug("Suppressed exception", exc_info=True)
 
         # Extract the nearest "X v. Y" from the left side of the line (use the *last* match).
         # Allow abbreviations and punctuation; keep it bounded to reduce over-capture.
@@ -1057,7 +1057,7 @@ class UnifiedCitationProcessorV2:
                     if m_dig:
                         gap = paren_pos - m_dig.start(1)
             except Exception:
-                pass
+                logger.debug("Suppressed exception", exc_info=True)
             return (gap, len(span_txt))
 
         toa_spans = _estimate_toa_spans(text)
@@ -3644,7 +3644,7 @@ class UnifiedCitationProcessorV2:
                 normalized = merge_s_ct_page_split_in_string(normalized)
                 normalized = strip_absorbed_prose_after_s_ct_or_led2d(normalized)
             except Exception:
-                pass
+                logger.debug("Suppressed exception", exc_info=True)
 
         return normalized.strip()
 
@@ -5475,7 +5475,7 @@ class UnifiedCitationProcessorV2:
 
                         citation_str = snap_s_ct_citation_to_source_window(citation_str, text, start_index)
                     except Exception:
-                        pass
+                        logger.debug("Suppressed exception", exc_info=True)
 
                     citation_str = self._truncate_eyecite_runon_citation(citation_str)
                     citation_str = self._strip_toc_prefix(citation_str)
@@ -6507,7 +6507,7 @@ class UnifiedCitationProcessorV2:
                         citation.citation or "", _win
                     )
                 except Exception:
-                    pass
+                    logger.debug("Suppressed exception", exc_info=True)
 
                 _existing_ecn = (getattr(citation, "extracted_case_name", None) or "").strip()
                 _needs_extraction = not _existing_ecn
@@ -6576,7 +6576,7 @@ class UnifiedCitationProcessorV2:
                             mdh["appellate_history_type"] = hist
                             citation.metadata = mdh
                 except Exception:
-                    pass
+                    logger.debug("Suppressed exception", exc_info=True)
 
                 existing_date = getattr(citation, "extracted_date", None)
                 existing_confidence = (getattr(citation, "metadata", None) or {}).get(
@@ -6642,7 +6642,7 @@ class UnifiedCitationProcessorV2:
                         md2["year"] = int(y)
                         citation.metadata = md2
                     except Exception:
-                        pass
+                        logger.debug("Suppressed exception", exc_info=True)
                 # Decision year in cite string wins over context / TOA / signature bleed (Actavis (2013) vs 2015)
                 paren_decision = self._decision_year_from_citation_paren(cit_text)
                 if paren_decision:
@@ -6656,7 +6656,7 @@ class UnifiedCitationProcessorV2:
                             md3["year"] = int(paren_decision)
                         citation.metadata = md3
                     except Exception:
-                        pass
+                        logger.debug("Suppressed exception", exc_info=True)
                 elif self._is_missing_extracted_date(getattr(citation, "extracted_date", None)) and cit_text:
                     paren_year = re.search(r"\((19\d{2}|20\d{2})\)", cit_text)
                     if paren_year:
@@ -6712,7 +6712,7 @@ class UnifiedCitationProcessorV2:
                     if cur and cur != "N/A" and " v. " in cur:
                         previous_strong_case_name = cur
                 except Exception:
-                    pass
+                    logger.debug("Suppressed exception", exc_info=True)
 
             except Exception as e:
                 logger.warning(
@@ -7246,7 +7246,7 @@ class UnifiedCitationProcessorV2:
                                     c.extracted_date = sl_year
                                     self._set_extracted_date_provenance(c, "same_line_paren", "high")
                         except Exception:
-                            pass
+                            logger.debug("Suppressed exception", exc_info=True)
 
                         # CRITICAL FIX: Pass a context window, NOT the full document text.
                         # The master extractor's ProximityStrategy searches the entire text

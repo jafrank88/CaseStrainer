@@ -60,9 +60,9 @@ class VerificationManager:
                             payload = raw.decode("utf-8") if isinstance(raw, bytes) else str(raw)
                             return json.loads(payload)
                         except Exception:
-                            pass
+                            logger.debug("Suppressed exception", exc_info=True)
         except Exception:
-            pass
+            logger.debug("Suppressed exception", exc_info=True)
         # Fallback to in-memory cache if present
         return self._active_verifications.get(request_id)
 
@@ -95,7 +95,7 @@ class VerificationManager:
                 if job_id:
                     self.redis_conn.setex(f"verification:job:{job_id}", DATA_RETENTION_ASYNC_SECONDS, payload)
         except Exception:
-            pass
+            logger.debug("Suppressed exception", exc_info=True)
 
     def update_progress(
         self, id_or_job: str, processed: int, total: Optional[int] = None, message: Optional[str] = None
@@ -150,7 +150,7 @@ class VerificationManager:
                 })
                 self.redis_conn.setex(f"progress:{id_or_job}", DATA_RETENTION_ASYNC_SECONDS, progress_payload)
         except Exception:
-            pass
+            logger.debug("Suppressed exception", exc_info=True)
 
     def complete(self, id_or_job: str, results: Optional[Dict[str, Any]] = None):
         status = self.get_verification_status(id_or_job) or {}
@@ -249,7 +249,7 @@ class VerificationManager:
                 if req_id:
                     self.redis_conn.setex(f"verification:status:{req_id}", DATA_RETENTION_ASYNC_SECONDS, payload)
         except Exception:
-            pass
+            logger.debug("Suppressed exception", exc_info=True)
 
 
 class VerificationStatus(Enum):

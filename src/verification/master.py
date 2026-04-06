@@ -600,7 +600,7 @@ class UnifiedVerificationMaster:
                             if not needs_url:
                                 return 1
         except Exception:
-            pass
+            logger.debug("Suppressed exception", exc_info=True)
 
         # Name+date-only for proprietary (WL/Lexis)
         name_date_done = False
@@ -626,7 +626,7 @@ class UnifiedVerificationMaster:
                             needs_url = False
                             success_delta = 1
                     except Exception:
-                        pass
+                        logger.debug("Suppressed exception", exc_info=True)
 
         # Step A: CL search API fallback
         if not name_date_done:
@@ -678,7 +678,7 @@ class UnifiedVerificationMaster:
                             "source": search_result.get("source", "CourtListener-Search"),
                         })
             except Exception:
-                pass
+                logger.debug("Suppressed exception", exc_info=True)
 
         # Step B: Web fallback
         if (not verified or needs_url) and not name_date_done:
@@ -725,7 +725,7 @@ class UnifiedVerificationMaster:
                                     "source": fallback_result.get("source", ""),
                                 })
                     except Exception:
-                        pass
+                        logger.debug("Suppressed exception", exc_info=True)
 
         # Last resort: name+date-only
         if not result.get("verified") and case_name and date and re.search(r"(19|20)\d{2}", str(date or "")):
@@ -748,7 +748,7 @@ class UnifiedVerificationMaster:
                             result["error"] = "Possible match (name and date only; citation not verified)"
                             success_delta = 1
                     except Exception:
-                        pass
+                        logger.debug("Suppressed exception", exc_info=True)
 
         return success_delta
 
@@ -836,7 +836,7 @@ class UnifiedVerificationMaster:
                         f"Verifying citations... ({processed_so_far}/{total} citations)"
                     )
                 except Exception:
-                    pass
+                    logger.debug("Suppressed exception", exc_info=True)
             verified = result.get("verified", False)
             # Default: avoid fallback when batch explicitly rejected (name mismatch) to prevent overwriting
             # with a different case. Exception: when we have a strong extracted document name (has "v."),
@@ -933,7 +933,7 @@ class UnifiedVerificationMaster:
                         f"Verifying citations... ({total}/{total_steps} citations)"
                     )
                 except Exception:
-                    pass
+                    logger.debug("Suppressed exception", exc_info=True)
             try:
                 from src.config import VERIFICATION_FALLBACK_CONCURRENCY
                 concurrency = max(1, int(VERIFICATION_FALLBACK_CONCURRENCY))
@@ -956,7 +956,7 @@ class UnifiedVerificationMaster:
                                 f"Verifying citations... ({total + fallback_done}/{total_steps} citations)"
                             )
                         except Exception:
-                            pass
+                            logger.debug("Suppressed exception", exc_info=True)
             else:
                 sem = asyncio.Semaphore(concurrency)
                 fallback_done_list: List[int] = [0]  # mutable for closure
@@ -978,7 +978,7 @@ class UnifiedVerificationMaster:
                                     f"Verifying citations... ({total + fallback_done_list[0]}/{total_steps} citations)"
                                 )
                             except Exception:
-                                pass
+                                logger.debug("Suppressed exception", exc_info=True)
                         return delta
 
                 deltas = await asyncio.gather(*[run_with_sem(item) for item in need_fallback])
@@ -1008,7 +1008,7 @@ class UnifiedVerificationMaster:
             try:
                 progress_callback(total, "Verifying", f"Verification complete ({total}/{total} citations)")
             except Exception:
-                pass
+                logger.debug("Suppressed exception", exc_info=True)
 
         if unverified_count > 0:
             logger.info(
@@ -1028,21 +1028,21 @@ class UnifiedVerificationMaster:
                 _libc_final = ctypes.CDLL("libc.so.6")
                 _libc_final.malloc_trim(0)
             except Exception:
-                pass
+                logger.debug("Suppressed exception", exc_info=True)
             # Close the session to release connection pool memory
             try:
                 if self.session:
                     self.session.close()
                     logger.info("[BATCH-FALLBACK] Closed requests.Session to release connection pool")
             except Exception:
-                pass
+                logger.debug("Suppressed exception", exc_info=True)
             gc.collect()
             try:
                 _libc_final.malloc_trim(0)
             except Exception:
-                pass
+                logger.debug("Suppressed exception", exc_info=True)
         except Exception:
-            pass
+            logger.debug("Suppressed exception", exc_info=True)
         # Log final memory
         try:
             import psutil
@@ -1050,7 +1050,7 @@ class UnifiedVerificationMaster:
             _final_mem = psutil.Process(os.getpid()).memory_info().rss // (1024 * 1024)
             logger.warning(f"[BATCH-FALLBACK-MEM] Final after gc+malloc_trim+session.close: {_final_mem}MB (processed {total} citations, {fallback_attempted} fallbacks)")
         except Exception:
-            pass
+            logger.debug("Suppressed exception", exc_info=True)
 
         return results
     

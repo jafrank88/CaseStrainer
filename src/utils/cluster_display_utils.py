@@ -1074,7 +1074,7 @@ def finalize_cluster_for_response(
                     c["name_mismatch"] = False
                     c["date_mismatch"] = False
     except Exception:
-        pass
+        pass  # noqa: BLE001
 
     # ECN propagation: back-fill extracted_case_name on citations that still show N/A
     # when the cluster has a good submitted_display_name.  This ensures the citation-level
@@ -1093,4 +1093,4 @@ def finalize_cluster_for_response(
                     if not _ecn or _ecn == "N/A":
                         _c["extracted_case_name"] = best_name
     except Exception:
-        pass
+        pass  # noqa: BLE001

@@ -2092,7 +2092,7 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
                                                     )
                                                     continue
                                             except Exception:
-                                                pass
+                                                pass  # noqa: BLE001
                                             # Do NOT mark true_by_parallel if source has Google search URL
                                             src_url = (source_citation.get("canonical_url") or source_citation.get("url") or "").strip()
                                             if src_url and (src_url.startswith("https://www.google.com/search") or src_url.startswith("http://www.google.com/search")):
@@ -2200,7 +2200,7 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
                                                     )
                                                     continue
                                             except Exception:
-                                                pass
+                                                pass  # noqa: BLE001
                                             # Do NOT mark true_by_parallel if source has Google search URL
                                             src_url = (source_citation.get("canonical_url") or source_citation.get("url") or "").strip()
                                             if src_url and (src_url.startswith("https://www.google.com/search") or src_url.startswith("http://www.google.com/search")):
@@ -3490,7 +3490,7 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
                             task_id, processed=0, total=1, message="Pipeline timed out; document may be too large"
                         )
                     except Exception:
-                        pass
+                        pass  # noqa: BLE001
                     result = {
                         "status": "failed",
                         "task_id": task_id,

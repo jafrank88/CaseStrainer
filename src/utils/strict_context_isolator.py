@@ -1035,7 +1035,7 @@ def extract_case_name_from_strict_context(context: str, citation_text: str) -> O
     try:
         context = html.unescape(context)
     except Exception:
-        pass
+        logger.debug("Suppressed exception", exc_info=True)
 
     # CRITICAL: Normalize Unicode characters BEFORE pattern matching
     # Convert smart quotes and apostrophes to ASCII equivalents
@@ -1541,7 +1541,7 @@ def extract_case_name_from_strict_context(context: str, citation_text: str) -> O
                                 )
                                 return frag_clean
             except Exception:
-                pass
+                logger.debug("Suppressed exception", exc_info=True)
 
             # REPORTER FAMILY GUARD: If the text between this match and the citation
             # clearly references a different reporter family than the target citation,
@@ -1710,7 +1710,7 @@ def extract_case_name_from_strict_context(context: str, citation_text: str) -> O
                             plaintiff = f"{gov_word} of {loc_word}"
                             logger.debug(f"[GOV-PREFIX-FIX] Restored prefix: '{plaintiff}'")
                 except Exception:
-                    pass
+                    logger.debug("Suppressed exception", exc_info=True)
 
                 # Trim plaintiff to text after the last sentence boundary to remove narrative prefixes
                 try:
@@ -1725,7 +1725,7 @@ def extract_case_name_from_strict_context(context: str, citation_text: str) -> O
                         if tail and re.match(r"^[A-Z]", tail):
                             plaintiff = tail
                 except Exception:
-                    pass
+                    logger.debug("Suppressed exception", exc_info=True)
 
                 # Strip caption/docket role tokens that are not part of party names
                 try:
@@ -1737,7 +1737,7 @@ def extract_case_name_from_strict_context(context: str, citation_text: str) -> O
                     plaintiff = _strip_caption_roles(plaintiff)
                     defendant = _strip_caption_roles(defendant)
                 except Exception:
-                    pass
+                    logger.debug("Suppressed exception", exc_info=True)
                 case_name = f"{plaintiff} v. {defendant}"
                 
                 # FIX JAN 2026: Clean up signal words at the start of case names
@@ -2264,7 +2264,7 @@ def extract_case_name_from_strict_context(context: str, citation_text: str) -> O
                     if tail and re.match(r"^[A-Z]", tail):
                         plaintiff = tail
             except Exception:
-                pass
+                logger.debug("Suppressed exception", exc_info=True)
             if len(plaintiff) >= 2 and len(defendant) >= 2:
                 fallback_name = f"{plaintiff} v. {defendant}"
 
@@ -2305,7 +2305,7 @@ def extract_case_name_from_strict_context(context: str, citation_text: str) -> O
                 logger.debug(f"[STRICT-EXTRACT:FALLBACK] Extracted '{fallback_name}' for {citation_text}")
                 return fallback_name
     except Exception:
-        pass
+        logger.debug("Suppressed exception", exc_info=True)
     return None
 
 

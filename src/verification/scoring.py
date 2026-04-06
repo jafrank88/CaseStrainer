@@ -42,9 +42,9 @@ class ScoringMixin:
                 try:
                     return str(normalizer(str(citation)))
                 except Exception:
-                    pass
+                    logger.debug("Suppressed exception", exc_info=True)
             except Exception:
-                pass
+                logger.debug("Suppressed exception", exc_info=True)
 
         # Local fallback normalization.
         normalized = str(citation).strip().lower()

@@ -44,7 +44,7 @@ def _courtlistener_key_and_base(api_key: Optional[str]):
         if COURTLISTENER_API_URL:
             base = (COURTLISTENER_API_URL or base).rstrip("/")
     except Exception:
-        pass
+        logger.debug("Suppressed exception", exc_info=True)
     return key, base
 
 
@@ -316,7 +316,7 @@ class CourtListenerVerifier:
                                 "diagnostic": "Matched via adjacent page (page +/- {}); submitted page may have a typo".format(abs(delta)),
                             }
             except Exception:
-                pass
+                logger.debug("Suppressed exception", exc_info=True)
         return None
 
     def _enrich_result(self, result, citation, extracted_case_name):
@@ -572,7 +572,7 @@ class GoogleScholarVerifier:
             try:
                 s = expand_abbreviations(s)
             except Exception:
-                pass
+                logger.debug("Suppressed exception", exc_info=True)
         s = re.sub(r"\bCounty\.\s+", "County ", s, flags=re.IGNORECASE)
         s = re.sub(r"\s+&\s+", " and ", s)
         return re.sub(r"\s+", " ", s).strip() or str(name).strip()

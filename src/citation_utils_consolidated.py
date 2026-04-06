@@ -945,7 +945,7 @@ class ConfidenceScorer:
                 if 1800 <= year_int <= 2100:
                     confidence += 0.2
             except Exception:
-                pass
+                pass  # noqa: BLE001
 
         return min(confidence, 1.0)
 

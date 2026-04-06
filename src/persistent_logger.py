@@ -207,7 +207,7 @@ class PersistentLogger:
                 with open(self.session_file, "w") as f:
                     json.dump(session_data, f, indent=2)
             except Exception:
-                pass
+                pass  # noqa: BLE001
 
         # Call original handler or exit
         sys.exit(0)
@@ -247,7 +247,7 @@ class PersistentLogger:
                 with open(self.session_file, "w") as f:
                     json.dump(session_data, f, indent=2)
             except Exception:
-                pass
+                pass  # noqa: BLE001
 
         # Call default exception handler
         sys.__excepthook__(exc_type, exc_value, exc_traceback)

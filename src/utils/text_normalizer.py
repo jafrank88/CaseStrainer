@@ -197,7 +197,7 @@ def normalize_text(text: str) -> str:
 
         normalized = merge_s_ct_page_split_across_newline(normalized)
     except Exception:
-        pass
+        logger.debug("Suppressed exception", exc_info=True)
 
     # Handle L. Ed.: "200 L.\nEd." -> "200 L. Ed."
     normalized = re.sub(r"(\d+)\s+[Ll]\.?\s*[\n\r]+\s*[Ee]d\.?", r"\1 L. Ed.", normalized)

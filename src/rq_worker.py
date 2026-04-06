@@ -17,7 +17,7 @@ try:
     _root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
     load_dotenv(os.path.join(_root, ".env"))
 except Exception:
-    pass
+    pass  # noqa: BLE001
 
 
 import logging

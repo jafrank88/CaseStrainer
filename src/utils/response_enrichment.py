@@ -1191,7 +1191,7 @@ def deduplicate_clusters_for_response(clusters: List[Dict[str, Any]]) -> List[Di
             if u:
                 return f"url:{_normalize_real_case_url(u)}"
         except Exception:
-            pass
+            logger.debug("Suppressed exception", exc_info=True)
 
         cits = cl.get("citations") or cl.get("citation_objects") or []
         keys: List[str] = []
@@ -1541,7 +1541,7 @@ def compute_cluster_sections(clusters: List[Dict[str, Any]]) -> Dict[str, List[s
             from src.utils.extraction_cleaner import normalize_to_ascii_display
             s = normalize_to_ascii_display(s)
         except Exception:
-            pass
+            logger.debug("Suppressed exception", exc_info=True)
         base = extract_display_base_citation(s)
         return citation_core_key(base or s)
 

@@ -286,11 +286,11 @@ class SSEProgressManager:
                         nxt = max(current, max(start_pct, min(cap_pct, target)))
                         self.update_progress(task_id, nxt, "processing", message)
                 except Exception:
-                    pass
+                    logger.debug("Suppressed exception", exc_info=True)
 
             threading.Thread(target=_hb, daemon=True).start()
         except Exception:
-            pass
+            logger.debug("Suppressed exception", exc_info=True)
 
 
 def estimate_citations_cheap(text: str) -> int:

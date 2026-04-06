@@ -377,7 +377,7 @@ def format_analyze_success_response(result, request_id, metadata, start_time):
                         md["extracted_date_confidence"] = "high"
                         c["metadata"] = md
             except Exception:
-                pass
+                logger.debug("Suppressed exception", exc_info=True)
 
             exn = c.get("extracted_case_name") or ""
             can = c.get("canonical_name") or c.get("canonical_case_name") or ""

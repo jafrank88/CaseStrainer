@@ -160,7 +160,7 @@ class UnifiedTextExtractor:
                         pt.tesseract_cmd = c
                         break
         except Exception:
-            pass
+            logger.debug("Suppressed exception", exc_info=True)
 
         max_pages = int(os.environ.get("CASESTRAINER_OCR_MAX_PAGES", "30") or "30")
         scale = float(os.environ.get("CASESTRAINER_OCR_SCALE", "2.0") or "2.0")
@@ -556,7 +556,7 @@ class UnifiedTextExtractor:
         except ImportError:
             pass
         except Exception:
-            pass
+            logger.debug("Suppressed exception", exc_info=True)
 
         # Method 3: Try reading as plain text (low quality)
         try:
@@ -566,7 +566,7 @@ class UnifiedTextExtractor:
                 logger.warning("[WARNING] Using low-quality plain text extraction for .doc file")
                 return text, "doc:plaintext_fallback"
         except Exception:
-            pass
+            logger.debug("Suppressed exception", exc_info=True)
 
         logger.error("[ERROR] No method available to extract .doc file. Install antiword or textract.")
         return "", "doc:no_extractor"

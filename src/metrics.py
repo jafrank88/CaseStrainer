@@ -19,7 +19,7 @@ def record_submission(citation_count: int = 0, date_str: Optional[str] = None) -
             r.incrby("metrics:citations:total", int(citation_count))
         r.incr("metrics:documents:total")
     except Exception:
-        pass
+        pass  # noqa: BLE001
 
 
 def record_citations(citation_count: int, date_str: Optional[str] = None) -> None:
@@ -31,7 +31,7 @@ def record_citations(citation_count: int, date_str: Optional[str] = None) -> Non
         r.incrby(f"metrics:citations:{day}", int(citation_count))
         r.incrby("metrics:citations:total", int(citation_count))
     except Exception:
-        pass
+        pass  # noqa: BLE001
 
 
 def record_document(date_str: Optional[str] = None) -> None:
@@ -41,7 +41,7 @@ def record_document(date_str: Optional[str] = None) -> None:
         r.incr(f"metrics:documents:{day}")
         r.incr("metrics:documents:total")
     except Exception:
-        pass
+        pass  # noqa: BLE001
 
 
 def get_daily_counts(date_str: Optional[str] = None) -> Dict[str, int]:

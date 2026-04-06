@@ -230,7 +230,7 @@ def apply_canonical_date_overrides(
                     corrected = str(extracted_year_int)
                     new_mismatch = False
         except Exception:
-            pass
+            pass  # noqa: BLE001
         # Rule 2: absurd year difference
         if new_mismatch and abs(can_year_int - extracted_year_int) > 15:
             corrected = str(extracted_year_int)

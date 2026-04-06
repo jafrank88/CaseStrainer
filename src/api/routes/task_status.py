@@ -547,7 +547,7 @@ def register_task_status_routes(bp):
                             try:
                                 authoritative_counts.append(int(count_value))
                             except Exception:
-                                pass
+                                logger.debug("Suppressed exception", exc_info=True)
 
                     if isinstance(completed_progress_payload, dict):
                         progress_citation_count = completed_progress_citation_count
@@ -574,7 +574,7 @@ def register_task_status_routes(bp):
                                 message = prog_data.get("message") or message
                                 current_message = prog_data.get("current_step") or message
                         except Exception:
-                            pass
+                            logger.debug("Suppressed exception", exc_info=True)
 
                         return jsonify(
                             {
@@ -610,7 +610,7 @@ def register_task_status_routes(bp):
                         )
                         _repair_cluster_citation_sync(citations, clusters)
                     except Exception:
-                        pass
+                        logger.debug("Suppressed exception", exc_info=True)
                     # Re-run display finalization so stale cluster-level display fields
                     # (submitted_display_date/name, display_canonical_url) cannot force
                     # verified clusters into Google-search/unverified UI lanes.
@@ -627,7 +627,7 @@ def register_task_status_routes(bp):
                                 clear_unverified_citations=True,
                             )
                     except Exception:
-                        pass
+                        logger.debug("Suppressed exception", exc_info=True)
                     # Final sync for completed results: align citation cluster fields and prefer citation-derived years.
                     try:
                         cl_by_id = {
@@ -648,7 +648,7 @@ def register_task_status_routes(bp):
                             if y.isdigit() and 1700 <= int(y) <= 2030 and src.startswith("citation_"):
                                 c["extracted_date"] = y
                     except Exception:
-                        pass
+                        logger.debug("Suppressed exception", exc_info=True)
                     citations, clusters = _strip_non_case_from_response_payload(citations, clusters)
                     stats = actual_result.get("statistics", {}) if isinstance(actual_result.get("statistics", {}), dict) else {}
                     stats["total_citations"] = len(citations or [])
@@ -698,7 +698,7 @@ def register_task_status_routes(bp):
                         )
                         _repair_cluster_citation_sync(citations, clusters)
                     except Exception:
-                        pass
+                        logger.debug("Suppressed exception", exc_info=True)
                     try:
                         from src.utils.cluster_display_utils import finalize_cluster_for_response
 
@@ -712,7 +712,7 @@ def register_task_status_routes(bp):
                                 clear_unverified_citations=True,
                             )
                     except Exception:
-                        pass
+                        logger.debug("Suppressed exception", exc_info=True)
                     try:
                         cl_by_id = {
                             cl.get("cluster_id"): cl
@@ -732,7 +732,7 @@ def register_task_status_routes(bp):
                             if y.isdigit() and 1700 <= int(y) <= 2030 and src.startswith("citation_"):
                                 c["extracted_date"] = y
                     except Exception:
-                        pass
+                        logger.debug("Suppressed exception", exc_info=True)
                     citations, clusters = _strip_non_case_from_response_payload(citations, clusters)
                     stats = actual_result.get("statistics", {}) if isinstance(actual_result.get("statistics", {}), dict) else {}
                     stats["total_citations"] = len(citations or [])
@@ -836,14 +836,14 @@ def register_task_status_routes(bp):
                             payload_processed_int = int(payload_processed)
                             payload_processed = min(payload_processed_int, payload_total_int) if payload_total_int > 0 else payload_processed_int
                         except Exception:
-                            pass
+                            logger.debug("Suppressed exception", exc_info=True)
 
                     if payload_progress is not None:
                         try:
                             response["progress"] = int(payload_progress)
                             response["progress_percent"] = int(payload_progress)
                         except Exception:
-                            pass
+                            logger.debug("Suppressed exception", exc_info=True)
 
                     if payload_message:
                         response["message"] = payload_message
@@ -1076,7 +1076,7 @@ def register_task_status_routes(bp):
                                 if yv.isdigit() and 1700 <= int(yv) <= 2030:
                                     yrs.append(int(yv))
                             except Exception:
-                                pass
+                                logger.debug("Suppressed exception", exc_info=True)
                         cluster_year = str(min(yrs)) if yrs else None
                         new_cluster = {
                             "cluster_id": new_id,
@@ -1109,7 +1109,7 @@ def register_task_status_routes(bp):
                         clusters_out.append(new_cluster)
                         cl_by_id[new_id] = new_cluster
                 except Exception:
-                    pass
+                    logger.debug("Suppressed exception", exc_info=True)
 
                 return jsonify(response)
 
@@ -1141,7 +1141,7 @@ def register_task_status_routes(bp):
                             response["queued_seconds"] = int(wait_seconds)
                             response["message"] = f"Task is queued (position: {position}). {hint}"
                 except Exception:
-                    pass
+                    logger.debug("Suppressed exception", exc_info=True)
                 if isinstance(vstatus, dict):
                     response["verification_status"] = vstatus
                     if "progress_percent" in vstatus:
