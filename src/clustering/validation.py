@@ -67,7 +67,7 @@ def validate_cluster(
     if len(years) > 1:
         year_consistency = _check_year_consistency(years)
         if year_consistency < 0.8:
-            issues.append(f"Inconsistent years")
+            issues.append("Inconsistent years")
     
     # Calculate overall confidence
     confidence = calculate_cluster_confidence(cluster)

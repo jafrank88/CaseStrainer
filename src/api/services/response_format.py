@@ -92,7 +92,7 @@ def format_analyze_success_response(result, request_id, metadata, start_time):
 
             # Apply parallel verification
             processor.propagate_canonical_to_cluster(citation_objects)
-            print(f"_format_response: Parallel verification completed")
+            print("_format_response: Parallel verification completed")
 
             # Update the result with parallel verification data
             updated_citations = []
@@ -160,7 +160,8 @@ def format_analyze_success_response(result, request_id, metadata, start_time):
 
     def _normalize_legal_name(s):
         try:
-            import re, html
+            import re
+            import html
 
             if not s:
                 return ""

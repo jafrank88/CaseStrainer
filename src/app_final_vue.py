@@ -105,7 +105,7 @@ def verify_citation_with_extraction(
 
     logger = logging.getLogger("citation_verification")
 
-    logger.info(f"[DEBUG] DEBUG: verify_citation_with_extraction called")
+    logger.info("[DEBUG] DEBUG: verify_citation_with_extraction called")
     logger.info(f"  citation_text: '{citation_text}'")
     logger.info(f"  document_text length: {len(document_text) if document_text else 0}")
 
@@ -127,13 +127,13 @@ def verify_citation_with_extraction(
     }
     try:
         if document_text and document_text.strip():
-            logger.info(f"[DEBUG] DEBUG: About to call extract_case_name_and_date_unified_master")
+            logger.info("[DEBUG] DEBUG: About to call extract_case_name_and_date_unified_master")
             logger.info(f"  citation_text: '{citation_text}'")
             logger.info(f"  document_text: '{document_text[:100]}...'")
 
             extraction_result = extract_case_name_and_date_unified_master(text=document_text, citation=citation_text)
 
-            logger.info(f"[DEBUG] DEBUG: extract_case_name_and_date_unified_master returned:")
+            logger.info("[DEBUG] DEBUG: extract_case_name_and_date_unified_master returned:")
             logger.info(f"  Type: {type(extraction_result)}")
             logger.info(f"  Value: {extraction_result}")
 
@@ -158,11 +158,11 @@ def verify_citation_with_extraction(
                 result["canonical_name"] = extraction_result.get("canonical_name", "N/A")
                 result["canonical_date"] = extraction_result.get("canonical_date", "N/A")
 
-                logger.info(f"[DEBUG] DEBUG: After mapping:")
+                logger.info("[DEBUG] DEBUG: After mapping:")
                 logger.info(f"  extracted_case_name: '{result['extracted_case_name']}'")
                 logger.info(f"  extracted_date: '{result['extracted_date']}'")
                 logger.info(f"Mapped values: name='{extracted_name}', date='{extracted_date}'")
-                logger.info(f"After assignment:")
+                logger.info("After assignment:")
                 logger.info(f"  result['extracted_case_name']: '{result['extracted_case_name']}'")
                 logger.info(f"  result['extracted_date']: '{result['extracted_date']}'")
 

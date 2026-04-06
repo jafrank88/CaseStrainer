@@ -193,7 +193,7 @@ def extract_case_name_with_strict_isolation(
                     if len(after_citation) >= 5:
                         if is_problematic_citation:
                             logger.debug(
-                                f"[UNIFIED-EXTRACT-TRACE] Trimming at intervening citation"
+                                "[UNIFIED-EXTRACT-TRACE] Trimming at intervening citation"
                             )
                         logger.info(
                             f"[UNIFIED-EXTRACT] Trimming at intervening citation for {citation_text} "
@@ -220,7 +220,7 @@ def extract_case_name_with_strict_isolation(
         # Extract case name from adaptive context
         if is_problematic_citation:
             logger.debug(
-                f"[UNIFIED-EXTRACT-TRACE] Calling extract_case_name_from_strict_context"
+                "[UNIFIED-EXTRACT-TRACE] Calling extract_case_name_from_strict_context"
             )
         
         case_name = extract_case_name_from_strict_context(adaptive_context, citation_text)

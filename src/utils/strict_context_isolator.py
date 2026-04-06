@@ -495,7 +495,7 @@ def get_adaptive_context_for_citation(
             else:
                 # No case name after semicolon - this is truly a series citation
                 is_series_citation = True
-                logger.info(f"[SERIES-DEBUG] Semicolon detected, no case name after - treating as series citation")
+                logger.info("[SERIES-DEBUG] Semicolon detected, no case name after - treating as series citation")
 
         # Check if citations are comma-separated without periods between them
         elif re.search(prev_citation_pattern, look_behind):
@@ -505,11 +505,11 @@ def get_adaptive_context_for_citation(
             if last_citation and (last_period < 0 or last_period < last_citation.start()):
                 # ALSO check for "v." pattern - if present, don't treat as series
                 if re.search(r'\bv\.\s', look_behind[last_citation.end():], re.IGNORECASE):
-                    logger.info(f"[SERIES-DEBUG] Comma-separated but case name found after citation")
+                    logger.info("[SERIES-DEBUG] Comma-separated but case name found after citation")
                     is_series_citation = False
                 else:
                     is_series_citation = True
-                    logger.info(f"[SERIES-DEBUG] Comma-separated citations without period - treating as series")
+                    logger.info("[SERIES-DEBUG] Comma-separated citations without period - treating as series")
 
         if is_series_citation and re.search(prev_citation_pattern, look_behind):
             # This is NOT the first citation in a series
@@ -542,7 +542,7 @@ def get_adaptive_context_for_citation(
 
     # If no case name found in any window, return the largest context
     # The caller will handle the N/A case and use canonical fallback
-    logger.debug(f"[BACKWARDS-EXTRACT] No case name found after all expansions, returning max context")
+    logger.debug("[BACKWARDS-EXTRACT] No case name found after all expansions, returning max context")
     return get_strict_context_for_citation(text, citation_start, citation_end, all_citation_positions, max_lookback)
 
 
@@ -764,9 +764,9 @@ def get_strict_context_for_citation(
             logger.debug(f"[PAREN-DEBUG] Citation inside parenthetical! Boundary at pos {actual_pos}")
             logger.debug(f"[PAREN-DEBUG] Text after paren: '{text[paren_boundary:citation_start][-50:]}'")
         else:
-            logger.debug(f"[PAREN-DEBUG] Found '(' but has ')' between - not in parenthetical")
+            logger.debug("[PAREN-DEBUG] Found '(' but has ')' between - not in parenthetical")
     else:
-        logger.debug(f"[PAREN-DEBUG] No '(' found in text_before")
+        logger.debug("[PAREN-DEBUG] No '(' found in text_before")
 
     # Determine strict context boundaries
     # CRITICAL: Use the STRICTEST boundary to prevent case name bleeding
@@ -1202,9 +1202,9 @@ def extract_case_name_from_strict_context(context: str, citation_text: str) -> O
     context_before_clean = context
     context = re.sub(r"\s+No\.\s+[\d\-\s]+(?=\s+v\.)", " ", context, flags=re.IGNORECASE)
     if context != context_before_clean:
-        logger.debug(f"[STRICT-EXTRACT] Cleaned case numbers from context")
+        logger.debug("[STRICT-EXTRACT] Cleaned case numbers from context")
     else:
-        logger.debug(f"[STRICT-EXTRACT] No case numbers found to clean in context")
+        logger.debug("[STRICT-EXTRACT] No case numbers found to clean in context")
 
     # Look for paragraph/sentence boundaries but be less aggressive
     # Only split if we have very long context (>150 chars) to avoid losing too much
@@ -1213,7 +1213,7 @@ def extract_case_name_from_strict_context(context: str, citation_text: str) -> O
         if len(sentences) > 1:
             # Take the last 2 sentences to preserve more context
             context = " ".join(sentences[-2:]).strip()
-            logger.debug(f"[STRICT-EXTRACT] Reduced context to last 2 sentences")
+            logger.debug("[STRICT-EXTRACT] Reduced context to last 2 sentences")
 
     # Patterns to extract case names (IMPROVED - GREEDY patterns for full legal names)
     patterns = [
@@ -1517,7 +1517,7 @@ def extract_case_name_from_strict_context(context: str, citation_text: str) -> O
                 )
                 continue
             else:
-                logger.debug(f"[DISTANCE-DEBUG] ACCEPTED: Match within context bounds")
+                logger.debug("[DISTANCE-DEBUG] ACCEPTED: Match within context bounds")
 
             # NEARBY FRAGMENT GUARD: If the last ~120 chars contain a recent comma
             # followed by a capitalized fragment WITHOUT 'v.', prefer that fragment
@@ -1604,19 +1604,19 @@ def extract_case_name_from_strict_context(context: str, citation_text: str) -> O
                     # Handle multi-word reporter names (Wn. App., Wn.2d, etc.)
                     parallel_pattern = r"^\s*\d{1,3}\s+(?:[A-Za-z\.]+\s*)*[A-Za-z\.0-9]+\s+\d+(?:\s*,\s*\d+)?\s*,?"
                     if re.match(parallel_pattern, between_clean):
-                        logger.debug(f"[REPORTER-DEBUG] ACCEPTED: Detected parallel citation cluster pattern")
+                        logger.debug("[REPORTER-DEBUG] ACCEPTED: Detected parallel citation cluster pattern")
                     else:
                         # Check if the different citation is immediately after the match
                         distance_to_next_citation = len(between_seg) - len(between_seg.lstrip()[:20])
                         if distance_to_next_citation < 20:
                             logger.debug(
-                                f"[REPORTER-DEBUG] REJECTED: Different citation immediately follows match"
+                                "[REPORTER-DEBUG] REJECTED: Different citation immediately follows match"
                             )
                             continue
                         else:
-                            logger.debug(f"[REPORTER-DEBUG] ACCEPTED: Different citation is far enough away")
+                            logger.debug("[REPORTER-DEBUG] ACCEPTED: Different citation is far enough away")
                 elif between_fam == "unknown":
-                    logger.debug(f"[REPORTER-DEBUG] ACCEPTED: No citation detected after match (between_fam=unknown)")
+                    logger.debug("[REPORTER-DEBUG] ACCEPTED: No citation detected after match (between_fam=unknown)")
 
             except Exception as e:
                 logger.debug(f"[REPORTER-DEBUG] Exception in reporter family validation: {e}")
@@ -1984,7 +1984,7 @@ def extract_case_name_from_strict_context(context: str, citation_text: str) -> O
 
             # Reject if starts with common sentence starters
             # EXCEPTION: Ship/admiralty cases legitimately start with "The" (e.g., "The Pizarro")
-            is_ship_case = case_name.startswith("The ") and not " v. " in case_name
+            is_ship_case = case_name.startswith("The ") and " v. " not in case_name
             
             sentence_starters = [
                 "at ",
@@ -2048,17 +2048,17 @@ def extract_case_name_from_strict_context(context: str, citation_text: str) -> O
                         and has_valid_plaintiff
                         and has_valid_defendant
                     ):
-                        logger.error(f"[VALIDATION-DEBUG] ACCEPTED: Valid case name with trailing comma")
+                        logger.error("[VALIDATION-DEBUG] ACCEPTED: Valid case name with trailing comma")
                         # Clean the trailing comma for final output
                         plaintiff = plaintiff_part.rstrip(".,")
                         defendant = defendant_part.rstrip(".,")
                     elif not re.search(r"(Inc|LLC|Corp|Co|Ltd|Cmty|Ass'n|Dep't|Dept|Bd|Dist|Comm|Div)", combined):
                         logger.debug(
-                            f"[VALIDATION-DEBUG] REJECTED: Trailing punctuation without known abbreviation or valid structure"
+                            "[VALIDATION-DEBUG] REJECTED: Trailing punctuation without known abbreviation or valid structure"
                         )
                         continue  # Suspicious punctuation unless it's corporate or known abbreviation
                     else:
-                        logger.debug(f"[VALIDATION-DEBUG] ACCEPTED: Found known abbreviation in combined name")
+                        logger.debug("[VALIDATION-DEBUG] ACCEPTED: Found known abbreviation in combined name")
 
             # If we reach here and there is no 'v.' and not an accepted prefix (In re, Ex parte, Estate of, Matter of, The [Ship]), reject to avoid narrative fragments
             if " v. " not in case_name.lower():

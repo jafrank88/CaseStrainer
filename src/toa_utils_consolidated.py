@@ -644,7 +644,7 @@ def main():
     ]
 
     comparison = compare_citations(toa_cites, body_cites)
-    print(f"\nComparison results:")
+    print("\nComparison results:")
     print(f"Matches: {len(comparison['matches'])}")
     print(f"ToA only: {len(comparison['toa_only'])}")
     print(f"Body only: {len(comparison['body_only'])}")

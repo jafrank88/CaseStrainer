@@ -312,7 +312,7 @@ class ScoringMixin:
                         f"[WARNING]  [FIX #64] CRIMINAL CASE MISMATCH: '{extracted_party}' vs '{canonical_party}' (similarity: {party_similarity:.2f})"
                     )
                     logger.warning(f"   Full names: '{extracted_case_name}' vs '{canonical_name}'")
-                    logger.warning(f"   Different defendants = different cases! Rejecting.")
+                    logger.warning("   Different defendants = different cases! Rejecting.")
                     continue
 
                 logger.info(

@@ -966,7 +966,7 @@ class UnifiedCaseNameExtractorV2:
 
         result = f"{plaintiff} v. {defendant}"
 
-        if len(result) < 5 or not (" v. " in result):
+        if len(result) < 5 or " v. " not in result:
             return ""
 
         return result

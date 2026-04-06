@@ -44,7 +44,7 @@ def _attempt_import_with_path(import_path: str, module_name: str) -> Optional[An
             logger.warning(f"Module {module_name} found but vue_api attribute missing")
             return None
 
-    except ImportError as e:
+    except ImportError:
         return None
     except AttributeError as e:
         logger.warning(f"Module {module_name} exists but vue_api not found: {e}")

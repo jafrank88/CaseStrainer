@@ -742,7 +742,7 @@ class ChunkedCitationProcessor:
 
         # CRITICAL FIX: Update citation objects with cluster information
         # This must happen BEFORE serialization to ensure cluster data persists
-        logger.info(f"[PROGRESS_MANAGER] Updating citations with cluster information")
+        logger.info("[PROGRESS_MANAGER] Updating citations with cluster information")
         citation_to_cluster = {}
         for cluster in clusters:
             cluster_id = cluster.get("cluster_id")

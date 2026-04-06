@@ -87,7 +87,7 @@ def normalize_text(text: str) -> str:
     logger.info(f"[DEBUG] [TEXT-NORMALIZE] normalize_text called with {len(text)} chars")
     
     if not text:
-        logger.info(f"[DEBUG] [TEXT-NORMALIZE] Empty text, returning as-is")
+        logger.info("[DEBUG] [TEXT-NORMALIZE] Empty text, returning as-is")
         return text
 
     normalized = text
@@ -247,9 +247,9 @@ def normalize_text(text: str) -> str:
     # Check if we fixed the broken citation
     if "200\n U. S. 321" in before_fix or "200\nU. S. 321" in before_fix:
         if "200 U. S. 321" in normalized:
-            logger.info(f"[OK] [TEXT-NORMALIZE] FIXED: Found '200 U. S. 321' in normalized text")
+            logger.info("[OK] [TEXT-NORMALIZE] FIXED: Found '200 U. S. 321' in normalized text")
         else:
-            logger.warning(f"[WARNING] [TEXT-NORMALIZE] NOT FIXED: Still no '200 U. S. 321' in normalized text")
+            logger.warning("[WARNING] [TEXT-NORMALIZE] NOT FIXED: Still no '200 U. S. 321' in normalized text")
 
     logger.debug(f"Text normalization: '{text[:50]}...' -> '{normalized[:50]}...'")
 

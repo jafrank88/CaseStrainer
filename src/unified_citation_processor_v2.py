@@ -218,7 +218,7 @@ class UnifiedCitationProcessorV2:
 
         # CRITICAL FIX: Force enable case name extraction if it's somehow disabled
         if not self.config.extract_case_names:
-            logger.warning(f"[CONFIG-ERROR] extract_case_names was False! Forcing to True")
+            logger.warning("[CONFIG-ERROR] extract_case_names was False! Forcing to True")
             self.config.extract_case_names = True
 
         self.progress_callback = progress_callback  # NEW: Progress callback support
@@ -1269,7 +1269,7 @@ class UnifiedCitationProcessorV2:
                 for cit, date in canonical_dates:
                     logger.warning(f"   - {cit}: canonical_date={date}")
                 logger.warning(
-                    f"   -> This may indicate a typo or verification to wrong case. User should review."
+                    "   -> This may indicate a typo or verification to wrong case. User should review."
                 )
                 cluster["date_mismatch_warning"] = True
                 cluster["date_mismatch_details"] = [
@@ -2659,11 +2659,11 @@ class UnifiedCitationProcessorV2:
                             _libc = ctypes.CDLL("libc.so.6")
                             gc.collect()
                             _libc.malloc_trim(0)
-                            logger.debug(f"[BATCH-VERIFY] malloc_trim called after verification")
+                            logger.debug("[BATCH-VERIFY] malloc_trim called after verification")
                         except Exception as trim_err:
                             logger.debug(f"[BATCH-VERIFY] malloc_trim skipped: {trim_err}")
                 except TimeoutError:
-                    logger.error(f"[BATCH-TIMEOUT] Master batch verification timed out after 600s")
+                    logger.error("[BATCH-TIMEOUT] Master batch verification timed out after 600s")
                     from src.verification import VerificationResult
 
                     all_results = [
@@ -3073,11 +3073,11 @@ class UnifiedCitationProcessorV2:
                     # If similarity is low, it means extraction was wrong, not verification. Log the mismatch
                     # but preserve the canonical name from CourtListener.
                     if similarity < 0.4:
-                        logger.warning(f"[POST-VERIFY-FIX] Name mismatch detected (extraction likely wrong):")
+                        logger.warning("[POST-VERIFY-FIX] Name mismatch detected (extraction likely wrong):")
                         logger.warning(f"  Canonical (from CourtListener - TRUSTED): '{canonical_name}'")
                         logger.warning(f"  Extracted (from document - may be wrong): '{extracted_name}'")
                         logger.warning(f"  Similarity: {similarity:.2f}")
-                        logger.warning(f"  PRESERVING canonical_name from CourtListener (authoritative source)")
+                        logger.warning("  PRESERVING canonical_name from CourtListener (authoritative source)")
                         
                         # Mark as mismatch but DO NOT overwrite canonical_name
                         citation.name_mismatch = True
@@ -3862,20 +3862,20 @@ class UnifiedCitationProcessorV2:
         # 3. Reporters match AND have matching case names (even if far apart)
         if reporters_match:
             if within_proximity:
-                logger.info(f"[PARALLEL_DEBUG]   [OK] PARALLEL: Reporters match + within proximity")
+                logger.info("[PARALLEL_DEBUG]   [OK] PARALLEL: Reporters match + within proximity")
                 return True  # Close together + matching reporters = parallel
             if date1 and date2 and date1 == date2:
-                logger.info(f"[PARALLEL_DEBUG]   [OK] PARALLEL: Reporters match + same date")
+                logger.info("[PARALLEL_DEBUG]   [OK] PARALLEL: Reporters match + same date")
                 return True  # Same date + matching reporters = parallel (even if far)
             if name1 and name2:
                 # Check if case names match (already validated above)
                 words1 = set(re.sub(r"[^\w\s]", " ", name1.lower()).split())
                 words2 = set(re.sub(r"[^\w\s]", " ", name2.lower()).split())
                 if len(words1.intersection(words2)) >= 2:
-                    logger.info(f"[PARALLEL_DEBUG]   [OK] PARALLEL: Reporters match + case names match")
+                    logger.info("[PARALLEL_DEBUG]   [OK] PARALLEL: Reporters match + case names match")
                     return True  # Matching names + matching reporters = parallel (even if far)
 
-        logger.info(f"[PARALLEL_DEBUG]   [X] NOT parallel")
+        logger.info("[PARALLEL_DEBUG]   [X] NOT parallel")
         return False
 
     def _extract_reporter(self, citation: str) -> str:
@@ -6779,7 +6779,7 @@ class UnifiedCitationProcessorV2:
             DeprecationWarning,
             stacklevel=2,
         )
-        logger.error(f"[UNIFIED_PIPELINE] [WARNING] process_text() CALLED (deprecated entry)")
+        logger.error("[UNIFIED_PIPELINE] [WARNING] process_text() CALLED (deprecated entry)")
         logger.error(f"[UNIFIED_PIPELINE] [WARNING] Text length: {len(text)} chars")
         logger.error(f"[UNIFIED_PIPELINE] [WARNING] config.enable_verification: {getattr(self, 'config', None) and getattr(self.config, 'enable_verification', None)}")
         logger.info("[UNIFIED_PIPELINE] Starting unified citation processing pipeline")
@@ -6818,9 +6818,9 @@ class UnifiedCitationProcessorV2:
             citations = self._extract_citations_unified(text)
             logger.error(f"[UNIFIED_PIPELINE] Unified extraction returned {len(citations)} citations")
             if len(citations) == 0:
-                logger.error(f"[UNIFIED_PIPELINE] [WARNING] NO CITATIONS from _extract_citations_unified!")
+                logger.error("[UNIFIED_PIPELINE] [WARNING] NO CITATIONS from _extract_citations_unified!")
                 logger.error(f"[UNIFIED_PIPELINE] [WARNING] Text length: {len(text)} chars")
-                logger.error(f"[UNIFIED_PIPELINE] [WARNING] Falling back to regex_enhanced extraction")
+                logger.error("[UNIFIED_PIPELINE] [WARNING] Falling back to regex_enhanced extraction")
                 citations = self._extract_with_regex_enhanced(text)
                 logger.info(f"[UNIFIED_PIPELINE] Regex enhanced fallback returned {len(citations)} citations")
         except Exception as e:
@@ -6863,7 +6863,7 @@ class UnifiedCitationProcessorV2:
             logger.info(f"[UNIFIED_PIPELINE] About to call parallel verification for {len(citations)} citations")
             self.propagate_canonical_to_cluster(citations)
             logger.info("[UNIFIED_PIPELINE] Parallel verification completed")
-            logger.info(f"[UNIFIED_PIPELINE] Parallel verification complete")
+            logger.info("[UNIFIED_PIPELINE] Parallel verification complete")
 
             # Log if parallel verification was applied
             parallel_count = sum(1 for c in citations if getattr(c, "true_by_parallel", False))
@@ -7500,7 +7500,7 @@ class UnifiedCitationProcessorV2:
                         # Cache the failure too to avoid re-trying
                         extraction_cache[cache_key] = "N/A"
                         if is_wl_diag:
-                            logger.warning(f"[WL-DIAG] SET extracted_case_name='N/A' source=NO-FINAL-NAME")
+                            logger.warning("[WL-DIAG] SET extracted_case_name='N/A' source=NO-FINAL-NAME")
 
                 except Exception as e:
                     logger.error(f"[EXTRACT-ERROR] Exception for {getattr(c, 'citation', 'unknown')}: {e}")
@@ -7516,7 +7516,7 @@ class UnifiedCitationProcessorV2:
         logger.info(
             f"[NAME-DIAG] After enhancement loop: {names_after_enhance}/{len(citations)} citations have non-N/A extracted_case_name"
         )
-        logger.info(f"[UNIFIED_PIPELINE] Name-enhancement loop done, proceeding to Phase 2")
+        logger.info("[UNIFIED_PIPELINE] Name-enhancement loop done, proceeding to Phase 2")
 
         logger.info("[UNIFIED_PIPELINE] Phase 2: Detecting parallel citations")
         citations = self._detect_parallel_citations(citations, text)
@@ -7565,7 +7565,7 @@ class UnifiedCitationProcessorV2:
         logger.error(f"   citations count: {len(citations) if citations else 0}")
         logger.error(f"   Will verification run: {self.config.enable_verification and citations}")
 
-        logger.info(f"[UNIFIED_PIPELINE] Phase 4.75: Pre-clustering verification check")
+        logger.info("[UNIFIED_PIPELINE] Phase 4.75: Pre-clustering verification check")
         logger.info(f"[UNIFIED_PIPELINE] enable_verification: {self.config.enable_verification}")
         logger.info(f"[UNIFIED_PIPELINE] citations count: {len(citations) if citations else 0}")
         logger.info(f"[UNIFIED_PIPELINE] Will verification run: {self.config.enable_verification and bool(citations)}")
@@ -7821,7 +7821,7 @@ class UnifiedCitationProcessorV2:
                         # Debug: Check what fields are available
                         logger.error(f"[CIT-UPDATE] CIT_DICT_FIELDS: {list(cit_dict.keys())}")
                         citation.source = "Unknown"
-                        logger.error(f"[CIT-UPDATE] Set source to Unknown (no verification_source or source found)")
+                        logger.error("[CIT-UPDATE] Set source to Unknown (no verification_source or source found)")
 
                 updated_count += 1
 
@@ -8782,7 +8782,7 @@ class UnifiedCitationProcessorV2:
 
                     # CRITICAL: Semicolon separates different cases (e.g. "884 A.2d 667, 671; Frederick v. City...")
                     if ";" in text_between:
-                        logger.debug(f"[PARALLEL-DEBUG] REJECTED - semicolon between citations (different cases)")
+                        logger.debug("[PARALLEL-DEBUG] REJECTED - semicolon between citations (different cases)")
                         break
 
                     # CRITICAL: "). [A-Z]" marks a sentence boundary between citation sentences.
@@ -8790,7 +8790,7 @@ class UnifiedCitationProcessorV2:
                     # The close-paren + period + uppercase indicates the prior citation sentence
                     # ended and a new one (different case) begins — same logic as semicolons.
                     if re.search(r'\)\.\s+[A-Z]', text_between):
-                        logger.debug(f"[PARALLEL-DEBUG] REJECTED - sentence boundary ').' between citations (different cases)")
+                        logger.debug("[PARALLEL-DEBUG] REJECTED - sentence boundary ').' between citations (different cases)")
                         break
 
                     if "," in text_between or (curr.start_index - prev.end_index <= 10):

@@ -486,7 +486,7 @@ class DockerOptimizedProcessor:
                 import json
 
                 json.dumps(result)
-                logging.info(f"[DEBUG] Result is JSON serializable")
+                logging.info("[DEBUG] Result is JSON serializable")
             except Exception as e:
                 logging.error(f"[DEBUG] Result is NOT JSON serializable: {e}")
 

@@ -627,7 +627,7 @@ class UnifiedProcessingPipeline:
                 logger.info(
                     f"[PIPELINE-{context.trace_id}] Annotated mismatch flags for {len(citation_dicts)} citations"
                 )
-            except Exception as e:
+            except Exception:
                 pass
 
             # CRITICAL FIX: Remove placeholder citations from Cite as context BEFORE clustering
@@ -706,7 +706,7 @@ class UnifiedProcessingPipeline:
                         f"[CLUSTERING-TRACE] Reusing {len(clusters)} pre-built clusters from process_text (normalized CitationResult->dict, skipping redundant re-clustering)"
                     )
                 elif cluster_citations_unified_master is None:
-                    logger.error(f"[CLUSTERING-TRACE] cluster_citations_unified_master is None, using fallback")
+                    logger.error("[CLUSTERING-TRACE] cluster_citations_unified_master is None, using fallback")
                     clustering_source = "fallback_parallel_citations"
                     clusters = self._create_clusters_from_parallel_citations(citation_dicts)
                 else:
@@ -720,7 +720,7 @@ class UnifiedProcessingPipeline:
                     )
                     if not clusters:
                         logger.error(
-                            f"[CLUSTERING-TRACE] cluster_citations_unified_master returned empty, using fallback"
+                            "[CLUSTERING-TRACE] cluster_citations_unified_master returned empty, using fallback"
                         )
                         clustering_source = "fallback_parallel_citations"
                         clusters = self._create_clusters_from_parallel_citations(citation_dicts)
@@ -1149,7 +1149,7 @@ class UnifiedProcessingPipeline:
                 # Check all three fields for contamination (use current cluster_case_name after common_canonical fix)
                 cluster_case_name = cluster.get("cluster_case_name")
                 if cluster_case_name and ("\n" in cluster_case_name or len(cluster_case_name) > 200):
-                    logger.warning(f"[CLUSTER-FINAL-CLEANUP] Rejecting contaminated cluster_case_name in clusters section")
+                    logger.warning("[CLUSTER-FINAL-CLEANUP] Rejecting contaminated cluster_case_name in clusters section")
                     # Get clean name from cluster's citations
                     clean_name = None
                     for cit in cluster_citations:
@@ -1163,7 +1163,7 @@ class UnifiedProcessingPipeline:
                 
                 # Also clean canonical_name and extracted_name if they're contaminated
                 if canonical_name and ("\n" in canonical_name or len(canonical_name) > 200):
-                    logger.warning(f"[CLUSTER-FINAL-CLEANUP] Rejecting contaminated canonical_name")
+                    logger.warning("[CLUSTER-FINAL-CLEANUP] Rejecting contaminated canonical_name")
                     # Use clean cluster_case_name as replacement, or get from citations
                     replacement_name = cluster_case_name
                     if not replacement_name or ("\n" in replacement_name or len(replacement_name) > 200):
@@ -1179,7 +1179,7 @@ class UnifiedProcessingPipeline:
                     logger.warning(f"[CLUSTER-FINAL-CLEANUP] Replaced canonical_name with: '{cluster['canonical_name']}'")
                     
                 if extracted_name and ("\n" in extracted_name or len(extracted_name) > 200):
-                    logger.warning(f"[CLUSTER-FINAL-CLEANUP] Rejecting contaminated extracted_name")
+                    logger.warning("[CLUSTER-FINAL-CLEANUP] Rejecting contaminated extracted_name")
                     # Use clean cluster_case_name as replacement, or get from citations
                     replacement_name = cluster_case_name
                     if not replacement_name or ("\n" in replacement_name or len(replacement_name) > 200):
@@ -1942,7 +1942,6 @@ class UnifiedProcessingPipeline:
             cluster["verifying_display_date"] = verifying_display_date_val or cluster_year
 
             # If the two dates we display have the same year, do not show "Different date"
-            from src.utils.date_utils import extract_year_value
             disp_ext = extract_year_value(submitted_date_str)
             disp_ver = extract_year_value(verifying_display_date_val)
             if disp_ext and disp_ver and disp_ext == disp_ver:

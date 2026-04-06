@@ -91,7 +91,7 @@ def validate_extracted_name_for_citation(
                         logger.error(f"[VALIDATE] Citation: {citation}")
                         logger.error(f"[VALIDATE] Extracted: {extracted_name}")
                         logger.error(f"[VALIDATE] Canonical: {canonical_name}")
-                        logger.error(f"[VALIDATE] -> Party names don't match!")
+                        logger.error("[VALIDATE] -> Party names don't match!")
 
     # Validation 2: Check for duplicate names on different citations
     # (This would be checked at the cluster level, not here)

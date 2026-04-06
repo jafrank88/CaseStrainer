@@ -397,7 +397,8 @@ class BatchVerifier:
         cost = max(1, len(batch_info.get("citation_strings") or []))
         try:
             try:
-                import psutil, os
+                import psutil
+                import os
                 _mem_before = psutil.Process(os.getpid()).memory_info().rss // (1024 * 1024)
                 logger.info(f"[BATCH-MEM] Before API call: {_mem_before}MB, text_len={len(text)}")
             except Exception:
@@ -474,7 +475,8 @@ class BatchVerifier:
                 len(api_results), num_input,
             )
         try:
-            import psutil, os
+            import psutil
+            import os
             _mem_after = psutil.Process(os.getpid()).memory_info().rss // (1024 * 1024)
             logger.info(f"[BATCH-MEM] After API call + parse: {_mem_after}MB")
         except Exception:

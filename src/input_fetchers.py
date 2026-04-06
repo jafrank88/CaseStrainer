@@ -153,7 +153,7 @@ def fetch_url_content(url: str) -> str:
                 opinion_id = opinion_match.group(1)
                 # Convert to API endpoint
                 api_url = f"https://www.courtlistener.com/api/rest/v4/opinions/{opinion_id}/"
-                logger.info(f"[CONVERT] Converting CourtListener opinion URL to API endpoint")
+                logger.info("[CONVERT] Converting CourtListener opinion URL to API endpoint")
                 logger.info(f"   Opinion ID: {opinion_id}")
                 logger.info(f"   API URL: {api_url}")
                 url = api_url
@@ -164,11 +164,11 @@ def fetch_url_content(url: str) -> str:
                 if COURTLISTENER_API_KEY:
                     headers["Authorization"] = f"Token {COURTLISTENER_API_KEY}"
                     headers["Accept"] = "application/json"
-                    logger.info(f"[OK] Added CourtListener API authorization header")
+                    logger.info("[OK] Added CourtListener API authorization header")
                 else:
-                    logger.warning(f"COURTLISTENER_API_KEY is not set")
+                    logger.warning("COURTLISTENER_API_KEY is not set")
             else:
-                logger.warning(f"[WARNING]  Could not extract opinion ID from URL")
+                logger.warning("[WARNING]  Could not extract opinion ID from URL")
 
         # API search disabled for CourtListener opinion URLs (see above)
         # This avoids rate limit errors and is faster
@@ -253,7 +253,7 @@ def fetch_url_content(url: str) -> str:
                     logger.error(f"Still rate limited after {max_attempts} attempts")
                     # FALLBACK: If this was a CourtListener API endpoint, try HTML scraping instead
                     if courtlistener_api_attempted and original_url != url:
-                        logger.warning(f"[CONVERT] Falling back to HTML scraping from original URL")
+                        logger.warning("[CONVERT] Falling back to HTML scraping from original URL")
                         logger.info(f"   Original URL: {original_url}")
                         url = original_url
                         # Reset headers for HTML scraping
@@ -268,7 +268,7 @@ def fetch_url_content(url: str) -> str:
                             response.raise_for_status()
                             break
                         else:
-                            logger.error(f"HTML fallback also rate limited")
+                            logger.error("HTML fallback also rate limited")
                     # If not CourtListener or fallback failed, raise the error
                     response.raise_for_status()
 
@@ -291,7 +291,7 @@ def fetch_url_content(url: str) -> str:
                     temp_pdf_path = temp_pdf.name
 
                 try:
-                    logger.info(f"Extracting PDF from URL using extract_text_from_pdf_smart()")
+                    logger.info("Extracting PDF from URL using extract_text_from_pdf_smart()")
                     from src.robust_pdf_extractor import extract_text_from_pdf_smart
 
                     result = extract_text_from_pdf_smart(temp_pdf_path)
@@ -388,7 +388,7 @@ def fetch_url_content(url: str) -> str:
                     temp_rtf_path = temp_rtf.name
 
                 try:
-                    logger.info(f"Extracting RTF from URL using unified_text_extractor")
+                    logger.info("Extracting RTF from URL using unified_text_extractor")
                     from src.unified_text_extractor import UnifiedTextExtractor
 
                     extractor = UnifiedTextExtractor(verbose=True)
@@ -419,7 +419,7 @@ def fetch_url_content(url: str) -> str:
 
         elif "json" in content_type or "application/json" in content_type:
             # Handle JSON responses (e.g., from CourtListener API)
-            logger.info(f"Processing JSON response from API")
+            logger.info("Processing JSON response from API")
             try:
                 import json
 
@@ -454,7 +454,7 @@ def fetch_url_content(url: str) -> str:
                     return text
                 else:
                     # Return JSON as formatted string
-                    logger.warning(f"[WARNING]  JSON response doesn't contain expected text fields")
+                    logger.warning("[WARNING]  JSON response doesn't contain expected text fields")
                     logger.warning(f"   Available fields: {list(data.keys())}")
                     return json.dumps(data, indent=2)
             except Exception as e:
@@ -527,7 +527,7 @@ def fetch_url_content(url: str) -> str:
 
                 # Try to detect if it's HTML and parse it
                 if text.strip().startswith("<!DOCTYPE html") or text.strip().startswith("<html"):
-                    logger.info(f"Detected HTML in unknown content type, attempting to parse")
+                    logger.info("Detected HTML in unknown content type, attempting to parse")
                     try:
                         from bs4 import BeautifulSoup
 
@@ -549,16 +549,16 @@ def fetch_url_content(url: str) -> str:
 
     except requests.exceptions.Timeout:
         logger.error(f"Timeout fetching URL {url}")
-        raise Exception(f"The URL took too long to respond. Please check if the URL is accessible and try again.")
+        raise Exception("The URL took too long to respond. Please check if the URL is accessible and try again.")
 
     except requests.exceptions.ConnectionError as e:
         logger.error(f"Connection error fetching URL {url}: {str(e)}")
         if "Name or service not known" in str(e) or "nodename nor servname provided" in str(e):
-            raise Exception(f"The URL could not be found. Please check that the URL is correct and accessible.")
+            raise Exception("The URL could not be found. Please check that the URL is correct and accessible.")
         elif "Connection refused" in str(e):
-            raise Exception(f"The server refused the connection. The URL may be temporarily unavailable.")
+            raise Exception("The server refused the connection. The URL may be temporarily unavailable.")
         else:
-            raise Exception(f"Could not connect to the URL. Please check your internet connection and try again.")
+            raise Exception("Could not connect to the URL. Please check your internet connection and try again.")
 
     except requests.exceptions.HTTPError as e:
         status_code = e.response.status_code if e.response else None
@@ -566,7 +566,7 @@ def fetch_url_content(url: str) -> str:
 
         if status_code == 404:
             raise Exception(
-                f"The document was not found at this URL (404 error). Please check that the URL is correct."
+                "The document was not found at this URL (404 error). Please check that the URL is correct."
             )
         elif status_code == 403:
             # Check if this is a Cloudflare protection issue
@@ -615,10 +615,10 @@ def fetch_url_content(url: str) -> str:
                 )
             else:
                 raise Exception(
-                    f"Access to this document is forbidden (403 error). The document may require special permissions."
+                    "Access to this document is forbidden (403 error). The document may require special permissions."
                 )
         elif status_code == 500:
-            raise Exception(f"The server encountered an error (500 error). Please try again later.")
+            raise Exception("The server encountered an error (500 error). Please try again later.")
         elif status_code and 400 <= status_code < 500:
             raise Exception(
                 f"There was a problem with the request ({status_code} error). Please check the URL and try again."
@@ -675,7 +675,7 @@ def fetch_url_content(url: str) -> str:
         logger.error(f"Unexpected error fetching URL {url}: {str(e)}\n{traceback.format_exc()}")
         if "PDF extraction" in str(e):
             raise Exception(
-                f"The PDF document could not be processed. It may be corrupted, password-protected, or in an unsupported format."
+                "The PDF document could not be processed. It may be corrupted, password-protected, or in an unsupported format."
             )
         else:
             raise Exception(f"An unexpected error occurred while processing the URL: {str(e)}")

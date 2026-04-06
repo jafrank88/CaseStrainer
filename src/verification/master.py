@@ -1045,7 +1045,8 @@ class UnifiedVerificationMaster:
             pass
         # Log final memory
         try:
-            import psutil, os
+            import psutil
+            import os
             _final_mem = psutil.Process(os.getpid()).memory_info().rss // (1024 * 1024)
             logger.warning(f"[BATCH-FALLBACK-MEM] Final after gc+malloc_trim+session.close: {_final_mem}MB (processed {total} citations, {fallback_attempted} fallbacks)")
         except Exception:

@@ -86,7 +86,7 @@ class CitationService:
                 )
                 return "sync"
         elif force_mode and force_mode.lower() == "async":
-            logger.info(f"USER OVERRIDE: force_mode='async' accepted")
+            logger.info("USER OVERRIDE: force_mode='async' accepted")
             return "async"
         elif force_mode:
             logger.warning(f"Invalid force_mode='{force_mode}', falling back to automatic routing")
@@ -164,9 +164,9 @@ class CitationService:
                     
                     # Check if we fixed the broken citation
                     if "200 U. S. 321" in text:
-                        logger.info(f"[OK] [CitationService] FIXED: Found '200 U. S. 321' in normalized text")
+                        logger.info("[OK] [CitationService] FIXED: Found '200 U. S. 321' in normalized text")
                     else:
-                        logger.warning(f"[WARNING] [CitationService] Still no '200 U. S. 321' in normalized text")
+                        logger.warning("[WARNING] [CitationService] Still no '200 U. S. 321' in normalized text")
                 
                 logger.info(f"Successfully extracted {len(text)} characters from file: {file_path}")
                 return text
@@ -317,7 +317,7 @@ class CitationService:
                             try:
                                 chunk = chunk.decode("utf-8", errors="ignore")
                             except UnicodeDecodeError:
-                                logger.warning(f"Could not decode binary chunk as UTF-8, skipping")
+                                logger.warning("Could not decode binary chunk as UTF-8, skipping")
                                 continue
                         content += chunk
                         downloaded += len(chunk.encode("utf-8"))
@@ -429,7 +429,7 @@ class CitationService:
                     # If still too large, truncate to reasonable size (keep first part)
                     if len(clean_text) > 50000:  # 50KB max after cleaning
                         clean_text = clean_text[:50000] + "... [truncated]"
-                        logger.info(f"Text truncated to 50KB after cleaning")
+                        logger.info("Text truncated to 50KB after cleaning")
 
                     logger.info(
                         f"Extracted {len(clean_text)} characters of clean text from {len(content)} bytes of HTML"
@@ -464,11 +464,11 @@ class CitationService:
         logger.info("[CitationService] Using SMART ROUTING based on content complexity analysis")
 
         # Extract text first, then determine processing mode
-        logger.info(f"[CitationService] Extracting text for complexity analysis...")
+        logger.info("[CitationService] Extracting text for complexity analysis...")
         text = self.extract_text_from_input(input_data)
         if text is None:
             # If text extraction fails, default to async for better error handling
-            logger.warning(f"[CitationService] Text extraction failed, defaulting to async processing")
+            logger.warning("[CitationService] Text extraction failed, defaulting to async processing")
             return False
 
         logger.info(f"[CitationService] Text extraction successful: {len(text)} characters")
@@ -932,7 +932,7 @@ class CitationService:
             dict: Processing results with citations and clusters
         """
         start_time = time.time()
-        logger.info(f"[CitationService] Starting citation processing for text input")
+        logger.info("[CitationService] Starting citation processing for text input")
 
         has_progress_tracking = False
 
@@ -980,7 +980,7 @@ class CitationService:
                 progress_tracker.complete_step(0, "Initialization complete")
 
                 progress_tracker.start_step(1, "Extracting citations")
-                logger.info(f"[CitationService] About to call unified pipeline...")
+                logger.info("[CitationService] About to call unified pipeline...")
                 try:
                     enhanced_result = await process_citations_unified(
                         text,
@@ -990,7 +990,7 @@ class CitationService:
                         trace_id=task_id,
                         progress_callback=progress_callback,
                     )
-                    logger.info(f"[CitationService] unified pipeline completed successfully")
+                    logger.info("[CitationService] unified pipeline completed successfully")
                 except Exception as process_error:
                     logger.error(f"[CitationService] unified pipeline failed: {process_error}")
                     import traceback
