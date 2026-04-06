@@ -1089,13 +1089,13 @@ if (-not $redisPw) {
     Write-ReloadLog "   Redis FLUSHDB skipped: REDIS_PASSWORD not set (add to .env for production)" "WARN"
     Write-Host "   WARNING: REDIS_PASSWORD not set - skipped Redis FLUSHDB" -ForegroundColor Yellow
 } else {
-    docker exec -e "REDISCLI_AUTH=$redisPw" casestrainer-redis redis-cli FLUSHDB 2>$null | Out-Null
+    docker exec -e "REDISCLI_AUTH=$redisPw" casestrainer-redis-prod redis-cli FLUSHDB 2>$null | Out-Null
     if ($LASTEXITCODE -eq 0) {
         Write-Host "   Redis cache cleared" -ForegroundColor Green
         Write-ReloadLog "   Redis FLUSHDB succeeded" "SUCCESS"
 
         if ($VerbosePreference -eq 'Continue') {
-            $keyCount = docker exec -e "REDISCLI_AUTH=$redisPw" casestrainer-redis redis-cli DBSIZE 2>$null
+            $keyCount = docker exec -e "REDISCLI_AUTH=$redisPw" casestrainer-redis-prod redis-cli DBSIZE 2>$null
             if ($keyCount -match '^\d+$') {
                 Write-Host "      Current keys: $keyCount" -ForegroundColor DarkGreen
                 Write-ReloadLog "      Redis keys after flush: $keyCount" "INFO"
@@ -1211,7 +1211,7 @@ import sys
 
 try:
     pw = os.environ.get("REDIS_PASSWORD") or ""
-    r = Redis.from_url(f"redis://:{pw}@casestrainer-redis:6379/0")
+    r = Redis.from_url(f"redis://:{pw}@redis:6379/0")
 
     # Delete all stale worker registrations
     worker_keys = r.keys('rq:worker:*')
