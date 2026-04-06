@@ -51,7 +51,7 @@ services:
       - REDIS_URL=redis://casestrainer-redis:6379/0
       - CASTRAINER_ENV=development
       - PYTHONPATH=/app
-      - COURTLISTENER_API_KEY=***REDACTED_COURTLISTENER_KEY***
+      - COURTLISTENER_API_KEY=${COURTLISTENER_API_KEY}
     volumes:
       - ./src:/app/src
       - ./uploads:/app/uploads
