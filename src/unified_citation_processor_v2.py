@@ -1976,7 +1976,7 @@ class UnifiedCitationProcessorV2:
         }
 
     def _verify_citations_with_canonical_service(self, citations):
-        return verify_citations_with_canonical_service(citations)
+        raise NotImplementedError("verify_citations_with_canonical_service is not implemented")
 
     def verify_citation_unified_workflow(self, citation: str, case_name: Optional[str] = None) -> Dict[str, Any]:
         """Unified workflow for verifying a single citation with case name."""
@@ -8399,14 +8399,14 @@ class UnifiedCitationProcessorV2:
         if not text:
             return ""
         if (
-            re_module.search(r"\b\d+\s+u\.?\s*s\.?\b", text)
-            or re_module.search(r"\b\d+\s+s\.?\s*ct\.?\b", text)
-            or re_module.search(r"\b\d+\s+l\.?\s*ed\.?\s*(?:2d|3d)?\b", text)
+            re.search(r"\b\d+\s+u\.?\s*s\.?\b", text)
+            or re.search(r"\b\d+\s+s\.?\s*ct\.?\b", text)
+            or re.search(r"\b\d+\s+l\.?\s*ed\.?\s*(?:2d|3d)?\b", text)
         ):
             return "supreme"
-        if re_module.search(r"\b\d+\s+f\.?\s*supp\.?\s*(?:2d|3d)?\b", text):
+        if re.search(r"\b\d+\s+f\.?\s*supp\.?\s*(?:2d|3d)?\b", text):
             return "district"
-        if re_module.search(r"\b\d+\s+f\.?\s*(?:2d|3d|4th|app'?x)\b", text):
+        if re.search(r"\b\d+\s+f\.?\s*(?:2d|3d|4th|app'?x)\b", text):
             return "circuit"
         return ""
 
@@ -8879,109 +8879,6 @@ class UnifiedCitationProcessorV2:
                     visited.add(cite_str)
         if self.config.debug_mode:
             logger.debug("[PARALLEL-DEBUG] Date propagation complete for %d citations", len(citations))
-
-        try:
-            from src.unified_clustering_master import _normalize_citation_comprehensive
-
-            normalized_text = _normalize_citation_comprehensive(text)
-            logger.info(f"Text normalized for citation extraction (length: {len(normalized_text)})")
-        except Exception as e:
-            logger.warning(f"Normalization failed, using original text: {e}")
-            normalized_text = text
-
-        results = []
-
-        priority_patterns = [
-            r"\b(\d+)\s+U\.?S\.?\s+(\d+)(?:\s*\((\d{4})\))?",
-            r"\b(\d+)\s+S\.?\s*Ct\.?\s+(\d+)(?:\s*\((\d{4})\))?",
-            r"\b(\d+)\s+L\.?\s*Ed\.?\s*2d\s+(\d+)(?:\s*\((\d{4})\))?",
-            r"\b(\d+)\s+F\.?\s*3d\s+(\d+)(?:\s*\((\d{4})\))?",
-            r"\b(\d+)\s+F\.?\s*2d\s+(\d+)(?:\s*\((\d{4})\))?",
-            r"\b(\d+)\s+F\.?\s+(\d+)(?:\s*\((\d{4})\))?",
-            r"\b(\d+)\s+F\.?\s*Supp\.?\s*3d\s+(\d+)(?:\s*\((\d{4})\))?",
-            r"\b(\d+)\s+F\.?\s*Supp\.?\s*2d\s+(\d+)(?:\s*\((\d{4})\))?",
-            r"\b(\d+)\s+F\.?\s*Supp\.?\s+(\d+)(?:\s*\((\d{4})\))?",
-            r"\b(\d+)\s+P\.?\s*3d\s+(\d+)(?:\s*\((\d{4})\))?",
-            r"\b(\d+)\s+P\.?\s*2d\s+(\d+)(?:\s*\((\d{4})\))?",
-            r"\b(\d+)\s+P\.?\s+(\d+)(?:\s*\((\d{4})\))?",
-            r"\b(\d+)\s+N\.?E\.?\s*3d\s+(\d+)(?:\s*\((\d{4})\))?",
-            r"\b(\d+)\s+N\.?E\.?\s*2d\s+(\d+)(?:\s*\((\d{4})\))?",
-            r"\b(\d+)\s+N\.?E\.?\s+(\d+)(?:\s*\((\d{4})\))?",
-            r"\b(\d+)\s+S\.?E\.?\s*2d\s+(\d+)(?:\s*\((\d{4})\))?",
-            r"\b(\d+)\s+S\.?W\.?\s*3d\s+(\d+)(?:\s*\((\d{4})\))?",
-            r"\b(\d+)\s+S\.?W\.?\s*2d\s+(\d+)(?:\s*\((\d{4})\))?",
-            r"\b(\d+)\s+A\.?\s*3d\s+(\d+)(?:\s*\((\d{4})\))?",
-            r"\b(\d+)\s+A\.?\s*2d\s+(\d+)(?:\s*\((\d{4})\))?",
-            r"\b(\d+)\s+A\.?\s+(\d+)(?:\s*\((\d{4})\))?",
-            r"\b(\d+)\s+Wn\.?\s*3d\s+(\d+)(?:\s*\((\d{4})\))?",
-            r"\b(\d+)\s+Wash\.?\s*3d\s+(\d+)(?:\s*\((\d{4})\))?",
-        ]
-
-        for pattern in priority_patterns:
-            matches = re.finditer(pattern, normalized_text, re.IGNORECASE)
-            for match in matches:
-                match.group(1)
-                match.group(2)
-                year = match.group(3) if len(match.groups()) >= 3 and match.group(3) else None
-
-                citation_text = match.group(0)
-
-                start_pos = max(0, match.start() - 200)
-                context = normalized_text[start_pos : match.start()]
-
-                case_name = "N/A"
-                case_patterns = [
-                    r"([A-Z][a-zA-Z\'\.\&]*(?:\s+(?:[a-zA-Z\'\.\&]+|of|the|and|&))*)\s+v\.\s+([A-Z][a-zA-Z\'\.\&]*(?:\s+(?:[a-zA-Z\'\.\&]+|of|the|and|&))*),?\s*$",
-                    r"([A-Z][a-zA-Z\'\.\&]*(?:\s+(?:[a-zA-Z\'\.\&]+|of|the|and|&))*)\s+vs\.\s+([A-Z][a-zA-Z\'\.\&]*(?:\s+(?:[a-zA-Z\'\.\&]+|of|the|and|&))*),?\s*$",
-                    r"(In\s+re\s+[A-Z][a-zA-Z\'\.\&]*(?:\s+(?:[a-zA-Z\'\.\&]+|of|the|and|&))*),?\s*$",
-                    r"(Ex\s+parte\s+[A-Z][a-zA-Z\'\.\&]*(?:\s+(?:[a-zA-Z\'\.\&]+|of|the|and|&))*),?\s*$",
-                ]
-
-                for idx, case_pattern in enumerate(case_patterns):
-                    matches = list(re.finditer(case_pattern, context, re.IGNORECASE))
-                    if matches:
-                        match = matches[-1]
-                        if len(match.groups()) >= 2 and idx in [0, 1]:  # Two-party cases
-                            case_name = f"{match.group(1).strip()} v. {match.group(2).strip()}"
-                        else:  # Single-party cases
-                            case_name = match.group(1).strip()
-
-                        if len(case_name) > 5:
-                            break
-
-                results.append(
-                    {
-                        "case_name": case_name,
-                        "citation": citation_text,
-                        "year": year,
-                        "start_index": match.start(),
-                        "end_index": match.end(),
-                    }
-                )
-
-        try:
-            import eyecite
-
-            eyecite_citations = eyecite.get_citations(normalized_text)
-            logger.info(f"Eyecite found {len(eyecite_citations)} additional citations")
-
-            for cite in eyecite_citations:
-                citation_text = str(cite)
-                if not any(result["citation"] == citation_text for result in results):
-                    results.append(
-                        {
-                            "case_name": "N/A",
-                            "citation": citation_text,
-                            "year": getattr(cite, "year", None),
-                            "start_index": getattr(cite, "span", [0, 0])[0],
-                            "end_index": getattr(cite, "span", [0, 0])[1],
-                        }
-                    )
-        except Exception as e:
-            logger.warning(f"Eyecite extraction failed: {e}")
-
-        logger.info(f"Comprehensive extraction found {len(results)} citations")
-        return results
 
 def extract_citations_unified(text: str, config: Optional[ProcessingConfig] = None) -> List[CitationResult]:
     """

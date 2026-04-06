@@ -3164,6 +3164,9 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
                         # CRITICAL FIX 2026-01-30: Also write to rq:job:result and task_result
                         # so task_status returns result even when RQ hasn't yet marked job finished
                         try:
+                            from redis import Redis as _Redis
+                            from src.config import REDIS_URL as _REDIS_URL
+                            redis_conn = _Redis.from_url(_REDIS_URL)
                             result_key = f"rq:job:{task_id}:result"
                             task_result_key = f"task_result:{task_id}"
                             redis_conn.setex(result_key, DATA_RETENTION_ASYNC_SECONDS, json.dumps(result))

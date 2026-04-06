@@ -142,7 +142,6 @@ def _verify_with_enhanced_fallback(citations: List, text: str, request_id: str) 
                 extracted_years,
                 batch_size=50,  # Process 50 citations at a time
                 timeout_per_citation=10.0,
-                progress_callback=progress_callback,
             )
 
             # Convert batch results back to enhanced citation format

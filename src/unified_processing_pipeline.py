@@ -859,7 +859,6 @@ class UnifiedProcessingPipeline:
                 if "IdCitation(" in str(citation_text) or "ShortCaseCitation(" in str(citation_text):
                     return True
                 # Filter law journals and law reviews
-                import re
                 law_journal_pattern = r'\b\d+\s+[A-Z][a-z]*\.?\s*(L\.J\.|Law\s+Rev\.|L\.\s*Rev\.|J\.|Rev\.)\s+\d+'
                 if re.search(law_journal_pattern, citation_text, re.IGNORECASE):
                     return True
