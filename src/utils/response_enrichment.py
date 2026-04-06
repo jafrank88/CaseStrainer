@@ -99,7 +99,8 @@ def compute_citation_score_and_similarity(c: Dict[str, Any]) -> Tuple[int, float
         cw = [w for w in canonical.lower().split() if len(w) > 2]
         ew = [w for w in extracted.lower().split() if len(w) > 2]
         if cw or ew:
-            common = len([x for x in cw if x in ew])
+            ew_set = set(ew)
+            common = sum(1 for x in cw if x in ew_set)
             sim = common / max(len(cw), len(ew)) if (cw or ew) else 0.0
             if sim >= 0.5:
                 score += 1
@@ -126,7 +127,8 @@ def compute_citation_score_and_similarity(c: Dict[str, Any]) -> Tuple[int, float
         if not cw and not ew:
             name_similarity = 1.0
         else:
-            common = len([x for x in cw if x in ew])
+            ew_set = set(ew)
+            common = sum(1 for x in cw if x in ew_set)
             name_similarity = common / max(len(cw), len(ew))
 
     return (min(score, 5), name_similarity)

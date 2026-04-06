@@ -31,6 +31,7 @@ _SIGNAL_PHRASES = [
     r"^E\.?g\.?\s*,?\s*",
     r"^I\.?e\.?\s*,?\s*",
 ]
+_SIGNAL_PHRASES_RE = [re.compile(p, re.IGNORECASE) for p in _SIGNAL_PHRASES]
 
 
 _TRUNCATED_PARTY_PREFIXES = ("co", "co.", "inc", "inc.", "llc", "ltd", "ltd.", "corp", "corp.", "corporation")
@@ -167,8 +168,8 @@ def strip_signal_phrases(name: Optional[str]) -> Optional[str]:
     """Remove leading signal phrases from a case name."""
     if not name or name == "N/A":
         return name
-    for phrase in _SIGNAL_PHRASES:
-        name = re.sub(phrase, "", name, flags=re.IGNORECASE).strip()
+    for pat in _SIGNAL_PHRASES_RE:
+        name = pat.sub("", name).strip()
     return name
 
 

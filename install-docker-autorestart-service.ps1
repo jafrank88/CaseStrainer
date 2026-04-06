@@ -416,6 +416,18 @@ $consecutiveFailures = 0
 
 while ($true) {
     try {
+        # Honor pause flag (set by install-docker-autorestart-service.ps1 -Pause)
+        if (Test-Path -LiteralPath $pauseFlagPath -ErrorAction SilentlyContinue) {
+            $flagAge = (Get-Date) - (Get-Item -LiteralPath $pauseFlagPath -ErrorAction SilentlyContinue).LastWriteTime
+            if ($flagAge.TotalHours -lt 4) {
+                Write-ServiceLog "Pause flag detected (age: $([int]$flagAge.TotalMinutes) min) - exiting monitor so Docker can be updated" "INFO"
+                exit 0
+            } else {
+                Write-ServiceLog "STALE pause flag auto-removed (age: $([math]::Round($flagAge.TotalHours, 1)) hours) - resuming crash monitoring" "WARN"
+                Write-DiagnosticsLog "PAUSE_FLAG: Stale flag removed after $([math]::Round($flagAge.TotalHours, 1)) hours - monitoring restored" "WARN"
+                Remove-Item -LiteralPath $pauseFlagPath -Force -ErrorAction SilentlyContinue
+            }
+        }
         $dockerHealthy = Test-DockerHealth
         $dockerProcess = Get-DockerDesktopProcess
         

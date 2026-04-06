@@ -378,9 +378,14 @@ function Invoke-DockerRecovery {
     # Attempt to recover Docker Desktop automatically
     Write-Host "   Attempting Docker Desktop recovery..." -ForegroundColor Yellow
 
-    # Try the official restart command first (cleanest approach)
-    $restartResult = docker desktop restart 2>&1
-    if ($LASTEXITCODE -eq 0 -or $restartResult -match "Starting") {
+    # Try the official restart command first (cleanest approach).
+    # Run in a background job with a hard 20-second timeout — the command hangs
+    # indefinitely when Docker's backend is in a broken/unable-to-start state.
+    $restartJob = Start-Job -ScriptBlock { docker desktop restart 2>&1 }
+    $restartResult = Wait-Job -Job $restartJob -Timeout 20 | Receive-Job
+    Stop-Job  -Job $restartJob -ErrorAction SilentlyContinue
+    Remove-Job -Job $restartJob -ErrorAction SilentlyContinue
+    if ($restartResult -match "Starting|Restarting" -or ($LASTEXITCODE -eq 0 -and $restartResult)) {
         Write-Host "   Docker Desktop restarting..." -ForegroundColor Cyan
 
         # Wait for Docker to become healthy
@@ -995,6 +1000,20 @@ if ($UpdateDocker) {
     Write-Host '      (This will re-enable the auto-restart service)' -ForegroundColor Gray
     Write-Host ""
     exit 0
+}
+
+# Clear stale pause flag (>4 hours old) so the auto-restart monitor is not silently disabled.
+# A pause flag left over from a Docker update or system event will permanently disable crash
+# protection without any visible warning. This check fixes it on the next cslauncher run.
+$pauseFlagPath = Join-Path $PSScriptRoot "logs\docker-autorestart-PAUSED.flag"
+if (Test-Path -LiteralPath $pauseFlagPath -ErrorAction SilentlyContinue) {
+    $flagAge = (Get-Date) - (Get-Item -LiteralPath $pauseFlagPath -ErrorAction SilentlyContinue).LastWriteTime
+    if ($flagAge.TotalHours -ge 4) {
+        Write-Host ""
+        Write-Host "   WARNING: Stale Docker monitor pause flag found ($([math]::Round($flagAge.TotalHours, 1)) hours old) - removing it" -ForegroundColor Yellow
+        Write-ReloadLog "PAUSE_FLAG: Stale flag removed (age: $([math]::Round($flagAge.TotalHours, 1)) hours) - crash monitoring will be restored" "WARN"
+        Remove-Item -LiteralPath $pauseFlagPath -Force -ErrorAction SilentlyContinue
+    }
 }
 
 # Manage Docker auto-restart service (default: enabled, unless -ServicesOff specified)

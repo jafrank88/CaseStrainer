@@ -17,6 +17,7 @@ from typing import Dict
 
 
 class CitationPatterns:
+    _compiled_cache: "Dict[str, re.Pattern] | None" = None
     """
     Centralized citation pattern definitions.
 
@@ -571,7 +572,9 @@ class CitationPatterns:
         Returns:
             Dict mapping pattern names to compiled regex patterns
         """
-        return {
+        if cls._compiled_cache is not None:
+            return cls._compiled_cache
+        cls._compiled_cache = {
             # Federal reporters
             "us_supreme": re.compile(cls.US_SUPREME, re.IGNORECASE),
             "us_supreme_underscore": re.compile(cls.US_SUPREME_UNDERSCORE, re.IGNORECASE),  # FIX: Handle unreported cases like "578 U.S. ____"
@@ -882,6 +885,7 @@ class CitationPatterns:
             "lexis": re.compile(cls.LEXIS, re.IGNORECASE),
             "lexis_alt": re.compile(cls.LEXIS_ALT, re.IGNORECASE),
         }
+        return cls._compiled_cache
 
     @classmethod
     def get_legacy_patterns(cls) -> Dict[str, str]:

@@ -242,7 +242,8 @@ def merge_clusters_by_canonical_name(
     merged_clusters = []
     # Clusters with no display name (cluster or from citations) pass through as-is
     for cluster in clusters:
-        if not _cluster_display_name(cluster) or _cluster_display_name(cluster) == "N/A":
+        dn = _cluster_display_name(cluster)
+        if not dn or dn == "N/A":
             merged_clusters.append(cluster)
     # Process each same-case+year bucket (grouped via names_are_same_case).
     # Merge entire bucket so parallel citations (same case, different reporters/URLs, e.g. Kustura
