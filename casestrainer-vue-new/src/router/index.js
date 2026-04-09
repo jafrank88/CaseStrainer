@@ -14,6 +14,7 @@ const ApiDocs = () => import('@/views/ApiDocs.vue');
 const Docs = () => import('@/views/Docs.vue');
 const ProcessingPipeline = () => import('@/views/ProcessingPipeline.vue');
 const DataRetention = () => import('@/views/DataRetention.vue');
+const McpServer = () => import('@/views/McpServer.vue');
 
 const routes = [
   {
@@ -105,6 +106,18 @@ const routes = [
       title: 'Word Plug-in | CaseStrainer',
       metaTags: [
         { name: 'description', content: 'Use the CaseStrainer Word plug-in to validate citations directly in your documents.' }
+      ]
+    }
+  },
+
+  {
+    path: '/docs/mcp',
+    name: 'McpServer',
+    component: McpServer,
+    meta: {
+      title: 'MCP Server | CaseStrainer',
+      metaTags: [
+        { name: 'description', content: 'Use CaseStrainer as an MCP tool inside Claude Desktop, Windsurf, Cursor, and other AI assistants.' }
       ]
     }
   },

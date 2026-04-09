@@ -1,0 +1,9 @@
+# CaseStrainer MCP Server dependencies
+# Install with: pip install -r requirements-mcp.txt
+#
+# These are intentionally kept separate from the main requirements.txt
+# so the MCP server can be installed in a lightweight virtual environment
+# without pulling in the full CaseStrainer backend stack.
+
+mcp>=1.6.0
+httpx>=0.27.0

@@ -28,8 +28,8 @@
 # - Docker auto-restart service management (enabled by default, -ServicesOff to disable)
 # - Vue frontend: npm run build + frontend Docker image on every run (no flag; Wolf always serves latest dist)
 #
-# WORKERS: There are six RQ workers (rqworker1 through rqworker6). After changing verification,
-# batch, or citation pipeline code, run cslauncher so all six are rebuilt and restarted. Otherwise
+# WORKERS: There are ten RQ workers (rqworker1 through rqworker10). After changing verification,
+# batch, or citation pipeline code, run cslauncher so all ten are rebuilt and restarted. Otherwise
 # some workers may run old code and cause inconsistent behavior (e.g. "stuck at 10 processed",
 # extraction hangs, or batch timeouts only on workers that weren't restarted).
 
@@ -69,7 +69,19 @@ param(
     [switch]$WaitForServices,  # After backend health OK: run scripts/wait-for-services.py in backend container
 
     [Parameter()]
-    [switch]$CleanupStuckJobs  # After backend health OK: run scripts/cleanup-stuck-jobs.py in backend container
+    [switch]$CleanupStuckJobs,  # After backend health OK: run scripts/cleanup-stuck-jobs.py in backend container
+
+    [Parameter()]
+    [switch]$ConfigureAutostart,  # Configure Docker autostart on system boot (one-time setup; requires admin)
+
+    [Parameter()]
+    [switch]$NoAutostart,  # Skip the automatic autostart configuration check on this run
+
+    [Parameter()]
+    [switch]$ConfigurePeriodicHealthCheck,  # Create Task Scheduler job: check Docker every 30 min (backup safety net)
+
+    [Parameter()]
+    [switch]$RemovePeriodicHealthCheck  # Remove the periodic health check task
 )
 
 # Note: -Verbose is automatically provided by [CmdletBinding()]
@@ -83,7 +95,11 @@ $script:WorkerServices = @(
     "rqworker3",
     "rqworker4",
     "rqworker5",
-    "rqworker6"
+    "rqworker6",
+    "rqworker7",
+    "rqworker8",
+    "rqworker9",
+    "rqworker10"
 )
 $script:WorkerContainers = $script:WorkerServices | ForEach-Object { "casestrainer-$($_)-prod" }
 $script:WorkerCount = $script:WorkerServices.Count
@@ -833,6 +849,274 @@ function Invoke-BuildVueFrontend {
     }
 }
 
+function Test-DockerAutostartConfigured {
+    $TaskName = "CaseStrainer-Docker-AutoStart"
+    $Task = Get-ScheduledTask -TaskName $TaskName -ErrorAction SilentlyContinue
+    return ($null -ne $Task)
+}
+
+function Remove-BrokenDockerHealthTask {
+    [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='High')]
+    param()
+    $taskName = "DockerHealthCheck"
+    $task = Get-ScheduledTask -TaskName $taskName -ErrorAction SilentlyContinue
+    if ($task) {
+        if ($PSCmdlet.ShouldProcess("Task '$taskName'", "Remove scheduled task")) {
+            try {
+                Unregister-ScheduledTask -TaskName $taskName -Confirm:$false -ErrorAction Stop
+                return $true
+            } catch {
+                Write-Verbose "Failed to remove broken Docker health check task: $_"
+                return $false
+            }
+        } else {
+            return $true
+        }
+    }
+    return $false
+}
+
+function Install-DockerAutostart {
+    param([switch]$Silent)
+
+    if (-not $Silent) {
+        Write-Host "`n[CONFIG] Configuring Docker autostart on boot..." -ForegroundColor Yellow
+    }
+
+    if (Test-DockerAutostartConfigured) {
+        if (-not $Silent) { Write-Host "  [OK] Docker autostart already configured" -ForegroundColor Green }
+        return $true
+    }
+
+    $isAdmin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
+    if (-not $isAdmin) {
+        if (-not $Silent) {
+            Write-Host "  [WARN] Administrator privileges required to configure autostart" -ForegroundColor Yellow
+        }
+        return $false
+    }
+
+    $autostartScript = Join-Path $PSScriptRoot "scripts\docker-autostart.ps1"
+    if (-not (Test-Path $autostartScript)) {
+        if (-not $Silent) { Write-Host "  [*] Creating autostart script..." -ForegroundColor Gray }
+        $startupScriptContent = @"
+# CaseStrainer Auto-Start Script
+`$ErrorActionPreference = "SilentlyContinue"
+`$ProjectPath = "$PSScriptRoot"
+`$ComposeFile = Join-Path `$ProjectPath "docker-compose.prod.yml"
+`$LogFile = Join-Path `$ProjectPath "logs\autostart.log"
+`$LogDir = Split-Path `$LogFile
+if (-not (Test-Path `$LogDir)) { New-Item -ItemType Directory -Path `$LogDir -Force | Out-Null }
+function Write-Log { param([string]`$Message); Add-Content -Path `$LogFile -Value "[`$(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')] `$Message" }
+Write-Log "=== CaseStrainer Auto-Start ==="
+Write-Log "Waiting for Docker to be ready..."
+`$MaxWait = 300; `$Waited = 0; `$DockerReady = `$false
+while (`$Waited -lt `$MaxWait) {
+    `$null = docker info 2>&1
+    if (`$LASTEXITCODE -eq 0) { `$DockerReady = `$true; Write-Log "Docker is ready!"; break }
+    Start-Sleep -Seconds 10; `$Waited += 10; Write-Log "Still waiting... (`$Waited s)"
+}
+if (-not `$DockerReady) { Write-Log "[ERROR] Docker not ready after `$MaxWait s"; exit 1 }
+Write-Log "Waiting 30s for Docker Desktop to fully initialize..."
+Start-Sleep -Seconds 30
+Write-Log "Starting CaseStrainer containers..."
+Push-Location `$ProjectPath
+docker-compose -f `$ComposeFile up -d 2>&1 | Tee-Object -FilePath (Join-Path `$ProjectPath "logs\docker-startup.log")
+if (`$LASTEXITCODE -eq 0) { Write-Log "[SUCCESS] Containers started" } else { Write-Log "[ERROR] Failed (exit `$LASTEXITCODE)"; exit 1 }
+Pop-Location
+Write-Log "=== Auto-Start Complete ==="
+"@
+        $startupScriptContent | Out-File -FilePath $autostartScript -Encoding UTF8 -Force
+    }
+
+    $dockerDesktopPath = "${env:ProgramFiles}\Docker\Docker\Docker Desktop.exe"
+    if (-not (Test-Path $dockerDesktopPath)) {
+        $dockerDesktopPath = "${env:ProgramFiles(x86)}\Docker\Docker\Docker Desktop.exe"
+    }
+    if (Test-Path $dockerDesktopPath) {
+        $startupFolder = "$env:APPDATA\Microsoft\Windows\Start Menu\Programs\Startup"
+        $shortcutPath = Join-Path $startupFolder "Docker Desktop.lnk"
+        if (-not (Test-Path $shortcutPath)) {
+            $WshShell = New-Object -ComObject WScript.Shell
+            $Shortcut = $WshShell.CreateShortcut($shortcutPath)
+            $Shortcut.TargetPath = $dockerDesktopPath
+            $Shortcut.WorkingDirectory = Split-Path $dockerDesktopPath
+            $Shortcut.Save()
+        }
+    }
+
+    $TaskName = "CaseStrainer-Docker-AutoStart"
+    try {
+        Get-ScheduledTask -TaskName $TaskName -ErrorAction SilentlyContinue | ForEach-Object {
+            Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false -ErrorAction SilentlyContinue
+        }
+        $taskXml = @"
+<?xml version="1.0" encoding="UTF-16"?>
+<Task version="1.2" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
+  <Triggers><BootTrigger><Enabled>true</Enabled><Delay>PT2M</Delay></BootTrigger></Triggers>
+  <Principals>
+    <Principal id="Author">
+      <UserId>$env:USERDOMAIN\$env:USERNAME</UserId>
+      <LogonType>Password</LogonType>
+      <RunLevel>HighestAvailable</RunLevel>
+    </Principal>
+  </Principals>
+  <Settings>
+    <MultipleInstancesPolicy>IgnoreNew</MultipleInstancesPolicy>
+    <DisallowStartIfOnBatteries>false</DisallowStartIfOnBatteries>
+    <StopIfGoingOnBatteries>false</StopIfGoingOnBatteries>
+    <AllowHardTerminate>true</AllowHardTerminate>
+    <StartWhenAvailable>true</StartWhenAvailable>
+    <AllowStartOnDemand>true</AllowStartOnDemand>
+    <Enabled>true</Enabled>
+    <ExecutionTimeLimit>PT1H</ExecutionTimeLimit>
+    <Priority>7</Priority>
+    <RestartOnFailure><Interval>PT5M</Interval><Count>3</Count></RestartOnFailure>
+  </Settings>
+  <Actions Context="Author">
+    <Exec>
+      <Command>PowerShell.exe</Command>
+      <Arguments>-NoProfile -ExecutionPolicy Bypass -File "$autostartScript"</Arguments>
+      <WorkingDirectory>$PSScriptRoot</WorkingDirectory>
+    </Exec>
+  </Actions>
+</Task>
+"@
+        $taskXmlPath = Join-Path $PSScriptRoot "scripts\task-config.xml"
+        $taskXml | Out-File -FilePath $taskXmlPath -Encoding Unicode -Force
+        schtasks /Create /TN $TaskName /XML $taskXmlPath /RU "$env:USERDOMAIN\$env:USERNAME" /F 2>&1 | Out-Null
+        Remove-Item $taskXmlPath -Force -ErrorAction SilentlyContinue
+        if (-not $Silent) {
+            Write-Host "  [OK] Docker autostart configured (containers start 2 min after boot)" -ForegroundColor Green
+        }
+        return $true
+    } catch {
+        if (-not $Silent) { Write-Host "  [ERROR] Failed: $($_.Exception.Message)" -ForegroundColor Red }
+        return $false
+    }
+}
+
+function Configure-PeriodicHealthCheck {
+    param(
+        [switch]$Remove,
+        [switch]$Silent
+    )
+    $TaskName = "CaseStrainer-Docker-HealthCheck"
+    if ($Remove) {
+        $existing = Get-ScheduledTask -TaskName $TaskName -ErrorAction SilentlyContinue
+        if ($existing) {
+            Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false
+            if (-not $Silent) { Write-Host "  [OK] Removed periodic health check task" -ForegroundColor Green }
+        } else {
+            if (-not $Silent) { Write-Host "  [INFO] Periodic health check task not found" -ForegroundColor Gray }
+        }
+        return $true
+    }
+    try {
+        $healthCheckScriptPath = Join-Path $PSScriptRoot "scripts\periodic_health_check.ps1"
+        $healthCheckScript = @'
+# CaseStrainer Periodic Health Check (runs every 30 min via Task Scheduler)
+$ErrorActionPreference = "Continue"
+$logFile = Join-Path $PSScriptRoot "logs\periodic_health_check.log"
+function Write-Log {
+    param([string]$Message, [string]$Level = "INFO")
+    Add-Content -Path $logFile -Value "[$([datetime]::Now.ToString('yyyy-MM-dd HH:mm:ss'))] [$Level] $Message" -ErrorAction SilentlyContinue
+}
+Write-Log "=== PERIODIC HEALTH CHECK STARTED ==="
+try {
+    $null = docker info 2>&1
+    if ($LASTEXITCODE -ne 0) {
+        Write-Log "Docker not responding - attempting restart" "ERROR"
+        Get-Process "Docker Desktop" -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+        Start-Sleep -Seconds 5
+        Start-Process "C:\Program Files\Docker\Docker\Docker Desktop.exe" -ErrorAction SilentlyContinue
+        Start-Sleep -Seconds 60
+        Set-Location $PSScriptRoot
+        docker-compose -f docker-compose.prod.yml up -d 2>&1
+        Write-Log "Containers restarted after Docker recovery" "SUCCESS"
+    } else {
+        $running = docker ps --format "{{.Names}}" 2>&1
+        $needed = @("casestrainer-backend-prod", "casestrainer-nginx-prod", "casestrainer-redis-prod")
+        $missing = $needed | Where-Object { $running -notcontains $_ }
+        if ($missing) {
+            Write-Log "Missing containers: $($missing -join ', ') - restarting" "WARN"
+            Set-Location $PSScriptRoot
+            docker-compose -f docker-compose.prod.yml up -d 2>&1
+            Write-Log "Containers started" "SUCCESS"
+        } else {
+            Write-Log "All containers healthy" "SUCCESS"
+        }
+    }
+} catch {
+    Write-Log "Health check error: $($_.Exception.Message)" "ERROR"
+}
+Write-Log "=== PERIODIC HEALTH CHECK COMPLETED ==="
+'@
+        $healthCheckScript | Out-File -FilePath $healthCheckScriptPath -Encoding UTF8 -Force
+
+        Get-ScheduledTask -TaskName $TaskName -ErrorAction SilentlyContinue | ForEach-Object {
+            Unregister-ScheduledTask -TaskName $TaskName -Confirm:$false -ErrorAction SilentlyContinue
+        }
+        $taskXml = @"
+<?xml version="1.0" encoding="UTF-16"?>
+<Task version="1.2" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">
+  <Triggers>
+    <CalendarTrigger>
+      <Repetition><Interval>PT30M</Interval><StopAtDurationEnd>false</StopAtDurationEnd></Repetition>
+      <StartBoundary>2025-01-01T00:00:00</StartBoundary>
+      <Enabled>true</Enabled>
+      <ScheduleByDay><DaysInterval>1</DaysInterval></ScheduleByDay>
+    </CalendarTrigger>
+  </Triggers>
+  <Principals>
+    <Principal id="Author">
+      <UserId>$env:USERDOMAIN\$env:USERNAME</UserId>
+      <LogonType>Password</LogonType>
+      <RunLevel>HighestAvailable</RunLevel>
+    </Principal>
+  </Principals>
+  <Settings>
+    <MultipleInstancesPolicy>IgnoreNew</MultipleInstancesPolicy>
+    <DisallowStartIfOnBatteries>false</DisallowStartIfOnBatteries>
+    <StopIfGoingOnBatteries>false</StopIfGoingOnBatteries>
+    <AllowHardTerminate>true</AllowHardTerminate>
+    <StartWhenAvailable>true</StartWhenAvailable>
+    <AllowStartOnDemand>true</AllowStartOnDemand>
+    <Enabled>true</Enabled>
+    <WakeToRun>true</WakeToRun>
+    <ExecutionTimeLimit>PT30M</ExecutionTimeLimit>
+    <Priority>7</Priority>
+  </Settings>
+  <Actions Context="Author">
+    <Exec>
+      <Command>PowerShell.exe</Command>
+      <Arguments>-NoProfile -ExecutionPolicy Bypass -File "$healthCheckScriptPath"</Arguments>
+      <WorkingDirectory>$PSScriptRoot</WorkingDirectory>
+    </Exec>
+  </Actions>
+</Task>
+"@
+        $taskXmlPath = Join-Path $PSScriptRoot "scripts\health-check-task.xml"
+        $taskXml | Out-File -FilePath $taskXmlPath -Encoding Unicode -Force
+        if (-not $Silent) { Write-Host "  [*] Registering periodic health check task..." -ForegroundColor Gray }
+        schtasks /Create /TN $TaskName /XML $taskXmlPath /RU "$env:USERDOMAIN\$env:USERNAME" /F 2>&1 | Out-Null
+        Remove-Item $taskXmlPath -Force -ErrorAction SilentlyContinue
+        if ($LASTEXITCODE -eq 0) {
+            if (-not $Silent) {
+                Write-Host "  [OK] Periodic health check configured (runs every 30 min)" -ForegroundColor Green
+                Write-Host "       Script: $healthCheckScriptPath" -ForegroundColor Gray
+            }
+            return $true
+        } else {
+            if (-not $Silent) { Write-Host "  [ERROR] Failed to create task" -ForegroundColor Red }
+            return $false
+        }
+    } catch {
+        if (-not $Silent) { Write-Host "  [ERROR] $($_.Exception.Message)" -ForegroundColor Red }
+        return $false
+    }
+}
+
 # ============================================================================
 # MAIN SCRIPT
 # ============================================================================
@@ -844,6 +1128,17 @@ Write-Host "====================================================================
 Write-Host ""
 
 Write-ReloadLog "=== RELOAD STARTED ===" "INFO"
+
+# Remove legacy broken DockerHealthCheck task from old scripts (if present)
+try {
+    $removed = Remove-BrokenDockerHealthTask -Confirm:$false -ErrorAction Stop
+    if ($removed) {
+        Write-Host "   Removed broken legacy DockerHealthCheck scheduled task" -ForegroundColor Yellow
+        Write-ReloadLog "CLEANUP: Removed broken DockerHealthCheck scheduled task" "WARN"
+    }
+} catch {
+    Write-Verbose "Optional cleanup of DockerHealthCheck task skipped: $_"
+}
 
 # Check admin privileges
 $isAdmin = Test-AdminPrivileges
@@ -1002,6 +1297,61 @@ if ($UpdateDocker) {
     exit 0
 }
 
+# Handle -ConfigureAutostart: one-time setup of boot-time Docker + container autostart
+if ($ConfigureAutostart) {
+    Write-Host ""
+    Write-Host "=== CONFIGURING DOCKER AUTOSTART ===" -ForegroundColor Cyan
+    Write-Host ""
+    if (-not $isAdmin) {
+        Write-Host "   ERROR: Configuring autostart requires Administrator privileges." -ForegroundColor Red
+        Write-Host "   Right-click PowerShell and Run as Administrator, then retry." -ForegroundColor Yellow
+        exit 1
+    }
+    if (Install-DockerAutostart) {
+        Write-Host ""
+        Write-Host "   Containers will automatically start on system boot." -ForegroundColor Green
+        Write-Host "   To test: restart the computer and check logs\autostart.log" -ForegroundColor Yellow
+        Write-Host "   To disable: run with -NoAutostart" -ForegroundColor Gray
+    } else {
+        Write-Host ""
+        Write-Host "   ERROR: Autostart configuration failed." -ForegroundColor Red
+        exit 1
+    }
+    exit 0
+}
+
+# Handle -ConfigurePeriodicHealthCheck: create Task Scheduler 30-min backup safety net
+if ($ConfigurePeriodicHealthCheck) {
+    Write-Host ""
+    Write-Host "=== CONFIGURING PERIODIC HEALTH CHECK ===" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "   Creates a Windows Task Scheduler job that runs every 30 minutes" -ForegroundColor White
+    Write-Host "   to check Docker health and restart containers if needed." -ForegroundColor White
+    Write-Host "   This is a backup in case the auto-restart service stops or crashes." -ForegroundColor Gray
+    Write-Host ""
+    if (Configure-PeriodicHealthCheck) {
+        Write-Host ""
+        Write-Host "   Docker will be checked every 30 minutes as a backup safety net." -ForegroundColor Green
+        Write-Host "   To view logs: Get-Content logs\periodic_health_check.log" -ForegroundColor Yellow
+        Write-Host "   To remove:    .\cslauncher.ps1 -RemovePeriodicHealthCheck" -ForegroundColor Yellow
+    } else {
+        Write-Host ""
+        Write-Host "   ERROR: Periodic health check configuration failed." -ForegroundColor Red
+        Write-Host "   Run as Administrator and try again." -ForegroundColor Yellow
+        exit 1
+    }
+    exit 0
+}
+
+# Handle -RemovePeriodicHealthCheck
+if ($RemovePeriodicHealthCheck) {
+    Write-Host ""
+    Write-Host "=== REMOVING PERIODIC HEALTH CHECK ===" -ForegroundColor Cyan
+    Write-Host ""
+    Configure-PeriodicHealthCheck -Remove
+    exit 0
+}
+
 # Clear stale pause flag (>4 hours old) so the auto-restart monitor is not silently disabled.
 # A pause flag left over from a Docker update or system event will permanently disable crash
 # protection without any visible warning. This check fixes it on the next cslauncher run.
@@ -1013,6 +1363,17 @@ if (Test-Path -LiteralPath $pauseFlagPath -ErrorAction SilentlyContinue) {
         Write-Host "   WARNING: Stale Docker monitor pause flag found ($([math]::Round($flagAge.TotalHours, 1)) hours old) - removing it" -ForegroundColor Yellow
         Write-ReloadLog "PAUSE_FLAG: Stale flag removed (age: $([math]::Round($flagAge.TotalHours, 1)) hours) - crash monitoring will be restored" "WARN"
         Remove-Item -LiteralPath $pauseFlagPath -Force -ErrorAction SilentlyContinue
+    }
+}
+
+# Inform user if Docker boot-time autostart is not yet configured (skipped with -NoAutostart)
+if (-not $NoAutostart) {
+    try {
+        if (-not (Test-DockerAutostartConfigured)) {
+            Write-Host "   [INFO] Docker autostart not configured - run once as Administrator: .\cslauncher.ps1 -ConfigureAutostart" -ForegroundColor Gray
+        }
+    } catch {
+        Write-Verbose "Autostart check skipped: $_"
     }
 }
 
@@ -1131,6 +1492,40 @@ if ($verificationCacheResult -match "cleared") {
 
 Write-Host "   All caches cleared" -ForegroundColor Green
 Write-ReloadLog "   Cache clearing complete: Redis + file-based caches cleared" "SUCCESS"
+
+# Recreate Redis to apply any docker-compose.prod.yml config changes (e.g. maxmemory, mem_limit)
+# Safe here because FLUSHDB already ran above — no job data will be lost.
+Write-Host ""
+Write-ReloadLog "REDIS: Recreating Redis container to apply config changes..." "INFO"
+Write-Host "   Recreating Redis (data already flushed above)..." -ForegroundColor Gray
+docker-compose -f docker-compose.prod.yml up -d --force-recreate redis 2>&1 | Out-Null
+if ($LASTEXITCODE -eq 0) {
+    Write-Host "   Waiting for Redis to be healthy..." -ForegroundColor Gray
+    $redisReady = $false
+    for ($i = 0; $i -lt 15; $i++) {
+        Start-Sleep -Seconds 2
+        $redisPw2 = Get-CaseStrainerRedisPassword
+        if ($redisPw2) {
+            $redisPing = docker exec -e "REDISCLI_AUTH=$redisPw2" casestrainer-redis-prod redis-cli ping 2>$null
+        } else {
+            $redisPing = docker exec casestrainer-redis-prod redis-cli ping 2>$null
+        }
+        if ($redisPing -match "PONG") {
+            $redisReady = $true
+            break
+        }
+    }
+    if ($redisReady) {
+        Write-Host "   Redis recreated and healthy" -ForegroundColor Green
+        Write-ReloadLog "REDIS: Recreated and healthy" "SUCCESS"
+    } else {
+        Write-Host "   WARNING: Redis may not be ready yet (workers will wait via wait-for-redis.py)" -ForegroundColor Yellow
+        Write-ReloadLog "REDIS: Recreation may not be ready yet" "WARN"
+    }
+} else {
+    Write-Host "   WARNING: Redis recreation failed (exit code: $LASTEXITCODE) - continuing with existing container" -ForegroundColor Yellow
+    Write-ReloadLog "REDIS: Recreation failed (exit code: $LASTEXITCODE)" "WARN"
+}
 
 # Step 4: Vue frontend — always npm build + bake dist into Docker (no timestamp heuristics)
 Write-Host ""
@@ -1307,32 +1702,41 @@ foreach ($container in $containers) {
 Write-Host "   Bytecode cleared on new containers" -ForegroundColor Green
 Write-ReloadLog "   Post-recreation bytecode clear complete" "SUCCESS"
 
-# Step 8: Restart nginx to clear DNS cache and pick up new backend IP
+# Step 8: Recreate nginx to apply config changes and clear DNS cache
 # CRITICAL: nginx caches DNS lookups for upstream servers. When backend container
-# is recreated, it may get a new IP. A simple reload doesn't clear the DNS cache,
-# so we need a full restart to ensure nginx routes to the new backend container.
+# is recreated, it may get a new IP. --force-recreate picks up docker-compose.prod.yml
+# changes (mem_limit etc.) AND clears the DNS cache — 'restart' does neither.
 Write-Host ""
-Write-Host "   Restarting nginx to clear DNS cache..." -ForegroundColor Gray
+Write-Host "   Recreating nginx (applies config + clears DNS cache)..." -ForegroundColor Gray
 try {
-    # First verify config is valid
     docker exec casestrainer-nginx-prod nginx -t > $null 2>&1
     if ($LASTEXITCODE -eq 0) {
-        # Full restart to clear DNS cache (reload doesn't clear it)
-        docker-compose -f docker-compose.prod.yml restart nginx 2>&1 | Out-Null
+        docker-compose -f docker-compose.prod.yml up -d --force-recreate nginx 2>&1 | Out-Null
         if ($LASTEXITCODE -eq 0) {
-            Write-Host "   Nginx restarted (DNS cache cleared)" -ForegroundColor Green
-            Write-ReloadLog "   Nginx restarted successfully (DNS cache cleared)" "SUCCESS"
+            Write-Host "   Nginx recreated (config applied, DNS cache cleared)" -ForegroundColor Green
+            Write-ReloadLog "   Nginx recreated successfully (config applied, DNS cache cleared)" "SUCCESS"
         } else {
-            Write-Host "   WARNING: Nginx restart failed (exit code: $LASTEXITCODE)" -ForegroundColor Yellow
-            Write-ReloadLog "   WARNING: Nginx restart failed (exit code: $LASTEXITCODE)" "WARN"
+            Write-Host "   WARNING: Nginx recreation failed (exit code: $LASTEXITCODE)" -ForegroundColor Yellow
+            Write-ReloadLog "   WARNING: Nginx recreation failed (exit code: $LASTEXITCODE)" "WARN"
         }
     } else {
-        Write-Host "   WARNING: Nginx config test failed, skipping restart" -ForegroundColor Yellow
-        Write-ReloadLog "   WARNING: Nginx config test failed, skipping restart" "WARN"
+        Write-Host "   WARNING: Nginx config test failed, skipping recreation" -ForegroundColor Yellow
+        Write-ReloadLog "   WARNING: Nginx config test failed, skipping recreation" "WARN"
     }
 } catch {
-    Write-Host "   WARNING: Nginx restart failed: $($_.Exception.Message)" -ForegroundColor Yellow
-    Write-ReloadLog "   WARNING: Nginx restart exception: $($_.Exception.Message)" "WARN"
+    Write-Host "   WARNING: Nginx recreation failed: $($_.Exception.Message)" -ForegroundColor Yellow
+    Write-ReloadLog "   WARNING: Nginx recreation exception: $($_.Exception.Message)" "WARN"
+}
+
+# Recreate job-health-monitor to apply docker-compose.prod.yml config changes (mem_limit etc.)
+Write-Host "   Recreating job-health-monitor (applies config changes)..." -ForegroundColor Gray
+docker-compose -f docker-compose.prod.yml up -d --force-recreate job-health-monitor 2>&1 | Out-Null
+if ($LASTEXITCODE -eq 0) {
+    Write-Host "   Job health monitor recreated" -ForegroundColor Green
+    Write-ReloadLog "   Job health monitor recreated successfully" "SUCCESS"
+} else {
+    Write-Host "   WARNING: Job health monitor recreation failed (exit code: $LASTEXITCODE)" -ForegroundColor Yellow
+    Write-ReloadLog "   WARNING: Job health monitor recreation failed (exit code: $LASTEXITCODE)" "WARN"
 }
 
 # Step 8: Health check (unless skipped)
@@ -1541,7 +1945,7 @@ if ($allVerified) {
     Write-Host ""
     Write-Host "   Volume mount may not be working. Try:" -ForegroundColor Yellow
     Write-Host "      docker-compose -f docker-compose.prod.yml down" -ForegroundColor Gray
-    Write-Host '      docker rmi casestrainer-backend; docker rmi casestrainer-rqworker1 (repeat for rqworker2 through rqworker6)' -ForegroundColor Gray
+    Write-Host '      docker rmi casestrainer-backend; docker rmi casestrainer-rqworker1 (repeat for rqworker2 through rqworker10)' -ForegroundColor Gray
     Write-Host '      docker-compose -f docker-compose.prod.yml up -d --build' -ForegroundColor Gray
 }
 
@@ -1595,7 +1999,7 @@ if ($RunFullDocumentTest) {
         Write-Host ""
         Write-Host 'To check if batch timeout fired (worker that ran the job):' -ForegroundColor Yellow
         Write-Host '  docker logs casestrainer-rqworker1-prod --tail 80 2>&1 | Select-String ''BATCH|timed out''' -ForegroundColor DarkGray
-        Write-Host '  (repeat for rqworker2-prod ... rqworker6-prod if job ran on another worker)' -ForegroundColor DarkGray
+        Write-Host '  (repeat for rqworker2-prod ... rqworker10-prod if job ran on another worker)' -ForegroundColor DarkGray
     }
 }
 

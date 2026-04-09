@@ -82,6 +82,15 @@
       <h2><i class="bi bi-puzzle me-2" aria-hidden="true"></i>Integrations</h2>
       <ul class="docs-list">
         <li>
+          <router-link to="/docs/mcp">
+            <i class="bi bi-robot me-2" aria-hidden="true"></i>
+            <div>
+              <strong>MCP Server (AI assistant integration)</strong>
+              <p class="text-muted mb-0">Use CaseStrainer as a tool inside Claude Desktop, Windsurf, Cursor, and other MCP-compatible AI assistants</p>
+            </div>
+          </router-link>
+        </li>
+        <li>
           <router-link to="/word-plugin">
             <i class="bi bi-file-word me-2" aria-hidden="true"></i>
             <div>

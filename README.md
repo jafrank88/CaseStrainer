@@ -262,6 +262,7 @@ For detailed troubleshooting, see [TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md).
 - [Pipeline Entry Points](docs/PIPELINE_ENTRY_POINTS.md) - How citation processing works (sync/async, entry points)
 - [Production Readiness](docs/PRODUCTION_READINESS.md) - Production deployment checklist and run tests/deploy
 - [API Documentation](docs/API_DOCUMENTATION.md) - Backend API reference
+- [MCP Server](docs/MCP_SERVER.md) - Use CaseStrainer as a tool in Claude Desktop, Windsurf, Cursor, and other MCP-compatible AI assistants
 - [Enhanced Citation Processing](docs/ENHANCED_CITATION_PROCESSING.md) - Citation processing details
 - [Troubleshooting Guide](docs/TROUBLESHOOTING.md) - Common issues and solutions
 - [Deployment Guide](docs/DEPLOYMENT_VUE.md) - Complete deployment instructions
@@ -270,10 +271,112 @@ For detailed troubleshooting, see [TROUBLESHOOTING.md](docs/TROUBLESHOOTING.md).
 
 ## 📦 Extensions & Integrations
 
+### MCP Server (AI assistant integration)
+
+CaseStrainer exposes its citation analysis as an **MCP (Model Context Protocol) server**, allowing AI assistants such as Claude Desktop, Windsurf, and Cursor to call CaseStrainer directly as a tool.
+
+#### Installation
+
+```powershell
+# Create a lightweight venv (keeps MCP deps separate from the main backend)
+python -m venv venv-mcp
+.\venv-mcp\Scripts\Activate.ps1
+pip install -r requirements-mcp.txt
+```
+
+#### Available tools
+
+| Tool | Description |
+|---|---|
+| `analyze_text` | Submit legal text for citation extraction, clustering, and verification |
+| `analyze_url` | Fetch a PDF or web page URL and analyze it for citations |
+| `get_task_status` | Check or retrieve results for a long-running job by task ID |
+| `check_health` | Verify that the CaseStrainer service is reachable (no key required) |
+
+#### Basic configuration (Claude Desktop / Windsurf / Cursor)
+
+Add to your MCP config file (see `.claude/mcp_config_example.json` for all variants):
+
+```json
+{
+  "mcpServers": {
+    "casestrainer": {
+      "command": "D:/dev/casestrainer/venv-mcp/Scripts/python.exe",
+      "args": ["D:/dev/casestrainer/casestrainer_mcp.py"],
+      "env": {
+        "CASESTRAINER_URL": "http://localhost:5000"
+      }
+    }
+  }
+}
+```
+
+Config file locations:
+
+| Assistant | Config file |
+|---|---|
+| Claude Desktop | `%APPDATA%\Claude\claude_desktop_config.json` |
+| Windsurf | `~/.codeium/windsurf/mcp_config.json` |
+| Cursor | `~/.cursor/mcp.json` (or Settings → MCP) |
+
+#### Access control — restricting which agents can connect
+
+By default the MCP server is open to any local process that can spawn it. To restrict access, set `MCP_API_KEYS` in the server's `.env` file and give each agent its own `CASESTRAINER_MCP_KEY`.
+
+**Server side** (`.env`):
+
+```dotenv
+# One entry per authorised agent — format: key:AgentName
+MCP_API_KEYS=abc123:ClaudeDesktop,def456:Windsurf,ghi789:Cursor
+```
+
+Generate a key:
+
+```powershell
+python -c "import secrets; print(secrets.token_urlsafe(32))"
+```
+
+**Agent side** (MCP config `env` block):
+
+```json
+{
+  "mcpServers": {
+    "casestrainer": {
+      "command": "D:/dev/casestrainer/venv-mcp/Scripts/python.exe",
+      "args": ["D:/dev/casestrainer/casestrainer_mcp.py"],
+      "env": {
+        "CASESTRAINER_URL": "http://localhost:5000",
+        "CASESTRAINER_MCP_KEY": "abc123"
+      }
+    }
+  }
+}
+```
+
+- Each agent gets a **unique key** — revoke access by removing that key from `MCP_API_KEYS` and restarting the MCP server process.
+- `check_health()` is always accessible without a key so monitoring tools work regardless.
+- Keys use constant-time comparison (`hmac.compare_digest`) to prevent timing attacks.
+
+#### Environment variables
+
+| Variable | Default | Description |
+|---|---|---|
+| `CASESTRAINER_URL` | `http://localhost:5000` | Base URL of the CaseStrainer service |
+| `CASESTRAINER_TIMEOUT` | `600` | Max seconds to wait for a job to complete |
+| `CASESTRAINER_POLL_SEC` | `3` | Polling interval when waiting for async jobs |
+| `MCP_API_KEYS` | *(unset = open)* | Server-side allowed keys (`key:AgentName,...`) |
+| `CASESTRAINER_MCP_KEY` | *(unset)* | This agent's key (set in agent's MCP env block) |
+
+See `.claude/mcp_config_example.json` for complete configuration examples.
+
+---
+
 ### Word add-in
+
 Task pane HTML/JS and `manifest.xml` live in **`casestrainer-vue-new/public/word-addin/`** and ship with the Vue build. Production manifest URL: `https://wolf.law.uw.edu/casestrainer/word-addin/manifest.xml`. See [WORD_ADDIN.md](docs/WORD_ADDIN.md).
 
 ### Browser extension
+
 Chromium extension in **`browser-extension/`** — detects citation-like strings on configured sites and calls the same API as the web app. See [BROWSER_EXTENSION.md](docs/BROWSER_EXTENSION.md).
 
 ## 🔗 Repository

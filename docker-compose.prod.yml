@@ -18,7 +18,9 @@ services:
       start_period: 30s
     networks:
       - app-network
-    command: ["sh", "-c", "redis-server --bind 0.0.0.0 --port 6379 --requirepass \"$$REDIS_PASSWORD\" --appendonly yes"]
+    command: ["sh", "-c", "redis-server --bind 0.0.0.0 --port 6379 --requirepass \"$$REDIS_PASSWORD\" --appendonly yes --maxmemory 2gb --maxmemory-policy noeviction"]
+    mem_limit: 2g
+    mem_reservation: 512m
 
   # Application Layer
   backend:
@@ -82,7 +84,8 @@ services:
           memory: 2G
           cpus: '1.0'
 
-  # Worker Services (4 GB each; 6 workers fit on 32 GB host: 6×4 + ~8 other = 32)
+  # Worker Services (4 GB hard limit / 1 GB reserved each; RQ_MAX_MEMORY_MB=2048 triggers worker restart before OOM kill)
+  # Practical usage: 10 workers × ~2 GB + backend 2 GB + Redis 2 GB ≈ 24 GB of 32 GB host
   rqworker1:
     build: .
     container_name: casestrainer-rqworker1-prod
@@ -401,6 +404,218 @@ services:
           memory: 1G
           cpus: '0.5'
 
+  rqworker7:
+    build: .
+    container_name: casestrainer-rqworker7-prod
+    command: sh -c "find /app/src -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null; python -B wait-for-redis.py && python -B src/rq_worker.py"
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@casestrainer-redis-prod:6379/0
+      - SECRET_KEY=${SECRET_KEY}
+      - CASTRAINER_ENV=production
+      - PYTHONPATH=/app
+      - PYTHONDONTWRITEBYTECODE=1
+      - COURTLISTENER_API_KEY=${COURTLISTENER_API_KEY}
+      - RQ_QUEUE_NAME=casestrainer
+      - RQ_MAX_JOBS=100
+      - RQ_MAX_MEMORY_MB=2048
+      - RQ_WORKER_AUTORELOAD=false
+      - WORKER_ID=7
+      - ENABLE_VERIFICATION=true
+      - SKIP_FALLBACK_VERIFICATION=true
+      - CASESTRAINER_ENABLE_OCR=true
+      - CASESTRAINER_OCR_MAX_PAGES=${CASESTRAINER_OCR_MAX_PAGES:-30}
+      - CASESTRAINER_OCR_SCALE=${CASESTRAINER_OCR_SCALE:-2.0}
+      - MALLOC_ARENA_MAX=2
+      - MALLOC_MMAP_THRESHOLD_=268435456
+      - MALLOC_TRIM_THRESHOLD_=131072
+    volumes:
+      - ./src:/app/src
+      - ./uploads:/app/uploads
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./casestrainer_sessions:/app/casestrainer_sessions
+    restart: always
+    mem_limit: 4g
+    mem_reservation: 1g
+    healthcheck:
+      test: ["CMD", "python", "src/healthcheck_rq.py"]
+      interval: 60s
+      timeout: 30s
+      retries: 8
+      start_period: 180s
+    networks:
+      - app-network
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+          cpus: '1.0'
+        reservations:
+          memory: 1G
+          cpus: '0.5'
+
+  rqworker8:
+    build: .
+    container_name: casestrainer-rqworker8-prod
+    command: sh -c "find /app/src -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null; python -B wait-for-redis.py && python -B src/rq_worker.py"
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@casestrainer-redis-prod:6379/0
+      - SECRET_KEY=${SECRET_KEY}
+      - CASTRAINER_ENV=production
+      - PYTHONPATH=/app
+      - PYTHONDONTWRITEBYTECODE=1
+      - COURTLISTENER_API_KEY=${COURTLISTENER_API_KEY}
+      - RQ_QUEUE_NAME=casestrainer
+      - RQ_MAX_JOBS=100
+      - RQ_MAX_MEMORY_MB=2048
+      - RQ_WORKER_AUTORELOAD=false
+      - WORKER_ID=8
+      - ENABLE_VERIFICATION=true
+      - SKIP_FALLBACK_VERIFICATION=true
+      - CASESTRAINER_ENABLE_OCR=true
+      - CASESTRAINER_OCR_MAX_PAGES=${CASESTRAINER_OCR_MAX_PAGES:-30}
+      - CASESTRAINER_OCR_SCALE=${CASESTRAINER_OCR_SCALE:-2.0}
+      - MALLOC_ARENA_MAX=2
+      - MALLOC_MMAP_THRESHOLD_=268435456
+      - MALLOC_TRIM_THRESHOLD_=131072
+    volumes:
+      - ./src:/app/src
+      - ./uploads:/app/uploads
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./casestrainer_sessions:/app/casestrainer_sessions
+    restart: always
+    mem_limit: 4g
+    mem_reservation: 1g
+    healthcheck:
+      test: ["CMD", "python", "src/healthcheck_rq.py"]
+      interval: 60s
+      timeout: 30s
+      retries: 8
+      start_period: 180s
+    networks:
+      - app-network
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+          cpus: '1.0'
+        reservations:
+          memory: 1G
+          cpus: '0.5'
+
+  rqworker9:
+    build: .
+    container_name: casestrainer-rqworker9-prod
+    command: sh -c "find /app/src -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null; python -B wait-for-redis.py && python -B src/rq_worker.py"
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@casestrainer-redis-prod:6379/0
+      - SECRET_KEY=${SECRET_KEY}
+      - CASTRAINER_ENV=production
+      - PYTHONPATH=/app
+      - PYTHONDONTWRITEBYTECODE=1
+      - COURTLISTENER_API_KEY=${COURTLISTENER_API_KEY}
+      - RQ_QUEUE_NAME=casestrainer
+      - RQ_MAX_JOBS=100
+      - RQ_MAX_MEMORY_MB=2048
+      - RQ_WORKER_AUTORELOAD=false
+      - WORKER_ID=9
+      - ENABLE_VERIFICATION=true
+      - SKIP_FALLBACK_VERIFICATION=true
+      - CASESTRAINER_ENABLE_OCR=true
+      - CASESTRAINER_OCR_MAX_PAGES=${CASESTRAINER_OCR_MAX_PAGES:-30}
+      - CASESTRAINER_OCR_SCALE=${CASESTRAINER_OCR_SCALE:-2.0}
+      - MALLOC_ARENA_MAX=2
+      - MALLOC_MMAP_THRESHOLD_=268435456
+      - MALLOC_TRIM_THRESHOLD_=131072
+    volumes:
+      - ./src:/app/src
+      - ./uploads:/app/uploads
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./casestrainer_sessions:/app/casestrainer_sessions
+    restart: always
+    mem_limit: 4g
+    mem_reservation: 1g
+    healthcheck:
+      test: ["CMD", "python", "src/healthcheck_rq.py"]
+      interval: 60s
+      timeout: 30s
+      retries: 8
+      start_period: 180s
+    networks:
+      - app-network
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+          cpus: '1.0'
+        reservations:
+          memory: 1G
+          cpus: '0.5'
+
+  rqworker10:
+    build: .
+    container_name: casestrainer-rqworker10-prod
+    command: sh -c "find /app/src -type d -name __pycache__ -exec rm -rf {} + 2>/dev/null; python -B wait-for-redis.py && python -B src/rq_worker.py"
+    depends_on:
+      redis:
+        condition: service_healthy
+    environment:
+      - REDIS_URL=redis://:${REDIS_PASSWORD}@casestrainer-redis-prod:6379/0
+      - SECRET_KEY=${SECRET_KEY}
+      - CASTRAINER_ENV=production
+      - PYTHONPATH=/app
+      - PYTHONDONTWRITEBYTECODE=1
+      - COURTLISTENER_API_KEY=${COURTLISTENER_API_KEY}
+      - RQ_QUEUE_NAME=casestrainer
+      - RQ_MAX_JOBS=100
+      - RQ_MAX_MEMORY_MB=2048
+      - RQ_WORKER_AUTORELOAD=false
+      - WORKER_ID=10
+      - ENABLE_VERIFICATION=true
+      - SKIP_FALLBACK_VERIFICATION=true
+      - CASESTRAINER_ENABLE_OCR=true
+      - CASESTRAINER_OCR_MAX_PAGES=${CASESTRAINER_OCR_MAX_PAGES:-30}
+      - CASESTRAINER_OCR_SCALE=${CASESTRAINER_OCR_SCALE:-2.0}
+      - MALLOC_ARENA_MAX=2
+      - MALLOC_MMAP_THRESHOLD_=268435456
+      - MALLOC_TRIM_THRESHOLD_=131072
+    volumes:
+      - ./src:/app/src
+      - ./uploads:/app/uploads
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./casestrainer_sessions:/app/casestrainer_sessions
+    restart: always
+    mem_limit: 4g
+    mem_reservation: 1g
+    healthcheck:
+      test: ["CMD", "python", "src/healthcheck_rq.py"]
+      interval: 60s
+      timeout: 30s
+      retries: 8
+      start_period: 180s
+    networks:
+      - app-network
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+          cpus: '1.0'
+        reservations:
+          memory: 1G
+          cpus: '0.5'
+
   # Job Health Monitor - Automatically cleans up stuck jobs
   job-health-monitor:
     build: .
@@ -421,6 +636,8 @@ services:
       - ./data:/app/data
       - ./logs:/app/logs
     restart: always
+    mem_limit: 512m
+    mem_reservation: 256m
     networks:
       - app-network
     deploy:
@@ -446,6 +663,8 @@ services:
       - NODE_ENV=production
       - VITE_COURTLISTENER_API_KEY=${COURTLISTENER_API_KEY}
     restart: always
+    mem_limit: 512m
+    mem_reservation: 128m
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:80"]
       interval: 60s
@@ -454,6 +673,14 @@ services:
       start_period: 180s
     networks:
       - app-network
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 128M
+          cpus: '0.1'
 
   # Infrastructure Layer
   nginx:
@@ -491,8 +718,18 @@ services:
       frontend-prod:
         condition: service_healthy
     restart: always
+    mem_limit: 256m
+    mem_reservation: 64m
     networks:
       - app-network
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+          cpus: '0.5'
+        reservations:
+          memory: 64M
+          cpus: '0.1'
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:80"]
       interval: 30s
