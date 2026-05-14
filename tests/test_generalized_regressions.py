@@ -205,6 +205,33 @@ def test_subsequent_history_affd_inherits_prior_case_name_but_keeps_own_year():
     assert str(getattr(c347, "extracted_date", "") or "") == "1954"
 
 
+def test_louisiana_public_domain_regex_and_unified_extraction():
+    """LASC Part G vendor-neutral cites must register and match (regex path + unified pipeline)."""
+    p = UnifiedCitationProcessorV2()
+    assert "la_pd_sc" in p.citation_patterns
+    assert "la_pd_app" in p.citation_patterns
+
+    sc = "Smith v. Jones, 98-0601 (La. 10/20/98), 720 So. 2d 1186."
+    app_3d = "Doe v. Roe, 21-433 (La. App. 3d Cir. 11/16/22), 202 So. 3d 1."
+    app_plain = "See 04-1234 (La. App. 2 Cir. 1/5/2005)."
+    en_dash = "Ref. 98\u20130601 (La. 10/20/98)."
+
+    regex_sc = [c.citation for c in p._extract_with_regex_enhanced(sc) if "98-0601" in (c.citation or "")]
+    assert regex_sc and "La." in regex_sc[0]
+
+    regex_app = [c.citation for c in p._extract_with_regex_enhanced(app_3d) if "21-433" in (c.citation or "")]
+    assert regex_app and "3d Cir." in regex_app[0]
+
+    regex_plain = [c.citation for c in p._extract_with_regex_enhanced(app_plain) if "04-1234" in (c.citation or "")]
+    assert regex_plain
+
+    regex_unicode = [c.citation for c in p._extract_with_regex_enhanced(en_dash) if "0601" in (c.citation or "")]
+    assert regex_unicode
+
+    unified = p._extract_citations_unified(sc)
+    assert any("98-0601" in (getattr(c, "citation", "") or "") for c in unified)
+
+
 def test_cluster_dedupe_uses_stable_citation_set_key():
     if deduplicate_clusters_for_response is None:
         pytest.skip("response_enrichment module not available in this repo snapshot")
@@ -315,15 +342,15 @@ def test_cluster_sections_keeps_wl_only_cluster_in_unverified():
     assert "wl_only" not in (sections.get("informational") or [])
 
 
-def test_cluster_sections_puts_statute_only_cluster_in_informational():
+def test_cluster_sections_puts_law_review_cluster_in_informational():
     if compute_cluster_sections is None:
         pytest.skip("response_enrichment module not available in this repo snapshot")
     clusters = [
         {
-            "cluster_id": "statute_only",
+            "cluster_id": "law_review_only",
             "citations": [
                 {
-                    "citation": "Cal. Code 16700 et seq.",
+                    "citation": "125 Harv. L. Rev. 1",
                     "verified": False,
                     "verification_status": None,
                 }
@@ -331,13 +358,14 @@ def test_cluster_sections_puts_statute_only_cluster_in_informational():
         }
     ]
     sections = compute_cluster_sections(clusters)
-    assert "statute_only" in (sections.get("informational") or [])
-    assert "statute_only" not in (sections.get("unverified") or [])
+    assert "law_review_only" in (sections.get("informational") or [])
+    assert "law_review_only" not in (sections.get("unverified") or [])
 
 
-def test_non_case_reference_detector_catches_statutes_not_cases():
-    assert is_non_case_legal_reference("Cal. Code 16700 et seq.")
+def test_non_case_reference_detector_catches_law_reviews_not_cases():
+    assert is_non_case_legal_reference("125 Harv. L. Rev. 1")
     assert is_non_case_legal_reference("15 U.S.C. 1")
+    assert is_non_case_legal_reference("42 U.S.C. § 1983")
     assert not is_non_case_legal_reference("Brown v. Board of Education, 347 U.S. 483 (1954)")
 
 

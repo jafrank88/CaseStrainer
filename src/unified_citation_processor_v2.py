@@ -433,6 +433,13 @@ class UnifiedCitationProcessorV2:
             ),
         }
 
+        # Patterns defined only in CitationPatterns (state reporters, LA public domain, IL year cites, etc.).
+        # Priority-based regex extraction references these names; merge so they are not silently skipped.
+        _from_library = CitationPatterns.get_compiled_patterns()
+        for _name, _pat in _from_library.items():
+            if _name not in self.citation_patterns:
+                self.citation_patterns[_name] = _pat
+
         self.pinpoint_pattern = re.compile(r"\b(?:at\s+)?(\d+)\b", re.IGNORECASE)
         self.docket_pattern = re.compile(
             r"\b(?:No\.|Docket\s+No\.|Case\s+No\.)\s*[:\-]?\s*([A-Z0-9\-\.]+)\b", re.IGNORECASE
@@ -1876,6 +1883,23 @@ class UnifiedCitationProcessorV2:
                 "compare_year": compare_year,
                 "compare_source": compare_source,
             }
+
+        # When the citation text explicitly encodes a year (e.g. "1989 OK 112", "2025 WL 123")
+        # that matches canonical, the extracted_date may be contaminated by a nearby
+        # parenthetical (e.g. Herbert v. Lando (1979) appearing right after Quinn, 1989 OK 112).
+        # In that case use the citation-text year as the authoritative extracted year.
+        canonical_year_val = extract_year_value(canonical_date)
+        if (
+            compare_source == "citation_text"
+            and canonical_year_val
+            and canonical_year_val == compare_year
+            and ext_year != compare_year
+        ):
+            logger.debug(
+                f"[YEAR-ALIGN] citation_text year {compare_year} matches canonical; "
+                f"treating extracted_date {ext_year} as contaminated — using {compare_year}"
+            )
+            ext_year = compare_year
 
         # Defensive year handling: keep behavior correct even if an older helper path
         # fails to parse pre-1900 years.
@@ -5481,6 +5505,17 @@ class UnifiedCitationProcessorV2:
                     citation_str = self._strip_toc_prefix(citation_str)
                     if not citation_str or citation_str in seen_citations:
                         continue
+                    # Eyecite mangles Louisiana public-domain citations by ignoring the
+                    # docket prefix (e.g. "98-0601 (La. 10/20/98)") and extracting the
+                    # parenthetical forward as "La. 10/20/98), 720 So. 2d 1186".
+                    # Drop these; custom la_pd_sc / la_pd_app patterns handle them correctly.
+                    if re.match(r'^La\.\s*\d{1,2}/\d{1,2}/\d{2,4}\)', citation_str):
+                        continue
+                    if re.match(
+                        r'^La\.\s+App\.\s+(?:(?:1st|2d|3d|4th|5th)|[1-5])\s+Cir\.\s+\d{1,2}/\d{1,2}/\d{2,4}\)',
+                        citation_str,
+                    ):
+                        continue
                     seen_citations.add(citation_str)
                     if start_index is not None and end_index is not None:
                         # Span reflects pre-truncation text; align end to trimmed citation length
@@ -5713,7 +5748,19 @@ class UnifiedCitationProcessorV2:
                 ):
                     pass
                 else:
+                    # First page printed as four digits is never above ~1500 (any reporter); above that,
+                    # the 2+2 "pinpoint" split may be a real fix for concat artifacts.
+                    max_four_digit_first_page = 1500
                     for split_pos in range(min(4, len(page_blob) - 1), 1, -1):
+                        # Do not split 10xx as "10" + "xx" (e.g. 534 U.S. 1078). Applies to any reporter
+                        # that reaches this branch with a 4-digit page blob.
+                        if (
+                            len(page_blob) == 4
+                            and page_blob.isdigit()
+                            and 1000 <= int(page_blob) <= max_four_digit_first_page
+                            and split_pos == 2
+                        ):
+                            continue
                         page = page_blob[:split_pos]
                         pinpoint = page_blob[split_pos:]
                         page_val = int(page)
@@ -5749,11 +5796,6 @@ class UnifiedCitationProcessorV2:
             if hasattr(citation_obj, 'corrected_citation_full'):
                 full = citation_obj.corrected_citation_full()
                 if full and isinstance(full, str):
-                    # Filter statutes and non-case reporters
-                    if any(p in full for p in ["U.S.C.", "USC", "C.F.R.", "CFR", "Rev. Code", "Gen. Stat.", "Fed. Reg."]):
-                        return ""
-                    if re.search(r'\d+\s+FR\s+\d+', full):
-                        return ""
                     if full.lower().startswith(('id.', 'ibid.')) or ' at ' in full.lower():
                         return ""
                     # Fix: corrected_citation_full() sometimes prepends stray
@@ -5777,6 +5819,8 @@ class UnifiedCitationProcessorV2:
                                     f"[EYECITE-FIX] Stripped stray volume prefix "
                                     f"'{stray}' from '{leading_digits}' -> '{parsed_vol}'"
                                 )
+                    if any(p in full for p in ["U.S.C.", "USC", "C.F.R.", "CFR", "Fed. Reg."]):
+                        return ""
                     return full
         except Exception as corr_full_err:
             logger.debug(f"[EYECITE] corrected_citation_full unavailable: {corr_full_err}")
@@ -6209,6 +6253,9 @@ class UnifiedCitationProcessorV2:
             "neutral_nc",       # North Carolina: 2024-NCSC-1, 2024-NCCOA-1
             "mj",               # Military Justice - 45 M.J. 491
             "fed_app_six",      # 6th Cir. FED App - 2001 FED App. 0138P
+            # Louisiana public domain citations (LASC Part G Section 8, post-1994)
+            "la_pd_app",        # LA Court of Appeal docket: 21-433 (La. App. 3 Cir. 11/16/22)
+            "la_pd_sc",         # LA Supreme Court docket: 98-0601 (La. 10/20/98)
         ]
 
         for pattern_name in priority_patterns:
@@ -6360,7 +6407,7 @@ class UnifiedCitationProcessorV2:
         # Remove: ", at *N"/", at N"/", at N-N"; ", 210-11" (page ranges); ", 210 n.5" (footnotes)
         stripped = re.sub(
             r",\s*at\s+\*?\d+(?:-\d+)?\b"
-            r"|,\s*\d{2,4}-\d{1,4}\b(?!\s+P\.\d*d)"
+            r"|,\s*\d{2,4}-\d{1,4}\b(?!\s+P\.\d*d)(?!\s*\(La\.)"
             r"|,\s*\d+\s+n\.?\s*\d+\b",
             "",
             text,
@@ -6467,19 +6514,11 @@ class UnifiedCitationProcessorV2:
         # Step 4b: Set citation-type flags once (drives extraction + verification + display).
         # NOTE: When we fall back to regex in process_text() (unified failed), those citations
         # never run Step 4b; process_text() sets the same flags for them (see "CRITICAL: Regex-fallback" block).
-        from src.utils.citation_type_utils import is_proprietary_only_citation, name_likely_in_left_context as _name_in_left, is_statutory_citation
+        from src.utils.citation_type_utils import is_proprietary_only_citation, name_likely_in_left_context as _name_in_left
         for citation in deduplicated_citations:
             ct = citation.citation or ""
             citation.is_proprietary_only = is_proprietary_only_citation(ct)
             citation.name_likely_in_left_context = _name_in_left(ct)
-
-        # Step 4c: Remove statutory / non-case citations (Pub. L., U.S.C., Stat., Cong. Rec., etc.)
-        # These are not court opinions and should not go through case name extraction or verification.
-        pre_filter_count = len(deduplicated_citations)
-        deduplicated_citations = [c for c in deduplicated_citations if not is_statutory_citation(c.citation or "")]
-        filtered_count = pre_filter_count - len(deduplicated_citations)
-        if filtered_count:
-            logger.info(f"[UNIFIED_EXTRACTION] Step 4c: Removed {filtered_count} statutory/non-case citations")
 
         logger.info("[UNIFIED_EXTRACTION] Step 5: Extracting names and dates with full text context")
         # FIX #44: Use normalized_text for extraction since citation positions are from normalized_text.
