@@ -417,6 +417,9 @@ def find_all_citation_positions(text: str) -> List[Tuple[int, int, str]]:
         compiled_patterns["neutral_wi"],
         compiled_patterns["neutral_wy"],
         compiled_patterns["neutral_mt"],
+        # Louisiana public domain (docket + decision date) — boundaries for left-context name extraction
+        compiled_patterns["la_pd_app"],
+        compiled_patterns["la_pd_sc"],
     ]
 
     for pattern in boundary_patterns:
@@ -920,6 +923,11 @@ def _is_citation_fragment_not_case_name(name: str) -> bool:
     # Prose/sentence misidentified as case name (e.g. "Cockrum's failure to demonstrate actual knowledge")
     if _is_prose_not_case_name(s):
         return True
+    # Orphan parallel fragment: "S. Ct. 397", "L. Ed. 735" mistaken as case name (Stafford-style)
+    if re.match(r"^S\.\s*Ct\.\s+\d", s, re.IGNORECASE):
+        return True
+    if re.match(r"^L\.\s*Ed\.\s*(?:2d\s+)?\d", s, re.IGNORECASE):
+        return True
     # Reporter abbreviations that indicate citation fragment (not case name)
     reporter_abbrev = r"(?:Tenn\.|Va\.|U\.\s*S\.|F\.|P\.|S\.\s*Ct\.|Wn\.|Ill\.|Ohio|Cal\.|N\.\s*Y\.|Mass\.|Tex\.)"
     # Parenthetical citation fragment: "(10 Tenn.), 1831", "(10 Tenn.)", "(259 Va.) 2010"
@@ -939,29 +947,7 @@ def _is_citation_fragment_not_case_name(name: str) -> bool:
 
 
 def _is_statute_name_not_case_name(name: str) -> bool:
-    """
-    Return True if the string looks like a statute/title name (e.g. "Administrative Procedure Act, 1970")
-    rather than a case name. Such strings must be rejected.
-    """
-    if not name or len(name) < 6:
-        return False
-    s = name.strip()
-    low = s.lower()
-    # Strip trailing ", YYYY" or ", YYYY." so "Administrative Procedure Act, 1970" -> "Administrative Procedure Act"
-    base = re.sub(r",\s*(19|20)\d{2}\s*\.?\s*$", "", low).strip()
-    statute_endings = (" act", " code", " statute", " regulation", " rule")
-    if base.endswith(statute_endings):
-        return True
-    # Known statute patterns (even with "v." in them, e.g. "Administrative Procedure v. Act, 1970")
-    statute_patterns = [
-        r"\badministrative procedure\b.*\bact\b",
-        r"\bfreedom of information\b.*\bact\b",
-        r"\bcivil rights\b.*\bact\b",
-        r"\bunited states code\b",
-    ]
-    for pat in statute_patterns:
-        if re.search(pat, low):
-            return True
+    """Statute-title rejection disabled; CaseStrainer focuses on case citations only."""
     return False
 
 

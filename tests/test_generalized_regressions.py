@@ -502,6 +502,25 @@ def test_scotus_sct_reporter_minus_one_year_is_allowed():
     assert source == "scotus_cl_minus_one"
 
 
+def test_extract_date_after_affd_uses_following_parenthetical_year():
+    """District year … aff'd, F.3d cite — appellate year is in the paren after the F.3d cite."""
+    from types import SimpleNamespace
+
+    processor = UnifiedCitationProcessorV2.__new__(UnifiedCitationProcessorV2)
+    text = (
+        "American Geophysical Union v. Texaco Inc., 802 F. Supp. 1, 27 (S.D.N.Y. 1992), aff'd, "
+        "60 F.3d 913 (2nd Cir. 1994)."
+    )
+    cite = "60 F.3d 913"
+    start = text.index(cite)
+    end = start + len(cite)
+    citation = SimpleNamespace(citation=cite, start_index=start, end_index=end, metadata={})
+    year, source, confidence = processor._extract_date_from_context(text, citation, return_source=True)
+    assert year == "1994"
+    assert source == "case_history_forward_paren"
+    assert confidence == "high"
+
+
 def test_citation_local_year_extraction_prefers_parenthetical_year():
     processor = UnifiedCitationProcessorV2.__new__(UnifiedCitationProcessorV2)
     text = (
@@ -1658,6 +1677,11 @@ def test_decision_year_from_citation_paren_prefers_actavis_style():
     p = UnifiedCitationProcessorV2.__new__(UnifiedCitationProcessorV2)
     assert p._decision_year_from_citation_paren("133 S. Ct. 2223 (2013)") == "2013"
     assert p._decision_year_from_citation_paren("F.T.C. v. Actavis, 133 S. Ct. 2223, 2227 (2013)") == "2013"
+    bundled = (
+        "American Geophysical Union v. Texaco Inc., 802 F. Supp. 1, 27 (nysd 1992), aff'd, "
+        "60 F.3d 913 (bap2 1994)"
+    )
+    assert p._decision_year_from_citation_paren(bundled) == "1994"
 
 
 def test_year_alignment_hard_mismatch_when_extracted_year_wrong_and_no_paren_in_cite():
@@ -1782,3 +1806,63 @@ def test_extract_date_global_recovery_prefers_closest_occurrence():
     year, src, conf = p._extract_date_from_context(doc, c, return_source=True)
     assert year == "2005"
     assert src in ("citation_parenthetical", "citation_immediate_parenthetical", "citation_span_before_semi", "citation_global_recovery")
+
+
+def test_per_citation_cluster_year_district_vs_appellate_in_cluster():
+    from src.utils.response_enrichment import per_citation_cluster_year
+
+    cluster = {"cluster_year": "1994"}
+    district = {
+        "citation": "802 F. Supp. 782 (S.D. Tex. 1992)",
+        "verified": False,
+        "extracted_date": "1992",
+        "metadata": {},
+    }
+    assert per_citation_cluster_year(district, cluster) == "1992"
+
+
+def test_deduplicate_toa_body_drops_toa_when_body_exists():
+    from src.utils.response_enrichment import deduplicate_toa_body_citation_rows
+
+    body = {
+        "citation": "171 Wn.2d 486",
+        "metadata": {},
+        "start_index": 5000,
+    }
+    toa = {
+        "citation": "171 Wash. 2d 486",
+        "extracted_case_name": "TABLE OF AUTHORITIES Cases: Page 12 Foo v. Bar",
+        "metadata": {},
+        "start_index": 100,
+    }
+    out = deduplicate_toa_body_citation_rows([body, toa])
+    assert len(out) == 1
+    assert out[0]["start_index"] == 5000
+
+
+def test_normalize_citation_text_strips_leading_district_year_bleed():
+    from src.utils.extraction_cleaner import normalize_citation_text
+
+    raw = "E.D.Mich.1985) 712 F.2d 1218 (6th Cir. 1985)"
+    assert normalize_citation_text(raw).startswith("712 F.2d")
+
+
+def test_is_citation_fragment_rejects_s_ct_page():
+    from src.utils.strict_context_isolator import is_citation_fragment_not_case_name
+
+    assert is_citation_fragment_not_case_name("S. Ct. 397, 66 L. Ed. 735") is True
+
+
+def test_extract_date_skips_year_after_gao_bridge():
+    from src.models import CitationResult
+
+    p = UnifiedCitationProcessorV2.__new__(UnifiedCitationProcessorV2)
+    cite = "119 Cal. Rptr. 3d 92"
+    doc = (
+        "See Grimshaw v. Ford Motor Co., " + cite + " *22 (discussing GAO report on fuel systems (2006))."
+    )
+    start = doc.find(cite)
+    end = start + len(cite)
+    c = CitationResult(citation=cite, start_index=start, end_index=end)
+    year, src, conf = p._extract_date_from_context(doc, c, return_source=True)
+    assert year is None or year != "2006"

@@ -62,6 +62,11 @@ from src.utils.case_name_utils import (
     is_document_case_contamination_post_process,
 )
 from src.utils.same_case import extracted_matches_canonical_for_contamination_log
+from src.utils.response_enrichment import (
+    deduplicate_toa_body_citation_rows,
+    per_citation_cluster_year,
+    _four_digit_year_from_val,
+)
 
 # Import placeholder resolver
 from src.utils.placeholder_resolver import resolve_placeholder_citations, is_placeholder_citation
@@ -292,8 +297,7 @@ class UnifiedProcessingPipeline:
                     if cl:
                         if cl.get("cluster_case_name"):
                             c["cluster_case_name"] = cl.get("cluster_case_name")
-                        if cl.get("cluster_year") is not None:
-                            c["cluster_year"] = cl.get("cluster_year")
+                        c["cluster_year"] = per_citation_cluster_year(c, cl)
                         if cl.get("cluster_size") is not None:
                             c["cluster_size"] = cl.get("cluster_size")
             except Exception:
@@ -542,9 +546,7 @@ class UnifiedProcessingPipeline:
                 citation_dicts.append(cit_dict)
 
             logger.info(f"[TIMING] _format_response per-citation loop done in {time.time()-_fmt_t0:.2f}s for {len(citations)} citations")
-            # Optional reduction pass: remove non-case legal references from case-citation output.
-            # These references (statutes/rules/codes) are not verifiable cases and should not
-            # inflate case-level unverified counts.
+            # Optional reduction pass: remove secondary non-case references (e.g. law reviews) from output.
             _pre_non_case_count = len(citation_dicts)
             citation_dicts = [
                 c for c in citation_dicts
@@ -641,6 +643,13 @@ class UnifiedProcessingPipeline:
             if cite_as_placeholders:
                 citation_dicts = [c for c in citation_dicts if not _is_cite_as_header_placeholder(c)]
                 logger.info(f"[CITE-AS-FILTER] Removed {len(cite_as_placeholders)} placeholder citations from Cite as headers")
+
+            _pre_toa_dedup = len(citation_dicts)
+            citation_dicts = deduplicate_toa_body_citation_rows(citation_dicts)
+            if len(citation_dicts) < _pre_toa_dedup:
+                logger.info(
+                    f"[PIPELINE-{context.trace_id}] TOA/body dedup: {_pre_toa_dedup} -> {len(citation_dicts)} citations"
+                )
 
             # TOA anchor repair (OCR-tolerant): if the document contains "Name v. Name, CITE (YYYY)",
             # prefer that binding to prevent TOA neighbor bleed.
@@ -1076,7 +1085,7 @@ class UnifiedProcessingPipeline:
                                 f"extracted='{cit_dict['extracted_case_name']}' vs "
                                 f"canonical='{cit_dict['canonical_name']}' for {cit_dict.get('citation', 'unknown')}"
                             )
-                    cit_dict["cluster_year"] = cluster.get("cluster_year")
+                    cit_dict["cluster_year"] = per_citation_cluster_year(cit_dict, cluster)
                     cit_dict["cluster_size"] = cluster.get("cluster_size")
                     # CRITICAL: Derive cluster_members from this cluster's citations only (avoids Amcast/Cintas cross-assignment)
                     cluster_cits = cluster.get("citations", []) or cluster.get("citation_objects", [])
@@ -1095,6 +1104,32 @@ class UnifiedProcessingPipeline:
                     cit_dict["cluster_size"] = 1
                     cit_dict["cluster_members"] = []
                     cit_dict["is_in_cluster"] = False
+
+            # Keep nested cluster["citations"] dicts aligned with citation_dicts (same keys, possibly new refs).
+            _yr_by_cite: Dict[str, Any] = {}
+            for _cd in citation_dicts:
+                _ct = (_cd.get("citation") or "").strip()
+                if _ct:
+                    _yr_by_cite[_norm_ct(_ct)] = _cd.get("cluster_year")
+                    _yr_by_cite[_ct] = _cd.get("cluster_year")
+            for _cl in clusters:
+                _y_counts: Dict[str, int] = {}
+                for _c in _cl.get("citations") or []:
+                    if not isinstance(_c, dict):
+                        continue
+                    _ct2 = (_c.get("citation") or "").strip()
+                    _yset = _yr_by_cite.get(_norm_ct(_ct2)) if _ct2 else None
+                    if _yset is None and _ct2:
+                        _yset = _yr_by_cite.get(_ct2)
+                    if _yset is not None:
+                        _c["cluster_year"] = _yset
+                    _yy = _four_digit_year_from_val(_c.get("cluster_year"))
+                    if _yy:
+                        _y_counts[_yy] = _y_counts.get(_yy, 0) + 1
+                if _y_counts:
+                    _best = sorted(_y_counts.items(), key=lambda kv: (-kv[1], kv[0]))[0][0]
+                    _cl["cluster_year"] = _best
+                    _cl["date"] = _best
 
             # USER FIX 2026-01-12: Final cleanup - ensure all clusters have clean cluster_case_name
             # This is needed because the clusters section reads from the original cluster objects

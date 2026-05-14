@@ -21,6 +21,12 @@ def _repair_cluster_citation_sync(citations_list, clusters_list):
     if not isinstance(citations_list, list) or not isinstance(clusters_list, list):
         return
 
+    try:
+        from src.utils.response_enrichment import per_citation_cluster_year, _four_digit_year_from_val
+    except Exception:
+        per_citation_cluster_year = None  # type: ignore[assignment]
+        _four_digit_year_from_val = None  # type: ignore[assignment]
+
     def _base_key(val):
         raw = str(val or "").strip()
         if not raw:
@@ -128,18 +134,33 @@ def _repair_cluster_citation_sync(citations_list, clusters_list):
                 if fld in match:
                     cc[fld] = match.get(fld)
 
-        year_counts = {}
-        for cc in cl_cites:
-            y = _citation_local_year(cc)
-            if y:
-                year_counts[y] = year_counts.get(y, 0) + 1
-        if year_counts:
-            cy = sorted(year_counts.items(), key=lambda kv: (-kv[1], kv[0]))[0][0]
-            cl["cluster_year"] = cy
-            cl["date"] = cy
+        if per_citation_cluster_year and _four_digit_year_from_val:
             for cc in cl_cites:
                 if isinstance(cc, dict):
-                    cc["cluster_year"] = cy
+                    cc["cluster_year"] = per_citation_cluster_year(cc, cl)
+            year_counts = {}
+            for cc in cl_cites:
+                if isinstance(cc, dict):
+                    y = _four_digit_year_from_val(cc.get("cluster_year"))
+                    if y:
+                        year_counts[y] = year_counts.get(y, 0) + 1
+            if year_counts:
+                cy = sorted(year_counts.items(), key=lambda kv: (-kv[1], kv[0]))[0][0]
+                cl["cluster_year"] = cy
+                cl["date"] = cy
+        else:
+            year_counts = {}
+            for cc in cl_cites:
+                y = _citation_local_year(cc)
+                if y:
+                    year_counts[y] = year_counts.get(y, 0) + 1
+            if year_counts:
+                cy = sorted(year_counts.items(), key=lambda kv: (-kv[1], kv[0]))[0][0]
+                cl["cluster_year"] = cy
+                cl["date"] = cy
+                for cc in cl_cites:
+                    if isinstance(cc, dict):
+                        cc["cluster_year"] = cy
 
         has_verified = any(
             isinstance(cc, dict) and bool(cc.get("verified") or cc.get("is_verified"))
@@ -153,7 +174,7 @@ def _repair_cluster_citation_sync(citations_list, clusters_list):
 
 
 def _strip_non_case_from_response_payload(citations_list, clusters_list):
-    """Remove statute/rule/journal non-case references from both top-level and clusters."""
+    """Remove secondary non-case references (e.g. law reviews) from top-level and clusters."""
     _non_case_check: Callable[[str], bool]
     try:
         from src.utils.verification_display_utils import is_non_case_legal_reference
@@ -1118,13 +1139,42 @@ def register_task_status_routes(bp):
                     position = queue.get_job_position(task_id)
                 except Exception:
                     position = -1
+                # Total jobs ahead (includes this one if position >= 0)
+                try:
+                    queue_total = queue.count
+                except Exception:
+                    queue_total = None
+                # Rough ETA: ~120 s per job; position 0 means next up (~30 s)
+                try:
+                    _pos = max(0, int(position)) if position is not None and position != -1 else 0
+                    estimated_wait_seconds = max(30, _pos * 120)
+                    _mins = estimated_wait_seconds // 60
+                    _secs = estimated_wait_seconds % 60
+                    if _mins > 0:
+                        estimated_wait_human = f"~{_mins} min {_secs}s" if _secs else f"~{_mins} min"
+                    else:
+                        estimated_wait_human = f"~{estimated_wait_seconds}s"
+                except Exception:
+                    estimated_wait_seconds = None
+                    estimated_wait_human = None
                 try:
                     from src.verification_manager import VerificationManager
                     vm = VerificationManager()
                     vstatus = vm.get_verification_status(task_id)
                 except Exception:
                     vstatus = None
-                response = {"status": "queued", "task_id": task_id, "message": f"Task is queued (position: {position})", "position": position, "success": True, "citations": [], "clusters": []}
+                response = {
+                    "status": "queued",
+                    "task_id": task_id,
+                    "message": f"Task is queued (position: {position})",
+                    "position": position,
+                    "queue_total": queue_total,
+                    "estimated_wait_seconds": estimated_wait_seconds,
+                    "estimated_wait_human": estimated_wait_human,
+                    "success": True,
+                    "citations": [],
+                    "clusters": [],
+                }
                 # If job has been at front of queue (position 0) for a long time, workers may not be running
                 try:
                     import time

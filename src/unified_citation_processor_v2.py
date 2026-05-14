@@ -210,6 +210,9 @@ class UnifiedCitationProcessorV2:
     Unified citation processor that consolidates the best parts of all existing implementations.
     """
 
+    # extracted_date from these sources must not be replaced by cluster-level year blending.
+    _CLUSTER_SKIP_EXTRACTED_DATE_SOURCES = frozenset({"case_history_forward_paren"})
+
     def __init__(self, config: Optional[ProcessingConfig] = None, progress_callback: Optional[callable] = None):
         self.config = config or ProcessingConfig()
         logger.warning(
@@ -4889,14 +4892,26 @@ class UnifiedCitationProcessorV2:
             if idx != -1:
                 main = main[:idx].strip()
                 break
-        # If the citation itself includes an eyecite-style court+year token, trust it.
-        # This avoids accidental capture of a neighboring year when the citation string is noisy.
-        m_short = re.search(r"\((?:scotus|ca\d+)\s+((?:17|18|19|20)\d{2})\s*\)", main, re.IGNORECASE)
-        if m_short:
-            return m_short.group(1)
-        m_abbrev = re.search(r"\(([a-z]{2,6}\d?)\s+((?:17|18|19|20)\d{2})\s*\)", main, re.IGNORECASE)
-        if m_abbrev:
-            return m_abbrev.group(2)
+        # If the citation itself includes an eyecite-style court+year token, trust the
+        # **last** match when the string bundles district + appellate (e.g. "(nysd 1992)…(bap2 1994)").
+        m_short_all = list(
+            re.finditer(
+                r"\((?:scotus|ca\d+)\s+((?:17|18|19|20)\d{2})\s*\)",
+                main,
+                re.IGNORECASE,
+            )
+        )
+        if m_short_all:
+            return m_short_all[-1].group(1)
+        m_abbrev_all = list(
+            re.finditer(
+                r"\(([a-z]{2,6}\d?)\s+((?:17|18|19|20)\d{2})\s*\)",
+                main,
+                re.IGNORECASE,
+            )
+        )
+        if m_abbrev_all:
+            return m_abbrev_all[-1].group(2)
         best: Optional[str] = None
         for m in re.finditer(r"\(([^)]*)\)", main):
             inner = m.group(1) or ""
@@ -4906,6 +4921,49 @@ class UnifiedCitationProcessorV2:
                 if 1700 <= y <= 2030:
                     best = ym.group(1)
         return best
+
+    def _year_after_case_history_signal(self, text: str, start: int, end: int) -> Optional[str]:
+        """
+        After aff'd / rev'd / cert. denied / etc., the next reporter cite's decision year is the
+        parenthetical following THAT cite (e.g. district 1992 … aff'd, 60 F.3d 913 (2d Cir. 1994)),
+        not the earlier district-court year.
+        """
+        if not text or not isinstance(end, int) or end <= 0:
+            return None
+        start_i = int(start) if isinstance(start, int) else 0
+        tail = text[max(0, start_i - 200) : start_i]
+        # History signals immediately before this citation (comma + Bluebook shorthand).
+        _hist = (
+            r"(?:,\s*)"
+            r"(?:"
+            r"aff[\u2019']?\s*d|"
+            r"rev[\u2019']?\s*d|"
+            r"affirmed|reversed|vacated|remanded|"
+            r"cert\.?\s*denied|cert\.?\s*granted|"
+            r"reh[\u2019']?\s*g\.?|"
+            r"pet\.?\s*den\.?|pet\.?\s+denied"
+            r")"
+            r"\s*,?\s*$"
+        )
+        if not re.search(_hist, tail, re.IGNORECASE | re.MULTILINE):
+            return None
+        after = text[end : min(len(text), end + 240)]
+        after = re.sub(
+            r"(?:Argued|Decided|Filed)\s+[^.]*?(?:17|18|19|20)\d{2}[^.]{0,60}",
+            "",
+            after,
+            flags=re.IGNORECASE,
+        )
+        for m in re.finditer(r"\(([^)]{1,140})\)", after):
+            inner = (m.group(1) or "").strip()
+            if re.search(r"\bciting\b", inner, re.IGNORECASE):
+                continue
+            ym = re.search(r"\b((?:17|18|19|20)\d{2})\b", inner)
+            if ym:
+                y = int(ym.group(1))
+                if 1700 <= y <= 2030:
+                    return ym.group(1)
+        return None
 
     def _extract_date_from_context(self, text: str, citation, return_source: bool = False):
         """Extract date/year from citation string itself or surrounding text context.
@@ -4960,6 +5018,19 @@ class UnifiedCitationProcessorV2:
                     return True
                 return False
 
+            def _bridge_suggests_agency_footnote_year(bridge: str) -> bool:
+                """True when text between cite and parenthetical year is a GAO / accounting cite, not decision date."""
+                if not bridge:
+                    return False
+                return bool(
+                    re.search(
+                        r"\bGAO\b|G\.A\.O\.|Government\s+Accountability\s+Office|General\s+Accounting\s+Office|"
+                        r"U\.S\.?\s+Gov'?t\s+Account",
+                        bridge,
+                        re.IGNORECASE,
+                    )
+                )
+
             def _reporter_suggests_old_case(cit: str) -> bool:
                 """True when citation reporter+volume suggests pre-1950 case (reject recent-year context bleed)."""
                 if not cit:
@@ -5003,6 +5074,9 @@ class UnifiedCitationProcessorV2:
             end = citation.end_index or 0
             start = citation.start_index or 0
             if end > 0:
+                hist_year = self._year_after_case_history_signal(text, start, end)
+                if hist_year:
+                    return _ret(hist_year, "case_history_forward_paren", "high")
                 # Strategy 1a: Neutral/Ohio citation format (e.g. 2006-Ohio-4854) in text BEFORE citation
                 # Prefer this over parenthetical years that may be from nested "(citing ... (9th Cir. 1981))"
                 # Support unicode hyphens (PDFs often use \u2011, \u2013, \u2014)
@@ -5061,11 +5135,13 @@ class UnifiedCitationProcessorV2:
                         ] if (citation.citation or "") in before_citing else ""
                         if not _has_intervening_citation_noise(text_between):
                             if not (int(span_match.group(1)) >= 2000 and _reporter_suggests_old_case(cit_text)):
-                                return _ret(span_match.group(1), "citation_span_before_semi", "high")
+                                if not _bridge_suggests_agency_footnote_year(text_between):
+                                    return _ret(span_match.group(1), "citation_span_before_semi", "high")
                 if imm and 1990 <= int(imm.group(1)) <= 2030:
                     before_semi = context_after.split(';')[0]
                     if re.search(r'\(\d{4}\)', before_semi) and not re.search(r'\(citing\b', before_semi, re.IGNORECASE):
-                        return _ret(imm.group(1), "citation_immediate_parenthetical", "high")
+                        if not _bridge_suggests_agency_footnote_year(context_after[: imm.start()]):
+                            return _ret(imm.group(1), "citation_immediate_parenthetical", "high")
                 # Find ALL parenthetical years ending in ####) — Bluebook decision years, not bare "2015" in prose.
                 # CRITICAL: Prefer the year CLOSEST to the citation (min start pos) to avoid borrowing
                 # from a subsequent citation (e.g. Chalkley 143 S.E. 631 (1928) ... Mack (2016) -> use 1928)
@@ -5076,6 +5152,8 @@ class UnifiedCitationProcessorV2:
                     if 1700 <= int(year) <= 2030:
                         bridge = context_after[:m.start()]
                         if _has_intervening_citation_noise(bridge):
+                            continue
+                        if _bridge_suggests_agency_footnote_year(bridge):
                             continue
                         preceding = context_after[:m.start()]
                         if re.search(r'Cite\s+as:', preceding, re.IGNORECASE):
@@ -6729,6 +6807,11 @@ class UnifiedCitationProcessorV2:
                         self._harmonize_trailing_year_in_extracted_case_name(
                             citation, wl_y_harm.group(1)
                         )
+                    _md_hist = getattr(citation, "metadata", None) or {}
+                    if _md_hist.get("extracted_date_source") == "case_history_forward_paren":
+                        _yfix = str(getattr(citation, "extracted_date", "") or "").strip()
+                        if _yfix.isdigit() and len(_yfix) == 4:
+                            self._harmonize_trailing_year_in_extracted_case_name(citation, _yfix)
                     self._repair_known_reporter_glitches(citation)
                     # Reject quote/sentence misidentified as case name (e.g. "Time and again, the Supreme Court has said no")
                     # But NOT for inline-extracted names (physically embedded in citation text)
@@ -7824,15 +7907,31 @@ class UnifiedCitationProcessorV2:
                 # (canonical / cite paren) so wrong context extraction does not stick (e.g. Terazosin 2003 vs 2005).
                 if cluster_extracted_date:
                     year_s = str(cluster_extracted_date).strip()
-                    citation.extracted_date = year_s
-                    ecn = getattr(citation, "extracted_case_name", None) or ""
-                    if ecn and str(ecn).strip() and str(ecn).strip().upper() != "N/A":
-                        m_trail = re.search(
-                            r",\s*((?:19|20)\d{2})\s*$", str(ecn).strip()
+                    _md_skip = getattr(citation, "metadata", None) or {}
+                    _src = str(_md_skip.get("extracted_date_source") or "")
+                    _skip_cluster_date = _src in self._CLUSTER_SKIP_EXTRACTED_DATE_SOURCES
+                    if not _skip_cluster_date:
+                        _local_paren_y = self._decision_year_from_citation_paren(
+                            getattr(citation, "citation", "") or ""
                         )
-                        if m_trail and m_trail.group(1) != year_s:
-                            fixed = str(ecn).strip()[: m_trail.start()] + f", {year_s}"
-                            citation.extracted_case_name = self._clean_extracted_case_name(fixed)
+                        _cur_ed = str(getattr(citation, "extracted_date", "") or "").strip()
+                        if (
+                            _local_paren_y
+                            and _cur_ed
+                            and _local_paren_y != year_s
+                            and _src == "citation_paren_decision_year"
+                        ):
+                            _skip_cluster_date = True
+                    if not _skip_cluster_date:
+                        citation.extracted_date = year_s
+                        ecn = getattr(citation, "extracted_case_name", None) or ""
+                        if ecn and str(ecn).strip() and str(ecn).strip().upper() != "N/A":
+                            m_trail = re.search(
+                                r",\s*((?:19|20)\d{2})\s*$", str(ecn).strip()
+                            )
+                            if m_trail and m_trail.group(1) != year_s:
+                                fixed = str(ecn).strip()[: m_trail.start()] + f", {year_s}"
+                                citation.extracted_case_name = self._clean_extracted_case_name(fixed)
 
                 # USER FIX 2024-10-21: PRESERVE VERIFICATION DATA from clustering
                 # The clustering function verifies citations and sets verified/canonical data,

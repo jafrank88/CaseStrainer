@@ -17,6 +17,56 @@ from src.utils.verification_display_utils import (
 logger = logging.getLogger(__name__)
 
 
+# ---------------------------------------------------------------------------
+# Reporter spacing normalization — fixes hand-typed or OCR variants like
+# "U. S." → "U.S.", "F. 3d" → "F.3d" before sending to CourtListener.
+# Applied in normalize_citation_for_cl_lookup() before pattern extraction.
+# ---------------------------------------------------------------------------
+_REPORTER_NORM: List[tuple] = [
+    # U.S. Supreme Court  (note: no \b after terminal '.' — \b fails there since '.' is \W)
+    (re.compile(r"\bU\.\s+S\."),              "U.S."),
+    (re.compile(r"\bS\.\s+Ct\."),             "S. Ct."),
+    (re.compile(r"\bL\.\s+Ed\.\s+2d\b"),     "L. Ed. 2d"),
+    (re.compile(r"\bL\.\s+Ed\."),             "L. Ed."),
+    # Federal reporters (series)
+    (re.compile(r"\bF\.\s+4th\b"),            "F.4th"),
+    (re.compile(r"\bF\.\s+3d\b"),             "F.3d"),
+    (re.compile(r"\bF\.\s+2d\b"),             "F.2d"),
+    (re.compile(r"\bF\.\s+Supp\.\s+3d\b"),   "F. Supp. 3d"),
+    (re.compile(r"\bF\.\s+Supp\.\s+2d\b"),   "F. Supp. 2d"),
+    (re.compile(r"\bF\.\s+App[\u2019']?\s*x\b"), "F. App'x"),
+    # Pacific
+    (re.compile(r"\bP\.\s+3d\b"),             "P.3d"),
+    (re.compile(r"\bP\.\s+2d\b"),             "P.2d"),
+    # Atlantic
+    (re.compile(r"\bA\.\s+3d\b"),             "A.3d"),
+    (re.compile(r"\bA\.\s+2d\b"),             "A.2d"),
+    # N.E. / N.W.
+    (re.compile(r"\bN\.\s*E\.\s+3d\b"),      "N.E.3d"),
+    (re.compile(r"\bN\.\s*E\.\s+2d\b"),      "N.E.2d"),
+    (re.compile(r"\bN\.\s*W\.\s+3d\b"),      "N.W.3d"),
+    (re.compile(r"\bN\.\s*W\.\s+2d\b"),      "N.W.2d"),
+    # S.E. / S.W.
+    (re.compile(r"\bS\.\s*E\.\s+3d\b"),      "S.E.3d"),
+    (re.compile(r"\bS\.\s*E\.\s+2d\b"),      "S.E.2d"),
+    (re.compile(r"\bS\.\s*W\.\s+3d\b"),      "S.W.3d"),
+    (re.compile(r"\bS\.\s*W\.\s+2d\b"),      "S.W.2d"),
+    # Southern
+    (re.compile(r"\bSo\.\s+3d\b"),            "So.3d"),
+    (re.compile(r"\bSo\.\s+2d\b"),            "So.2d"),
+]
+
+
+def _normalize_reporter_spacing(citation: str) -> str:
+    """Fix common reporter spacing variants (e.g. "U. S." → "U.S.")."""
+    if not citation:
+        return citation
+    t = citation
+    for pattern, repl in _REPORTER_NORM:
+        t = pattern.sub(repl, t)
+    return t
+
+
 def extract_display_base_citation(text: Optional[str]) -> Optional[str]:
     """
     Extract base reporter citation (e.g. "422 U.S. 490") from full citation text.
@@ -29,33 +79,50 @@ def extract_display_base_citation(text: Optional[str]) -> Optional[str]:
         return None
 
     specific_patterns = [
-        (r"(\d+)\s+(Wn\.\s*App\.\s*[23]d)\s+(\d+)", r"\1 \2 \3"),
-        (r"(\d+)\s+(Wash\.\s*App\.\s*[23]d)\s+(\d+)", r"\1 \2 \3"),
-        (r"(\d+)\s+(Wn\.\s*[23]d)\s+(\d+)", r"\1 \2 \3"),
-        (r"(\d+)\s+(Wash\.\s*[23]d)\s+(\d+)", r"\1 \2 \3"),
-        (r"(\d+)\s+(F\.\s*Supp\.\s*[23]d)\s+(\d+)", r"\1 \2 \3"),
-        (r"(\d+)\s+(F\.\s*Supp\.)\s+(\d+)", r"\1 \2 \3"),
-        (r"(\d+)\s+(F\.\s*R\.\s*D\.)\s+(\d+)", r"\1 \2 \3"),
-        (r"(\d+)\s+(L\.\s*Ed\.\s*2d)\s+(\d+)", r"\1 \2 \3"),
-        (r"(\d+)\s+(S\.\s*Ct\.)\s+(\d+)", r"\1 \2 \3"),
-        (r"(\d+)\s+(F\.\s*App['\u2019]?x\.?)\s+(\d+)", r"\1 \2 \3"),
+        # U.S. Supreme Court reporters (most common in law school briefs)
+        (r"(\d+)\s+(U\.S\.?)\s+(\d+)",                    r"\1 U.S. \3"),
+        (r"(\d+)\s+(S\.\s*Ct\.)\s+(\d+)",                r"\1 \2 \3"),
+        (r"(\d+)\s+(L\.\s*Ed\.\s*2d)\s+(\d+)",           r"\1 \2 \3"),
+        (r"(\d+)\s+(L\.\s*Ed\.)\s+(\d+)",                r"\1 \2 \3"),
+        # Federal circuit reporters
+        (r"(\d+)\s+(F\.[234](?:th|d))\s+(\d+)",           r"\1 \2 \3"),
+        (r"(\d+)\s+(F\.\s*Supp\.\s*[23]d)\s+(\d+)",      r"\1 \2 \3"),
+        (r"(\d+)\s+(F\.\s*Supp\.)\s+(\d+)",              r"\1 \2 \3"),
+        (r"(\d+)\s+(F\.\s*R\.\s*D\.)\s+(\d+)",           r"\1 \2 \3"),
+        (r"(\d+)\s+(F\.\s*App['\u2019]?x\.?)\s+(\d+)",   r"\1 \2 \3"),
         (r"(\d+)\s+(Fed\.\s*App['\u2019]?x\.?)\s+(\d+)", r"\1 \2 \3"),
-        (r"(\d+)\s+(F\.[234](?:th|d))\s+(\d+)", r"\1 \2 \3"),
-        (r"(\d+)\s+(A\.[23]d)\s+(\d+)", r"\1 \2 \3"),
-        (r"(\d+)\s+(So\.\s*[23]d)\s+(\d+)", r"\1 \2 \3"),
-        (r"(\d+)\s+(N\.\s*[EW]\.\s*[23]d)\s+(\d+)", r"\1 \2 \3"),
-        (r"(\d+)\s+(S\.\s*[EW]\.\s*[23]d)\s+(\d+)", r"\1 \2 \3"),
-        (r"(\d+)\s+(P\.[23]d)\s+(\d+)", r"\1 \2 \3"),
+        (r"(\d+)\s+(B\.R\.)\s+(\d+)",                     r"\1 \2 \3"),
+        (r"(\d+)\s+(Fed\.\s*Cl\.)\s+(\d+)",              r"\1 \2 \3"),
+        (r"(\d+)\s+(Vet\.\s*App\.)\s+(\d+)",             r"\1 \2 \3"),
+        # Washington state reporters
+        (r"(\d+)\s+(Wn\.\s*App\.\s*[23]d)\s+(\d+)",     r"\1 \2 \3"),
+        (r"(\d+)\s+(Wash\.\s*App\.\s*[23]d)\s+(\d+)",   r"\1 \2 \3"),
+        (r"(\d+)\s+(Wn\.\s*[23]d)\s+(\d+)",             r"\1 \2 \3"),
+        (r"(\d+)\s+(Wash\.\s*[23]d)\s+(\d+)",           r"\1 \2 \3"),
+        (r"(\d+)\s+(Wn\.\s*App\.)\s+(\d+)",             r"\1 \2 \3"),
+        (r"(\d+)\s+(Wash\.\s*App\.)\s+(\d+)",           r"\1 \2 \3"),
+        (r"(\d+)\s+(Wash\.)\s+(\d+)",                    r"\1 \2 \3"),
+        # Regional reporters
+        (r"(\d+)\s+(A\.[23]d)\s+(\d+)",                  r"\1 \2 \3"),
+        (r"(\d+)\s+(So\.\s*[23]d)\s+(\d+)",              r"\1 \2 \3"),
+        (r"(\d+)\s+(N\.\s*[EW]\.\s*[23]d)\s+(\d+)",     r"\1 \2 \3"),
+        (r"(\d+)\s+(S\.\s*[EW]\.\s*[23]d)\s+(\d+)",     r"\1 \2 \3"),
+        (r"(\d+)\s+(P\.[23]d)\s+(\d+)",                  r"\1 \2 \3"),
+        # State-specific reporters
         (r"(\d+)\s+(Cal\.\s*(?:App\.\s*)?[234](?:th|d))\s+(\d+)", r"\1 \2 \3"),
-        (r"(\d+)\s+(Ohio\s+App\.\s*[23]d)\s+(\d+)", r"\1 \2 \3"),
-        (r"(\d+)\s+(N\.Y\.S\.\s*[23]d)\s+(\d+)", r"\1 \2 \3"),
-        (r"(\d+)\s+(A\.D\.\s*[23]d)\s+(\d+)", r"\1 \2 \3"),
-        (r"(\d+)\s+(N\.Y\.\s*[23]d)\s+(\d+)", r"\1 \2 \3"),
+        (r"(\d+)\s+(Ohio\s+App\.\s*[23]d)\s+(\d+)",     r"\1 \2 \3"),
+        (r"(\d+)\s+(N\.Y\.S\.\s*[23]d)\s+(\d+)",        r"\1 \2 \3"),
+        (r"(\d+)\s+(A\.D\.\s*[23]d)\s+(\d+)",           r"\1 \2 \3"),
+        (r"(\d+)\s+(N\.Y\.\s*[23]d)\s+(\d+)",           r"\1 \2 \3"),
     ]
     for pattern, repl in specific_patterns:
         m = re.search(pattern, t, re.IGNORECASE)
         if m:
-            return f"{m.group(1)} {m.group(2).strip()} {m.group(3)}"
+            if r"\2" in repl:
+                return f"{m.group(1)} {m.group(2).strip()} {m.group(3)}"
+            # Repl has a hard-coded reporter string (e.g. U.S.)
+            built = re.sub(pattern, repl, m.group(0), count=1, flags=re.IGNORECASE)
+            return built.strip()
 
     wl = re.search(r"(\d{4})\s+(WL|U\.?\s*S\.?\s*LEXIS|LEXIS)\s+(\d+)", t, re.IGNORECASE)
     if wl:
@@ -65,6 +132,46 @@ def extract_display_base_citation(text: Optional[str]) -> Optional[str]:
     if generic:
         return f"{generic.group(1)} {generic.group(2).strip()} {generic.group(3)}"
     return None
+
+
+def normalize_citation_for_cl_lookup(citation: Optional[str]) -> Optional[str]:
+    """
+    Prepare a citation string for the CourtListener batch citation-lookup API.
+
+    Steps:
+    1. Normalize common reporter spacing variants ("U. S." → "U.S.", "F. 3d" → "F.3d").
+    2. Strip (quoting ...) / (citing ...) parentheticals.
+    3. Extract clean vol-reporter-page via extract_display_base_citation.
+    4. If extraction still fails, strip trailing pinpoint pages and court/year
+       parentheticals and retry — catches "347 U.S. 483, 495 (1954)" edge cases.
+
+    Returns the cleaned string, or the spacing-normalized original if nothing matches.
+    """
+    if not citation or not isinstance(citation, str):
+        return citation
+    t = citation.strip()
+    if not t:
+        return citation
+    # Step 1: normalize reporter spacing variants
+    t = _normalize_reporter_spacing(t)
+    # Step 2: strip (quoting ...) / (citing ...) / (accord ...) parentheticals
+    t = re.sub(
+        r'\s*\(\s*(?:quoting|citing|quoted\s+in|cited\s+in|accord)\s.*$',
+        '', t, flags=re.IGNORECASE | re.DOTALL,
+    ).rstrip(' ,;')
+    # Step 3: try specific + generic pattern extraction
+    base = extract_display_base_citation(t)
+    if base:
+        return base
+    # Step 4: strip trailing pinpoint + court/year parenthetical, then retry.
+    # Handles: "347 U.S. 483, 495 (1954)" when the generic pattern somehow misses.
+    stripped = re.sub(r'(\d+\s+[A-Za-z][A-Za-z.\s]+?\s+\d+)[,\s]+[\d][\d\-\u2013\u2014]*.*$',
+                      r'\1', t, count=1).strip()
+    if stripped and stripped != t:
+        base2 = extract_display_base_citation(stripped)
+        if base2:
+            return base2
+    return t
 
 
 def _citation_display_merge_key(c: Dict[str, Any]) -> str:
@@ -349,6 +456,63 @@ def deduplicate_cluster_citations(citations: List[Dict[str, Any]]) -> List[Dict[
     return list(base_map.values()) + unparseable
 
 
+def _is_toa_section_citation_row(c: Dict[str, Any]) -> bool:
+    """True when citation is from the Table of Authorities / TOA block (duplicate of body cite)."""
+    md_raw = c.get("metadata")
+    if isinstance(md_raw, dict) and md_raw.get("in_toa_section"):
+        return True
+    blob = (
+        str(c.get("extracted_case_name") or "")
+        + " "
+        + str(c.get("citation") or "")
+        + " "
+        + str(c.get("context") or "")[:200]
+    )
+    return bool(
+        re.search(
+            r"TABLE\s+OF\s+AUTHORITIES|Federal\s+Cases(?:\s*[-]Continued)?|Cases\s*:\s*Page",
+            blob,
+            re.IGNORECASE,
+        )
+    )
+
+
+def deduplicate_toa_body_citation_rows(citations: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """
+    When the same reporter cite appears in TOA and in the body, keep body rows and drop TOA-only dupes.
+
+    Grouping uses :func:`_citation_display_merge_key` (Wash./Wn. variants collapse). Only removes
+    rows when at least one non-TOA occurrence exists for the same key. Preserves original list order.
+    """
+    if not citations or len(citations) < 2:
+        return citations
+
+    has_non_toa: set[str] = set()
+    for c in citations:
+        if not isinstance(c, dict):
+            continue
+        if _is_toa_section_citation_row(c):
+            continue
+        k = _citation_display_merge_key(c)
+        if k:
+            has_non_toa.add(k)
+
+    out: List[Dict[str, Any]] = []
+    dropped = 0
+    for c in citations:
+        if not isinstance(c, dict):
+            out.append(c)
+            continue
+        k = _citation_display_merge_key(c)
+        if k and _is_toa_section_citation_row(c) and k in has_non_toa:
+            dropped += 1
+            continue
+        out.append(c)
+    if dropped:
+        logger.info("[TOA-DEDUP] Removed %s TOA row(s) that duplicate body cites (merge-key groups)", dropped)
+    return out
+
+
 def _citation_keys_for_cluster(cluster: Dict[str, Any]) -> set[str]:
     """Set of citation core keys for this cluster (ASCII-normalized for consistent matching)."""
     keys: set[str] = set()
@@ -446,6 +610,34 @@ def _four_digit_year_from_val(val: Any) -> str:
     s = str(val or "").strip()
     m = re.search(r"\b(19\d{2}|20\d{2})\b", s)
     return m.group(1) if m else ""
+
+
+def per_citation_cluster_year(
+    citation_dict: Dict[str, Any], cluster: Optional[Dict[str, Any]] = None
+) -> Any:
+    """
+    Display year for a single citation row (may differ within a cluster).
+
+    When a cluster merges district and appellate cites for one dispute, the cluster-level
+    ``cluster_year`` follows the primary cite; each row should still show that cite's own
+    canonical or document-extracted year.
+    """
+    cluster = cluster or {}
+    if (
+        citation_dict.get("verified")
+        and citation_dict.get("canonical_url")
+        and citation_dict.get("canonical_date")
+    ):
+        return citation_dict.get("canonical_date")
+    y = _citation_local_year(citation_dict)
+    if y:
+        ed = str(citation_dict.get("extracted_date") or "").strip()
+        if ed:
+            m_ed = re.search(r"\b(19\d{2}|20\d{2})\b", ed)
+            if m_ed and m_ed.group(1) == y:
+                return citation_dict.get("extracted_date")
+        return y
+    return cluster.get("cluster_year")
 
 
 def _citation_local_year(c: Dict[str, Any]) -> str:
@@ -1436,7 +1628,7 @@ def compute_cluster_sections(clusters: List[Dict[str, Any]]) -> Dict[str, List[s
             continue
 
         # All clusters without any citation having a non-Google canonical URL -> unverified,
-        # unless every citation is informational-only (WL/LEXIS or statute/code/rule refs).
+        # unless every citation is informational-only (WL/LEXIS or secondary non-case refs).
         if not _cluster_has_real_url(cl, cits):
             material_cits = [c for c in cits if isinstance(c, dict)]
             if material_cits and all(_is_informational_unverified(c) for c in material_cits):

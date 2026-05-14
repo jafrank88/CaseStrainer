@@ -187,6 +187,9 @@ def _looks_truncated_extracted_name(name: Optional[str]) -> bool:
         return False
     left = parts[0].strip()
     left_lower = left.lower()
+    # Plaintiff side ends with "&" but no following party (Hruska & Co. -> "Hruska &")
+    if left.rstrip().endswith("&"):
+        return True
     # Original: bare entity-suffix token
     if left_lower in _TRUNCATED_PARTY_PREFIXES:
         return True

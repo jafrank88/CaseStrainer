@@ -474,8 +474,9 @@ def format_analyze_success_response(result, request_id, metadata, start_time):
                 continue
             if cl.get("cluster_case_name"):
                 c["cluster_case_name"] = cl.get("cluster_case_name")
-            if cl.get("cluster_year") is not None:
-                c["cluster_year"] = cl.get("cluster_year")
+            from src.utils.response_enrichment import per_citation_cluster_year
+
+            c["cluster_year"] = per_citation_cluster_year(c, cl)
             if cl.get("cluster_size") is not None:
                 c["cluster_size"] = cl.get("cluster_size")
     except Exception as _e:

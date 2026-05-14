@@ -66,6 +66,16 @@ def normalize_citation_text(citation: str) -> str:
         return citation or ""
     s = citation
     s = fix_f3d_volume_comma_glitch(s)
+    # Strip PDF bleed: prior line's "E.D.Mich.1985)" glued before "712 F.2d ..." (no space before year).
+    _bleed = re.compile(
+        r"^\s*(?:[A-Z]\.)+[A-Za-z]*\.?(?:19\d{2}|20\d{2})\)\s+(?=\d+\s+)",
+        re.IGNORECASE,
+    )
+    while True:
+        m = _bleed.match(s)
+        if not m:
+            break
+        s = s[m.end() :].lstrip()
     # TOA / line-wrap glue: Chapman v. California is 386 U.S. 18 (1967), not 188.
     s = re.sub(r"\b386\s+U\.\s*S\.\s+188\b", "386 U.S. 18", s, flags=re.IGNORECASE)
     # Nat' Life / Nat' L (split apostrophe) -> Nat'l
