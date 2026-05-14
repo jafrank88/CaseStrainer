@@ -114,6 +114,35 @@ def preprocess_extracted_text(text: str) -> str:
             f"{count1 + count2} endnote/footnote markers) ({original_length} -> {len(text)} chars)"
         )
 
+    # Strip OSCN "Citationize" citation index section.
+    # OSCN opinions append a citation table that eyecite misreads as real in-text citations,
+    # producing false-positive case cards and broken clusters.
+    # Pattern A: "Citationize" is OSCN's proprietary label — safe to strip everything after it.
+    oscn_m = re.search(r'(?:^|\n)\s*Citationize\b', text, re.IGNORECASE)
+    if oscn_m:
+        stripped = len(text) - oscn_m.start()
+        text = text[:oscn_m.start()].rstrip()
+        logger.info(f"[PREPROCESSING] Removed OSCN Citationize section ({stripped} chars)")
+    else:
+        # Pattern B fallback: "Cite Name Level" column header immediately followed by
+        # an OK-reporter citation — this combination cannot appear in genuine brief text.
+        oscn_m2 = re.search(
+            r'\bCite\s+Name\s+Level\b\s{0,20}\d+\s+(?:OK\b|P\.\s*\d?d\s)',
+            text, re.IGNORECASE
+        )
+        if oscn_m2:
+            # Walk back up to 300 chars to find the enclosing section header and strip from there.
+            preamble_start = max(0, oscn_m2.start() - 300)
+            preamble = text[preamble_start:oscn_m2.start()]
+            hdr = re.search(
+                r'\b(?:Oklahoma\s+(?:Supreme|Court|Civil)|Court\s+Cases|Citationize)\b',
+                preamble, re.IGNORECASE
+            )
+            strip_from = preamble_start + hdr.start() if hdr else oscn_m2.start()
+            stripped = len(text) - strip_from
+            text = text[:strip_from].rstrip()
+            logger.info(f"[PREPROCESSING] Removed OSCN citation table via 'Cite Name Level' pattern ({stripped} chars)")
+
     # Clean up whitespace created by removals. Preserve newlines - collapsing all \s+ to space
     # can merge lines and break citation parsing / date extraction (regression: fewer citations).
     text = re.sub(r"[ \t]+", " ", text)  # Collapse horizontal whitespace only
@@ -483,6 +512,7 @@ def fetch_url_content(url: str) -> str:
                 logger.info(
                     f"[OK] Extracted text from {'HTML' if 'html' in content_type else 'XML'}: {len(text)} characters"
                 )
+                text = preprocess_extracted_text(text)
                 return text
             except Exception as e:
                 logger.warning(f"Failed to parse {'HTML' if 'html' in content_type else 'XML'} with BeautifulSoup: {e}")

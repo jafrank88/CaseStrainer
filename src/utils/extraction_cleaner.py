@@ -56,6 +56,31 @@ def _math_symbol_to_ascii(c: str) -> Optional[str]:
     return None
 
 
+def repair_stray_reporter_page_digit_glitch(citation: str) -> str:
+    """
+    Drop a spurious single digit between reporter and a 3-digit page when the page is in a
+    high triple-digit band (common PDF/OCR split like ``119 Cal. Rptr. 3d 9 925`` -> ``925``).
+    Conservative: only F.3d and Cal. Rptr. 3d, only when the 3-digit page is 700-999.
+    """
+    if not citation or not isinstance(citation, str):
+        return citation or ""
+
+    def repl(m: re.Match) -> str:
+        vol, rep, a, b = m.group(1), m.group(2), m.group(3), m.group(4)
+        if len(a) == 1 and a.isdigit() and len(b) == 3 and b.isdigit():
+            n = int(b)
+            if 700 <= n <= 999:
+                return f"{vol} {rep} {b}"
+        return m.group(0)
+
+    return re.sub(
+        r"\b(\d+)\s+(F\.?\s*3d|Cal\.\s*Rptr\.\s*3d)\s+(\d)\s+(\d{3})\b",
+        repl,
+        citation,
+        flags=re.IGNORECASE,
+    )
+
+
 def normalize_citation_text(citation: str) -> str:
     """
     Normalize citation text for display: fix common abbreviations and truncation artifacts.
@@ -81,6 +106,8 @@ def normalize_citation_text(citation: str) -> str:
     # Nat' Life / Nat' L (split apostrophe) -> Nat'l
     s = re.sub(r"\bNat'\s+Life\b", "Nat'l", s, flags=re.IGNORECASE)
     s = re.sub(r"\bNat'\s+L\b", "Nat'l", s, flags=re.IGNORECASE)
+    # Repair OCR: stray single digit before a 3-digit F.3d / Cal. Rptr. 3d page (e.g. "9 925" -> "925").
+    s = repair_stray_reporter_page_digit_glitch(s)
     # Repair unbalanced parens: if more ( than ), append ) to balance
     open_count = s.count("(") - s.count(")")
     if open_count > 0:
@@ -625,6 +652,7 @@ __all__ = [
     "fix_pdf_titlecase_org_token_breaks",
     "fix_limited_partnership_abbrev_spacing",
     "fix_f3d_volume_comma_glitch",
+    "repair_stray_reporter_page_digit_glitch",
     "apply_pre_extraction_text_fixes",
     "merge_s_ct_page_split_in_string",
     "merge_s_ct_page_split_across_newline",

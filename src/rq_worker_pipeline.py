@@ -2728,7 +2728,7 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
                             logger.warning(f"[TASK:{task_id}] Memory cleanup failed: {mem_err}")
 
                     except Exception as pipeline_err:
-                        logger.error(f"[TASK:{task_id}] Pipeline processing failed: {pipeline_err}")
+                        logger.error(f"[TASK:{task_id}] Pipeline processing failed: {pipeline_err}", exc_info=True)
                         result = {
                             "status": "failed",
                             "task_id": task_id,
@@ -3308,6 +3308,8 @@ def run_citation_task(task_id: str, input_type: str, input_data: dict, logger=No
                             r"\d+\s+Iowa\s+\d+",
                             r"\d+\s+S\.D\.\s+\d+",
                             r"\d+\s+N\.D\.\s+\d+",
+                            r"\d{2,4}-\d{1,4}\s*\(La\.\s+App\.\s+[1-5](?:st|nd|rd|th)?\s+Cir\.\s+\d{1,2}/\d{1,2}/\d{2,4}\)",
+                            r"\d{2,4}-\d{1,4}\s*\(La\.\s+\d{1,2}/\d{1,2}/\d{2,4}\)",
                             r"\d+\s+La\.\s+App\.\s+\d+",
                             r"\d+\s+La\.\s+\d+",
                             r"\d+\s+Miss\.\s+App\.\s+\d+",

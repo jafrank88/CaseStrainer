@@ -1866,3 +1866,89 @@ def test_extract_date_skips_year_after_gao_bridge():
     c = CitationResult(citation=cite, start_index=start, end_index=end)
     year, src, conf = p._extract_date_from_context(doc, c, return_source=True)
     assert year is None or year != "2006"
+
+
+def test_is_weak_parallel_case_name_bare_surname():
+    from src.utils.cluster_display_utils import is_weak_parallel_case_name
+
+    assert is_weak_parallel_case_name("Twombly") is True
+    assert is_weak_parallel_case_name("Smith v. Jones") is False
+
+
+def test_annotate_mismatch_flags_sets_year_disputed_metadata():
+    from src.utils.mismatch_utils import annotate_mismatch_flags
+
+    cites = [
+        {
+            "extracted_case_name": "Sterling Drug, Inc. v. FTC",
+            "canonical_name": "Sterling Drug, Inc. v. FTC",
+            "extracted_date": "1967",
+            "canonical_date": "1966-01-01",
+            "verified": True,
+            "canonical_url": "https://www.courtlistener.com/opinion/123/x/",
+            "metadata": {},
+        }
+    ]
+    annotate_mismatch_flags(cites, [])
+    md = cites[0].get("metadata") or {}
+    assert md.get("year_disputed") is True
+    assert md.get("document_decision_year") == "1967"
+    assert md.get("canonical_decision_year") == "1966"
+
+
+def test_deduplicate_redundant_body_citations_keeps_stronger_row():
+    from src.utils.response_enrichment import deduplicate_redundant_body_citations
+
+    a = {
+        "citation": "550 U.S. 544",
+        "start_index": 100,
+        "verified": False,
+        "extracted_case_name": "N/A",
+        "metadata": {},
+    }
+    b = {
+        "citation": "550 U.S. 544",
+        "start_index": 5000,
+        "verified": True,
+        "extracted_case_name": "Iqbal v. Hasty",
+        "canonical_url": "https://www.courtlistener.com/opinion/1/x/",
+        "metadata": {},
+    }
+    out = deduplicate_redundant_body_citations([a, b])
+    assert len(out) == 1
+    assert out[0]["start_index"] == 5000
+
+
+def test_repair_stray_reporter_page_digit_glitch():
+    from src.utils.extraction_cleaner import repair_stray_reporter_page_digit_glitch
+
+    s = "119 Cal. Rptr. 3d 9 925 (1981)"
+    assert "9 925" not in repair_stray_reporter_page_digit_glitch(s)
+    assert "925" in repair_stray_reporter_page_digit_glitch(s)
+
+
+def test_promote_parallel_siblings_backfills_weak_extracted_name():
+    from src.utils.response_enrichment import promote_parallel_siblings_in_clusters
+
+    src = {
+        "citation": "550 U.S. 544",
+        "verified": True,
+        "extracted_case_name": "Bell Atlantic Corp. v. Twombly",
+        "canonical_name": "Bell Atlantic Corp. v. Twombly",
+        "canonical_date": "2007-01-01",
+        "canonical_url": "https://www.courtlistener.com/opinion/1/x/",
+        "extracted_date": "2007",
+    }
+    tgt = {
+        "citation": "127 S. Ct. 1955",
+        "verified": False,
+        "extracted_case_name": "Twombly",
+        "extracted_date": "2007",
+        "true_by_parallel": True,
+        "metadata": {"true_by_parallel": True},
+    }
+    cl = {"citations": [src, tgt]}
+    flat = [dict(src), dict(tgt)]
+    n = promote_parallel_siblings_in_clusters([cl], flat)
+    assert n >= 1
+    assert "Bell Atlantic" in (flat[1].get("extracted_case_name") or "")

@@ -360,7 +360,12 @@ class UnifiedVerificationMaster:
         
         # Step 1: CourtListener lookup
         logger.debug(f"[VERIFY] Trying CourtListener lookup for '{citation}'")
-        result = await self.courtlistener.verify(citation, timeout=timeout)
+        result = await self.courtlistener.verify(
+            citation,
+            timeout=timeout,
+            extracted_case_name=extracted_case_name,
+            extracted_date=extracted_date,
+        )
         
         if result.get("verified"):
             # Validate year match
@@ -588,6 +593,7 @@ class UnifiedVerificationMaster:
                         base_cit,
                         timeout=min(_remaining(), 10.0),
                         extracted_case_name=case_name,
+                        extracted_date=date,
                     )
                     if single and single.get("verified"):
                         gate_result = self._evaluate_two_point_gate(base_cit, case_name, date, single)

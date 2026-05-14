@@ -82,9 +82,6 @@ def is_citation_likely_valid(citation: str) -> bool:
     if "L. Rev." in citation or "Law Review" in citation or "L. J." in citation:
         return False
 
-    # Skip non-case citations like statutes, codes, etc.
-    if any(x in citation.upper() for x in ["U.S.C.", "CODE", "STAT.", "REG.", "F.R.", "C.F.R."]):
-        return False
     if is_non_case_legal_reference(citation):
         return False
 

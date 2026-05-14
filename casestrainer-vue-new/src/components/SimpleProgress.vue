@@ -8,6 +8,24 @@
       aria-atomic="true"
     >
       <div class="progress-card">
+
+        <!-- Queue Position Banner (shown while job waits in Redis queue) -->
+        <div v-if="queueInfo" class="queue-banner">
+          <div class="queue-banner-icon">
+            <i class="bi bi-hourglass-split" aria-hidden="true"></i>
+          </div>
+          <div class="queue-banner-body">
+            <strong>Your brief is in the queue.</strong>
+            <span v-if="queueInfo.position >= 0">
+              Position <strong>{{ queueInfo.position + 1 }}</strong>
+              <span v-if="queueInfo.queueTotal"> of {{ queueInfo.queueTotal }}</span>
+            </span>
+            <span v-if="queueInfo.estimatedWaitHuman" class="queue-eta">
+              — estimated wait: <strong>{{ queueInfo.estimatedWaitHuman }}</strong>
+            </span>
+          </div>
+        </div>
+
         <!-- Main Progress Bar -->
         <div v-if="!hasError" class="progress-section">
           <div class="progress-center-text">
@@ -80,6 +98,9 @@ const isComplete = ref(false)
 const isTimeout = computed(() => {
   return globalProgress.progressState.isTimeout || false
 })
+
+// Queue position info from store
+const queueInfo = computed(() => globalProgress.progressState.queueInfo || null)
 
 // Timers
 let elapsedTimer = null
@@ -432,6 +453,40 @@ onUnmounted(() => {
 
 .stat-item i {
   font-size: 1rem;
+}
+
+.queue-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.85rem 1rem;
+  margin-bottom: 1.25rem;
+  background: #fff8e1;
+  border: 1px solid #ffe082;
+  border-left: 4px solid #f9a825;
+  border-radius: 8px;
+  font-size: 0.925rem;
+  color: #5d4037;
+  line-height: 1.5;
+}
+
+.queue-banner-icon {
+  font-size: 1.25rem;
+  color: #f9a825;
+  flex-shrink: 0;
+  padding-top: 0.1rem;
+}
+
+.queue-banner-body {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.5rem;
+  align-items: center;
+}
+
+.queue-eta {
+  color: #795548;
 }
 
 .error-section {

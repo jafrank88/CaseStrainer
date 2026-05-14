@@ -513,6 +513,66 @@ def deduplicate_toa_body_citation_rows(citations: List[Dict[str, Any]]) -> List[
     return out
 
 
+def deduplicate_redundant_body_citations(citations: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """
+    When the same reporter cite (merge key) appears multiple times outside the TOA, keep one row.
+
+    Keeps the strongest row (verified, URL, good extracted name) with tie-break earliest
+    ``start_index`` in the document.
+    """
+    if not citations or len(citations) < 2:
+        return citations
+    try:
+        from src.config import get_bool_config_value
+
+        if not get_bool_config_value("ENABLE_BODY_CITATION_DEDUP", True):
+            return citations
+    except Exception:
+        pass
+
+    from collections import defaultdict
+
+    buckets: Dict[str, List[int]] = defaultdict(list)
+    for i, c in enumerate(citations):
+        if not isinstance(c, dict):
+            continue
+        if _is_toa_section_citation_row(c):
+            continue
+        k = _citation_display_merge_key(c)
+        if k:
+            buckets[k].append(i)
+
+    remove: set[int] = set()
+    for _k, idxs in buckets.items():
+        if len(idxs) < 2:
+            continue
+
+        def _row_key(i: int) -> tuple:
+            c = citations[i]
+            s = 0
+            if c.get("verified"):
+                s += 4
+            if c.get("true_by_parallel") is True or c.get("true_by_parallel") == "true":
+                s += 2
+            if " v. " in (c.get("extracted_case_name") or ""):
+                s += 1
+            if (c.get("canonical_url") or c.get("url") or "").strip():
+                s += 1
+            si = int(c.get("start_index") or 0)
+            return (s, -si)
+
+        best = max(idxs, key=_row_key)
+        for i in idxs:
+            if i != best:
+                remove.add(i)
+
+    if not remove:
+        return citations
+    out = [c for i, c in enumerate(citations) if i not in remove]
+    logger.info("[BODY-DEDUP] Removed %s duplicate body cite row(s) (merge-key groups)", len(remove))
+    return out
+
+
 def _citation_keys_for_cluster(cluster: Dict[str, Any]) -> set[str]:
     """Set of citation core keys for this cluster (ASCII-normalized for consistent matching)."""
     keys: set[str] = set()
@@ -874,8 +934,25 @@ def merge_clusters_by_shared_citation(clusters: List[Dict[str, Any]]) -> List[Di
     Catches duplicates like "Erickson v. Pharmacia LLC, 2025" and "Kerry L. Erickson v. Pharmacia, 2024"
     when both cite 31 Wn. App. 2d 100 - same case, different extraction noise.
     """
+    import time
+
+    from src.utils.cluster_stage_timing import cluster_stage_timing_enabled, log_cluster_stage
+
+    _t0 = time.perf_counter()
+    _n_in = len(clusters) if clusters else 0
+
+    def _done(res: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        if cluster_stage_timing_enabled():
+            log_cluster_stage(
+                "merge_clusters_by_shared_citation",
+                _t0,
+                clusters_in=_n_in,
+                clusters_out=len(res) if res else 0,
+            )
+        return res
+
     if not clusters or len(clusters) <= 1:
-        return clusters
+        return _done(clusters)
     from collections import defaultdict
     from src.pipeline.clustering import merge_cluster_group
 
@@ -957,8 +1034,8 @@ def merge_clusters_by_shared_citation(clusters: List[Dict[str, Any]]) -> List[Di
         clusters[comp[0]] = merged
 
     if not to_remove:
-        return clusters
-    return [c for i, c in enumerate(clusters) if i not in to_remove and isinstance(c, dict)]
+        return _done(clusters)
+    return _done([c for i, c in enumerate(clusters) if i not in to_remove and isinstance(c, dict)])
 
 
 def merge_clusters_by_scotus_parallel_reporters(
@@ -1117,6 +1194,8 @@ def promote_parallel_siblings_in_clusters(
     from src.utils.post_verify_split import reporter_tier
     from src.utils.same_case import names_are_same_case
 
+    from src.utils.cluster_display_utils import is_weak_parallel_case_name
+
     def _real_case_url(c: Dict[str, Any]) -> bool:
         u = (c.get("canonical_url") or c.get("url") or "").strip()
         if not u:
@@ -1164,7 +1243,8 @@ def promote_parallel_siblings_in_clusters(
                     continue
                 if tgt.get("verified") is True:
                     continue
-                if tgt.get("true_by_parallel") is True or tgt.get("true_by_parallel") == "true":
+                prev_tbp = tgt.get("true_by_parallel") is True or tgt.get("true_by_parallel") == "true"
+                if prev_tbp and not is_weak_parallel_case_name(tgt.get("extracted_case_name") or ""):
                     continue
                 tgt_txt = (tgt.get("citation") or tgt.get("text") or "").strip()
                 if not tgt_txt or tgt_txt == src_txt:
@@ -1180,33 +1260,53 @@ def promote_parallel_siblings_in_clusters(
                 n_tgt = _cit_label(tgt) or cluster_fallback
                 if not n_tgt:
                     continue
-                if not names_are_same_case(n_src, n_tgt):
-                    continue
+                ext_tgt = (tgt.get("extracted_case_name") or "").strip()
+                weak_ext = is_weak_parallel_case_name(ext_tgt)
+                if not weak_ext:
+                    if not names_are_same_case(n_src, n_tgt):
+                        continue
                 y_tgt = _cit_year(tgt)
                 if y_src and y_tgt and y_src != y_tgt:
                     continue
-                tgt["true_by_parallel"] = True
-                tgt["verification_status"] = "verified_by_parallel"
-                md_raw = tgt.get("metadata")
-                md: Dict[str, Any] = dict(md_raw) if isinstance(md_raw, dict) else {}
-                md["true_by_parallel"] = True
-                tgt["metadata"] = md
-                if src.get("canonical_name") and not tgt.get("canonical_name"):
-                    tgt["canonical_name"] = src.get("canonical_name")
-                if src.get("canonical_date") and not tgt.get("canonical_date"):
-                    tgt["canonical_date"] = src.get("canonical_date")
-                if src.get("canonical_url") and not tgt.get("canonical_url"):
-                    tgt["canonical_url"] = src.get("canonical_url")
-                if src.get("url") and not tgt.get("url"):
-                    tgt["url"] = src.get("url")
+
+                changed = not prev_tbp
+                if not prev_tbp:
+                    tgt["true_by_parallel"] = True
+                    tgt["verification_status"] = "verified_by_parallel"
+                    md_raw = tgt.get("metadata")
+                    md: Dict[str, Any] = dict(md_raw) if isinstance(md_raw, dict) else {}
+                    md["true_by_parallel"] = True
+                    tgt["metadata"] = md
+                    if src.get("canonical_name") and not tgt.get("canonical_name"):
+                        tgt["canonical_name"] = src.get("canonical_name")
+                    if src.get("canonical_date") and not tgt.get("canonical_date"):
+                        tgt["canonical_date"] = src.get("canonical_date")
+                    if src.get("canonical_url") and not tgt.get("canonical_url"):
+                        tgt["canonical_url"] = src.get("canonical_url")
+                    if src.get("url") and not tgt.get("url"):
+                        tgt["url"] = src.get("url")
+
+                src_ecn = (src.get("extracted_case_name") or "").strip()
+                if (
+                    src_ecn
+                    and src_ecn != "N/A"
+                    and not is_weak_parallel_case_name(src_ecn)
+                    and is_weak_parallel_case_name(ext_tgt)
+                ):
+                    tgt["extracted_case_name"] = src_ecn
+                    changed = True
+                if not changed:
+                    continue
+
                 promoted[tgt_txt] = {
-                    "true_by_parallel": True,
-                    "verification_status": "verified_by_parallel",
+                    "true_by_parallel": tgt.get("true_by_parallel"),
+                    "verification_status": tgt.get("verification_status"),
                     "canonical_name": tgt.get("canonical_name"),
                     "canonical_date": tgt.get("canonical_date"),
                     "canonical_url": tgt.get("canonical_url"),
                     "url": tgt.get("url"),
                     "metadata": tgt.get("metadata"),
+                    "extracted_case_name": tgt.get("extracted_case_name"),
                 }
                 count += 1
 

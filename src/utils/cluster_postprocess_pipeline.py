@@ -226,6 +226,28 @@ def _split_clusters_by_conflicting_urls(
             result.append(cl)
             continue
         bid = cl.get("cluster_id", "c0")
+        # If every URL group resolves to the same canonical case (same name + date),
+        # do NOT split — they are parallel opinion records for the same decision
+        # (e.g. Maree v. Neuwirth 2016 OK 62 and 374 P.3d 750 both verify as MAREE v. NEUWIRTH 2016
+        # but to different CourtListener opinion IDs).
+        all_canonical_names = set()
+        all_canonical_dates = set()
+        for grp in url_groups.values():
+            for c in grp:
+                n = (c.get("canonical_name") or "").strip().lower()
+                d = str(c.get("canonical_date") or "").strip()
+                if n:
+                    all_canonical_names.add(n)
+                if d:
+                    all_canonical_dates.add(d)
+        if len(all_canonical_names) <= 1 and len(all_canonical_dates) <= 1:
+            logger.info(
+                f"[URL-SPLIT-{run_id}] '{bid}' skipping split — all {len(url_groups)} URLs "
+                f"resolve to the same case ({next(iter(all_canonical_names), '?')}, "
+                f"{next(iter(all_canonical_dates), '?')})"
+            )
+            result.append(cl)
+            continue
         logger.info(
             f"[URL-SPLIT-{run_id}] '{bid}' has {len(url_groups)} distinct canonical URLs — splitting"
         )

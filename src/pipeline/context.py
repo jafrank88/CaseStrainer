@@ -7,20 +7,8 @@ logger = logging.getLogger(__name__)
 
 
 def _is_statute_name(name: str) -> bool:
-    """Return True if name is a statute/act (e.g. Administrative Procedure Act), not a case name."""
-    if not name or len(name.strip()) < 5:
-        return False
-    n = name.strip().lower()
-    if not n.endswith((" act", " code", " statute", " regulation", " rule")):
-        return False
-    statute_phrases = [
-        "administrative procedure",
-        "freedom of information",
-        "civil rights",
-        "voting rights",
-        "fair housing",
-    ]
-    return any(p in n for p in statute_phrases)
+    """Reserved; statute/act title detection disabled (case-law scope)."""
+    return False
 
 
 _GENERIC_FALLBACK_NAMES = [

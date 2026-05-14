@@ -271,6 +271,10 @@ class TestBlobSplitting1031351:
         result = proc._fix_concatenated_page_numbers("82961 P.3d 1196")
         assert "61 P.3d" in result
 
+    def test_fix_concatenated_us_1078_not_split_to_10(self, proc):
+        """4-digit first pages <=1500 (e.g. Comedy III, 534 U.S. 1078) must not split as 10+xx."""
+        assert proc._fix_concatenated_page_numbers("534 U.S. 1078 (2001)") == "534 U.S. 1078 (2001)"
+
     def test_normalize_baker_volume_not_split(self, proc):
         """551 P.3d is a valid volume — should NOT be split."""
         result = proc._normalize_citation_comprehensive("551 P.3d 655")

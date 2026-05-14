@@ -58,7 +58,9 @@ const progressState = reactive({
   lastSseUpdateMs: 0,
   sseThrottleMs: 1000,
   // Cap for heuristic: bar must reflect backend progress, not polling/time
-  maxProgressFromBackend: null
+  maxProgressFromBackend: null,
+  // Queue position info (set when job status is 'queued')
+  queueInfo: null  // { position, queueTotal, estimatedWaitSeconds, estimatedWaitHuman, queuedSeconds }
 });
 
 export function useUnifiedProgress() {
@@ -431,17 +433,25 @@ export function useUnifiedProgress() {
     });
   };
 
+  const setQueueInfo = (info) => {
+    progressState.queueInfo = info ? { ...info } : null;
+  };
+
+  const clearQueueInfo = () => {
+    progressState.queueInfo = null;
+  };
+
   const resetProgress = () => {
-    console.log('Resetting progress state');
+    console.log('Resetting progress state')
     
     // Stop any active EventSource connections
     if (progressState.verificationStream) {
-      console.log('Closing verification stream during reset');
-      progressState.verificationStream.close();
-      progressState.verificationStream = null;
+      console.log('Closing verification stream during reset')
+      progressState.verificationStream.close()
+      progressState.verificationStream = null
     }
     // Stop heuristic timer as well
-    stopHeuristicTimer();
+    stopHeuristicTimer()
     
     Object.assign(progressState, {
       isActive: false,
@@ -465,7 +475,8 @@ export function useUnifiedProgress() {
       uploadData: null,
       hasResults: false,
       resultData: null,
-      lastSseUpdateMs: 0
+      lastSseUpdateMs: 0,
+      queueInfo: null
     });
   };
 
@@ -733,6 +744,8 @@ export function useUnifiedProgress() {
     completeProgress,
     resetProgress,
     retryProgress,
+    setQueueInfo,
+    clearQueueInfo,
     
       // Route-scoped results
   getResultsForRoute,

@@ -330,6 +330,8 @@ def annotate_mismatch_flags(
         for cit in citations or []:
             if not isinstance(cit, dict):
                 continue
+            md: Dict[str, Any] = dict(cit.get("metadata") or {}) if isinstance(cit.get("metadata"), dict) else {}
+
             extracted = cit.get("extracted_case_name")
             canonical = cit.get("canonical_name")
             verified = bool(cit.get("verified"))
@@ -345,9 +347,6 @@ def annotate_mismatch_flags(
                 name_mismatch = bool(extracted and canonical and sim < name_threshold)
 
             # Date mismatch with year-source awareness.
-            # - Prefer backend-provided comparison year + mismatch type when present.
-            # - Soft mismatches are informational only and should not raise a date warning.
-            md = cit.get("metadata") or {}
             mismatch_type = (md.get("year_mismatch_type") or "").lower()
             if mismatch_type == "soft":
                 date_mismatch = False
@@ -361,6 +360,41 @@ def annotate_mismatch_flags(
                 )
                 date_mismatch = not is_valid if (cit.get("extracted_date") and compare_year) else False
 
+            def _yr4_local(val: Any) -> str:
+                m = re.search(r"\b(19\d{2}|20\d{2})\b", str(val or ""))
+                return m.group(1) if m else ""
+
+            u = str(canonical_url or cit.get("url") or "").strip().lower()
+            real_url = bool(u) and "google.com/search" not in u
+            eff_ver = bool(
+                verified
+                or cit.get("true_by_parallel") is True
+                or cit.get("true_by_parallel") == "true"
+                or cit.get("is_verified")
+            )
+            if eff_ver and real_url and (canonical or cit.get("canonical_date")):
+                doc_y = (
+                    _yr4_local(cit.get("extracted_date"))
+                    or _yr4_local(md.get("year"))
+                    or _yr4_local(cit.get("citation"))
+                )
+                can_y = _yr4_local(cit.get("canonical_date"))
+                if doc_y and can_y and doc_y != can_y:
+                    md["year_disputed"] = True
+                    md["document_decision_year"] = doc_y
+                    md["canonical_decision_year"] = can_y
+                    md["year_dispute_note"] = (
+                        f"Document year {doc_y} differs from verified opinion year {can_y}."
+                    )
+            try:
+                from src.config import get_bool_config_value
+
+                if get_bool_config_value("PREFER_DOCUMENT_YEAR_FOR_DISPLAY", False) and md.get("year_disputed"):
+                    md["display_year_preference"] = "document"
+            except Exception:
+                pass
+
+            cit["metadata"] = md
             cit["name_mismatch"] = name_mismatch
             cit["date_mismatch"] = date_mismatch
             if cit.get("verified") and name_mismatch:

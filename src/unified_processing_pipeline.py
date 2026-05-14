@@ -64,6 +64,7 @@ from src.utils.case_name_utils import (
 from src.utils.same_case import extracted_matches_canonical_for_contamination_log
 from src.utils.response_enrichment import (
     deduplicate_toa_body_citation_rows,
+    deduplicate_redundant_body_citations,
     per_citation_cluster_year,
     _four_digit_year_from_val,
 )
@@ -651,6 +652,13 @@ class UnifiedProcessingPipeline:
                     f"[PIPELINE-{context.trace_id}] TOA/body dedup: {_pre_toa_dedup} -> {len(citation_dicts)} citations"
                 )
 
+            _pre_body_dedup = len(citation_dicts)
+            citation_dicts = deduplicate_redundant_body_citations(citation_dicts)
+            if len(citation_dicts) < _pre_body_dedup:
+                logger.info(
+                    f"[PIPELINE-{context.trace_id}] Body cite dedup: {_pre_body_dedup} -> {len(citation_dicts)} citations"
+                )
+
             # TOA anchor repair (OCR-tolerant): if the document contains "Name v. Name, CITE (YYYY)",
             # prefer that binding to prevent TOA neighbor bleed.
             try:
@@ -683,6 +691,7 @@ class UnifiedProcessingPipeline:
             except Exception as _toa_fix_err:
                 logger.warning(f"[TOA-ANCHOR] Skipped TOA repairs due to error: {_toa_fix_err}")
 
+            _t_ic = time.perf_counter()
             # Use clustering master to get proper clusters with all required fields
             # CRITICAL FIX: Ensure clusters are always returned, even if clustering fails
             clusters = []
@@ -752,6 +761,19 @@ class UnifiedProcessingPipeline:
                 clustering_source = "fallback_parallel_citations_forced"
                 clusters = self._create_clusters_from_parallel_citations(citation_dicts)
 
+            try:
+                from src.utils.cluster_stage_timing import log_cluster_stage
+
+                log_cluster_stage(
+                    "initial_clustering",
+                    _t_ic,
+                    cites=len(citation_dicts),
+                    clusters=len(clusters),
+                    source=str(clustering_source),
+                )
+            except Exception:
+                logger.debug("cluster stage timing log failed", exc_info=True)
+
             logger.info(f"[CLUSTERING-TRACE] Final source: {clustering_source}, clusters: {len(clusters)}")
             # DEBUG: Log first cluster's fields
             if clusters:
@@ -777,6 +799,7 @@ class UnifiedProcessingPipeline:
                     cluster_verified = any(is_citation_verified(cit) for cit in citations if cit)
                     cluster["verified"] = cluster_verified
 
+            _t_ms = time.perf_counter()
             # FIX DEC 2025: ALWAYS merge clusters with same canonical_name to reduce duplicates
             # This catches cases like Clarke v. Tri-Cities appearing 4 times
             clusters = self._merge_clusters_by_canonical_name(clusters)
@@ -787,6 +810,17 @@ class UnifiedProcessingPipeline:
             # Apply post-verify structural splits (court-tier/WL/canonical) consistently in sync path.
             clusters = self._apply_post_verify_cluster_splits(clusters, trace_id=context.trace_id)
             context.metadata["cluster_count"] = len(clusters)
+            try:
+                from src.utils.cluster_stage_timing import log_cluster_stage
+
+                log_cluster_stage(
+                    "merge_split_postverify",
+                    _t_ms,
+                    cites=len(citation_dicts),
+                    clusters=len(clusters),
+                )
+            except Exception:
+                logger.debug("cluster stage timing log failed", exc_info=True)
 
             # CRITICAL FIX: Resolve placeholder citations by matching to verified citations
             # Placeholders (e.g., "594 U.S. ____") are matched based on case name + year similarity
@@ -875,7 +909,8 @@ class UnifiedProcessingPipeline:
 
             pre_filter_citation_dicts = list(citation_dicts)
             pre_filter_clusters = [dict(cluster) if isinstance(cluster, dict) else cluster for cluster in clusters]
-            
+
+            _t_filt = time.perf_counter()
             # Filter citations within each cluster
             filtered_clusters = []
             for cluster in clusters:
@@ -903,6 +938,18 @@ class UnifiedProcessingPipeline:
                     filtered_clusters.append(cluster)
             
             clusters = filtered_clusters
+
+            try:
+                from src.utils.cluster_stage_timing import log_cluster_stage
+
+                log_cluster_stage(
+                    "cluster_shortform_filter",
+                    _t_filt,
+                    cites=len(citation_dicts),
+                    clusters=len(clusters),
+                )
+            except Exception:
+                logger.debug("cluster stage timing log failed", exc_info=True)
 
             # FILTER: Also remove Id. and short-form citations from the main citations list
             original_count = len(citation_dicts)
@@ -1992,6 +2039,7 @@ class UnifiedProcessingPipeline:
 
         logger.info(f"[PIPELINE] Created {len(final_clusters)} clusters from parallel_citations metadata")
 
+        _t_post = time.perf_counter()
         # POST-PROCESSING: Run shared-citation merge FIRST (strongest signal - same citation = same case)
         # Catches "Erickson v. Pharmacia 2025" + "Kerry L. Erickson v. Pharmacia 2024" when both cite 31 Wn. App. 2d 100
         try:
@@ -2072,6 +2120,18 @@ class UnifiedProcessingPipeline:
                 logger.info(f"[PIPELINE] Cluster parallel promotion: {_npp} citation(s) marked true_by_parallel")
         except Exception as e_prom:
             logger.warning(f"[PIPELINE] Cluster parallel promotion skipped: {e_prom}")
+
+        try:
+            from src.utils.cluster_stage_timing import log_cluster_stage
+
+            log_cluster_stage(
+                "parallel_fallback_postprocess",
+                _t_post,
+                cites=len(citation_dicts),
+                clusters=len(final_clusters),
+            )
+        except Exception:
+            logger.debug("cluster stage timing log failed", exc_info=True)
 
         return final_clusters
 

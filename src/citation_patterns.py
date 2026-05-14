@@ -298,6 +298,18 @@ class CitationPatterns:
     LA_GENERAL = r"\b\d+\s+La\.\s+\d+\b"  # Louisiana Reports
     LA_APP_GENERAL = r"\b\d+\s+La\.\s*App\.\s+\d+\b"  # Louisiana Appellate Reports
 
+    # Louisiana public domain citations (post-1994, per LASC Part G Section 8)
+    # Required format; Southern Reporter is the mandatory parallel citation.
+    # Supreme Court:       98-0601 (La. 10/20/98)
+    # Court of Appeal:     21-433 (La. App. 3 Cir. 11/16/22) or (La. App. 3d Cir. 1/2/2022)
+    # Docket: YY-NNNN or YYYY-NNNN (ASCII or unicode hyphens); date: M/D/YY or MM/DD/YYYY
+    LA_PD_APP = (
+        r"\b\d{2,4}[\-\u2011\u2013\u2014]\d{1,4}\s*\(La\.\s+App\.\s+"
+        r"(?:1st|2d|3d|4th|5th|[1-5])\s+Cir\.\s+\d{1,2}/\d{1,2}/\d{2,4}\)"
+    )
+    # Allow optional space after La. (PDF: "La.10/20/98")
+    LA_PD_SC = r"\b\d{2,4}[\-\u2011\u2013\u2014]\d{1,4}\s*\(La\.\s*\d{1,2}/\d{1,2}/\d{2,4}\)"
+
     # ============================================================================
     # STATE REPORTERS - MISSOURI
     # ============================================================================
@@ -540,8 +552,10 @@ class CitationPatterns:
     NEUTRAL_NC = r"\b20\d{2}[\-\u2011\u2013\u2014]NC(?:SC|COA)[\-\u2011\u2013\u2014]\s*\d{1,5}\b"  # NC: 2024-NCSC-1, 2024-NCCOA-1
     #
     # Group 4: States that adopted but use non-standard or rarely-seen formats
-    # Louisiana: docket-based (09-1234 (La. 6/28/10)) — handled by existing patterns
-    # Pennsylvania, Tennessee: adopted but standard reporters still primary
+    # Louisiana: docket-based — handled by LA_PD_SC / LA_PD_APP above
+    # Tennessee: docket-based format (E2024-00812-SC-R3-BP)
+    NEUTRAL_TN = r"\bE\d{4}-\d{5}-SC-[A-Z]\d-[A-Z]{2,3}\b"  # Tennessee docket format
+    # Pennsylvania: adopted but standard reporters still primary
 
     # ============================================================================
     # ONLINE DATABASES
@@ -695,6 +709,8 @@ class CitationPatterns:
             # State reporters - Louisiana
             "la_general": re.compile(cls.LA_GENERAL, re.IGNORECASE),
             "la_app_general": re.compile(cls.LA_APP_GENERAL, re.IGNORECASE),
+            "la_pd_app": re.compile(cls.LA_PD_APP, re.IGNORECASE),
+            "la_pd_sc": re.compile(cls.LA_PD_SC, re.IGNORECASE),
             # State reporters - Missouri
             "mo_general": re.compile(cls.MO_GENERAL, re.IGNORECASE),
             "mo_app_general": re.compile(cls.MO_APP_GENERAL, re.IGNORECASE),
@@ -851,6 +867,8 @@ class CitationPatterns:
             "neutral_ohio": re.compile(cls.NEUTRAL_OHIO, re.IGNORECASE),
             "neutral_nm": re.compile(cls.NEUTRAL_NM, re.IGNORECASE),
             "neutral_nc": re.compile(cls.NEUTRAL_NC, re.IGNORECASE),
+            # Group 4: Non-standard formats
+            "neutral_tn": re.compile(cls.NEUTRAL_TN, re.IGNORECASE),
             # Illinois uses ILL_SC_YEAR + ILL_APP_YEAR (defined separately)
             "neutral_il": re.compile(cls.ILL_SC_YEAR, re.IGNORECASE),
             # Regional reporters
@@ -970,6 +988,8 @@ LEGAL_REPORTERS = {
     "P.R.": "Puerto Rico Reports",
     "V.I.": "Virgin Islands Reports",
     "Guam": "Guam Reports",
+    "La.": "Louisiana Reports",
+    "La. App.": "Louisiana Court of Appeal Reports",
     "La. Ann.": "Louisiana Annual Reports",
     # State Reporters (dash-separated format support)
     "Ohio": "Ohio Reports",

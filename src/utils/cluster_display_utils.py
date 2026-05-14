@@ -201,6 +201,27 @@ def _looks_truncated_extracted_name(name: Optional[str]) -> bool:
     return False
 
 
+def is_weak_parallel_case_name(name: Optional[str]) -> bool:
+    """
+    True when a document-side case label is too thin to block parallel-sibling promotion
+    or should be replaced from a verified parallel (bare surname, N/A, fragment, etc.).
+    """
+    if not name or not isinstance(name, str):
+        return True
+    s = name.strip()
+    if not s or s.upper() == "N/A":
+        return True
+    if _is_bad_submitted_name(s):
+        return True
+    if _looks_truncated_extracted_name(s):
+        return True
+    low = s.lower()
+    if " v. " not in low and not re.search(r"\b(?:In\s+re|Ex\s+parte)\b", s, re.IGNORECASE):
+        if len(s) <= 28 and " " not in s:
+            return True
+    return False
+
+
 def _recover_truncated_name_from_context(cit: Any, truncated_name: str) -> Optional[str]:
     """
     Recover plaintiff-side text for truncated extracted names using document context only.
@@ -1093,7 +1114,7 @@ def finalize_cluster_for_response(
             for _c in get_cluster_citations(cluster):
                 if isinstance(_c, dict):
                     _ecn = (_c.get("extracted_case_name") or "").strip()
-                    if not _ecn or _ecn == "N/A":
+                    if not _ecn or _ecn == "N/A" or is_weak_parallel_case_name(_ecn):
                         _c["extracted_case_name"] = best_name
     except Exception:
         pass  # noqa: BLE001

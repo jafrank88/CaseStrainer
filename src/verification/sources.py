@@ -19,6 +19,7 @@ from urllib.parse import quote
 from src.utils.fallback_verification_utils import URLBuilder, HTMLExtractor, NameValidator, HTTPClient
 from .courtlistener_throttle import throttle_courtlistener
 from .utils import cluster_matches_extracted_case_name
+from .date_extraction import extract_canonical_date
 
 try:
     from src.utils.legal_abbreviations import expand_abbreviations, normalize_for_comparison
@@ -165,8 +166,53 @@ class CourtListenerVerifier:
             from .utils import get_retrying_session
             session = get_retrying_session()
         self.session = session
+
+    @staticmethod
+    def _extracted_year_for_date_logic(extracted_date: Optional[str], citation: str) -> Optional[int]:
+        """Year from document context or citation parenthetical, for extract_canonical_date."""
+        if extracted_date:
+            m = re.search(r"\b(19|20)\d{2}\b", str(extracted_date))
+            if m:
+                return int(m.group(0))
+        if citation:
+            m = re.search(
+                r"\(\s*(?:scotus\s+)?((?:19|20)\d{2})\s*\)",
+                str(citation),
+                re.IGNORECASE,
+            )
+            if m:
+                return int(m.group(1))
+        return None
+
+    def _canonical_year_for_cluster(
+        self,
+        cluster: Dict[str, Any],
+        citation: str,
+        extracted_date: Optional[str],
+    ) -> Optional[str]:
+        """
+        Prefer extract_canonical_date() over raw date_filed: CourtListener often has a bulk
+        ingest/update year (e.g. 2019–2021) in date_filed for older SCOTUS opinions.
+        """
+        ey = self._extracted_year_for_date_logic(extracted_date, citation)
+        try:
+            raw = extract_canonical_date(cluster, citation=citation or "", extracted_year=ey)
+        except Exception:
+            logger.debug("extract_canonical_date failed", exc_info=True)
+            raw = None
+        if raw:
+            m = re.search(r"\b(19|20)\d{2}\b", str(raw))
+            if m:
+                return m.group(0)
+        return self._extract_year(cluster)
     
-    async def verify(self, citation: str, timeout: float = 10.0, extracted_case_name: Optional[str] = None) -> Dict[str, Any]:
+    async def verify(
+        self,
+        citation: str,
+        timeout: float = 10.0,
+        extracted_case_name: Optional[str] = None,
+        extracted_date: Optional[str] = None,
+    ) -> Dict[str, Any]:
         """Verify citation using CourtListener citation-lookup API."""
         if not self.api_key:
             return {"verified": False, "error": "No API key"}
@@ -196,7 +242,9 @@ class CourtListenerVerifier:
                             result_dict = {
                                 "verified": True,
                                 "canonical_name": cluster.get("case_name") or cluster.get("caseName"),
-                                "canonical_date": self._extract_year(cluster),
+                                "canonical_date": self._canonical_year_for_cluster(
+                                    cluster, text_for_api, extracted_date
+                                ),
                                 "canonical_url": f"https://www.courtlistener.com{cluster.get('absolute_url', '')}",
                                 "source": "CourtListener",
                                 "confidence": 0.95,
@@ -207,7 +255,16 @@ class CourtListenerVerifier:
                 parsed = self._parse_citation_core(text_for_api)
                 if parsed:
                     vol, reporter, page = parsed
-                    adj = self._adjacent_page_lookup(url, headers, vol, reporter, page, extracted_case_name, timeout)
+                    adj = self._adjacent_page_lookup(
+                        url,
+                        headers,
+                        vol,
+                        reporter,
+                        page,
+                        extracted_case_name,
+                        timeout,
+                        extracted_date,
+                    )
                     if adj:
                         return self._enrich_result(adj, citation, extracted_case_name)
                 return {"verified": False, "error": "No results"}
@@ -290,7 +347,17 @@ class CourtListenerVerifier:
             return m.group(1), re.sub(r"\s+", " ", m.group(2)).strip(), int(m.group(3))
         return None
 
-    def _adjacent_page_lookup(self, url, headers, vol, reporter, page, ecn, timeout):
+    def _adjacent_page_lookup(
+        self,
+        url,
+        headers,
+        vol,
+        reporter,
+        page,
+        ecn,
+        timeout,
+        extracted_date: Optional[str] = None,
+    ):
         for delta in (1, -1, 2, -2):
             adj_page = page + delta
             if adj_page < 1:
@@ -309,7 +376,9 @@ class CourtListenerVerifier:
                             return {
                                 "verified": True,
                                 "canonical_name": cluster.get("case_name") or cluster.get("caseName"),
-                                "canonical_date": self._extract_year(cluster),
+                                "canonical_date": self._canonical_year_for_cluster(
+                                    cluster, adj_text, extracted_date
+                                ),
                                 "canonical_url": "https://www.courtlistener.com" + cluster.get("absolute_url", ""),
                                 "source": "CourtListener",
                                 "confidence": 0.85,

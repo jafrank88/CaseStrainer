@@ -283,19 +283,20 @@ class BatchVerifier:
         current_batch = {"text": "", "indices": [], "case_names": [], "dates": [], "citation_strings": [], "raw_citation_strings": [], "spans": []}
         current_char_count = 0
 
-        # Generalized: send base reporter citation tokens to citation-lookup.
-        # This prevents variants like "(scotus 1954)" / "(ca2 1990)" from reducing recall.
+        # Normalize + extract base reporter citation before sending to CL.
+        # normalize_citation_for_cl_lookup: fixes reporter spacing ("U. S." -> "U.S."),
+        # strips (quoting/citing) parentheticals, extracts vol-reporter-page.
         try:
-            from src.utils.response_enrichment import extract_display_base_citation
+            from src.utils.response_enrichment import normalize_citation_for_cl_lookup
         except Exception:
-            extract_display_base_citation = None
+            normalize_citation_for_cl_lookup = None
         
         for i, (citation, case_name, date) in enumerate(zip(citations, case_names, dates)):
             # Use truncated citation for batch text so we don't hit char limit with long strings.
             # Upstream should already pass pruned citations (~220 chars); this is a safety net.
             raw_cite = (citation or "")
-            base = extract_display_base_citation(raw_cite) if extract_display_base_citation else None
-            send_cite = (base or raw_cite)
+            send_cite = normalize_citation_for_cl_lookup(raw_cite) if normalize_citation_for_cl_lookup else raw_cite
+            send_cite = send_cite or raw_cite
             cite_for_text = send_cite[:MAX_CHARS_PER_CITATION_IN_BATCH]
             entry = cite_for_text if not current_batch["indices"] else ". " + cite_for_text
             entry_len = len(entry)
@@ -348,16 +349,16 @@ class BatchVerifier:
         dates = batch_info["dates"][start:end]
         # Rebuild text and spans for the sub-batch (same format as _build_text_batches)
         try:
-            from src.utils.response_enrichment import extract_display_base_citation
+            from src.utils.response_enrichment import normalize_citation_for_cl_lookup
         except Exception:
-            extract_display_base_citation = None
+            normalize_citation_for_cl_lookup = None
         text_parts: List[str] = []
         spans_list: List[tuple] = []
         offset = 0
         for i, cite in enumerate(citation_strings):
             raw_cite = (cite or "")
-            base = extract_display_base_citation(raw_cite) if extract_display_base_citation else None
-            send_cite = (base or raw_cite)
+            send_cite = normalize_citation_for_cl_lookup(raw_cite) if normalize_citation_for_cl_lookup else raw_cite
+            send_cite = send_cite or raw_cite
             cite_for_text = send_cite[:MAX_CHARS_PER_CITATION_IN_BATCH]
             start_off = offset
             text_parts.append(cite_for_text)

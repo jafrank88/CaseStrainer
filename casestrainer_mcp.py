@@ -150,8 +150,8 @@ def _auth_error() -> Optional[str]:
 mcp = FastMCP(
     "CaseStrainer",
     instructions=(
-        "CaseStrainer extracts, clusters, and verifies legal citations "
-        "(case law, statutes, regulations) from text or URLs. "
+        "CaseStrainer extracts, clusters, and verifies case-law citations "
+        "from text or URLs. "
         "Use analyze_text for pasted document content and analyze_url for "
         "PDF links or web pages. Processing takes 1-10 minutes depending on "
         "document size and citation count."
@@ -306,7 +306,7 @@ async def analyze_text(text: str) -> str:
     Analyze legal text for citations.
 
     Submits the provided text to CaseStrainer, which extracts all legal
-    citations (case law, statutes, regulations), groups them into clusters
+    case-law citations, groups them into clusters
     of related/parallel citations, and verifies each against external legal
     databases (CourtListener, CaseMine, Justia, Leagle).
 

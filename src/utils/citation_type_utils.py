@@ -4,31 +4,12 @@ Citation-type flags for pipeline integration.
 Single place to classify citation tokens so extraction, verification, and display
 use the same rules. WL/Lexis and other reporter-only citations are driven by
 these flags instead of scattered regex checks.
+
+CaseStrainer targets case law only; statute/code classification is intentionally omitted.
 """
 
 import re
 from typing import Optional
-
-
-def is_statutory_citation(citation_text: Optional[str]) -> bool:
-    """
-    True if citation is a statute, public law, regulation, or other non-case authority.
-    These should NOT go through case name extraction or CourtListener case verification.
-    Examples: Pub. L. No. 94-435, 90 Stat. 1383; 15 U.S.C. § 26b; 21 Cong. Rec. 2457
-    """
-    s = str(citation_text or "").strip()
-    if not s:
-        return False
-    return bool(re.search(
-        r'\bPub\.?\s*L\.?\s*No\.?\s*\d+'      # Pub. L. No. 94-435
-        r'|\b\d+\s+Stat\.?\s+\d+'              # 90 Stat. 1383
-        r'|\bU\.?\s*S\.?\s*C\.?\s*§'           # U.S.C. §
-        r'|\bCong\.?\s*Rec\.?\s+\d+'           # Cong. Rec. 2457
-        r'|\bC\.?\s*F\.?\s*R\.?\s*§'           # C.F.R. §
-        r'|\bFed\.?\s*Reg\.?\s+\d+'            # Fed. Reg.
-        r'|\bExec\.?\s*Order\s+No\.?\s*\d+',   # Exec. Order No.
-        s, re.IGNORECASE
-    ))
 
 
 def is_proprietary_only_citation(citation_text: Optional[str]) -> bool:

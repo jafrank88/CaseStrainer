@@ -1227,6 +1227,20 @@ const pollAsyncJob = async (jobId) => {
       } else {
         // Job still running, continue polling
         console.log('Job still running, continuing to poll...');
+
+        // Queue position awareness: update store when job is waiting in queue
+        if (jobData.status === 'queued') {
+          globalProgress.setQueueInfo({
+            position: jobData.position ?? -1,
+            queueTotal: jobData.queue_total ?? null,
+            estimatedWaitSeconds: jobData.estimated_wait_seconds ?? null,
+            estimatedWaitHuman: jobData.estimated_wait_human ?? null,
+            queuedSeconds: jobData.queued_seconds ?? null,
+          });
+        } else if (jobData.status === 'started' || jobData.status === 'processing') {
+          // Job left the queue — clear the queue banner
+          globalProgress.clearQueueInfo();
+        }
         
         // STUCK JOB DETECTION: Check if job is stuck at same step
         // Better fallback chain for currentStep - check multiple sources

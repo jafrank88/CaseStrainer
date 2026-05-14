@@ -376,6 +376,14 @@ tmpclaude-*
 /task_result.json
 /citation_count_comparison.json
 /trump_*.json
+# Root-level ad-hoc API / CourtListener debug captures (local only)
+/api_response.json
+/backend_logs*.txt
+/cl_lookup_*_response.json
+/comparison_all_three_methods.json
+/courtlistener_debug_response.json
+/phase*_backend_logs.txt
+/sp*_raw_response.json
 # One-off task / poll artifacts at repo root
 /task_id*.txt
 /tool_citations.txt

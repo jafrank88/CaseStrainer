@@ -219,7 +219,7 @@ def citation_conflicts_with_group(citation: Dict[str, Any], group_citations: Lis
     return False
 
 
-def filter_cluster_members_by_reporter(citation_text: str, member_citations: List[str]) -> List[str]:
+def filter_cluster_members_by_reporter(citation_text, member_citations: List[str]) -> List[str]:
     """
     Filter cluster members to exclude:
     1. Same-reporter/different-volume citations (different cases)
@@ -229,7 +229,17 @@ def filter_cluster_members_by_reporter(citation_text: str, member_citations: Lis
     Same reporter + different volumes = DIFFERENT CASES entirely.
     """
     filtered = []
-    
+
+    # Coerce dict members to their citation text string (callers may pass raw cluster member dicts)
+    if isinstance(citation_text, dict):
+        citation_text = citation_text.get("citation", "") or ""
+    elif citation_text is None:
+        citation_text = ""
+    member_citations = [
+        (m.get("citation", "") or "" if isinstance(m, dict) else (str(m) if m is not None else ""))
+        for m in member_citations
+    ]
+
     # NOTE: We no longer skip bare placeholders here. They may have resolved
     # extracted_case_name values that aren't visible in the citation text string.
     # Unresolved placeholders are cleaned up later by _is_unresolved_placeholder
